@@ -1,0 +1,38 @@
+model_list:
+- litellm_params:
+    api_base: http://ollama:11434
+    model: ollama/gemma2:27b
+  model_name: gemma2
+- litellm_params:
+    api_key: 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
+    model: openrouter/google/gemini-3-pro-image-preview
+  model_name: gemini-vision
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: sk-dd5b009bbd5b4d639705c1decb0dcb5a
+    model: openai/qwen-plus
+  model_name: qwen-plus
+- litellm_params:
+    api_base: http://ollama:11434
+    model: ollama/qwen2.5-coder:32b
+  model_name: qwen-coder
+- litellm_params:
+    api_key: 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
+    model: openrouter/minimax/minimax-m2.7
+  model_name: minimax-m2.7
+- litellm_params:
+    api_base: http://ollama:11434
+    model: huggingface/sentence-transformers/all-MiniLM-L6-v2
+    model_type: embedding
+  model_name: local-embedding-gpu
+- litellm_params:
+    api_base: http://ollama:11434
+    model: nomic-embed-text:latest
+    model_type: embedding
+  model_name: local-embedding-optical
+router_settings:
+  fallbacks:
+  - local-model:
+    - openrouter/google/gemini-3-pro-image-preview
+  num_retries: 2
+  timeout: 60

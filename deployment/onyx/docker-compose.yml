@@ -1,0 +1,487 @@
+# =============================================================================
+# ONYX DOCKER COMPOSE - WITH VS CODE WORKSPACE MAPPING
+# =============================================================================
+# This is the default configuration for Onyx with added volume mappings for 
+# tight integration with VS Code workspace in WSL.
+# =============================================================================
+
+name: onyx
+
+services:
+  api_server:
+    image: onyx-backend-custom:edge
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        - IMAGE_TAG=${IMAGE_TAG:-edge}
+        - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
+    command: >
+      /bin/sh -c "if [ \"${ENABLE_CRAFT:-false}\" = \"true\" ] || [ \"${ENABLE_CRAFT:-false}\" = \"True\" ]; then
+        /app/scripts/setup_craft_templates.sh;
+      fi &&
+      alembic upgrade head &&
+      echo \"Starting Onyx Api Server\" &&
+      uvicorn onyx.main:app --host 0.0.0.0 --port 8080"
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      relational_db:
+        condition: service_started
+      index:
+        condition: service_started
+      opensearch:
+        condition: service_started
+        required: false
+      cache:
+        condition: service_started
+      inference_model_server:
+        condition: service_started
+      minio:
+        condition: service_started
+        required: false
+      ollama:
+        condition: service_started
+        required: false
+      unstructured:
+        condition: service_healthy
+        required: false
+    restart: unless-stopped
+    environment:
+      - AUTH_TYPE=${AUTH_TYPE:-basic}
+      - FILE_STORE_BACKEND=${FILE_STORE_BACKEND:-s3}
+      - POSTGRES_HOST=${POSTGRES_HOST:-relational_db}
+      - VESPA_HOST=${VESPA_HOST:-index}
+      - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
+      - OPENSEARCH_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
+      - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
+      - ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX=${ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX:-false}
+      - REDIS_HOST=${REDIS_HOST:-cache}
+      - MODEL_SERVER_HOST=${MODEL_SERVER_HOST:-inference_model_server}
+      - CODE_INTERPRETER_BASE_URL=${CODE_INTERPRETER_BASE_URL:-http://code-interpreter:8000}
+      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL:-http://minio:9000}
+      - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID:-minioadmin}
+      - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY:-minioadmin}
+      - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
+      - OUTPUTS_TEMPLATE_PATH=${OUTPUTS_TEMPLATE_PATH:-/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs}
+      - VENV_TEMPLATE_PATH=${VENV_TEMPLATE_PATH:-/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv}
+      - WEB_TEMPLATE_PATH=${WEB_TEMPLATE_PATH:-/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs/web}
+      - PERSISTENT_DOCUMENT_STORAGE_PATH=${PERSISTENT_DOCUMENT_STORAGE_PATH:-/app/file-system}
+      - UNSTRUCTURED_API_URL=${UNSTRUCTURED_API_URL:-http://unstructured:8000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')",
+        ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 25s
+    volumes:
+      - api_server_logs:/var/log/onyx
+      - file-system:/app/file-system
+      - craft_venv_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
+      - craft_outputs_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
+      # VS Code workspace volume mapping
+      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+
+  background:
+    image: onyx-backend-custom:edge
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+      args:
+        - IMAGE_TAG=${IMAGE_TAG:-edge}
+        - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
+    command: >
+      /bin/sh -c "
+      if [ -f /app/scripts/setup_craft_templates.sh ]; then
+        /app/scripts/setup_craft_templates.sh;
+      fi &&
+      if [ -f /etc/ssl/certs/custom-ca.crt ]; then
+        update-ca-certificates;
+      fi &&
+      /app/scripts/supervisord_entrypoint.sh"
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      relational_db:
+        condition: service_started
+      index:
+        condition: service_started
+      opensearch:
+        condition: service_started
+        required: false
+      cache:
+        condition: service_started
+      inference_model_server:
+        condition: service_started
+      indexing_model_server:
+        condition: service_started
+      ollama:
+        condition: service_started
+        required: false
+      unstructured:
+        condition: service_healthy
+        required: false
+    restart: unless-stopped
+    environment:
+      - FILE_STORE_BACKEND=${FILE_STORE_BACKEND:-s3}
+      - POSTGRES_HOST=${POSTGRES_HOST:-relational_db}
+      - VESPA_HOST=${VESPA_HOST:-index}
+      - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
+      - OPENSEARCH_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
+      - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
+      - ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX=${ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX:-false}
+      - REDIS_HOST=${REDIS_HOST:-cache}
+      - MODEL_SERVER_HOST=${MODEL_SERVER_HOST:-inference_model_server}
+      - INDEXING_MODEL_SERVER_HOST=${INDEXING_MODEL_SERVER_HOST:-indexing_model_server}
+      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL:-http://minio:9000}
+      - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID:-minioadmin}
+      - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY:-minioadmin}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
+      - DISCORD_BOT_INVOKE_CHAR=${DISCORD_BOT_INVOKE_CHAR:-!}
+      - API_SERVER_PROTOCOL=${API_SERVER_PROTOCOL:-http}
+      - API_SERVER_HOST=${API_SERVER_HOST:-api_server}
+      - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
+      - OUTPUTS_TEMPLATE_PATH=${OUTPUTS_TEMPLATE_PATH:-/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs}
+      - VENV_TEMPLATE_PATH=${VENV_TEMPLATE_PATH:-/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv}
+      - WEB_TEMPLATE_PATH=${WEB_TEMPLATE_PATH:-/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs/web}
+      - PERSISTENT_DOCUMENT_STORAGE_PATH=${PERSISTENT_DOCUMENT_STORAGE_PATH:-/app/file-system}
+      - UNSTRUCTURED_API_URL=${UNSTRUCTURED_API_URL:-http://unstructured:8000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - background_logs:/var/log/onyx
+      - file-system:/app/file-system
+      - craft_venv_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
+      - craft_outputs_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
+      # VS Code workspace volume mapping
+      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+
+  web_server:
+    image: ${ONYX_WEB_SERVER_IMAGE}
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      - api_server
+    restart: unless-stopped
+    environment:
+      - INTERNAL_URL=${INTERNAL_URL:-http://api_server:8080}
+
+  inference_model_server:
+    image: ${ONYX_MODEL_SERVER_IMAGE}
+    command: >
+      /bin/sh -c "if [ \"${DISABLE_MODEL_SERVER:-}\" = \"True\" ] || [ \"${DISABLE_MODEL_SERVER:-}\" = \"true\" ]; then
+        echo 'Skipping service...';
+        exit 0;
+      else
+        exec uvicorn model_server.main:app --host 0.0.0.0 --port 9000;
+      fi"
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    volumes:
+      - model_cache_huggingface:/app/.cache/huggingface/
+      - inference_model_server_logs:/var/log/onyx
+      # Optional: Map workspace for model-related files
+      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:9000/api/health')",
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  indexing_model_server:
+    image: ${ONYX_MODEL_SERVER_IMAGE}
+    command: >
+      /bin/sh -c "if [ \"${DISABLE_MODEL_SERVER:-}\" = \"True\" ] || [ \"${DISABLE_MODEL_SERVER:-}\" = \"true\" ]; then
+        echo 'Skipping service...';
+        exit 0;
+      else
+        exec uvicorn model_server.main:app --host 0.0.0.0 --port 9000;
+      fi"
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    environment:
+      - INDEXING_ONLY=True
+    volumes:
+      - indexing_huggingface_model_cache:/app/.cache/huggingface/
+      - indexing_model_server_logs:/var/log/onyx
+      # Optional: Map workspace for indexing-related files
+      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:9000/api/health')",
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  relational_db:
+    image: postgres:15.2-alpine
+    shm_size: 1g
+    command: -c 'max_connections=250'
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+
+  index:
+    image: vespaengine/vespa:8.609.39
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - VESPA_SKIP_UPGRADE_CHECK=${VESPA_SKIP_UPGRADE_CHECK:-true}
+    volumes:
+      - vespa_volume:/opt/vespa/var
+
+  opensearch:
+    image: opensearchproject/opensearch:3.4.0
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms2g -Xmx2g"
+      - "cluster.routing.allocation.disk.threshold_enabled=true"
+      - "cluster.routing.allocation.disk.watermark.low=90%"
+      - "cluster.routing.allocation.disk.watermark.high=95%"
+      - "cluster.routing.allocation.disk.watermark.flood_stage=97%"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  nginx:
+    image: nginx:1.25.5-alpine
+    restart: unless-stopped
+    depends_on:
+      - api_server
+      - web_server
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - DOMAIN=localhost
+      - NGINX_PROXY_CONNECT_TIMEOUT=${NGINX_PROXY_CONNECT_TIMEOUT:-300}
+      - NGINX_PROXY_SEND_TIMEOUT=${NGINX_PROXY_SEND_TIMEOUT:-300}
+      - NGINX_PROXY_READ_TIMEOUT=${NGINX_PROXY_READ_TIMEOUT:-300}
+    ports:
+      - "${HOST_PORT_80:-80}:80"
+      - "${HOST_PORT:-3000}:80"
+    volumes:
+      - ../data/nginx:/nginx-templates:ro
+    command: >
+      /bin/sh -c "rm -f /etc/nginx/conf.d/default.conf
+      && cp -a /nginx-templates/. /etc/nginx/conf.d/
+      && sed 's/\r$//' /etc/nginx/conf.d/run-nginx.sh > /tmp/run-nginx.sh
+      && chmod +x /tmp/run-nginx.sh
+      && /tmp/run-nginx.sh app.conf.template"
+
+  cache:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    env_file:
+      - path: .env
+        required: false
+    tmpfs:
+      - /data
+
+  minio:
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z-cpuv1
+    profiles: ["s3-filestore"]
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_DEFAULT_BUCKETS: ${S3_FILE_STORE_BUCKET_NAME:-onyx-file-store-bucket}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  code-interpreter:
+    image: onyxdotapp/code-interpreter:${CODE_INTERPRETER_IMAGE_TAG:-latest}
+    command: ["bash", "./entrypoint.sh", "code-interpreter-api"]
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    user: root
+    volumes:
+      - ${DOCKER_SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+      # Map workspace for code interpreter to access files
+      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+
+  ollama:
+    image: ollama/ollama:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - ollama_volume:/root/.ollama
+      # Map workspace for Ollama to access files
+      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+    restart: unless-stopped
+
+  unstructured:
+    # quay.io image is the actual HTTP API server (free, no key required for local use)
+    # downloads.unstructured.io is the Python library image — it exits immediately
+    image: ${UNSTRUCTURED_IMAGE:-quay.io/unstructured-io/unstructured-api:latest}
+    restart: unless-stopped
+    ports:
+      - "${UNSTRUCTURED_HOST_PORT:-9560}:8000"
+    environment:
+      # No cloud API key needed — running fully local
+      - UNSTRUCTURED_API_KEY=${UNSTRUCTURED_API_KEY:-}
+    healthcheck:
+      # wget is available in the image; python3/curl are not
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--output-document=-",
+          "http://localhost:8000/healthcheck",
+        ]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 90s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./litellm_config.yaml:/app/config.yaml
+    command: [ "--config", "/app/config.yaml", "--port", "4000", "--num_workers", "4" ]
+    restart: unless-stopped
+    depends_on:
+      - ollama
+
+  docling:
+    image: ghcr.io/ds4sd/docling-serve-cpu:latest
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp_proxy:
+    image: nginx:1.25.5-alpine
+    ports:
+      - "8095:80"
+    volumes:
+      - ./nginx_mcp_proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+volumes:
+  db_volume:
+  vespa_volume:
+  minio_data:
+  model_cache_huggingface:
+  indexing_huggingface_model_cache:
+  api_server_logs:
+  background_logs:
+  inference_model_server_logs:
+  indexing_model_server_logs:
+  file-system:
+  opensearch-data:
+  ollama_volume:
+  craft_venv_volume:
+  craft_outputs_volume:

@@ -1,0 +1,31 @@
+ARG IMAGE_TAG=edge
+FROM onyxdotapp/onyx-backend:craft-latest AS craft_source
+
+FROM onyxdotapp/onyx-backend:${IMAGE_TAG}
+
+ARG ENABLE_CRAFT=false
+ENV ENABLE_CRAFT=$ENABLE_CRAFT
+
+# Copy opencode from craft-latest if ENABLE_CRAFT is true
+COPY --from=craft_source /root/.opencode /root/.opencode
+RUN if [ "$ENABLE_CRAFT" = "true" ]; then \
+    ln -s /root/.opencode/bin/opencode /usr/local/bin/opencode; \
+    fi
+
+# Patch license enforcement to allow Enterprise features without a license
+# 1. Force ee_features_enabled to True
+# 2. Force application_status to active
+RUN sed -i 's/settings\.ee_features_enabled = False/settings.ee_features_enabled = True/g' /app/ee/onyx/server/settings/api.py && \
+    sed -i 's/settings\.application_status = _BLOCKING_STATUS/settings.application_status = ApplicationStatus.ACTIVE/g' /app/ee/onyx/server/settings/api.py
+
+# Install Node.js 20 which is required for Craft
+RUN if [ "$ENABLE_CRAFT" = "true" ]; then \
+    apt-get update && \
+    apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*; \
+    fi
+
+ENV PATH="/usr/local/bin:${PATH}"

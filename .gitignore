@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+physics/physics_env/
+
+# Environment files with secrets
+deployment/onyx/.env
+deployment/deer-flow/.env
+
+# Docker volumes & runtime data
+*.log
+*.pid
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large data / generated
+generated_files/
+__pycache__/
+
+# Jupyter
+.ipynb_checkpoints/

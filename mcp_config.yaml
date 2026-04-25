@@ -1,0 +1,46 @@
+# MCP Configuration for Physics Validation
+
+consensus:
+  enabled: true
+  base_url: "https://mcp.consensus.app/mcp/"
+  api_key: ""  # Leave empty for public API
+  timeout: 30
+  max_retries: 3
+
+scite:
+  enabled: true
+  base_url: "https://api.scite.ai/mcp/"
+  api_key: ""  # Leave empty for public API
+  timeout: 30
+  max_retries: 3
+
+# Physics-specific MCP configuration
+physics_validation:
+  formula_extraction:
+    enabled: true
+    patterns:
+      - "\\frac{dN}{dp_T dy}"
+      - "v = \\frac{U}{\\sqrt{1 + U^2}}"
+      - "T_{\\text{Tsallis}}"
+      - "q_{\\text{non-extensive}}"
+    search_terms:
+      - "Tsallis distribution ATLAS"
+      - "Blast-Wave model 13 TeV"
+      - "power-law tails pT spectra"
+  citation_context:
+    enabled: true
+    context_window: 5
+    max_citations: 10
+  dimensional_analysis:
+    enabled: true
+    validation_rules:
+      - "velocity must be < 1 (c)"
+      - "pT must be in GeV/c"
+      - "temperature must be in GeV"
+
+# MCP routing configuration
+routing:
+  consensus:
+    path: "/consensus/"
+  scite:
+    path: "/scite/"
