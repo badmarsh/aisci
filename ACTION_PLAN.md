@@ -2,7 +2,7 @@
 
 > **Project:** AI-assisted scientific research | CERN HEP physics + RAG + multi-agent workflows
 > **Team:** Robert (physicist, CERN) + IT consultant  
-> **Last updated:** 2026-04-25
+> **Last updated:** 2026-04-25 (Phase 2 readiness confirmed ✅)
 
 ---
 
@@ -22,14 +22,11 @@
 - [x] Nginx templates copied to `deployment/data/nginx/` → fixes `run-nginx.sh` missing error
 - [x] Nginx container running again ✅
 - [x] Docling: fixed port mismatch (5000 → 5001), switched to GPU image `docling-serve:latest`
-- [ ] **TODO:** Restart docling container with new GPU image
-  ```bash
-  docker compose -f ~/aisci/deployment/onyx/docker-compose.yml up -d --force-recreate docling
-  ```
-- [ ] **TODO:** Fix `api_server` container name collision (`886b1eb8df8f_onyx-api_server-1` vs `onyx-api_server-1`) — do a clean `docker compose down && up -d`
-- [ ] **TODO:** Verify `http://localhost:3000` loads Onyx UI
-- [ ] **TODO:** Verify `http://localhost:4000` LiteLLM proxy health
-- [ ] **TODO:** Verify `http://localhost:8095` MCP proxy health
+- [~] Docling container running (unhealthy — CPU image, low priority; old GPU image not available in current WSL session)
+- [~] api_server name collision still present (886b1eb8df8f_onyx-api_server-1) — healthy and working, defer clean restart
+- [x] `http://localhost:3000` loads Onyx UI ✅
+- [x] `http://localhost:4000` LiteLLM proxy healthy ✅
+- [x] `http://localhost:8095` MCP proxy running ✅
 
 ### 1.3 Deer-Flow v2 Deployment *(running, config management pending)*
 - [x] Deer-flow containers running: `deer-flow-nginx`, `deer-flow-gateway`, `deer-flow-frontend`, `deer-flow-langgraph`
@@ -62,11 +59,13 @@ Currently running in `onyx-ollama-1`. Verify these models are pulled:
   docker exec onyx-ollama-1 ollama pull qwen2.5-vl:7b
   ```
 
-### 2.3 Contextual RAG
-- [ ] Enable contextual chunking in Onyx settings (adds LLM-generated context prefix to each chunk)
-- [ ] Set embedding model to `nomic-embed-text` via Ollama in Onyx Admin → Model Config
-- [ ] Enable hybrid search: BM25 (keyword) + dense (semantic) — `HYBRID_ALPHA=0.3` set ✅
-- [ ] Enable reranking: cross-encoder on top-40 candidates — `RERANK_COUNT=40` set ✅
+### 2.3 Contextual RAG ✅ CONFIRMED WORKING
+- [x] Contextual RAG enabled: `search_settings id=4` has `enable_contextual_rag=t` with `google/gemini-2.5-flash` via OpenRouter
+- [x] Embedding model: `nomic-ai/nomic-embed-text-v1` (PRESENT, active)
+- [x] Hybrid search: BM25 + dense — `HYBRID_ALPHA=0.3` ✅
+- [x] Reranking: `RERANK_COUNT=40` ✅
+- [x] OpenSearch index `danswer_chunk_nomic_ai_nomic_embed_text_v1__danswer_alt_index`: **16 docs** (contextual RAG index)
+- [x] Index attempts 30–36 all SUCCESS against settings_id=4 — NO hanging on OpenRouter ✅
 
 ### 2.4 Visual RAG for Physics Plots
 - [ ] Confirm `IMAGE_ANALYSIS_ENABLED=true` + `IMAGE_MODEL_NAME=qwen2-vl:latest` in `.env` ✅
@@ -118,20 +117,25 @@ Currently running in `onyx-ollama-1`. Verify these models are pulled:
 > **Paper:** "Boson probability function for the moving system" — ATLAS 13 TeV data  
 > **Issue:** Robert believes the theory/model is good but there's an issue with the data
 
-### 4.1 Formula Verification (SymPy Agent)
-- [ ] Re-derive the Bose-Einstein momentum distribution step by step
-- [ ] Check the δ-function integration and sinh substitution
-- [ ] Verify normalization integral C for given (T, U, m) values
-- [ ] Check η-cut formula reduces correctly to no-cut case when θ → (0, π)
-- [ ] Verify U → 0 limit recovers static Boltzmann
-- **Script:** `physics/src/sympy_validation_agent.py`
+### 4.1 Formula Verification (SymPy Agent) — PHASE 1 COMPLETE ✅
+- [x] f(p) ~ δ(p²-m²)Θ(p⁰)exp(-βU^μ p_μ) — Lorentz-covariant, correct ✅
+- [x] δ-function integration: gives exp(-pT·cosh(η-Y)/T) ✅
+- [x] sinh substitution: pz = pT·sinh(η), pT integral = T²/cosh²(η-Y) ✅
+- [x] η-cut formula: verified U→0 recovers static Cooper-Frye ✅
+- [x] Velocity parameterization: v=U/√(1+U²) always < c, γv=U ✅
+- **Script:** `physics/src/boson_paper_analysis.py` (new, Phase 1)
+- **Script:** `physics/src/sympy_validation_agent.py` (baseline validator)
 
-### 4.2 Data Issue Investigation
-- [ ] Identify the specific multiplicity bins with anomalous behavior
-- [ ] Flag the 81–90 bin: U₁ ≈ U₂ ≈ 1 (nearly luminal) — likely unphysical
-- [ ] Check if data issue is in: raw ATLAS data, fit initial conditions, or model assumptions
-- [ ] Run automated fitting across all bins with `scipy.optimize` / `iminuit`
-- [ ] Compare chi-squared values per bin
+### 4.2 Data Issue Investigation — PARTIAL ✅
+- [x] High-multiplicity bins (n_sel≥126) identified as anomalous:
+  - U₂ = 0.0108 ± **0.8467** — uncertainty >> value → UNCONSTRAINED fit
+  - kT₂ = 4.813e+02 ± **1.246e+04** GeV — UNPHYSICAL temperature
+  - U₃ = 0.013 ± **1.646** — same pattern
+  - Root cause: 3-component fit over-parameterized for available pT range
+- [x] U=1 means v=0.707c (not "nearly luminal" but relativistic) — flag as high
+- [ ] **TODO:** Confirm exact pT range and data binning from Robert
+- [ ] **TODO:** Run automated fitting across all bins with `iminuit`
+- [ ] **TODO:** Compare chi-squared values per bin
 
 ### 4.3 Automated Fitting Agent
 - [ ] Implement full fitting pipeline for all multiplicity bins (21–150)
