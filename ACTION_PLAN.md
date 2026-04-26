@@ -2,7 +2,7 @@
 
 > **Project:** AI-assisted scientific research | CERN HEP physics + RAG + multi-agent workflows
 > **Team:** Robert (physicist, CERN) + IT consultant  
-> **Last updated:** 2026-04-25 (Phase 2 readiness confirmed ✅)
+> **Last updated:** 2026-04-26 (Phase 2 fully verified ✅ — RAG live, science work active)
 
 ---
 
@@ -59,13 +59,16 @@ Currently running in `onyx-ollama-1`. Verify these models are pulled:
   docker exec onyx-ollama-1 ollama pull qwen2.5-vl:7b
   ```
 
-### 2.3 Contextual RAG ✅ CONFIRMED WORKING
+### 2.3 Contextual RAG ✅ CONFIRMED WORKING (2026-04-26 verified)
 - [x] Contextual RAG enabled: `search_settings id=4` has `enable_contextual_rag=t` with `google/gemini-2.5-flash` via OpenRouter
-- [x] Embedding model: `nomic-ai/nomic-embed-text-v1` (PRESENT, active)
+- [x] `search_settings id=3` is `PAST` (not active) — no action needed
+- [x] Embedding model: `nomic-ai/nomic-embed-text-v1` (PRESENT, active, settings_id=2 primary + id=4 alt)
 - [x] Hybrid search: BM25 + dense — `HYBRID_ALPHA=0.3` ✅
 - [x] Reranking: `RERANK_COUNT=40` ✅
-- [x] OpenSearch index `danswer_chunk_nomic_ai_nomic_embed_text_v1__danswer_alt_index`: **16 docs** (contextual RAG index)
-- [x] Index attempts 30–36 all SUCCESS against settings_id=4 — NO hanging on OpenRouter ✅
+- [x] OpenSearch main index: **29 docs** (Tsallis=4, boson paper=24, image=1)
+- [x] OpenSearch alt index (contextual): **16 docs** (Tsallis=4, boson paper=12)
+- [x] Continuous Tsallis index attempts (id=62–76) all SUCCESS against settings_id=4 ✅
+- [x] No OpenRouter hanging observed ✅
 
 ### 2.4 Visual RAG for Physics Plots
 - [ ] Confirm `IMAGE_ANALYSIS_ENABLED=true` + `IMAGE_MODEL_NAME=qwen2-vl:latest` in `.env` ✅
@@ -117,23 +120,26 @@ Currently running in `onyx-ollama-1`. Verify these models are pulled:
 > **Paper:** "Boson probability function for the moving system" — ATLAS 13 TeV data  
 > **Issue:** Robert believes the theory/model is good but there's an issue with the data
 
-### 4.1 Formula Verification (SymPy Agent) — PHASE 1 COMPLETE ✅
+### 4.1 Formula Verification (SymPy Agent) — PHASE 1 COMPLETE ✅ (re-verified 2026-04-26)
 - [x] f(p) ~ δ(p²-m²)Θ(p⁰)exp(-βU^μ p_μ) — Lorentz-covariant, correct ✅
 - [x] δ-function integration: gives exp(-pT·cosh(η-Y)/T) ✅
 - [x] sinh substitution: pz = pT·sinh(η), pT integral = T²/cosh²(η-Y) ✅
 - [x] η-cut formula: verified U→0 recovers static Cooper-Frye ✅
 - [x] Velocity parameterization: v=U/√(1+U²) always < c, γv=U ✅
-- **Script:** `physics/src/boson_paper_analysis.py` (new, Phase 1)
+- [x] Numerical distribution: blue-shift at higher U confirmed ✅
+- [x] `boson_paper_analysis.py` runs cleanly, no errors ✅
+- **Script:** `physics/src/boson_paper_analysis.py` (Phase 1 — complete)
 - **Script:** `physics/src/sympy_validation_agent.py` (baseline validator)
 
-### 4.2 Data Issue Investigation — PARTIAL ✅
+### 4.2 Data Issue Investigation — PARTIAL ✅ (Next: need full data table from Robert)
 - [x] High-multiplicity bins (n_sel≥126) identified as anomalous:
   - U₂ = 0.0108 ± **0.8467** — uncertainty >> value → UNCONSTRAINED fit
   - kT₂ = 4.813e+02 ± **1.246e+04** GeV — UNPHYSICAL temperature
   - U₃ = 0.013 ± **1.646** — same pattern
   - Root cause: 3-component fit over-parameterized for available pT range
-- [x] U=1 means v=0.707c (not "nearly luminal" but relativistic) — flag as high
-- [ ] **TODO:** Confirm exact pT range and data binning from Robert
+- [x] U=1 means v=0.707c (not "nearly luminal" but strongly relativistic) — flagged
+- [x] Numerical model verified: blue-shift at high U narrows distribution → poor pT constraint
+- [ ] **TODO:** Confirm exact pT range and data binning from Robert ← BLOCKING
 - [ ] **TODO:** Run automated fitting across all bins with `iminuit`
 - [ ] **TODO:** Compare chi-squared values per bin
 
@@ -191,26 +197,31 @@ Paper PDF → Onyx (RAG index) → Physics Validation Mode persona
 
 ---
 
-## 📋 Immediate Next Steps (Do These Now)
+## 📋 Immediate Next Steps (Updated 2026-04-26)
+
+### ✅ Completed This Session:
+- Contextual RAG verified: settings_id=4, `enable_contextual_rag=t`, no hanging ✅
+- File connector (cc_pair=2): boson paper indexed — 24 chunks in main, 12 in contextual alt index ✅
+- Onyx UI: both queries return correct results with File sources cited ✅
+- `boson_paper_analysis.py`: Phase 1 re-verified, runs clean ✅
+
+### 🔴 Next Actions Required (in priority order):
+1. **Robert**: Provide full pT data table (all multiplicity bins, 21–150) for automated fitting
+2. **4.3** — Implement `iminuit` fitting pipeline (`physics/src/fitting_pipeline.py`)
+3. **4.3** — Run fits for all bins, compute χ²/ndf table
+4. **4.3** — Plot U vs multiplicity (check monotonic increase)
+5. **2.5** — Re-create "Physics Validation Mode" persona in Onyx UI
+6. **3.1/3.2** — Add Consensus + Scite API keys to MCP proxy
 
 ```bash
-# 1. Verify Onyx is accessible
-curl -s http://localhost:3000 | head -5
-
-# 2. Restart docling with GPU image
-docker compose -f ~/aisci/deployment/onyx/docker-compose.yml up -d --force-recreate docling
-
-# 3. Check Ollama models
+# Check Ollama models status
 docker exec onyx-ollama-1 ollama list
 
-# 4. Pull missing embedding model if needed
-docker exec onyx-ollama-1 ollama pull nomic-embed-text
-
-# 5. Check deer-flow
+# Check deer-flow
 curl -s http://localhost:2026 | head -5
 
-# 6. Upload Robert's paper to Onyx
-# Go to http://localhost:3000 → Add Connector → File → upload the PDF
+# Run Phase 1 analysis
+cd ~/aisci/physics && python3 src/boson_paper_analysis.py
 ```
 
 ---
