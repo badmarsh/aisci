@@ -27,7 +27,7 @@ model_list:
   model_name: local-embedding-gpu
 - litellm_params:
     api_base: http://ollama:11434
-    model: nomic-embed-text:latest
+    model: ollama/nomic-embed-text:latest
     model_type: embedding
   model_name: local-embedding-optical
 router_settings:

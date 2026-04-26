@@ -451,29 +451,6 @@ services:
     depends_on:
       - ollama
 
-  docling:
-    # GPU image for RTX 3090 acceleration — switch to -cpu if no GPU available
-    image: ghcr.io/ds4sd/docling-serve:latest
-    ports:
-      - "5001:5001"
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    environment:
-      - DOCLING_SERVE_ENABLE_UI=true
-      - DOCLING_SERVE_MAX_NUM_PAGES=500
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
-      interval: 30s
-      timeout: 15s
-      retries: 5
-      start_period: 60s
-
   mcp_proxy:
     image: nginx:1.25.5-alpine
     ports:

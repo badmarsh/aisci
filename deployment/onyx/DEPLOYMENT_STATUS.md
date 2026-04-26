@@ -31,7 +31,6 @@ Based on the docker-compose.yml file, the following services are required:
 - ollama (local LLMs)
 - unstructured (document parsing)
 - litellm (LLM router)
-- docling (document processing)
 - mcp_proxy (MCP proxy)
 
 ## Deployment Directory Structure
