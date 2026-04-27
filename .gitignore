@@ -17,6 +17,7 @@ deployment/deer-flow/.env
 # Local cloud/service-account credentials
 deployment/onyx/*.json
 !deployment/onyx/*.example.json
+docs/ops/private/
 
 # Docker volumes & runtime data
 *.log
