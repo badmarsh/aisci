@@ -23,6 +23,9 @@ docs/ops/private/
 *.log
 *.pid
 
+# Runtime log directories (supervisord, celery, onyx, apt, etc.)
+logs/
+
 # Editor
 .vscode/
 .idea/
@@ -39,3 +42,9 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 .env
+
+# Raw data artifacts (re-downloadable)
+arxiv_results.xml
+
+# Large source PDFs at repo root (store in research/robert/ or external storage)
+/*.pdf

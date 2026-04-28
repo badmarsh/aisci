@@ -4,8 +4,8 @@ Use this file for operational work on Onyx, DeerFlow, MCP, Docker, models, and d
 
 | Priority | System | Issue | Why It Matters | Next Action | Status |
 |---|---|---|---|---|---|
-| P0 | DeerFlow | Live secret values are reachable through local MCP config API | Unsafe if DeerFlow is exposed beyond localhost | Keep localhost-only; add auth/redaction before LAN/remote exposure | Done |
-| P0 | DeerFlow | Docker socket and CLI auth dirs mounted into containers | High blast radius if gateway is exposed | Restrict network exposure and document operational assumptions | Done |
+| P0 | DeerFlow | Live secret values are reachable through local MCP config API | Unsafe if DeerFlow is exposed beyond localhost | Keep localhost-only; add auth/redaction before LAN/remote exposure | Open |
+| P0 | DeerFlow | Docker socket and CLI auth dirs mounted into containers | High blast radius if gateway is exposed | Restrict network exposure and document operational assumptions | Open |
 | P1 | DeerFlow | Agent roster is not physics-oriented | Agents plan around wrong domain roles | Replaced with physics validation agents in live config | Done |
 | P1 | DeerFlow | Broken `rag_search`, `rag_manage`, `llm_council` tools | Agents may call unavailable modules | Removed from active config until implemented | Done |
 | P1 | DeerFlow | MCP paths reference missing `/home/ubuntu/deer-flow` | Filesystem/sqlite MCP tools can fail | Switched to container paths and `/workspace/aisci` | Done |

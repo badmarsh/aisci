@@ -4,13 +4,17 @@ Phase 1: Boson Paper Analysis — Robert's "Boson Probability Function for the M
 ATLAS 13 TeV data, pT and eta cuts.
 
 Goals:
-1. Symbolically reproduce the distribution function f(p) ~ δ(p²-m²)Θ(p⁰) exp(-βU^μ p_μ)
+1. Sanity-check the distribution form f(p) ~ δ(p²-m²)Θ(p⁰) exp(-βU^μ p_μ)
 2. Perform the δ-function integration → get the 3-momentum distribution
 3. Verify the sinh substitution and pT integration
 4. Check normalization constant C
 5. Validate the velocity parameterization U → physical velocity v = U/√(1+U²)
-6. Flag the data issue: bins where U₁ ≈ U₂ ≈ 1 (nearly luminal, likely unphysical)
-7. Check if U increases monotonically with multiplicity (hydrodynamic expectation)
+6. Flag possible data/fit issues from large uncertainties in retrieved parameter chunks
+7. Prepare checks for whether U trends with multiplicity are physically interpretable
+
+These checks are provisional. They use Boltzmann-like and massless or
+ultra-relativistic assumptions in places and do not by themselves validate a
+full Bose-Einstein model.
 """
 
 import sympy as sp
@@ -256,7 +260,8 @@ For U→0 (static system, Y=0):
   cosh(η-Y) = cosh(η)
   dN/dpT = A · pT · ∫_{-η_max}^{η_max} exp(-pT·cosh(η)/T) · cosh(η) dη
   
-This should reduce to the Boltzmann (or Bose-Einstein) thermal distribution.
+This should reduce to the static Boltzmann/Juttner-like thermal distribution
+under the current approximation.
 """)
 
 # Symbolic check: as Y → 0 (U → 0)
@@ -286,13 +291,13 @@ print("SECTION 6: χ²/ndf Issue — Missing from Paper")
 print("─" * 60)
 
 print("""
-CRITICAL ISSUE: The paper does NOT report χ²/ndf values.
+CRITICAL ISSUE TO CONFIRM: the current review has not found complete χ²/ndf values.
 This is a fundamental omission for a HEP fitting paper.
 
 From the extracted data chunks, we can see:
   - Parameter uncertainties are often comparable to or larger than values
   - This strongly suggests poor fits for high-multiplicity bins
-  - A proper χ²/ndf table would immediately expose this
+  - A χ²/ndf table is required before judging fit quality
 
 RECOMMENDED ACTION:
   1. Implement the full fitting pipeline (Phase 4.3)
@@ -349,15 +354,15 @@ print(f"    Distribution peak at pT = {pT_vals[peak_idx_high]:.2f} GeV/c")
 print(f"    Blue-shift visible: peak moves to higher pT as U increases ✓")
 print()
 
-# Check the unphysical case
-T_bad, U_bad = 0.25, 10.0  # v ≈ 0.995c — nearly luminal
+# Check an extreme relativistic stress case
+T_bad, U_bad = 0.25, 10.0  # v ≈ 0.995c — ultra-relativistic
 v_bad = U_bad / np.sqrt(1 + U_bad**2)
 Y_bad = np.arcsinh(U_bad)
-print(f"  ⚠ UNPHYSICAL TEST (U={U_bad}, v={v_bad:.4f}c, Y={Y_bad:.3f}):")
+print(f"  ⚠ EXTREME RELATIVISTIC TEST (U={U_bad}, v={v_bad:.4f}c, Y={Y_bad:.3f}):")
 print(f"    At this rapidity, the distribution becomes extremely narrow")
 print(f"    and would require very precise pT range to constrain the fit.")
-print(f"    This explains why U₁≈U₂≈1 bins have huge uncertainties —")
-print(f"    the model can compensate by using extreme U with different kT values.")
+print(f"    This is one plausible mechanism for large U/kT uncertainties —")
+print(f"    the model may compensate through correlated U and kT changes.")
 print()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -367,8 +372,8 @@ print("=" * 70)
 print("PHASE 1 ANALYSIS SUMMARY")
 print("=" * 70)
 print("""
-✅ VERIFIED:
-  1. f(p) ~ exp(-U^μ p_μ / T) is Lorentz-covariant and correct
+SANITY CHECKS PASSED UNDER CURRENT ASSUMPTIONS:
+  1. f(p) ~ exp(-U^μ p_μ / T) has the expected Lorentz-scalar exponent
   2. Integration gives: exp(-pT·cosh(η-Y)/T) after δ-function on shell
   3. Parameterization v = U/√(1+U²) always gives v < c for finite U  
   4. Y = arcsinh(U) is the correct rapidity for this parameterization
@@ -376,24 +381,29 @@ print("""
   6. pT integral ∫pT·exp(-λpT)dpT = 1/λ² is analytically correct
   7. RAG retrieval: both Tsallis (4 chunks) and boson paper (16 chunks) confirmed
 
+LIMITS OF THIS CHECK:
+  1. This script does not prove a full Bose-Einstein treatment.
+  2. Several checks use massless or ultra-relativistic kinematics.
+  3. Full manuscript equation numbers and full pT data are still needed.
+
 ⚠ DATA ISSUES IDENTIFIED:
   1. HIGH-MULTIPLICITY BINS (n_sel≥126): 
      - U₂ = 0.0108 ± 0.8467  (uncertainty >> value → unconstrained fit)
      - kT₂ = 480 ± 12460 GeV (unphysical temperature)
-     This indicates the 3-component fit is over-parameterized for these bins
+     This suggests the 3-component fit may be over-parameterized for these bins
      
-  2. MISSING χ²/ndf: Not reported anywhere in the paper
+  2. MISSING χ²/ndf: not found in the current review
      → Cannot assess goodness of fit for any bin
      → Standard HEP requirement: must report per-bin χ²/ndf
 
-  3. U MONOTONICITY: Expected from hydrodynamics (U increases with multiplicity)
+  3. U TREND: Must be tested before assigning physical interpretation
      → Not verified yet (need full bin-by-bin data table — NOT in chunks)
 
 🔴 NEXT STEPS (Phase 4.2/4.3):
   1. Implement full fitting pipeline for all multiplicity bins
   2. Scan pT range 0.1–10 GeV against ATLAS 13 TeV data
   3. Compute χ²/ndf table
-  4. Plot U vs multiplicity to check monotonicity
+  4. Plot U vs multiplicity and test whether any trend is interpretable
   5. Robert: please confirm if the full data table (all bins) is available
      for numerical fitting, or only the subset shown in Figures 7 and 9
 """)

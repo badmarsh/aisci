@@ -4,6 +4,12 @@ const meta: MetaRecord = {
   index: {
     title: "Overview",
   },
+  research: {
+    title: "🔬 Research",
+  },
+  ops: {
+    title: "⚙️ Operations",
+  },
   introduction: {
     title: "Introduction",
   },

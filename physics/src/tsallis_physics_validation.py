@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
-Physics Validation Script for ATLAS Data Analysis
-Implements Tsallis Statistics fitting to replace flawed 3-component Boltzmann approximation.
+Prototype physics validation helpers for ATLAS-like pT spectra.
+
+This module is for baseline exploration, not publication-grade validation by itself.
+The Tsallis-like function below uses simplified assumptions and must be checked
+against the exact literature formula chosen for comparison.
 
 This script provides:
-1. Tsallis distribution fitting function with proper parameterization
-2. Kinematic boundary constraint logic  
+1. Simplified Tsallis-like fitting function
+2. Candidate kinematic boundary constraint logic
 3. Safe fit range enforcement (p_T > 600 MeV)
 4. Velocity validation checks
 
-Based on non-extensive thermodynamics framework requiring only 3 parameters:
+Working parameterization:
 - Temperature T (GeV)
 - Flow velocity beta_T 
 - Non-extensive parameter q
@@ -17,9 +20,7 @@ Based on non-extensive thermodynamics framework requiring only 3 parameters:
 
 import numpy as np
 from scipy.optimize import curve_fit
-from scipy.integrate import quad
-import matplotlib.pyplot as plt
-from typing import Tuple, Optional, Callable
+from typing import Tuple, Optional
 
 
 def tsallis_distribution(pT: np.ndarray, T: float, beta_T: float, q: float) -> np.ndarray:
@@ -44,8 +45,8 @@ def tsallis_distribution(pT: np.ndarray, T: float, beta_T: float, q: float) -> n
         
     Notes:
     ------
-    The Tsallis distribution naturally accounts for power-law tails at high pT
-    through the non-extensive parameter q, avoiding overparameterization.
+    This simplified Tsallis-like distribution can model power-law tails at high
+    pT through q, but it is not yet a literature-matched baseline.
     """
     # Ensure physical constraints
     if T <= 0 or beta_T < 0 or beta_T >= 1 or q <= 1:
@@ -72,9 +73,9 @@ def tsallis_distribution(pT: np.ndarray, T: float, beta_T: float, q: float) -> n
 
 def apply_kinematic_boundaries(p: float, pT_cut: float, theta_cut: float) -> float:
     """
-    Apply proper kinematic boundary constraints for combined cuts.
+    Apply candidate kinematic boundary constraints for combined cuts.
     
-    Replaces flawed paper logic with correct minimum constraint:
+    Working hypothesis for the more restrictive limit:
     limit = min(sqrt(p^2 - pT_cut^2), p * cos(theta_cut))
     
     Parameters:

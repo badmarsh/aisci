@@ -1,70 +1,41 @@
-# Onyx Physics Validation System
+# ⚛️ AiSci Research Workspace
 
-## Overview
-This project implements a physics validation pipeline using Onyx to systematically validate high-energy physics papers before code implementation.
+> **Active Project:** Validation of Robert's "Boson probability function for the moving system" paper.
+> **Current Focus:** $p_T$ spectrum analysis against ATLAS 13 TeV data.
 
-## Directory Structure
+---
 
-### `/physics/`
-- Physics-related components:
-  - `/src/` - Core physics validation scripts:
-    - `tsallis_physics_validation.py` - Implements Tsallis Statistics (replaces flawed Boltzmann approximation)
-    - `sympy_validation_agent.py` - Performs dimensional analysis and kinematic boundary checks
-  - `/physics_env/` - Virtual environment for physics validation scripts
+## 🔍 Research Dashboard
 
-### `/deployment/`
-- All deployment-related files:
-  - `/onyx/` - Onyx-specific deployment files:
-    - `docker-compose.yml` - Main deployment configuration
-    - `nginx_mcp_proxy.conf` - MCP service proxy configuration
-    - `.env`, `env.template` - Environment configuration
-    - `nginx_configs/` - Nginx configuration files
-    - Other Onyx deployment files
-  - `/deer-flow/` - Deer-Flow-specific deployment files (planned)
+### Science Status: **PHASE 1 (Sanity Checks)**
+The model's Lorentz covariance has been verified. We are currently awaiting full $p_T$ data tables to proceed with formal fitting and baseline comparisons.
 
-### `/docs/`
-- Documentation files:
-  - `README.md` - Project overview
-  - `CRTICAL_COMPONENTS.md` - Technical documentation for key components
-  - `PROJECT_RULES.md` - Development and maintenance guidelines
-  - `TROUBLESHOOTING.md` - Issue resolution guide
-  - `FINAL_SUMMARY.md` - Project completion summary
-  - `GPU_OPTIMIZATION_DOCS.md` - GPU acceleration setup
+- **Claim Tracker:** [`research/robert/evidence-ledger.md`](research/robert/evidence-ledger.md)
+- **Active Task Queue:** [`research/robert/next-actions.md`](research/robert/next-actions.md)
+- **Validation Plan:** [`research/robert/validation-plan.md`](research/robert/validation-plan.md)
 
-### `/backup_before_wipe/`
-- Backup data for restoring Onyx settings
+### 🧪 Core Tools
+- **[Onyx RAG](http://localhost:3000):** Use the **"Physics Validation Mode"** persona for literature search and manuscript extraction.
+- **[DeerFlow](http://localhost:2026):** Orchestration for complex multi-tool research workflows.
+- **[Evidence Ledger](research/robert/evidence-ledger.md):** The source of truth for all scientific claims and validation statuses.
 
-### `/generated_files/`
-- Output from Onyx agents (preserved)
+---
 
-## Core Features
+## 📂 Workspace Navigation
 
-### Physics Validation Scripts
-- Implements Tsallis Statistics fitting function (replaces flawed Boltzmann approximation)
-- Includes proper kinematic boundary logic: `limit = min(sqrt(p² - pT_cut²), p * cos(θ_cut))`
-- Enforces safe fit range (excludes data below 600 MeV)
-- Provides velocity parameterization validation
+- `research/robert/` — **The Primary Research Hub.** Contains workflow, evidence, next actions, and run reports.
+- `physics/src/` — Symbolic and numerical validation scripts (Python/SymPy).
+- `docs/decisions/` — Methodological and architectural decisions.
+- `docs/ops/` — Infrastructure and deployment details.
 
-### MCP Services
-- Consensus MCP: Formula extraction and literature search
-- Scite MCP: Citation context validation
-- Both accessible via proxy at `http://localhost:8095/[consensus|scite]/`
+---
 
-### Physics Validation Mode
-- Available in Onyx UI as "Physics Validation Mode" persona
-- Automatically engages all validation tools and MCP services
-- Specialized for high-energy physics paper analysis
+## 🚀 Getting Started for Researchers
 
-### GPU Acceleration
-- RTX GPU utilized for document processing
-- Private, local processing for sensitive documents
-- Optimized embedding models for faster analysis
+1. **Review Actions:** Check [`research/robert/next-actions.md`](research/robert/next-actions.md) for current blockers.
+2. **Submit Data:** If you have new $p_T$ tables, follow the [Data Onboarding Guide](research/robert/data-onboarding.md).
+3. **Run Checks:** Use `physics/src/boson_paper_analysis.py` for local covariance and static-limit sanity checks.
 
-## Deployment Status
-⚠️ **Note:** The Onyx system was running but had to be stopped for reorganization. Due to issues with the docker-compose system in this environment, the services are currently not running. See `/deployment/DEPLOYMENT_STATUS.md` for details on how to restart the system.
+---
 
-## Usage
-1. Once deployed, access Onyx UI at `http://localhost:3000`
-2. Select "Physics Validation Mode" persona
-3. Upload physics papers for automated validation
-4. Check results and generated scripts in `/generated_files/`
+*For technical deployment details, port mappings, and Docker logs, see the [Deployment Reference](docs/ops/deployment-reference.md).*

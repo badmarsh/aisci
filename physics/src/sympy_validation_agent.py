@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
-SymPy Validation Agent for Physics Analysis
-Performs dimensional analysis, kinematic boundary checking, and equation validation.
+SymPy validation scaffold for physics analysis.
+
+This is a sanity-check helper, not a complete physics validator. The current
+dimensional-analysis function does not track units through expressions; it
+mainly parses, simplifies, and catches undefined symbolic forms.
 
 This agent can:
 1. Parse mathematical expressions from LaTeX or text
-2. Perform dimensional analysis to verify unit consistency
-3. Check kinematic boundary conditions
+2. Run placeholder dimensional checks
+3. Check selected kinematic boundary conditions
 4. Validate velocity parameterizations
-5. Flag unphysical equations or results
+5. Flag obvious unphysical equations or results where checks are implemented
 """
 
 import sympy as sp
@@ -32,8 +35,11 @@ class SymPyPhysicsValidator:
         self.E = sp.Symbol('E', positive=True)  # Energy
         self.m = sp.Symbol('m', positive=True)  # Mass
         self.T = sp.Symbol('T', positive=True)  # Temperature
+        self.U = sp.Symbol('U', real=True)  # Movement/boost parameter
         self.beta = sp.Symbol('β', real=True)  # Velocity in units of c
+        self.beta_T = sp.Symbol('beta_T', real=True)  # Transverse flow velocity
         self.gamma = sp.Symbol('γ', positive=True)  # Lorentz factor
+        self.q = sp.Symbol('q', positive=True)  # Tsallis/non-extensive parameter
         self.theta = sp.Symbol('θ', real=True)  # Angle
         
         # Dimensional constants
@@ -64,31 +70,42 @@ class SymPyPhysicsValidator:
                 return parse_latex(expr_str)
             else:
                 # Try parsing as text
-                return parse_expr(expr_str)
+                local_dict = {
+                    'c': self.c,
+                    'E': self.E,
+                    'm': self.m,
+                    'p': self.p,
+                    'p_T': self.pT,
+                    'T': self.T,
+                    'U': self.U,
+                    'beta_T': self.beta_T,
+                    'q': self.q,
+                }
+                return parse_expr(expr_str, local_dict=local_dict)
         except Exception as e:
             print(f"Failed to parse expression '{expr_str}': {e}")
             return None
     
     def dimensional_analysis(self, expr: sp.Expr, expected_dimensions: Optional[sp.Symbol] = None) -> bool:
         """
-        Perform dimensional analysis on an expression.
+        Run a placeholder dimensional check on an expression.
         
         Parameters:
         -----------
         expr : sympy.Expr
             Expression to analyze
         expected_dimensions : sympy.Symbol, optional
-            Expected dimensions to check against
+            Reserved for a future full unit-tracking implementation
             
         Returns:
         --------
         bool
-            True if dimensions are consistent, False otherwise
+            True if the expression simplifies without undefined symbolic terms
         """
         try:
-            # For now, we'll just check if the expression is dimensionally consistent
-            # A more sophisticated implementation would track actual dimensions
-            print(f"Performing dimensional analysis on: {expr}")
+            # This is not full dimensional analysis. A complete implementation
+            # would map every symbol to units and verify each additive term.
+            print(f"Running placeholder dimensional check on: {expr}")
             
             # Simplify the expression to check for consistency
             simplified = sp.simplify(expr)
@@ -213,7 +230,7 @@ class SymPyPhysicsValidator:
             return {
                 'original_equation': equation_str,
                 'parsed_expression': None,
-                'dimensionally_consistent': False,
+                'placeholder_dimensional_check': False,
                 'kinematic_valid': {},
                 'velocity_valid': False,
                 'overall_validity': False,
@@ -221,7 +238,7 @@ class SymPyPhysicsValidator:
                 'error': 'Failed to parse equation'
             }
         
-        # Perform dimensional analysis
+        # Run the current placeholder dimensional check.
         dim_check = self.dimensional_analysis(parsed_eq)
         
         # Check kinematic boundaries
@@ -237,7 +254,7 @@ class SymPyPhysicsValidator:
         results = {
             'original_equation': equation_str,
             'parsed_expression': str(parsed_eq),
-            'dimensionally_consistent': dim_check,
+            'placeholder_dimensional_check': dim_check,
             'kinematic_valid': kinematic_checks,
             'velocity_valid': velocity_validation.get('valid', True),
             'overall_validity': dim_check and velocity_validation.get('valid', True),
@@ -245,7 +262,7 @@ class SymPyPhysicsValidator:
         }
         
         if not dim_check:
-            results['warnings'].append("Equation may have dimensional inconsistencies")
+            results['warnings'].append("Placeholder dimensional check failed")
         
         if not velocity_validation.get('valid', True):
             results['warnings'].append("Equation yields unphysical velocities >= c")
@@ -282,7 +299,7 @@ def demonstrate_validator():
         
         result = validator.validate_equation(eq)
         
-        print(f"Dimensionally consistent: {result['dimensionally_consistent']}")
+        print(f"Placeholder dimensional check passed: {result['placeholder_dimensional_check']}")
         print(f"Velocity valid: {result['velocity_valid']}")
         print(f"Overall validity: {result['overall_validity']}")
         if result['warnings']:

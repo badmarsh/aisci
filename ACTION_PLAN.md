@@ -2,7 +2,7 @@
 
 > **Project:** AI-assisted scientific research | CERN HEP physics + RAG + multi-agent workflows
 > **Team:** Robert (physicist, CERN) + IT consultant  
-> **Last updated:** 2026-04-26 (Phase 2 fully verified ✅ — RAG live, science work active)
+> **Last updated:** 2026-04-27 (docs consolidated; science task ownership moved to `research/robert/next-actions.md`)
 
 ---
 
@@ -21,9 +21,10 @@
 - [x] GPU reservations for inference/indexing model servers (RTX 3090)
 - [x] Nginx templates copied to `deployment/data/nginx/` → fixes `run-nginx.sh` missing error
 - [x] Nginx container running again ✅
-- [x] Docling: fixed port mismatch (5000 → 5001), switched to GPU image `docling-serve:latest`
-- [~] Docling container running (unhealthy — CPU image, low priority; old GPU image not available in current WSL session)
-- [~] api_server name collision still present (886b1eb8df8f_onyx-api_server-1) — healthy and working, defer clean restart
+- [x] Docling removed from active production compose; local Unstructured restored as parser
+- [x] Local Unstructured healthy at `http://localhost:9560`
+- [x] API container name normal again: `onyx-api_server-1`
+- [x] Recreate stack from `/home/ubuntu/aisci/deployment/onyx` so Compose labels stop referencing old `/home/ubuntu/onyx_data/...` path
 - [x] `http://localhost:3000` loads Onyx UI ✅
 - [x] `http://localhost:4000` LiteLLM proxy healthy ✅
 - [x] `http://localhost:8095` MCP proxy running ✅
@@ -32,23 +33,33 @@
 - [x] Deer-flow containers running: `deer-flow-nginx`, `deer-flow-gateway`, `deer-flow-frontend`, `deer-flow-langgraph`
 - [x] Accessible at port `2026`
 - [x] `~/aisci/deployment/deer-flow/` contains reference config and `.env.example`
-- [ ] **TODO:** Copy live `~/deer-flow/config.yaml` → `~/aisci/deployment/deer-flow/config.yaml.active` (gitignored)
-- [ ] **TODO:** Copy live `~/deer-flow/.env` → `~/aisci/deployment/deer-flow/.env` (gitignored, for reproducibility)
-- [ ] **TODO:** Document MCP tools enabled in deer-flow (`extensions_config.json`)
-- [ ] **TODO:** Verify deer-flow UI at `http://localhost:2026`
+- [x] Live config exists at `~/aisci/deployment/deer-flow/config.yaml` (gitignored by DeerFlow rules)
+- [x] Live `.env` exists at `~/aisci/deployment/deer-flow/.env` (gitignored)
+- [x] MCP tools documented in `docs/ops/deerflow-assessment-2026-04-26.md`
+- [x] DeerFlow gateway verified healthy at `http://localhost:2026`
+- [ ] Replace generic/legal agents with Robert physics workflow agents
+- [ ] Add/verify Scite, Consensus, arXiv, and INSPIRE-HEP integrations
 
 ---
 
-## 🔬 PHASE 2 — Onyx "Smartest RAG" Configuration *(highest priority)*
+## 🔬 PHASE 2 — OpenSearch Migration & RAG Optimization *(highest priority)*
 
-### 2.1 Docling as Primary Document Parser
-- [ ] Set `UNSTRUCTURED_API_URL=http://docling:5001` in `.env` (replace unstructured-api for math-heavy PDFs)
-- [ ] Test PDF ingestion: upload Robert's boson probability paper via Onyx UI
-- [ ] Verify LaTeX equations and tables are parsed correctly by Docling
-- [ ] Compare Docling vs Unstructured output quality on physics PDFs
+### 2.0 OpenSearch Migration (Priority Alpha) 🔴
+Vespa is currently answering queries, but the project goal is to move to OpenSearch. The migration is currently stalled with `KeyError: 'document_id'`.
+- [ ] **Fix Transformer Bug:** Patch `onyx/background/celery/tasks/opensearch_migration/transformer.py` to handle missing/nested `document_id` in Vespa chunks.
+- [ ] **Model Dimension Alignment:** Ensure OpenSearch index is created with 768 dimensions (Nomic-embed) instead of 384 (MiniLM).
+- [ ] **Reconcile Chunk Parity:** Identify why OpenSearch has fewer chunks than Vespa for key science docs (e.g., Tsallis datasets).
+- [ ] **Enable OpenSearch Retrieval:** Set `enable_opensearch_retrieval=true` in `opensearch_tenant_migration_record` after parity is confirmed.
+- [ ] **Decommission Vespa:** Stop `onyx-index-1` after OpenSearch is verified stable.
+
+### 2.1 Parser Baseline
+- [x] Keep local Unstructured as the production parser
+- [x] Set `UNSTRUCTURED_API_URL=http://unstructured:8000`
+- [ ] Test current PDF ingestion path with Robert's boson paper after next clean restart
+- [ ] Revisit Docling only as an experimental side parser after validation workflow is stable
 
 ### 2.2 Ollama GPU Models — Embedding, Reranking, Visual RAG
-Currently running in `onyx-ollama-1`. Verify these models are pulled:
+Currently running in `onyx-ollama-1`, but no models were found during live diagnosis. Either pull these models or remove the exposed Ollama options from visible model lists:
 - [ ] `nomic-embed-text:latest` — local embedding (replaces HuggingFace sentence-transformers)
 - [ ] `BAAI/bge-reranker-v2-m3` — cross-encoder reranking (set in env ✅)  
 - [ ] `qwen2-vl:latest` → rename: **check if `qwen2.5-vl` is available** — visual RAG for figures/plots
@@ -76,9 +87,11 @@ Currently running in `onyx-ollama-1`. Verify these models are pulled:
 - [ ] Configure Onyx to extract and index figure captions separately
 
 ### 2.5 "Physics Validation Mode" Persona
-- [ ] Re-create persona in Onyx UI (may have been lost in restart)
+- [ ] Make this the real primary Onyx persona
+- [ ] Attach Physics document sets: Robert draft, HEP references, validation methods
+- [ ] Attach tools: internal search, read file, code interpreter/Python, open URL, Scite, Consensus
 - [ ] System prompt: zero-hallucination, cite chunks only, flag unverified claims
-- [ ] Tools enabled: Consensus MCP, Scite MCP, SymPy agent, Code Interpreter
+- [ ] Keep web search disabled by default for strict validation; enable only for literature scouting
 
 ---
 
@@ -115,103 +128,46 @@ Currently running in `onyx-ollama-1`. Verify these models are pulled:
 
 ---
 
-## 🧪 PHASE 4 — Robert's Paper Analysis *(the actual science work)*
+## 🧪 PHASE 4 — Robert's Paper Analysis *(science tracker only)*
 
 > **Paper:** "Boson probability function for the moving system" — ATLAS 13 TeV data  
-> **Issue:** Robert believes the theory/model is good but there's an issue with the data
+> **Current science task queue:** `research/robert/next-actions.md`
 
-### 4.1 Formula Verification (SymPy Agent) — PHASE 1 COMPLETE ✅ (re-verified 2026-04-26)
-- [x] f(p) ~ δ(p²-m²)Θ(p⁰)exp(-βU^μ p_μ) — Lorentz-covariant, correct ✅
-- [x] δ-function integration: gives exp(-pT·cosh(η-Y)/T) ✅
-- [x] sinh substitution: pz = pT·sinh(η), pT integral = T²/cosh²(η-Y) ✅
-- [x] η-cut formula: verified U→0 recovers static Cooper-Frye ✅
-- [x] Velocity parameterization: v=U/√(1+U²) always < c, γv=U ✅
-- [x] Numerical distribution: blue-shift at higher U confirmed ✅
-- [x] `boson_paper_analysis.py` runs cleanly, no errors ✅
-- **Script:** `physics/src/boson_paper_analysis.py` (Phase 1 — complete)
-- **Script:** `physics/src/sympy_validation_agent.py` (baseline validator)
+This section intentionally stays high level. Detailed science claims, gates, plans, and outputs live in:
 
-### 4.2 Data Issue Investigation — PARTIAL ✅ (Next: need full data table from Robert)
-- [x] High-multiplicity bins (n_sel≥126) identified as anomalous:
-  - U₂ = 0.0108 ± **0.8467** — uncertainty >> value → UNCONSTRAINED fit
-  - kT₂ = 4.813e+02 ± **1.246e+04** GeV — UNPHYSICAL temperature
-  - U₃ = 0.013 ± **1.646** — same pattern
-  - Root cause: 3-component fit over-parameterized for available pT range
-- [x] U=1 means v=0.707c (not "nearly luminal" but strongly relativistic) — flagged
-- [x] Numerical model verified: blue-shift at high U narrows distribution → poor pT constraint
-- [ ] **TODO:** Confirm exact pT range and data binning from Robert ← BLOCKING
-- [ ] **TODO:** Run automated fitting across all bins with `iminuit`
-- [ ] **TODO:** Compare chi-squared values per bin
+- `research/robert/evidence-ledger.md` - canonical claim status.
+- `research/robert/science-questions.md` - question backlog.
+- `research/robert/validation-plan.md` - validation method.
+- `research/robert/fit-plan.md` - fitting specification.
+- `research/robert/runs/` - dated run artifacts.
 
-### 4.3 Automated Fitting Agent
-- [ ] Implement full fitting pipeline for all multiplicity bins (21–150)
-- [ ] Scan hyperparameter ranges, find global vs local minima
-- [ ] Plot U (velocity) vs multiplicity — should increase monotonically (hydrodynamic flow)
-- [ ] Plot kT (temperature) vs multiplicity
-- [ ] Generate χ²/ndf table — currently missing from paper
-
-### 4.4 Literature Comparison via RAG
-- [ ] Ingest key comparison papers into Onyx:
-  - Blast-Wave model papers (ALICE measurements)
-  - Tsallis statistics papers for pp at 13 TeV
-  - `arxiv:2512.07785` — LLM agents for ATLAS Higgs analysis
-  - `arxiv:2509.06855` — SciTreeRAG for LHCb
-- [ ] Ask RAG: "Does U increase with multiplicity in comparable models?"
-- [ ] Ask RAG: "What χ²/ndf are typical in similar thermal fits?"
-
-### 4.5 AI Referee Report
-- [ ] Generate structured referee report identifying:
-  - Missing uncertainty tables
-  - No χ²/ndf reported ← key issue
-  - No comparison to Blast-Wave model
-  - Anomalous high-multiplicity behavior not explained
-  - Missing discussion of collective flow context
-- [ ] Generate LaTeX suggestions for equation numbering and cross-references
+### 4.1 Current Science Status
+- [x] Phase 1 local sanity checks completed under explicit assumptions.
+- [ ] Robert's full pT data table is still blocking automated fitting.
+- [ ] Manuscript must clarify full Bose-Einstein versus Boltzmann/Juttner approximation.
+- [ ] Fit quality, covariance, correlations, and baseline comparisons are still required before physical conclusions.
 
 ---
 
-## 🛠️ PHASE 5 — Tooling & Workflow Recommendations
+## 🛠️ PHASE 5 — Tooling References
 
-### Skills / Tools to Add
-| Tool | Purpose | Where |
-|---|---|---|
-| `iminuit` Python | Robust HEP-standard fitting | deer-flow sandbox |
-| `ROOT` / `uproot` | CERN data format (TTree, histograms) | deer-flow sandbox |
-| `SymPy` | Symbolic math verification | already in physics/src |
-| `matplotlib` + `scipy` | Plotting and fitting | deer-flow sandbox |
-| `INSPIRE-HEP API` | Direct HEP literature search | MCP or deer-flow tool |
-| `arXiv API` | Paper retrieval | MCP or deer-flow tool |
-
-### Suggested Workflow for Robert
-```
-Paper PDF → Onyx (RAG index) → Physics Validation Mode persona
-         ↓
-   Deer-Flow research agent:
-   - Pull related papers (Consensus/Scite/arXiv MCPs)
-   - Run SymPy formula checker
-   - Run automated fitting (Python sandbox)
-   - Compare to literature
-         ↓
-   Generate: referee report + improved figures + chi-squared table
-```
+Keep implementation-specific tooling decisions in `research/robert/fit-plan.md` and platform integration tasks in `docs/ops/platform-backlog.md`. The near-term required tools are `iminuit`, `scipy`, `matplotlib`, and literature search over arXiv/INSPIRE plus citation context checks.
 
 ---
 
-## 📋 Immediate Next Steps (Updated 2026-04-26)
+## 📋 Current Pointers (Updated 2026-04-27)
 
-### ✅ Completed This Session:
+### ✅ Recent Checkpoints
+- Repo checkpoint commit pushed: `9e85623`
+- Repo-wide documentation layout started: `docs/ops`, `docs/decisions`, `docs/archive`, `research/robert`
 - Contextual RAG verified: settings_id=4, `enable_contextual_rag=t`, no hanging ✅
 - File connector (cc_pair=2): boson paper indexed — 24 chunks in main, 12 in contextual alt index ✅
 - Onyx UI: both queries return correct results with File sources cited ✅
-- `boson_paper_analysis.py`: Phase 1 re-verified, runs clean ✅
+- `boson_paper_analysis.py`: Phase 1 sanity checks re-run, clean ✅
 
-### 🔴 Next Actions Required (in priority order):
-1. **Robert**: Provide full pT data table (all multiplicity bins, 21–150) for automated fitting
-2. **4.3** — Implement `iminuit` fitting pipeline (`physics/src/fitting_pipeline.py`)
-3. **4.3** — Run fits for all bins, compute χ²/ndf table
-4. **4.3** — Plot U vs multiplicity (check monotonic increase)
-5. **2.5** — Re-create "Physics Validation Mode" persona in Onyx UI
-6. **3.1/3.2** — Add Consensus + Scite API keys to MCP proxy
+### 🔴 Next Actions Required
+- Science queue: `research/robert/next-actions.md`
+- Platform queue: `docs/ops/platform-backlog.md`
 
 ```bash
 # Check Ollama models status
@@ -226,4 +182,4 @@ cd ~/aisci/physics && python3 src/boson_paper_analysis.py
 
 ---
 
-*Consolidated from: `docs/FINAL_SUMMARY.md`, `docs/CRTICAL_COMPONENTS.md`, `docs/PROJECT_RULES.md`, `docs/TROUBLESHOOTING.md`, `docs/FIRST_BRAINSTORMING.md`*
+*Consolidated from historical docs now organized under `docs/archive/` and `docs/ops/`.*
