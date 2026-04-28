@@ -1,0 +1,547 @@
+{
+  "access_count": {
+    "sum": 4442
+  },
+  "additional_resources": true,
+  "breadcrumb_text": "Aad, Georges et al.",
+  "coordinator": 1,
+  "data_tables": [
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 1/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 1/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 1/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 1/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 1/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 1/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 1/yoda1"
+      },
+      "description": "The average charged-particle multiplicity per unit of rapidity for ETARAP=0 as a function of the centre-of-mass energy.",
+      "doi": "10.17182/hepdata.72491.v1/t1",
+      "id": 64393,
+      "location": "Data from Text",
+      "messages": false,
+      "name": "Table 1",
+      "processed_name": "Table1",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 2/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 2/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 2/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 2/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 2/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 2/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 2/yoda1"
+      },
+      "description": "The extrapolated average charged-particle multiplicity per unit of rapidity for ETARAP=0 as a function of the centre-of-mass energy.",
+      "doi": "10.17182/hepdata.72491.v1/t2",
+      "id": 64394,
+      "location": "Data from Text",
+      "messages": false,
+      "name": "Table 2",
+      "processed_name": "Table2",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 3/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 3/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 3/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 3/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 3/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 3/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 3/yoda1"
+      },
+      "description": "Charged-particle multiplicities in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of pseudorapidity for events with...",
+      "doi": "10.17182/hepdata.72491.v1/t3",
+      "id": 64395,
+      "location": "Data from F 3A",
+      "messages": false,
+      "name": "Table 3",
+      "processed_name": "Table3",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 4/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 4/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 4/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 4/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 4/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 4/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 4/yoda1"
+      },
+      "description": "Charged-particle multiplicities in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of transverse momentum for events...",
+      "doi": "10.17182/hepdata.72491.v1/t4",
+      "id": 64396,
+      "location": "Data from F 3B",
+      "messages": false,
+      "name": "Table 4",
+      "processed_name": "Table4",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 5/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 5/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 5/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 5/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 5/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 5/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 5/yoda1"
+      },
+      "description": "Charged-particle multiplicity distribution in proton-proton collisions at a centre-of-mass energy of 13000 GeV for events with the number of charged...",
+      "doi": "10.17182/hepdata.72491.v1/t5",
+      "id": 64397,
+      "location": "Data from F 3C",
+      "messages": false,
+      "name": "Table 5",
+      "processed_name": "Table5",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 6/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 6/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 6/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 6/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 6/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 6/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 6/yoda1"
+      },
+      "description": "Average transverse momentum in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of the number of...",
+      "doi": "10.17182/hepdata.72491.v1/t6",
+      "id": 64398,
+      "location": "Data from F 3D",
+      "messages": false,
+      "name": "Table 6",
+      "processed_name": "Table6",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 7/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 7/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 7/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 7/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 7/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 7/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 7/yoda1"
+      },
+      "description": "Extrapolated charged-particle multiplicities in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of pseudorapidity for events...",
+      "doi": "10.17182/hepdata.72491.v1/t7",
+      "id": 64399,
+      "location": "Data from Auxiliary Material",
+      "messages": false,
+      "name": "Table 7",
+      "processed_name": "Table7",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 8/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 8/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 8/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 8/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 8/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 8/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 8/yoda1"
+      },
+      "description": "Extrapolated charged-particle multiplicities in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of transverse momentum for...",
+      "doi": "10.17182/hepdata.72491.v1/t8",
+      "id": 64400,
+      "location": "Data from Auxiliary Material",
+      "messages": false,
+      "name": "Table 8",
+      "processed_name": "Table8",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 9/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 9/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 9/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 9/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 9/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 9/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 9/yoda1"
+      },
+      "description": "Extrapolated charged-particle multiplicity distributions in proton-proton collisions at a centre-of-mass energy of 13000 GeV for events with the number of...",
+      "doi": "10.17182/hepdata.72491.v1/t9",
+      "id": 64401,
+      "location": "Data from Auxiliary Material",
+      "messages": false,
+      "name": "Table 9",
+      "processed_name": "Table9",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 10/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 10/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 10/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 10/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 10/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 10/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 10/yoda1"
+      },
+      "description": "Extrapolated average transverse momentum in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of the number...",
+      "doi": "10.17182/hepdata.72491.v1/t10",
+      "id": 64402,
+      "location": "Data from Auxiliary Material",
+      "messages": false,
+      "name": "Table 10",
+      "processed_name": "Table10",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 11/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 11/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 11/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 11/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 11/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 11/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 11/yoda1"
+      },
+      "description": "Charged-particle multiplicities in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of pseudorapidity for events with...",
+      "doi": "10.17182/hepdata.72491.v1/t11",
+      "id": 64403,
+      "location": "Data from F 5A",
+      "messages": false,
+      "name": "Table 11",
+      "processed_name": "Table11",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 12/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 12/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 12/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 12/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 12/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 12/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 12/yoda1"
+      },
+      "description": "Charged-particle multiplicities in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of transverse momentum for events...",
+      "doi": "10.17182/hepdata.72491.v1/t12",
+      "id": 64404,
+      "location": "Data from F 5B",
+      "messages": false,
+      "name": "Table 12",
+      "processed_name": "Table12",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 13/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 13/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 13/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 13/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 13/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 13/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 13/yoda1"
+      },
+      "description": "Charged-particle multiplicity distribution in proton-proton collisions at a centre-of-mass energy of 13000 GeV for events with the number of charged...",
+      "doi": "10.17182/hepdata.72491.v1/t13",
+      "id": 64405,
+      "location": "Data from F 5C",
+      "messages": false,
+      "name": "Table 13",
+      "processed_name": "Table13",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 14/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 14/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 14/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 14/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 14/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 14/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 14/yoda1"
+      },
+      "description": "Average transverse momentum in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of the number of...",
+      "doi": "10.17182/hepdata.72491.v1/t14",
+      "id": 64406,
+      "location": "Data from F 5D",
+      "messages": false,
+      "name": "Table 14",
+      "processed_name": "Table14",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 15/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 15/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 15/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 15/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 15/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 15/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 15/yoda1"
+      },
+      "description": "Extrapolated charged-particle multiplicities in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of pseudorapidity for events...",
+      "doi": "10.17182/hepdata.72491.v1/t15",
+      "id": 64407,
+      "location": "Data from Auxiliary Material",
+      "messages": false,
+      "name": "Table 15",
+      "processed_name": "Table15",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 16/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 16/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 16/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 16/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 16/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 16/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 16/yoda1"
+      },
+      "description": "Extrapolated charged-particle multiplicities in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of transverse momentum for...",
+      "doi": "10.17182/hepdata.72491.v1/t16",
+      "id": 64408,
+      "location": "Data from Auxiliary Material",
+      "messages": false,
+      "name": "Table 16",
+      "processed_name": "Table16",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 17/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 17/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 17/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 17/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 17/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 17/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 17/yoda1"
+      },
+      "description": "Extrapolated charged-particle multiplicity distributions in proton-proton collisions at a centre-of-mass energy of 13000 GeV for events with the number of...",
+      "doi": "10.17182/hepdata.72491.v1/t17",
+      "id": 64409,
+      "location": "Data from Auxiliary Material",
+      "messages": false,
+      "name": "Table 17",
+      "processed_name": "Table17",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1419652/Table 18/csv",
+        "json": "https://www.hepdata.net/download/table/ins1419652/Table 18/json",
+        "root": "https://www.hepdata.net/download/table/ins1419652/Table 18/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1419652/Table 18/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1419652/Table 18/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1419652/Table 18/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1419652/Table 18/yoda1"
+      },
+      "description": "Extrapolated average transverse momentum in proton-proton collisions at a centre-of-mass energy of 13000 GeV as a function of the number...",
+      "doi": "10.17182/hepdata.72491.v1/t18",
+      "id": 64410,
+      "location": "Data from Auxiliary Material",
+      "messages": false,
+      "name": "Table 18",
+      "processed_name": "Table18",
+      "resources": []
+    }
+  ],
+  "mode": "record",
+  "overall_status": "finished",
+  "participant_count": 0,
+  "recid": 72491,
+  "record": {
+    "abstract": "Charged-particle distributions are measured in proton-proton collisions at a centre-of-mass energy of 13 TeV, using a data sample of nearly 9 million events, corresponding to an integrated luminosity of 170 $\\mu$b$^{-1}$, recorded by the ATLAS detector during a special Large Hadron Collider fill. The charged-particle multiplicity, its dependence on transverse momentum and pseudorapidity and the dependence of the mean transverse momentum on the charged-particle multiplicity are presented. The measurements are performed with charged particles with transverse momentum greater than 500 MeV and absolute pseudorapidity less than 2.5, in events with at least one charged particle satisfying these kinematic requirements. Additional measurements in a reduced phase space with absolute pseudorapidity less than 0.8 are also presented, in order to compare with other experiments. The results are corrected for detector effects, presented as particle-level distributions and are compared to the predictions of various Monte Carlo event generators.",
+    "access_urls": {
+      "links": {
+        "csv": "https://www.hepdata.net/download/submission/ins1419652/1/csv",
+        "json": "https://www.hepdata.net/download/submission/ins1419652/1/json",
+        "root": "https://www.hepdata.net/download/submission/ins1419652/1/root",
+        "yaml": "https://www.hepdata.net/download/submission/ins1419652/1/yaml",
+        "yoda": "https://www.hepdata.net/download/submission/ins1419652/1/yoda"
+      }
+    },
+    "analyses": [
+      {
+        "analysis": "http://rivet.hepforge.org/analyses/ATLAS_2016_I1419652",
+        "type": "rivet"
+      }
+    ],
+    "arxiv_id": "arXiv:1602.01633",
+    "collaborations": [
+      "ATLAS"
+    ],
+    "control_number": "72491",
+    "creation_date": "2016-02-04",
+    "data_abstract": "CERN-LHC. Measurements of charged particle distributions in proton-proton collisions at a centre-of-mass energy of 13 TeV. A data sample of nearly 9 million events recorded by the ATLAS detector during a special LHC fill with low beam currents, and thus giving a low expected mean number of interactions, is used. The charged-particle multiplicity, its dependence on transverse momentum and pseudorapidity and the dependence of the mean transverse momentum on the charged-particle multiplicity are presented. The measurements are performed with charged particles with transverse momentum greater than 500 MeV and absolute pseudorapidity less than 2.5, in events with at least one charged particle satisfying these kinematic requirements. Events with charged particles with transverse momentum greater than 500 MeV and absolute pseudorapidity less than 0.8 are also measured. The results are corrected for detector effects, presented as particle-level distributions and are compared to various Monte Carlo event generator models.",
+    "data_keywords": {
+      "cmenergies": [
+        {
+          "gte": 13000.0,
+          "lte": 13000.0
+        }
+      ],
+      "observables": [
+        "DN/DETARAP/DPT",
+        "MULT",
+        "DNEV/DN",
+        "DN/DETARAP",
+        "PT"
+      ],
+      "phrases": [
+        "Inclusive",
+        "Proton-Proton Scattering",
+        "Transverse Momentum Dependence",
+        "Single Differential Distribution"
+      ],
+      "reactions": [
+        "P P --> CHARGED X"
+      ]
+    },
+    "doc_type": "publication",
+    "doi": "10.1016/j.physletb.2016.04.050",
+    "first_author": {
+      "affiliation": "Marseille, CPPM",
+      "full_name": "Aad, Georges"
+    },
+    "hepdata_doi": "10.17182/hepdata.72491.v1",
+    "id": 72491,
+    "inspire_id": 1419652,
+    "journal_info": "Phys.Lett.B 758 (2016) 67-88",
+    "keywords": [
+      {
+        "schema": "INSPIRE",
+        "value": "p p: colliding beams"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "charged particle: multiplicity"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "phase space: reduced"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "p p: scattering"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "charged particle: transverse momentum"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "charged particle: rapidity"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "CERN LHC Coll"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "numerical calculations: Monte Carlo"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "ATLAS"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "kinematics"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "experimental results"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "13000 GeV-cms"
+      }
+    ],
+    "last_updated": "Fri, 08 Apr 2016 15:56:50 GMT",
+    "parent_child_join": {
+      "name": "parent_publication"
+    },
+    "publication_date": "2016-05-07T00:00:00",
+    "recid": 72491,
+    "resources": [
+      {
+        "description": "web page with auxiliary material",
+        "type": "html",
+        "url": "https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/STDM-2015-02/"
+      },
+      {
+        "description": "Rivet analysis",
+        "type": "rivet",
+        "url": "http://rivet.hepforge.org/analyses/ATLAS_2016_I1419652"
+      }
+    ],
+    "subject_area": [
+      "hep-ex"
+    ],
+    "summary_authors": [
+      {
+        "affiliation": "Marseille, CPPM",
+        "full_name": "Aad, Georges"
+      },
+      {
+        "affiliation": "Oklahoma U.",
+        "full_name": "Abbott, Brad"
+      },
+      {
+        "affiliation": "Taiwan, Inst. Phys.",
+        "full_name": "Abdallah, Jalal"
+      },
+      {
+        "affiliation": "Baku, Inst. Phys.",
+        "full_name": "Abdinov, Ovsat"
+      },
+      {
+        "affiliation": "Orsay, LAL",
+        "full_name": "Abeloos, Baptiste"
+      },
+      {
+        "affiliation": "FOM, Amsterdam",
+        "full_name": "Aben, Rosemarie"
+      },
+      {
+        "affiliation": "Michigan State U.",
+        "full_name": "Abolins, Maris"
+      },
+      {
+        "affiliation": "UC, Santa Cruz",
+        "full_name": "AbouZeid, Ossama"
+      },
+      {
+        "affiliation": "Sussex U.",
+        "full_name": "Abraham, Nicola"
+      },
+      {
+        "affiliation": "Tel Aviv U.",
+        "full_name": "Abramowicz, Halina"
+      }
+    ],
+    "title": "Charged-particle distributions in $\\sqrt{s}=13$ TeV $pp$ interactions measured with the ATLAS detector at the LHC",
+    "type": [
+      "article"
+    ],
+    "uuid": "780f7a1a-d2b7-4005-b4c8-4b73bb9b1f63",
+    "version": 1,
+    "year": "2016"
+  },
+  "record_type": "publication",
+  "related_recids": [],
+  "related_to_this_recids": [],
+  "resources_with_doi": [],
+  "reviewers_notified": false,
+  "site_url": "https://www.hepdata.net",
+  "status": "finished",
+  "table_id_to_show": 64393,
+  "table_name_to_show": "Table 1",
+  "version": 1,
+  "version_count": 1,
+  "watched": false
+}
