@@ -1,43 +1,35 @@
 ---
 name: researcher-docs-manager
-description: Maintain canonical AiSci documentation by ensuring a rigorous separation between scientific claims and platform infrastructure, optimized for the researcher's workflow.
+description: Reconcile active docs, separate science from platform infrastructure, and archive historical detail.
 ---
 
 # Researcher Docs Manager
 
-Use this when creating or updating project documentation to ensure it remains a high-signal "Research Dashboard" rather than a technical log.
-
-## Documentation Principles
-
-1.  **Separation of Concerns:** Keep physics theory, results, and workflows in `research/robert/`. Keep platform, deployment, and technical infrastructure details in `docs/ops/`.
-2.  **Evidence-Led:** Do not promote claims beyond "Sanity checked" in the `evidence-ledger.md` without ledger-supported evidence (equations, data, or reproducible outputs).
-3.  **Researcher-First UX:** The root `README.md` must be a high-level dashboard. Move technical "noise" (ports, docker commands, logs) to `docs/ops/deployment-reference.md`.
-4.  **Explicit Terminology:** Always distinguish between Bose-Einstein distributions and Boltzmann/Juttner approximations. Use precise HEP terminology.
+Use this when creating, updating, or curating project documentation to ensure it remains a high-signal "Research Dashboard" rather than a technical log, and to clean up stale or duplicated notes.
 
 ## Read First
-
-- `README.md` & `AGENTS.md`
+- `AGENTS.md`
+- `README.md`
+- `ACTION_PLAN.md`
 - `research/robert/evidence-ledger.md` (Source of Truth for science)
 - `research/robert/next-actions.md` (Active task queue)
 - `docs/ops/platform-backlog.md` (Infrastructure queue)
 
-## Operational Tasks
-
-- **Science Updates:** When data (like $p_T$ tables) arrives or findings change, update the `evidence-ledger.md` and `next-actions.md`.
-- **Infrastructure Sync:** Update `docs/ops/platform-backlog.md` when platform milestones or blockers are identified.
-- **Decision Logging:** Record durable architectural or methodological choices in `docs/decisions/`.
-- **Archive Drift:** Move implemented or superseded details to `docs/archive/` to keep active docs concise.
-
-## Science Integrity Rules
-
-- **No physical interpretation** of fit parameters without chi2/ndf, covariance, and residuals.
-- **Mandatory baselines:** Always compare results against Tsallis and Blast-Wave models.
-- **Flag Assumptions:** Explicitly document massless or pseudorapidity assumptions in any analysis.
+## Rules
+- **Separation of Concerns:** Keep physics theory and results in `research/robert/`. Keep platform and deployment details in `docs/ops/`. Do not mix them.
+- **Evidence-Led:** Do not promote claims beyond "Sanity checked" without ledger-supported evidence. No physical interpretation of fit parameters without chi2/ndf, covariance, and residuals.
+- **Terminology:** Always distinguish between Bose-Einstein distributions and Boltzmann/Juttner approximations. Flag massless/pseudorapidity assumptions.
+- **Curating Hygiene:** Keep active docs short and current. Prefer editing existing active docs over creating new files.
+- **Archiving:** Move historical detail to `docs/archive/` only when it is no longer current. Preserve a durable one-sentence summary in the active doc. Add a legacy note when archiving. Do not delete scientific evidence history.
 
 ## Workflow
+1. Analyze the request and active docs: Is it Science, Infrastructure, or Documentation? Are there stale or duplicated items?
+2. Compare active docs against current repo state and git history.
+3. For implemented items, update status or compress the note to a durable summary.
+4. For stale detail, keep the crucial sentence in the active doc and archive the rest.
+5. Update canonical trackers (`evidence-ledger.md`, `next-actions.md`, or `platform-backlog.md`) appropriately.
+6. Record durable architectural choices in `docs/decisions/`.
 
-1.  Analyze the current request: Is it Science, Infrastructure, or Documentation?
-2.  Identify the canonical file(s) that should hold the information.
-3.  Draft changes that prioritize the "Signal-to-Noise" ratio for a physicist.
-4.  Log any identified technical issues into the relevant backlog, but do not fix them unless explicitly directed.
-5.  Offer the user "Follow-Through" paths (Implement, Persist, or Handoff).
+## Output & Approval Gates
+- Ask before creating a new Markdown file. A new file is justified only if an existing canonical doc cannot hold the information clearly.
+- Offer the user "Follow-Through" paths (Implement, Persist, or Handoff) for identified technical issues rather than fixing them silently.

@@ -5,14 +5,20 @@ They are plain Markdown guides, not tied to any specific model, IDE, or CLI.
 
 Use these skills by reading only the relevant `SKILL.md` for the current task. Do not bulk-load every skill unless the user asks for a broad process review.
 
+## Skill Structure
+All skills follow the `TEMPLATE.md` schema:
+1. `## Read First`: Lists `AGENTS.md` and required canonical context.
+2. `## Rules`: Hard boundaries and constraints.
+3. `## Workflow`: Step-by-step execution guides.
+4. `## Output & Approval Gates`: When to ask for permission and how to shape output.
+
 ## Available Skills
 
 - `aisci-tech-kickoff` - start a technical work session, choose a safe first task, and execute or plan it.
 - `analysis-handoff-router` - after analysis, offer implementation, targeted persistence, or a next-session prompt.
 - `git-worktree-guard` - use git status/history safely for context while preserving unrelated changes.
 - `platform-backlog-manager` - manage actionable platform work in `docs/ops/platform-backlog.md`.
-- `researcher-docs-manager` - maintain high-signal research docs and separate physics from infra.
-- `working-docs-curator` - clean stale working docs, archive history, and keep active docs concise.
+- `researcher-docs-manager` - maintain high-signal research docs, separate physics from infra, clean stale working docs, and archive history.
 - `aisci-ops-auditor` - audit Onyx, DeerFlow, MCP, Docker, models, and deployment docs/config.
 - `secret-config-auditor` - review secrets, env handling, Docker socket exposure, auth mounts, and MCP config leaks.
 - `mcp-integration-planner` - plan shared MCP/API integrations for literature and citation tools.

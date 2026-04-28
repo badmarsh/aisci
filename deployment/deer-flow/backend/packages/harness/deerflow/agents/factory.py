@@ -136,6 +136,15 @@ def create_deerflow_agent(
                 effective_tools.append(t)
                 existing_names.add(t.name)
 
+    if type(model).__name__ == "MindIEChatModel" and effective_tools:
+        xml_prompt = (
+            "\n\n**TOOL USE INSTRUCTIONS:**\n"
+            "You have access to tools. To call a tool, output EXACTLY this XML format:\n"
+            "<tool_call> <function=TOOL_NAME> <parameter=PARAM_NAME>value</parameter> </function> </tool_call>\n"
+            "Do not wrap the XML in markdown or backticks."
+        )
+        system_prompt = (system_prompt or "") + xml_prompt
+
     return create_agent(
         model=model,
         tools=effective_tools or None,
@@ -254,9 +263,11 @@ def _assemble_from_features(
             from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddleware
 
             chain.append(ViewImageMiddleware())
-        from deerflow.tools.builtins import view_image_tool
 
-        extra_tools.append(view_image_tool)
+        if feat.sandbox is not False:
+            from deerflow.tools.builtins import view_image_tool
+
+            extra_tools.append(view_image_tool)
 
     # --- [11] Subagent ---
     if feat.subagent is not False:

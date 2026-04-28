@@ -5,9 +5,13 @@ description: Manage actionable platform, deployment, MCP, Docker, model, securit
 
 # Platform Backlog Manager
 
+## Read First
+
+- `AGENTS.md`
+
 Use this when working with `docs/ops/platform-backlog.md`.
 
-## Operations
+## Workflow
 
 - `list`: summarize open items by priority and system.
 - `add`: add user-approved actionable findings.
@@ -25,7 +29,7 @@ Use this when working with `docs/ops/platform-backlog.md`.
 - Do not put science claims or fit conclusions here.
 - Do not mark an item `Done` without evidence from files, commands, or user confirmation.
 
-## Row Guidance
+## Output & Approval Gates
 
 Use the existing table shape:
 
@@ -35,7 +39,7 @@ Use the existing table shape:
 
 Statuses should be plain and specific, such as `Open`, `Partially done`, `Blocked`, or `Done`.
 
-## Implementation Mode
+## Output & Approval Gates
 
 When the user asks to implement backlog findings in bulk:
 

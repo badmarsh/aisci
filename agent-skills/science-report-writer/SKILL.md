@@ -34,7 +34,7 @@ Use this when writing or revising science-facing reports such as `research/rober
 5. Separate scientific critique, reproducibility gaps, and platform/tool execution notes.
 6. Offer targeted persistence before editing the report.
 
-## Output Shape
+## Output & Approval Gates
 
 Prefer:
 

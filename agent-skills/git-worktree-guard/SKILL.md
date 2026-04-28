@@ -7,7 +7,7 @@ description: Use git safely for project context and change hygiene: inspect stat
 
 Use this at the start of coding, docs, cleanup, review, or implementation work.
 
-## Context From Git
+## Read First
 
 Use git history to understand recent project direction:
 
@@ -47,7 +47,7 @@ When committing:
 - Mention unrelated dirty files that were left untouched.
 - Use concise commit messages that describe the completed change.
 
-## Reporting
+## Output & Approval Gates
 
 When reporting work:
 

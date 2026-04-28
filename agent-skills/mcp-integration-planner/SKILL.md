@@ -5,6 +5,10 @@ description: Plan shared MCP or direct API integrations for research and citatio
 
 # MCP Integration Planner
 
+## Read First
+
+- `AGENTS.md`
+
 Use this when planning or documenting MCP/API integrations.
 
 ## Goals
@@ -24,7 +28,7 @@ Use this when planning or documenting MCP/API integrations.
 5. Add user-approved actionable tasks to `docs/ops/platform-backlog.md`.
 6. Add durable topology decisions to `docs/decisions/` only when stable.
 
-## Approval Gates
+## Output & Approval Gates
 
 Ask before:
 

@@ -1,5 +1,8 @@
 # Referee Report Draft
 
+> **Draft date:** 2026-04-27  
+> **Based on:** `research/robert/evidence-ledger.md` state as of 2026-04-27 (all claims at Sanity checked, Suggestive, Open, or Blocked).
+
 This is an output draft, not the source of truth. Promote or revise findings from `evidence-ledger.md` after the relevant evidence gates pass.
 
 ## Summary

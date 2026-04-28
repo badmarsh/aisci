@@ -337,8 +337,8 @@ services:
       - NGINX_PROXY_SEND_TIMEOUT=${NGINX_PROXY_SEND_TIMEOUT:-300}
       - NGINX_PROXY_READ_TIMEOUT=${NGINX_PROXY_READ_TIMEOUT:-300}
     ports:
-      - "${HOST_PORT_80:-80}:80"
-      - "${HOST_PORT:-3000}:80"
+      - "127.0.0.1:${HOST_PORT_80:-80}:80"
+      - "127.0.0.1:${HOST_PORT:-3000}:80"
     volumes:
       - ../data/nginx:/nginx-templates:ro
     command: >
@@ -408,7 +408,7 @@ services:
     image: ${UNSTRUCTURED_IMAGE:-quay.io/unstructured-io/unstructured-api:latest}
     restart: unless-stopped
     ports:
-      - "${UNSTRUCTURED_HOST_PORT:-9560}:8000"
+      - "127.0.0.1:${UNSTRUCTURED_HOST_PORT:-9560}:8000"
     environment:
       # No cloud API key needed — running fully local
       - UNSTRUCTURED_API_KEY=${UNSTRUCTURED_API_KEY:-}
@@ -436,7 +436,7 @@ services:
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
     command: [ "--config", "/app/config.yaml", "--port", "4000", "--num_workers", "4" ]
@@ -447,7 +447,7 @@ services:
   mcp_proxy:
     image: nginx:1.25.5-alpine
     ports:
-      - "8095:80"
+      - "127.0.0.1:8095:80"
     volumes:
       - ./nginx_configs/mcp_proxy.conf.template:/etc/nginx/templates/default.conf.template:ro
     restart: unless-stopped

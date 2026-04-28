@@ -34,6 +34,6 @@ Use this when executing or preparing physics validation work in `physics/src/` o
 5. Save command, inputs, assumptions, outputs, and interpretation limits.
 6. Update `research/robert/evidence-ledger.md` or `research/robert/next-actions.md` only when the user accepts the change.
 
-## Approval Gates
+## Output & Approval Gates
 
 Ask before large parameter sweeps, long compute jobs, installing packages, or changing canonical science status.

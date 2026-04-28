@@ -5,9 +5,13 @@ description: Review repository config, deployment files, docs, and runtime assum
 
 # Secret Config Auditor
 
+## Read First
+
+- `AGENTS.md`
+
 Use this for security-sensitive config review.
 
-## Safety Rules
+## Rules
 
 - Do not print secret values.
 - Redact keys, tokens, cookies, passwords, and admin credentials in all output.
@@ -33,6 +37,6 @@ Use this for security-sensitive config review.
 4. Recommend remediation: env vars, gitignore, key rotation, history cleanup, binding restrictions, auth/redaction.
 5. Ask before changing configs or writing sensitive operational notes.
 
-## Output
+## Output & Approval Gates
 
 List findings with redacted evidence, risk, and exact next action. Offer targeted persistence into `docs/ops/platform-backlog.md` or a relevant existing ops note.

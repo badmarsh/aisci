@@ -71,6 +71,19 @@ class LocalSandboxProvider(SandboxProvider):
                         )
                         continue
 
+                    # Reject mounts exposing sensitive local paths
+                    _RESTRICTED_HOST_PREFIXES = [
+                        "/var/run/docker.sock",
+                        str(Path.home() / ".docker"),
+                        str(Path.home() / ".config/gcloud"),
+                        str(Path.home() / ".aws"),
+                        str(Path.home() / ".ssh")
+                    ]
+                    resolved_host = str(host_path.resolve())
+                    if any(resolved_host == p or resolved_host.startswith(p + "/") for p in _RESTRICTED_HOST_PREFIXES):
+                        logger.warning("Mount host_path exposes sensitive local directory, skipping: %s", mount.host_path)
+                        continue
+
                     # Reject mounts that conflict with reserved container paths
                     if any(container_path == p or container_path.startswith(p + "/") for p in _RESERVED_CONTAINER_PREFIXES):
                         logger.warning(

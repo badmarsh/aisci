@@ -7,7 +7,9 @@ description: Manage Robert science-facing claim status, evidence states, validat
 
 Use this for science-facing work under `research/robert/`.
 
-## Canonical Files
+## Read First
+
+- `AGENTS.md`
 
 - Claim status: `research/robert/evidence-ledger.md`
 - Science task queue: `research/robert/next-actions.md`

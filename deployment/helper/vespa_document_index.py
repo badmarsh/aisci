@@ -251,7 +251,7 @@ def _update_single_chunk(
         fields=vespa_put_fields,
     )
 
-    vespa_url = f"{DOCUMENT_ID_ENDPOINT.format(index_name=index_name)}/{doc_chunk_id}?create=true"
+    vespa_url = f"{DOCUMENT_ID_ENDPOINT.format(index_name=index_name)}/{doc_chunk_id}"
 
     try:
         resp = http_client.put(

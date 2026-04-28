@@ -7,7 +7,7 @@ description: Manage science source materials such as Robert's manuscript PDF, li
 
 Use this when collecting, extracting, reconciling, or organizing source evidence for Robert's analysis.
 
-## Scope
+## Introduction & Scope
 
 Sources include:
 

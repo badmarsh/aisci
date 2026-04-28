@@ -5,9 +5,13 @@ description: Manage Onyx RAG evaluation discipline, including retrieval question
 
 # Onyx RAG Eval Manager
 
+## Read First
+
+- `AGENTS.md`
+
 Use this before changing RAG settings or when evaluating retrieval quality.
 
-## Core Rule
+## Rules
 
 Do not tune embeddings, rerank counts, hybrid weights, contextual RAG, parser choices, or document sets without an evaluation set or explicit user approval.
 
@@ -31,6 +35,6 @@ Store platform evaluation notes in `docs/ops/`. Do not store science claim concl
 4. If no evaluation set exists, propose one before tuning.
 5. When testing retrieval, record exact queries, expected sources, and observed behavior.
 
-## Approval Gates
+## Output & Approval Gates
 
 Ask before reindexing, resetting connectors, recreating containers, changing embedding dimensions, or switching production parsers.

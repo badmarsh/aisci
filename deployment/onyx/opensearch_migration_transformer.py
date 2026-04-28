@@ -37,6 +37,8 @@ from shared_configs.configs import MULTI_TENANT
 
 logger = setup_logger(__name__)
 
+_METADATA_ONLY_SIGNATURES_LOGGED: set[tuple[str, ...]] = set()
+
 
 FIELDS_NEEDED_FOR_TRANSFORMATION: list[str] = [
     DOCUMENT_ID,
@@ -69,42 +71,18 @@ if MULTI_TENANT:
 
 
 def _extract_content_vector(embeddings: Any) -> list[float]:
-    """Extracts the full chunk embedding vector from Vespa's embeddings tensor.
-
-    Vespa stores embeddings as a tensor<float>(t{},x[dim]) where 't' maps
-    embedding names (like "full_chunk") to vectors. The API can return this in
-    different formats:
-    1. Direct list: {"full_chunk": [...]}
-    2. Blocks format: {"blocks": {"full_chunk": [0.1, 0.2, ...]}}
-    3. Possibly other formats.
-
-    We only support formats 1 and 2. Any other supplied format will raise an
-    error.
-
-    Raises:
-        ValueError: If the embeddings format is not supported.
-
-    Returns:
-        The full chunk content embedding vector as a list of floats.
-    """
     if isinstance(embeddings, dict):
-        # Handle format 1.
         full_chunk_embedding = embeddings.get(FULL_CHUNK_EMBEDDING_KEY)
         if isinstance(full_chunk_embedding, list):
-            # Double check that within the list we have floats and not another
-            # list or dict.
             if not full_chunk_embedding:
                 raise ValueError("Full chunk embedding is empty.")
             if isinstance(full_chunk_embedding[0], float):
                 return full_chunk_embedding
 
-        # Handle format 2.
         blocks = embeddings.get("blocks")
         if isinstance(blocks, dict):
             full_chunk_embedding = blocks.get(FULL_CHUNK_EMBEDDING_KEY)
             if isinstance(full_chunk_embedding, list):
-                # Double check that within the list we have floats and not another
-                # list or dict.
                 if not full_chunk_embedding:
                     raise ValueError("Full chunk embedding is empty.")
                 if isinstance(full_chunk_embedding[0], float):
@@ -114,44 +92,18 @@ def _extract_content_vector(embeddings: Any) -> list[float]:
 
 
 def _extract_title_vector(title_embedding: Any | None) -> list[float] | None:
-    """Extract the title embedding vector.
-
-    Returns None if no title embedding exists.
-
-    Vespa returns title_embedding as tensor<float>(x[dim]) which can be in
-    formats:
-    1. Direct list: [0.1, 0.2, ...]
-    2. Values format: {"values": [0.1, 0.2, ...]}
-    3. Possibly other formats.
-
-    Only formats 1 and 2 are supported. Any other supplied format will raise an
-    error.
-
-    Raises:
-        ValueError: If the title embedding format is not supported.
-
-    Returns:
-        The title embedding vector as a list of floats.
-    """
     if title_embedding is None:
         return None
 
-    # Handle format 1.
     if isinstance(title_embedding, list):
-        # Double check that within the list we have floats and not another
-        # list or dict.
         if not title_embedding:
             return None
         if isinstance(title_embedding[0], float):
             return title_embedding
 
-    # Handle format 2.
     if isinstance(title_embedding, dict):
-        # Try values format.
         values = title_embedding.get("values")
         if values is not None and isinstance(values, list):
-            # Double check that within the list we have floats and not another
-            # list or dict.
             if not values:
                 return None
             if isinstance(values[0], float):
@@ -180,6 +132,43 @@ def _transform_vespa_acl_to_opensearch_acl(
     return is_public, acl_list
 
 
+def _unwrap_vespa_visit_record(vespa_chunk: dict[str, Any]) -> dict[str, Any]:
+    fields = vespa_chunk.get("fields")
+    if isinstance(fields, dict):
+        return fields
+    return vespa_chunk
+
+
+def _is_metadata_only_visit_record(vespa_chunk: dict[str, Any]) -> bool:
+    if DOCUMENT_ID in vespa_chunk:
+        return False
+
+    allowed_fields = {
+        ACCESS_CONTROL_LIST,
+        BOOST,
+        DOCUMENT_SETS,
+        HIDDEN,
+        PERSONAS,
+        PRIMARY_OWNERS,
+        SECONDARY_OWNERS,
+        TENANT_ID,
+        USER_PROJECT,
+    }
+    return bool(vespa_chunk) and set(vespa_chunk).issubset(allowed_fields)
+
+
+def _log_metadata_only_record_once(vespa_chunk: dict[str, Any]) -> None:
+    signature = tuple(sorted(vespa_chunk))
+    if signature in _METADATA_ONLY_SIGNATURES_LOGGED:
+        return
+
+    _METADATA_ONLY_SIGNATURES_LOGGED.add(signature)
+    logger.warning(
+        "Skipping metadata-only Vespa visit record missing document_id. keys=%s",
+        list(signature),
+    )
+
+
 def transform_vespa_chunks_to_opensearch_chunks(
     vespa_chunks: list[dict[str, Any]],
     tenant_state: TenantState,
@@ -187,19 +176,16 @@ def transform_vespa_chunks_to_opensearch_chunks(
 ) -> tuple[list[DocumentChunk], list[dict[str, Any]]]:
     result: list[DocumentChunk] = []
     errored_chunks: list[dict[str, Any]] = []
-    for vespa_chunk in vespa_chunks:
+    for raw_vespa_chunk in vespa_chunks:
+        vespa_chunk = _unwrap_vespa_visit_record(raw_vespa_chunk)
+        if _is_metadata_only_visit_record(vespa_chunk):
+            _log_metadata_only_record_once(vespa_chunk)
+            continue
+
         try:
-            # This should exist; fail loudly if it does not.
             vespa_document_id: str = vespa_chunk[DOCUMENT_ID]
             if not vespa_document_id:
                 raise ValueError("Missing document_id in Vespa chunk.")
-            # Vespa doc IDs were sanitized using
-            # replace_invalid_doc_id_characters. This was a poor design choice
-            # and we don't want this in OpenSearch; whatever restrictions there
-            # may be on indexed chunk ID should have no bearing on the chunk's
-            # document ID field, even if document ID is an argument to the chunk
-            # ID. Deliberately choose to use the real doc ID supplied to this
-            # function.
             if vespa_document_id in sanitized_to_original_doc_id_mapping:
                 logger.warning(
                     f"Migration warning: Vespa document ID {vespa_document_id} does not match the document ID supplied "
@@ -210,25 +196,18 @@ def transform_vespa_chunks_to_opensearch_chunks(
                 vespa_document_id, vespa_document_id
             )
 
-            # This should exist; fail loudly if it does not.
             chunk_index: int = vespa_chunk[CHUNK_ID]
 
             title: str | None = vespa_chunk.get(TITLE)
-            # WARNING: Should supply format.tensors=short-value to the Vespa
-            # client in order to get a supported format for the tensors.
             title_vector: list[float] | None = _extract_title_vector(
                 vespa_chunk.get(TITLE_EMBEDDING)
             )
 
-            # This should exist; fail loudly if it does not.
             content: str = vespa_chunk[CONTENT]
             if not content:
                 raise ValueError(
                     f"Missing content in Vespa chunk with document ID {vespa_document_id} and chunk index {chunk_index}."
                 )
-            # This should exist; fail loudly if it does not.
-            # WARNING: Should supply format.tensors=short-value to the Vespa
-            # client in order to get a supported format for the tensors.
             content_vector: list[float] = _extract_content_vector(
                 vespa_chunk[EMBEDDINGS]
             )
@@ -237,7 +216,6 @@ def transform_vespa_chunks_to_opensearch_chunks(
                     f"Missing content_vector in Vespa chunk with document ID {vespa_document_id} and chunk index {chunk_index}."
                 )
 
-            # This should exist; fail loudly if it does not.
             source_type: str = vespa_chunk[SOURCE_TYPE]
             if not source_type:
                 raise ValueError(
@@ -254,11 +232,8 @@ def transform_vespa_chunks_to_opensearch_chunks(
             )
 
             hidden: bool = vespa_chunk.get(HIDDEN, False)
-
-            # This should exist; fail loudly if it does not.
             global_boost: int = vespa_chunk[BOOST]
 
-            # This should exist; fail loudly if it does not.
             semantic_identifier: str = vespa_chunk[SEMANTIC_IDENTIFIER]
             if not semantic_identifier:
                 raise ValueError(
@@ -304,8 +279,6 @@ def transform_vespa_chunks_to_opensearch_chunks(
                     )
 
             opensearch_chunk = DocumentChunk(
-                # We deliberately choose to use the doc ID supplied to this function
-                # over the Vespa doc ID.
                 document_id=document_id,
                 chunk_index=chunk_index,
                 title=title,

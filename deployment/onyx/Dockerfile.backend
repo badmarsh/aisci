@@ -18,7 +18,9 @@ RUN if [ "$ENABLE_CRAFT" = "true" ]; then \
 RUN sed -i 's/settings\.ee_features_enabled = False/settings.ee_features_enabled = True/g' /app/ee/onyx/server/settings/api.py && \
     sed -i 's/settings\.application_status = _BLOCKING_STATUS/settings.application_status = ApplicationStatus.ACTIVE/g' /app/ee/onyx/server/settings/api.py && \
     sed -i 's/"beat": "beat"/"celery.versioned_apps.beat": "beat"/g' /app/onyx/background/celery/tasks/monitoring/tasks.py && \
+    sed -i 's#<disk>0.85</disk>#<disk>0.95</disk>#g' /app/onyx/document_index/vespa/app_config/services.xml.jinja && \
     sed -i 's/vespa_document_id: str = vespa_chunk\[DOCUMENT_ID\]/vespa_chunk = vespa_chunk.get("fields", vespa_chunk); vespa_document_id: str = vespa_chunk[DOCUMENT_ID]/g' /app/onyx/background/celery/tasks/opensearch_migration/transformer.py && \
+    sed -i 's/?create=true//g' /app/onyx/document_index/vespa/vespa_document_index.py && \
     sed -i 's/command=python onyx\/utils\/supervisord_watchdog\.py/command=python -m onyx.utils.supervisord_watchdog/g' /etc/supervisor/conf.d/supervisord.conf
 
 # Install Node.js 20 which is required for Craft
@@ -33,5 +35,6 @@ RUN if [ "$ENABLE_CRAFT" = "true" ]; then \
 
 COPY unstructured.py /app/onyx/file_processing/unstructured.py
 COPY extract_file_text.py /app/onyx/file_processing/extract_file_text.py
+COPY opensearch_migration_transformer.py /app/onyx/background/celery/tasks/opensearch_migration/transformer.py
 
 ENV PATH="/usr/local/bin:${PATH}"

@@ -7,7 +7,7 @@ description: Start a technical work session in /home/ubuntu/aisci by reading cur
 
 Use this at the start of a tech-side coding session.
 
-## Required Context
+## Read First
 
 Read:
 
@@ -22,7 +22,7 @@ Read:
 Then inspect `git status --short` and preserve unrelated changes.
 Use `agent-skills/git-worktree-guard/SKILL.md` when git status or history affects the task choice.
 
-## Task Selection
+## Workflow
 
 Pick a small, high-leverage, non-destructive first task. Prefer:
 
@@ -38,7 +38,7 @@ Do not run reindexing, container recreation, image rebuilds, large model pulls, 
 
 Tell the user the selected task and why it is the best first move. If it is a safe documentation/backlog cleanup, implement after stating the plan. If it needs approval, write the exact approval-gated commands and patch plan instead.
 
-## Output
+## Output & Approval Gates
 
 Report:
 

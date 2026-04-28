@@ -12,10 +12,7 @@ Science-facing work belongs under `research/`, not here. The `research/robert/` 
 
 ## Current Priority
 
-1. Stabilize Onyx as the private evidence and RAG layer.
-2. Stabilize DeerFlow as the orchestration and execution layer.
-3. Move Robert's active paper-validation workflow into `research/robert/`.
-4. Keep secrets and live local configs out of git.
+For current project-wide priorities, always refer to the root [`../ACTION_PLAN.md`](../ACTION_PLAN.md).
 
 ## Science Evidence Standard
 

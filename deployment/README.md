@@ -1,21 +1,14 @@
-# Onyx Deployment Directory
+# Deployment
 
-This directory contains all deployment-related files for the Onyx system, organized by platform.
+This folder contains the Docker Compose stacks, configuration templates, and helper scripts for the local AI infrastructure.
 
-## Directory Structure:
-- `/onyx/` - Onyx-specific deployment files:
-  - `docker-compose.yml` - Main Docker Compose configuration for Onyx services
-  - `nginx_mcp_proxy.conf` - Configuration for the Model Context Protocol (MCP) proxy
-  - `.env` - Environment variables for the deployment
-  - `env.template` - Template for environment variables
-  - `nginx_configs/` - Nginx configuration files
-  - `litellm_config.yaml` - Configuration for LiteLLM service
-  - `Dockerfile.backend` - Dockerfile for the backend service
-  - `openapi.json` - OpenAPI specification
-  - `trigger_reindex.py` - Script to trigger reindexing
-  - `DEPLOYMENT_STATUS.md` - Current status of deployment
+## Stack Overview
+- `onyx/` - The curated evidence and retrieval (RAG) layer. See `docs/ops/critical-components.md` for current integration status.
+- `deer-flow/` - The orchestration and execution layer for the physics workflow agents.
+- `helper/` - Temporary operational scripts and migration helpers.
 
-- `/deer-flow/` - Deer-Flow-specific deployment files (future)
-
-## Purpose:
-This directory contains all necessary files to deploy and run the Onyx system with the physics validation features.
+## Rules
+- Do NOT commit live secrets (`.env` files) or model cache binaries to git.
+- Keep platform implementation details and ops logs out of the `research/robert/` science files.
+- Track deployment blockers and tasks in `docs/ops/platform-backlog.md`.
+- Document deployment decisions in `docs/decisions/`.

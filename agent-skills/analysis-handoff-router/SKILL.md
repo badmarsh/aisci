@@ -5,9 +5,13 @@ description: Route findings after an analysis, audit, review, or research pass b
 
 # Analysis Handoff Router
 
+## Read First
+
+- `AGENTS.md`
+
 Use this after analysis produces findings or recommendations.
 
-## Core Rule
+## Rules
 
 Do not automatically write all suggestions into canonical files. Offer the user three choices:
 
@@ -28,7 +32,7 @@ Name exact targets when offering persistence:
 
 Prefer existing files. Ask before creating a new dated analysis file.
 
-## Handoff Prompt Format
+## Output & Approval Gates
 
 When writing a next-session prompt, include:
 

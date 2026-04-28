@@ -48,3 +48,4 @@ arxiv_results.xml
 
 # Large source PDFs at repo root (store in research/robert/ or external storage)
 /*.pdf
+.aider*

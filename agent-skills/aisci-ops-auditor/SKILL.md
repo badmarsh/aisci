@@ -7,7 +7,7 @@ description: Audit the technical architecture and operations of AiSci, including
 
 Use this for architecture, platform, or operations analysis.
 
-## Scope
+## Introduction & Scope
 
 Focus on:
 
@@ -30,7 +30,7 @@ Focus on:
 - `docs/decisions/*.md`
 - Relevant files under `deployment/onyx/` and `deployment/deer-flow/`
 
-## Output
+## Output & Approval Gates
 
 Produce findings with:
 
