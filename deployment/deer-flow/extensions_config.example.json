@@ -39,6 +39,28 @@
       ],
       "env": {},
       "description": "PostgreSQL database access"
+    },
+    "scite": {
+      "enabled": false,
+      "type": "sse",
+      "url": "http://host.docker.internal:8095/scite/sse",
+      "description": "Scite API for literature citation contexts and exact manuscript claim verification"
+    },
+    "consensus": {
+      "enabled": false,
+      "type": "sse",
+      "url": "http://host.docker.internal:8095/consensus/sse",
+      "description": "Consensus API for academic search and claim grounding"
+    },
+    "arxiv": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "x",
+        "mcp-server-arxiv"
+      ],
+      "description": "arXiv MCP server for direct paper lookup and metadata fetching"
     }
   },
   "skills": {}

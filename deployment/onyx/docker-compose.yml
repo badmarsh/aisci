@@ -94,7 +94,7 @@ services:
       - craft_venv_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
       - craft_outputs_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
       # VS Code workspace volume mapping
-      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+      - /home/ubuntu/aisci:/workspace/aisci:rw
 
   background:
     image: onyx-backend-custom:edge
@@ -169,7 +169,7 @@ services:
       - craft_venv_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
       - craft_outputs_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
       # VS Code workspace volume mapping
-      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+      - /home/ubuntu/aisci:/workspace/aisci:rw
     logging:
       driver: json-file
       options:
@@ -204,14 +204,13 @@ services:
       - model_cache_huggingface:/app/.cache/huggingface/
       - inference_model_server_logs:/var/log/onyx
       # Optional: Map workspace for model-related files
-      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+      - /home/ubuntu/aisci:/workspace/aisci:rw
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - DOCUMENT_ENCODER_MODEL=nomic-ai/nomic-embed-text-v1
+      - EMBEDDING_DIM=768
+      - NORMALIZE_EMBEDDINGS=True
     logging:
       driver: json-file
       options:
@@ -244,18 +243,16 @@ services:
     restart: unless-stopped
     environment:
       - INDEXING_ONLY=True
+      - NVIDIA_VISIBLE_DEVICES=all
+      - DOCUMENT_ENCODER_MODEL=nomic-ai/nomic-embed-text-v1
+      - EMBEDDING_DIM=768
+      - NORMALIZE_EMBEDDINGS=True
+    runtime: nvidia
     volumes:
       - indexing_huggingface_model_cache:/app/.cache/huggingface/
       - indexing_model_server_logs:/var/log/onyx
       # Optional: Map workspace for indexing-related files
-      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+      - /home/ubuntu/aisci:/workspace/aisci:rw
     logging:
       driver: json-file
       options:
@@ -392,21 +389,17 @@ services:
     volumes:
       - ${DOCKER_SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
       # Map workspace for code interpreter to access files
-      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+      - /home/ubuntu/aisci:/workspace/aisci:rw
 
   ollama:
     image: ollama/ollama:latest
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
     volumes:
       - ollama_volume:/root/.ollama
       # Map workspace for Ollama to access files
-      - /home/ubuntu/onyx_data:/workspace/onyx_data:rw
+      - /home/ubuntu/aisci:/workspace/aisci:rw
     restart: unless-stopped
 
   unstructured:
@@ -456,7 +449,7 @@ services:
     ports:
       - "8095:80"
     volumes:
-      - ./nginx_mcp_proxy.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx_configs/mcp_proxy.conf.template:/etc/nginx/templates/default.conf.template:ro
     restart: unless-stopped
 
 volumes:
