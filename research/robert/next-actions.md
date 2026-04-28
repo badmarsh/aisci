@@ -2,8 +2,8 @@
 
 ## Now
 
-1. Get a fit-ready source table matching the manuscript multiplicity bins `21-30`, `31-40`, `41-50`, `51-60`, `61-70`, `71-80`, `81-90`, `91-100`, `101-125`, and `126-150`; `research/robert/runs/2026-04-27-baseline-fit/hepdata_mapping_validation.json` shows `ins1419652` only provides inclusive `pT` spectra with `N(P=3) >= 1`.
-2. Tie the manuscript's confirmed `exp(-beta U.p)` exponential form in `research/robert/runs/2026-04-27-baseline-fit/formula_confirmation.json` to a stable page/equation identifier in the manuscript export.
+1. Confirm and document the manuscript's use of a Juttner/relativistic Boltzmann exponential rather than a full Bose-Einstein form by tying the `juttner_relativistic_boltzmann_exponential` classification from `research/robert/runs/2026-04-27-baseline-fit/fit_run_status.json` and `formula_confirmation.json` to a stable page/equation identifier in the manuscript export, and adding an explicit approximation statement to the manuscript text.
+2. Get a fit-ready source table matching the manuscript multiplicity bins `21-30`, `31-40`, `41-50`, `51-60`, `61-70`, `71-80`, `81-90`, `91-100`, `101-125`, and `126-150`; `research/robert/runs/2026-04-27-baseline-fit/hepdata_mapping_validation.json` shows `ins1419652` only provides inclusive `pT` spectra with `N(P=3) >= 1`.
 3. Re-run `physics/src/fitting_pipeline.py` after `fit_input.csv` exists, then compute chi2/ndf, covariance, parameter correlations, residuals, and model-comparison tables.
 4. Install a plotting backend such as `matplotlib` before the first fit-ready rerun so residual and pull plots can be emitted with the rest of the run artifacts.
 5. Create U versus multiplicity and temperature versus multiplicity plots only after fit quality gates pass.
