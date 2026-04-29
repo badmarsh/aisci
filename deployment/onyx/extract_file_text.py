@@ -25,7 +25,10 @@ from openpyxl.worksheet._read_only import ReadOnlyWorksheet
 from PIL import Image
 
 from onyx.configs.app_configs import MAX_EMBEDDED_IMAGES_PER_FILE
-from onyx.configs.app_configs import MAX_XLSX_CELLS_PER_SHEET
+try:
+    from onyx.configs.app_configs import MAX_XLSX_CELLS_PER_SHEET
+except ImportError:
+    MAX_XLSX_CELLS_PER_SHEET = 100000
 from onyx.configs.constants import ONYX_METADATA_FILENAME
 from onyx.configs.llm_configs import get_image_extraction_and_analysis_enabled
 from onyx.file_processing.file_types import OnyxFileExtensions

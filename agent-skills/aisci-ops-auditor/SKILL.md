@@ -24,6 +24,7 @@ Use this for architecture, platform, or operations analysis.
 - Use `secret-config-auditor` for deep secret scanning; do not reproduce secret values inline.
 - Do not recommend destructive operations (container deletion, volume wipes) without explicit user approval.
 - Flag documentation drift between `README.md`, `ACTION_PLAN.md`, `docs/ops/`, and deployment files as a separate finding category.
+- Craft must always be enabled (`ENABLE_CRAFT=true` in `deployment/onyx/.env`). If it is disabled, flag it as a High severity issue and enable it.
 - Severity levels are: `Critical` (data loss / secret exposure risk), `High` (service broken), `Medium` (degraded functionality), `Low` (drift / tech debt).
 
 ## Workflow
