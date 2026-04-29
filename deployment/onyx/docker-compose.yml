@@ -402,6 +402,12 @@ services:
       # Map workspace for Ollama to access files
       - /home/ubuntu/aisci:/workspace/aisci:rw
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   unstructured:
     # quay.io image is the actual HTTP API server (free, no key required for local use)
@@ -441,9 +447,13 @@ services:
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
     command: [ "--config", "/app/config.yaml", "--port", "4000", "--num_workers", "4" ]
+    environment:
+      # Prevent external cost-map fetches that corrupt the aiohttp SSL session state
+      - LITELLM_LOCAL_MODEL_COST_MAP=true
     restart: unless-stopped
     depends_on:
-      - ollama
+      ollama:
+        condition: service_healthy
 
   mcp_proxy:
     image: nginx:1.25.5-alpine

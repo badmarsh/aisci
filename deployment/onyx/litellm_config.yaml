@@ -1,21 +1,27 @@
 model_list:
 - litellm_params:
-    api_base: http://ollama:11434
-    model: ollama/gemma2:27b
+    # Use openai-compatible endpoint to avoid aiohttp SSL context bug with ollama/ prefix
+    api_base: http://ollama:11434/v1
+    api_key: ollama
+    model: openai/gemma2:27b
   model_name: gemma2
 - litellm_params:
-    api_base: http://ollama:11434
-    model: ollama/qwen2.5:32b
+    api_base: http://ollama:11434/v1
+    api_key: ollama
+    model: openai/qwen2.5:32b
   model_name: qwen2.5
 - litellm_params:
-    api_base: http://ollama:11434
-    model: ollama/qwen2.5vl:7b
+    api_base: http://ollama:11434/v1
+    api_key: ollama
+    model: openai/qwen2.5vl:7b
   model_name: qwen2.5vl
 - litellm_params:
-    api_base: http://ollama:11434
-    model: ollama/nomic-embed-text:latest
+    api_base: http://ollama:11434/v1
+    api_key: ollama
+    model: openai/nomic-embed-text:latest
     model_type: embedding
   model_name: local-embedding-optical
 router_settings:
-  num_retries: 2
+  num_retries: 3
   timeout: 300
+  retry_after: 5
