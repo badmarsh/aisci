@@ -1,6 +1,5 @@
 # Platform Backlog
 
-<<<<<<< HEAD
 Use this file for operational work on Onyx, DeerFlow, MCP, Docker, models, and deployment security. Do not put Robert's scientific claims or fit conclusions here.
 
 | Priority | System | Issue | Why It Matters | Next Action | Status |
