@@ -9,7 +9,7 @@ name: onyx
 
 services:
   api_server:
-    image: onyx-backend-custom:edge
+    image: onyx-backend-custom:${IMAGE_TAG:-edge}
     build:
       context: .
       dockerfile: Dockerfile.backend
@@ -97,7 +97,7 @@ services:
       - /home/ubuntu/aisci:/workspace/aisci:rw
 
   background:
-    image: onyx-backend-custom:edge
+    image: onyx-backend-custom:${IMAGE_TAG:-edge}
     build:
       context: .
       dockerfile: Dockerfile.backend
@@ -112,6 +112,7 @@ services:
       if [ -f /etc/ssl/certs/custom-ca.crt ]; then
         update-ca-certificates;
       fi &&
+      rm -f /app/celerybeat-schedule /app/celerybeat-schedule.db &&
       /app/scripts/supervisord_entrypoint.sh"
     env_file:
       - path: .env
