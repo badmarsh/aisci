@@ -40,11 +40,13 @@ model_list:
     model: openai/qwen-image-2.0-pro
   model_name: qwen-vision         # visual RAG image analysis
 
-- litellm_params:
-    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-    api_key: os.environ/QWEN_API_KEY
-    model: openai/qwen-image-max
-  model_name: qwen-vision-max
+# qwen-vision-max (qwen-image-max): 100-req trial quota — not in active router.
+# Add back manually when needed for specific high-quality visual RAG queries.
+# - litellm_params:
+#     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+#     api_key: os.environ/QWEN_API_KEY
+#     model: openai/qwen-image-max
+#   model_name: qwen-vision-max
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
