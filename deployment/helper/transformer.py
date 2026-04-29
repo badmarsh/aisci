@@ -234,7 +234,9 @@ def transform_vespa_chunks_to_opensearch_chunks(
 
         try:
             # This should exist; fail loudly if it does not.
-            vespa_document_id: str = vespa_chunk[DOCUMENT_ID]
+            vespa_document_id: str | None = vespa_chunk.get(DOCUMENT_ID)
+            if not vespa_document_id:
+                vespa_document_id = raw_vespa_chunk.get("id") or raw_vespa_chunk.get(DOCUMENT_ID)
             if not vespa_document_id:
                 raise ValueError("Missing document_id in Vespa chunk.")
             # Vespa doc IDs were sanitized using

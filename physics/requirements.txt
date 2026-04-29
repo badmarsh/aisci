@@ -1,5 +1,7 @@
-scipy
-numpy
-matplotlib
-iminuit
-pandas
+numpy>=1.26,<3
+scipy>=1.12,<2
+matplotlib>=3.8,<4
+pandas>=2.2,<3
+sympy>=1.12,<2
+iminuit>=2.25,<3
+antlr4-python3-runtime

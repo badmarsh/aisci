@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import subprocess
 from dataclasses import dataclass
 from itertools import product
@@ -188,7 +189,7 @@ def manuscript_component_scalar(
 
     def integrand(eta: float) -> float:
         exponent = (gamma * mt * math.cosh(eta) - U * pt * math.sinh(eta)) / temperature
-        return math.cosh(eta) * math.exp(-min(exponent, 700.0))
+        return math.cosh(eta) * safe_exp(-exponent)
 
     return norm * pt * eta_integral(integrand, -eta_max, eta_max)
 
@@ -206,9 +207,7 @@ def bose_component_scalar(
 
     def integrand(eta: float) -> float:
         exponent = (gamma * mt * math.cosh(eta) - U * pt * math.sinh(eta)) / temperature
-        if exponent > 700.0:
-            return 0.0
-        denominator = math.exp(exponent) - 1.0
+        denominator = safe_exp(exponent) - 1.0
         if denominator <= 0.0:
             return 0.0
         return math.cosh(eta) / denominator
@@ -521,6 +520,18 @@ def fit_one_spec(
             chi2 = float(minuit.fval)
             n_parameters = len(spec.parameter_names)
             ndf = int(len(x_values) - n_parameters)
+            chi2_ndf = chi2 / ndf if ndf > 0 else None
+            
+            fit_quality_flag = "ok"
+            if chi2_ndf is not None and chi2_ndf > 5:
+                fit_quality_flag = "poor"
+            for k in spec.parameter_names:
+                err = parameter_errors.get(k)
+                val = parameter_values.get(k)
+                if err is not None and val is not None and val > 0 and err / val > 1:
+                    fit_quality_flag = "poor"
+                    break
+
             aic = chi2 + 2 * n_parameters
             bic = chi2 + n_parameters * math.log(len(x_values))
             candidate = {
@@ -528,7 +539,8 @@ def fit_one_spec(
                 "success": bool(minuit.valid),
                 "chi2": chi2,
                 "ndf": ndf,
-                "chi2_ndf": chi2 / ndf if ndf > 0 else None,
+                "chi2_ndf": chi2_ndf,
+                "fit_quality_flag": fit_quality_flag,
                 "aic": aic,
                 "bic": bic,
                 "edm": float(minuit.fmin.edm) if minuit.fmin else None,
@@ -607,7 +619,7 @@ def run_fits(run_dir: Path, fit_input: pd.DataFrame, mass_gev: float) -> dict[st
         raise ValueError("fit_input.csv must include an eta_range column")
 
     eta_range_value = str(fit_input["eta_range"].dropna().iloc[0])
-    eta_bounds = [float(value) for value in eta_range_value.split("-")]
+    eta_bounds = [float(value) for value in re.findall(r'[-+]?\d+\.?\d*', eta_range_value)]
     eta_max = max(abs(eta_bounds[0]), abs(eta_bounds[1]))
     fit_specs = build_fit_specs(eta_max=eta_max, mass_gev=mass_gev)
 
@@ -644,6 +656,7 @@ def run_fits(run_dir: Path, fit_input: pd.DataFrame, mass_gev: float) -> dict[st
                     "chi2": result.get("chi2"),
                     "ndf": result.get("ndf"),
                     "chi2_ndf": result.get("chi2_ndf"),
+                    "fit_quality_flag": result.get("fit_quality_flag", "ok"),
                     "aic": result.get("aic"),
                     "bic": result.get("bic"),
                     "edm": result.get("edm"),

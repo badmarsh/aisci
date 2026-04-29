@@ -701,3 +701,48 @@ docker compose up -d --no-deps --build --force-recreate api_server background
 - Do not treat expected-missing coverage failures as evidence for or against the embedding model.
 
 8. Only after the above, decide whether to keep Nomic/768 or run a planned embedding swap to BGE-M3/Qwen3. Any embedding model or dimension change requires a full reindex/swap and should not be mixed into this cleanup.
+
+## RAG vs. Canonical-Science File Boundary
+
+| Question Family | Canonical Source | Agent Action |
+| --- | --- | --- |
+| Claim Status | `research/robert/evidence-ledger.md` | Read file directly; do not query RAG. |
+| Pending Tasks | `research/robert/next-actions.md` | Read file directly; do not query RAG. |
+| Fit Validation | `research/robert/validation-plan.md` | Read file directly; do not query RAG. |
+
+**Practical Agent Rule:**
+Never edit research/robert/evidence-ledger.md, validation-plan.md, fit-plan.md, or referee-report-draft.md for ops reasons. Never answer claim-status, validation-gate, run-blocker, or script-assumption questions from RAG. Read the canonical file directly.
+
+## OpenSearch Cutover and Model-Server Fix Order
+
+This section records the concrete dependency order for the remaining blocking issues: LiteLLM contextual-summary timeouts, model-server misalignment, and OpenSearch migration bookkeeping. It is a planning note only; it does not authorize a deployment change.
+
+### Dependency order
+
+1. Fix the contextual-summary path so rebuild attempts can complete instead of timing out in LiteLLM.
+2. Fix the OpenSearch write-path bookkeeping bug (`KeyError: 'document_id'` in `transformer.py`) so every OpenSearch document carries a stable `document_id`.
+3. Rerun the rebuild sweep for the tracked connector/credential pairs and clear any orphaned or zombie attempts.
+4. Verify that `opensearch_document_migration_record` is populated and that `deployment/helper/onyx_opensearch_cutover.py --json` reports chunk parity or a bounded explanation for any remaining mismatch.
+5. Only after steps 1 through 4 succeed should the tenant retrieval flag be considered for cutover.
+
+Parallel to that sequence, but still approval-gated:
+
+- align `inference_model_server` and `indexing_model_server` runtime env with the active `nomic-ai/nomic-embed-text-v1` / 768-dimensional search settings
+- expose working GPU devices to `ollama`, `inference_model_server`, and `indexing_model_server`
+- verify live 768-dimensional embedding output and GPU visibility before any reindex or model swap
+
+### File locations for the minimal implementation diffs
+
+| Step | File location | Minimal change |
+| --- | --- | --- |
+| LiteLLM timeout | `deployment/onyx/litellm_config.yaml` | Raise the contextual-summary timeout to `300s` for the affected path |
+| OpenSearch write bookkeeping | Onyx source file containing `transformer.py` write path | Ensure `document_id` is always present or guarded before the OpenSearch write |
+| Rebuild/parity verification | `deployment/helper/onyx_opensearch_cutover.py` plus read-only SQL checks | No code change required for the rerun itself; use it to verify parity and bookkeeping population |
+| Model-server alignment | `deployment/onyx/docker-compose.yml` | Set both model servers to `nomic-ai/nomic-embed-text-v1` and `768`, plus working GPU exposure for model servers and `ollama` |
+
+### Cross-links
+
+- Backlog tracker: `docs/ops/platform-backlog.md`
+- Current cutover-readiness evidence: `docs/ops/onyx-rag-optimization-2026-04-27.md` section `OpenSearch Retrieval Cutover Readiness - 2026-04-27`
+- Current runtime mismatch evidence: `docs/ops/onyx-rag-optimization-2026-04-27.md` section `Remaining Platform Blockers Sweep - 2026-04-27`
+- Operational component map: `docs/ops/critical-components.md`
