@@ -1,27 +1,73 @@
 model_list:
+  # ── Local Ollama models (openai-compat endpoint, avoids aiohttp SSL bug) ──
 - litellm_params:
-    # Use openai-compatible endpoint to avoid aiohttp SSL context bug with ollama/ prefix
     api_base: http://ollama:11434/v1
     api_key: ollama
     model: openai/gemma2:27b
   model_name: gemma2
+
 - litellm_params:
     api_base: http://ollama:11434/v1
     api_key: ollama
     model: openai/qwen2.5:32b
   model_name: qwen2.5
+
 - litellm_params:
     api_base: http://ollama:11434/v1
     api_key: ollama
     model: openai/qwen2.5vl:7b
   model_name: qwen2.5vl
+
 - litellm_params:
     api_base: http://ollama:11434/v1
     api_key: ollama
     model: openai/nomic-embed-text:latest
     model_type: embedding
   model_name: local-embedding-optical
+
+  # ── Qwen Cloud API (1M ctx, fast — for contextual RAG indexing) ──
+  # api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    model: openai/qwen3.5-omni-flash
+  model_name: qwen-cloud-fast     # primary contextual RAG model
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    model: openai/qwen-image-2.0-pro
+  model_name: qwen-vision         # visual RAG image analysis
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    model: openai/qwen-image-max
+  model_name: qwen-vision-max
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    model: openai/tongyi-embedding-vision-flash
+    model_type: embedding
+  model_name: qwen-embed-vision-fast   # vision-aware retrieval embeddings
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    model: openai/tongyi-embedding-vision-plus
+    model_type: embedding
+  model_name: qwen-embed-vision        # high-quality vision embeddings
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    model: openai/text-embedding-v4
+    model_type: embedding
+  model_name: qwen-embed-text          # text embeddings via cloud
+
 router_settings:
   num_retries: 3
-  timeout: 300
+  timeout: 120
   retry_after: 5

@@ -450,6 +450,8 @@ services:
     environment:
       # Prevent external cost-map fetches that corrupt the aiohttp SSL session state
       - LITELLM_LOCAL_MODEL_COST_MAP=true
+      # Qwen cloud API key (used by os.environ/QWEN_API_KEY references in config)
+      - QWEN_API_KEY=${QWEN_API_KEY}
     restart: unless-stopped
     depends_on:
       ollama:
