@@ -14,3 +14,11 @@ Use this file for operational work on Onyx, DeerFlow, MCP, Docker, models, and d
 | P1 | MCP | Scite and Consensus MCP proxy keys are not configured or tested | Literature validation and citation context tools cannot be used reliably by Onyx or DeerFlow until the proxy is wired | Add Scite and Consensus API keys to the local `nginx_mcp_proxy` configuration (not committed), reload Nginx, run a small test query for each service, and record the outcome and example commands here. | Open |
 | P2 | Onyx | RAG vs canonical science-file boundary was implicit rather than explicit | Several retrieval-audit failures (`RAG-07`, `RAG-08`, `RAG-09`, `RAG-10`, `RAG-11`, `RAG-24`, `RAG-25`) are structural scoping failures, not model failures; without an explicit rule, agents may route science-gate or claim-status questions through RAG instead of reading from `research/robert/*` canon | Documented the boundary in `docs/ops/onyx-rag-optimization-2026-04-27.md` as a question-family table; added the ordered OpenSearch and model-server fix plan to the same file | Done |
 | P2 | Onyx | Ollama model list vs contextual RAG working contradiction | "no models found" vs "contextual RAG working" needs to be resolved to trust the infrastructure | Run `ollama list` and resolve the contradiction | Open |
+
+## Physics Pipeline Hallucination Guards (Priority: High)
+
+- [ ] Add Onyx grounding check gate: DeerFlow agents must retrieve a matching Onyx chunk before writing any formula or parameter claim to evidence-ledger.md.
+- [ ] Implement content-hash signed run artifacts: reproducible-physics-runner emits JSON with SHA256 of fit inputs + outputs; science-ledger-manager links to hash, not LLM summary.
+- [ ] Wire arXiv REST API and INSPIRE-HEP as MCP tools in DeerFlow gateway (after auth hardening).
+- [ ] Add model-selection-check sub-task to DeerFlow physics agent: auto-compute AIC/BIC/chi2-per-dof for all active model variants after each fit run.
+- [ ] Encode pT gate values as versioned `research/robert/config/ptgates.json`; reproducible-physics-runner must load and record applied gate values in run artifact header.

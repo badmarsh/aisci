@@ -7,18 +7,6 @@ description: Audit the technical architecture and operations of AiSci, including
 
 Use this for architecture, platform, or operations analysis.
 
-## Introduction & Scope
-
-Focus on:
-
-- Onyx deployment and RAG configuration.
-- DeerFlow orchestration, sandboxing, gateway, and MCP setup.
-- Docker compose files and mounted paths.
-- LiteLLM, Ollama, model names, and embedding/rerank settings.
-- MCP proxy and direct research tool integrations.
-- Documentation drift between `README.md`, `ACTION_PLAN.md`, `docs/ops/`, and deployment files.
-- Security-sensitive exposure, but use `secret-config-auditor` for a deeper secret review.
-
 ## Read First
 
 - `AGENTS.md`
@@ -30,14 +18,25 @@ Focus on:
 - `docs/decisions/*.md`
 - Relevant files under `deployment/onyx/` and `deployment/deer-flow/`
 
+## Rules
+
+- Scope is limited to platform and operations. Do not modify science files (`research/robert/`) unless the finding is execution-provenance only.
+- Use `secret-config-auditor` for deep secret scanning; do not reproduce secret values inline.
+- Do not recommend destructive operations (container deletion, volume wipes) without explicit user approval.
+- Flag documentation drift between `README.md`, `ACTION_PLAN.md`, `docs/ops/`, and deployment files as a separate finding category.
+- Severity levels are: `Critical` (data loss / secret exposure risk), `High` (service broken), `Medium` (degraded functionality), `Low` (drift / tech debt).
+
+## Workflow
+
+1. Read `AGENTS.md` and the canonical ops files listed in **Read First**.
+2. Inspect relevant deployment files under `deployment/onyx/` and `deployment/deer-flow/`.
+3. Cross-reference running container labels and compose files for path and model drift.
+4. Identify each finding with: severity, evidence file path and line where possible, impact, and suggested next action.
+5. Classify each action as: safe to implement now, needs user approval, or out of scope (refer to `secret-config-auditor`).
+6. Offer three continuations: implement safe actions now, persist findings to `docs/ops/platform-backlog.md`, or prepare a next-session prompt.
+
 ## Output & Approval Gates
 
-Produce findings with:
-
-- Severity or priority.
-- Evidence file path and line where possible.
-- Impact.
-- Suggested next action.
-- Whether the action is safe to implement now or needs approval.
-
-Then use `analysis-handoff-router` behavior: offer implementation, targeted persistence, or a next-session prompt.
+- Produce a findings table with columns: Severity · Finding · Evidence Path · Impact · Suggested Action · Approval Required.
+- Do not implement `Critical` or destructive actions without explicit user confirmation per action.
+- After listing findings, invoke `analysis-handoff-router` behavior: offer implementation, targeted persistence, or a next-session prompt.
