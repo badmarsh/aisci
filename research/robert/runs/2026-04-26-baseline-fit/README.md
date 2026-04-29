@@ -1,3 +1,5 @@
+> SUPERSEDED BY: 2026-04-27-baseline-fit
+
 # Baseline Fit Run - 2026-04-26
 
 ## Objective

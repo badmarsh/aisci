@@ -328,7 +328,7 @@ def boson_distribution(pT_arr, T_param, U_param, eta_max_val=2.5):
     result = np.zeros(len(pT_arr))
     for j, pT_j in enumerate(pT_arr):
         integrand = np.cosh(eta_grid) * np.exp(-pT_j * np.cosh(eta_grid - Y_param) / T_param)
-        result[j] = pT_j * np.trapz(integrand, eta_grid)
+        result[j] = pT_j * np.trapezoid(integrand, eta_grid)
     return result
 
 # Test with "typical" low-multiplicity values (reasonable physics)
