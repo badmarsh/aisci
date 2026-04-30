@@ -11,9 +11,9 @@ discipline.
 ## Part 1 — Connectors
 
 Onyx connectors are the ingest pipelines that populate the document corpus. Robert's
-workflow requires exactly three connectors. Do not enable connectors outside this list
-without a corresponding `docs/decisions/` ADR — each new connector expands the corpus
-and risks polluting retrieval results with off-topic chunks.
+workflow requires exactly three connectors and two MCP tools. Do not enable connectors
+or MCP tools outside this list without a corresponding `docs/decisions/` ADR — each
+addition expands the retrieval surface and risks polluting results with off-topic content.
 
 ### 1. File Upload Connector (Manual — always on)
 
@@ -59,7 +59,7 @@ physics domain without Robert having to manually track arXiv daily.
 
 ---
 
-### 3. Scite.ai Connector (via MCP Proxy — on demand)
+### 3. Scite.ai MCP Tool (via MCP Proxy — on demand)
 
 **Purpose:** Retrieves Smart Citation context — which papers cite the boson paper,
 whether they support or contradict it, and exact quoted snippets from citing papers.
@@ -67,11 +67,15 @@ This is the external evidence layer that File Upload and arXiv cannot provide.
 
 **Configuration:**
 - Not a native Onyx connector — routed through `onyx-mcp_proxy-1` at
-  `127.0.0.1:8095`
+  `127.0.0.1:8095/scite/`
+- Transport: streamable HTTP (MCP spec 2025-03-26). The legacy SSE endpoint
+  (`/mcp/sse`) no longer exists on `api.scite.ai`; see
+  `deployment/onyx/nginx_configs/mcp_proxy.conf.template` for the current routing.
 - MCP tool name: `scite_search` (see `docs/ops/mcp-endpoints.md`)
 - Called on-demand from within persona sessions, not as a background sync
-- API key must be injected into `deployment/onyx/nginx_mcp_proxy.conf` (see
-  `docs/ops/secrets-and-deployment-notes.template.md`)
+- Auth: static API key. Set `SCITE_API_KEY` in `.env` — nginx injects it as
+  `Authorization: Bearer` on every upstream request. Obtain from
+  `https://scite.ai/account/api`
 - Metadata tag on returned snippets: `source: scite-citation`
 
 **What it provides that the other connectors cannot:**
@@ -82,13 +86,48 @@ This is the external evidence layer that File Upload and arXiv cannot provide.
 
 ---
 
-### Connector Summary
+### 4. Consensus MCP Tool (via MCP Proxy — on demand)
 
-| Connector | Type | Trigger | Corpus tag | Gate |
-|-----------|------|---------|------------|------|
-| File Upload | Manual | Every session start + new paper | `robert-corpus` | None — immediate |
-| arXiv | Scheduled weekly | Automatic | `arxiv-auto` | `arxiv-intake` triage required |
-| Scite MCP | On-demand | Called from persona | `scite-citation` | None — live query |
+**Purpose:** Searches peer-reviewed literature and returns AI-synthesised consensus
+summaries with supporting paper references. Complements Scite: Scite gives
+citation-level signals on specific papers; Consensus gives claim-level signals across
+the broader literature.
+
+**Configuration:**
+- Not a native Onyx connector — routed through `onyx-mcp_proxy-1` at
+  `127.0.0.1:8095/consensus/`
+- Transport: streamable HTTP, proxied to `https://mcp.consensus.app/mcp/`
+- MCP tool name: `consensus_search` (see `docs/ops/mcp-endpoints.md`)
+- Called on-demand from within persona sessions, not as a background sync
+- Auth: OAuth Bearer token supplied by the MCP client at call time. nginx
+  does NOT inject a static token (unlike Scite). Set `CONSENSUS_MCP_BEARER_TOKEN`
+  in `.env` and pass it as the `Authorization` header from your MCP client config.
+  Obtain by completing the Consensus OAuth flow at `https://consensus.app`.
+- No metadata tagging — Consensus results are live queries, not indexed chunks
+
+**What it provides that Scite cannot:**
+- Cross-paper claim synthesis: "does the literature support X?" rather than
+  "how is paper Y cited?"
+- Useful at the hypothesis stage (before a specific paper has been identified)
+  and at the rebuttal stage (checking if a referee concern has prior-art support)
+
+**When NOT to use it:**
+- Do not run Consensus queries for claim-status questions — those belong in
+  `research/robert/evidence-ledger.md`, not in live consensus lookups
+- Do not use Consensus output to directly amend the ledger; treat it as
+  exploratory signal that surfaces candidate papers for File Upload + Scite
+  follow-up
+
+---
+
+### Connector & MCP Tool Summary
+
+| Name | Type | Trigger | Output / tag | Gate |
+|------|------|---------|--------------|------|
+| File Upload | Connector (manual) | Every session start + new paper | Indexed chunks — `robert-corpus` | None — immediate |
+| arXiv | Connector (scheduled weekly) | Automatic | Indexed chunks — `arxiv-auto` | `arxiv-intake` triage required |
+| Scite MCP | MCP tool (on-demand) | Called from persona | Live citation snippets — `scite-citation` | None — live query |
+| Consensus MCP | MCP tool (on-demand) | Called from persona | Live synthesis summaries | None — live query; treat as exploratory only |
 
 ---
 
@@ -107,6 +146,8 @@ is intentional.
 in the indexed corpus.
 
 **Document sets:** `robert-corpus` only (not `arxiv-auto`, not `scite-citation`)
+
+**MCP tools:** none (retrieval-only against the indexed corpus)
 
 **System prompt:**
 
@@ -151,6 +192,9 @@ claims and what is actually retrievable from the corpus.
 
 **Document sets:** `robert-corpus` + `scite-citation`
 
+**MCP tools:** Scite (citation-level signals), Consensus (claim-level signals across
+broad literature — use for exploratory cross-checking only, not ledger amendments)
+
 **System prompt:**
 
 ```
@@ -190,7 +234,12 @@ RULES:
 6. If Scite citation data is available, append after the EVIDENCE line:
    CITATION SIGNAL: [supporting/contrasting/mentioning] — "[scite snippet]"
 
-7. Append to the final line of your entire response:
+7. If a claim is MISSING from corpus, you may optionally run a Consensus query
+   to surface candidate papers. If you do, append:
+   CONSENSUS SIGNAL: [summary of consensus result] — treat as exploratory only;
+   do not change STATUS based on this signal alone.
+
+8. Append to the final line of your entire response:
    AUDIT COMPLETE — [N] claims checked: [x] CONFIRMED, [y] WEAKENED, [z] MISSING
 ```
 
@@ -202,6 +251,9 @@ RULES:
 referee-report structure for submission drafting.
 
 **Document sets:** `robert-corpus` + `scite-citation`
+
+**MCP tools:** Scite (for citation lookup during drafting), Consensus (for checking
+whether a referee concern has prior-art support — exploratory only)
 
 **System prompt:**
 
@@ -250,6 +302,8 @@ OUTPUT RULES:
 amendments before the paper is promoted to the main corpus.
 
 **Document sets:** `arxiv-auto` quarantine set only (not `robert-corpus`)
+
+**MCP tools:** none (triage is corpus-only; do not cross-contaminate with live queries)
 
 **System prompt:**
 
@@ -304,10 +358,13 @@ RULES:
 Run in this order at the beginning of every Robert science session:
 
 1. Confirm all corpus papers are uploaded and indexed (check Onyx document status)
-2. Run `evidence-auditor` on the current `evidence-ledger.md` claim list
-3. Resolve any MISSING or WEAKENED items before adding new claims
-4. Only then open `physics-validator` for new equation checking
-5. If a new arXiv paper arrived since last session, run `arxiv-intake` and
+2. Confirm both MCP tools are reachable:
+   - `curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8095/scite/` — expect `200`
+   - `curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8095/consensus/mcp/` — expect `200`
+3. Run `evidence-auditor` on the current `evidence-ledger.md` claim list
+4. Resolve any MISSING or WEAKENED items before adding new claims
+5. Only then open `physics-validator` for new equation checking
+6. If a new arXiv paper arrived since last session, run `arxiv-intake` and
    await Robert's approval before promoting to corpus
 
 This order is not optional. Running `referee-prep` before `evidence-auditor` has
