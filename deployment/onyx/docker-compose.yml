@@ -465,7 +465,6 @@ services:
     volumes:
       - ./nginx_configs/mcp_proxy.conf.template:/etc/nginx/templates/default.conf.template:ro
     environment:
-      - SCITE_API_KEY=${SCITE_API_KEY}
       - CONSENSUS_API_KEY=${CONSENSUS_API_KEY}
     env_file:
       - path: .env

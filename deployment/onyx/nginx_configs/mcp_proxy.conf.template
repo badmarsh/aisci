@@ -24,7 +24,6 @@ server {
 
     # Route for Scite - using the original endpoint
     location /scite/ {
-        proxy_set_header Authorization "Bearer ${SCITE_API_KEY}";
         proxy_pass https://api.scite.ai/mcp/;
         proxy_read_timeout 60s;
         proxy_connect_timeout 60s;
