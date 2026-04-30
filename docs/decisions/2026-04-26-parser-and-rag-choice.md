@@ -24,3 +24,12 @@ The current Onyx stack is healthy with Unstructured. The active DB/index setting
 - Reindex once after config alignment.
 - Build a 20-30 question retrieval evaluation set before further tuning.
 
+## Status (2026-04-30)
+
+- Unstructured parser: active ✅
+- nomic-embed-text 768-dim embeddings: configured but Ollama model
+  not yet pulled — open item in `docs/ops/platform-backlog.md`
+- Retrieval evaluation set (20-30 questions): not yet built —
+  open item in `docs/ops/platform-backlog.md`
+- Consequence: no RAG tuning should proceed until both items above
+  are resolved; `onyx-rag-eval-manager` enforces this gate.
