@@ -1,8 +1,52 @@
+# how will Robert run command with skills when he does not use vs code, how the deer flow comes in
+
+There are two entirely separate interfaces here — they serve different people.
+
+## The Two-Layer Architecture
+
+```
+Robert (physicist, no VS Code)
+    │
+    └─► Browser → DeerFlow web UI (port 3000)
+                      │
+                      └─► DeerFlow "Local Searcher" agent (SOUL.md)
+                                │
+                                ├─ rag_search → Onyx indexed corpus
+                                ├─ read_file / grep / glob → repo files
+                                ├─ python exec → physics/src/ scripts
+                                └─ rag_manage → document sets
+
+You (operator/developer)
+    │
+    └─► VS Code / Claude / Cursor → skill pipelines (USER_MANUAL.md)
+                      │
+                      └─► same codebase, same server
+```
+
+## What Each Layer Is For
+
+**DeerFlow is Robert's no-code interface.** He opens a browser, types a research question in plain language, and the DeerFlow agent (configured in `SOUL.md` as a "Local Searcher") handles it — searching Onyx via `rag_search`, reading files directly, running physics scripts, and always citing sources. Robert never touches a terminal.
+
+**The skills in `USER_MANUAL.md` are _your_ workflow tools**, not Robert's. When you open a coding agent session (VS Code, Claude, Cursor), you invoke skills like `reproducible-physics-runner` or `science-ledger-manager` to do structured work on Robert's behalf — fixing a script, updating the evidence ledger, running a fit. Robert asks you to do something; you run the appropriate skill pipeline to do it safely.
+
+## What Robert Actually Does Day-to-Day
+
+| Robert types in DeerFlow                          | DeerFlow agent does                                                              |
+| :------------------------------------------------ | :------------------------------------------------------------------------------- |
+| "Does my formula reduce to Cooper-Frye at U=0?"   | `rag_search` corpus → reads `boson_paper_analysis.py` output                     |
+| "What does the evidence ledger say about χ²/ndf?" | `read_file research/robert/evidence-ledger.md` → returns relevant claims         |
+| "Run the symbolic sanity check"                   | Executes `physics/src/sympy_validation_agent.py`, returns structured JSON report |
+| "What papers cite my paper and contradict it?"    | Calls Scite MCP via Onyx's Physics Validation Mode persona                       |
+
+## Where DeerFlow Ends and the Skill Pipeline Begins
+
+DeerFlow handles **read and run** tasks autonomously — things Robert can see and verify himself. When a task requires **writing to canonical files** (amending `evidence-ledger.md`, updating `platform-backlog.md`, changing a system prompt), that's a boundary DeerFlow's agent respects: it proposes, Robert approves, then you execute the change via the skill pipeline. The `SOUL.md` instruction "if a document set doesn't exist, suggest creating one with `rag_manage`" rather than doing it silently is exactly this discipline in practice.
+
 ## How the 15 Skills Connect
 
 The skills form **two parallel pipelines** — one for platform/ops work, one for science work — joined by three shared infrastructure skills that both pipelines call.
 
-***
+---
 
 ## The Skill Map
 
@@ -47,8 +91,7 @@ The skills form **two parallel pipelines** — one for platform/ops work, one fo
 ╚══════════════════════════════╝
 ```
 
-
-***
+---
 
 ## Daily Routine — Coding Agent Manager
 
@@ -62,7 +105,7 @@ The skills form **two parallel pipelines** — one for platform/ops work, one fo
 4. State the task and reasoning — then implement or produce an approval-gated plan
 5. End with `analysis-handoff-router`: implement now / persist / handoff prompt
 
-***
+---
 
 ### Platform Work Session
 
@@ -80,8 +123,7 @@ aisci-tech-kickoff          → orient, pick task
         └── analysis-handoff-router → close session with 3 options
 ```
 
-
-***
+---
 
 ### Science Work Session
 
@@ -95,8 +137,7 @@ science-source-curator       → find and extract evidence from papers/Onyx
                     └── researcher-docs-manager → archive anything stale this session
 ```
 
-
-***
+---
 
 ### End-of-Session Cleanup (always)
 
@@ -108,28 +149,27 @@ science-source-curator       → find and extract evidence from papers/Onyx
 
 Then `analysis-handoff-router` closes with the three options for the next agent.
 
-***
+---
 
 ## Where New Ideas Come From
 
 The system has **three idea inlets**, each with a designated landing zone:
 
-
-| Source | Landing Zone | Skill That Processes It |
-| :-- | :-- | :-- |
-| Robert's physics intuition / new manuscript version | `research/robert/next-actions.md` | `science-ledger-manager` to gate it, `science-source-curator` to ground it |
-| Platform observation (something broken, slow, or missing) | `docs/ops/platform-backlog.md` | `platform-backlog-manager` to add it, `aisci-ops-auditor` to audit the surrounding area |
-| External literature (new paper on Tsallis, arXiv preprint, Scite citation) | `research/robert/science-questions.md` or directly into `evidence-ledger.md` | `science-source-curator` → `science-ledger-manager` |
+| Source                                                                     | Landing Zone                                                                 | Skill That Processes It                                                                 |
+| :------------------------------------------------------------------------- | :--------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| Robert's physics intuition / new manuscript version                        | `research/robert/next-actions.md`                                            | `science-ledger-manager` to gate it, `science-source-curator` to ground it              |
+| Platform observation (something broken, slow, or missing)                  | `docs/ops/platform-backlog.md`                                               | `platform-backlog-manager` to add it, `aisci-ops-auditor` to audit the surrounding area |
+| External literature (new paper on Tsallis, arXiv preprint, Scite citation) | `research/robert/science-questions.md` or directly into `evidence-ledger.md` | `science-source-curator` → `science-ledger-manager`                                     |
 
 **Ideas never go directly into `ACTION_PLAN.md`** — that file is high-level tracking only. An idea becomes real only after it lands in one of the two canonical trackers (`platform-backlog.md` or `next-actions.md`) and is accepted by the user.
 
-***
+---
 
 ## The One Rule That Holds Everything Together
 
 Every skill in both pipelines respects the same hard boundary: **platform details stay out of science files; science claims stay out of ops files**. `analysis-handoff-router` is the enforcement mechanism — it routes findings to the correct canonical file rather than letting an agent dump everything into one document. `git-worktree-guard` ensures no session ever destroys another agent's in-progress work. `secret-config-auditor` ensures no credentials ever cross into `docs/`. These three cross-cutting skills are the connective tissue that makes the rest safe to run in parallel.
 
-***
+---
 
 ## Physics Tools Reference — `physics/src/`
 
@@ -137,17 +177,17 @@ The five scripts in `physics/src/` are the computational layer of the science pi
 
 ### What Each Script Does and Why It Exists
 
-**[`boson_paper_analysis.py`](https://github.com/badmarsh/aisci/blob/main/physics/src/boson_paper_analysis.py)** (18.7 KB) is the core script, most directly tied to Robert's manuscript *"Boson Probability Function for the Moving System"*. It works through seven sections entirely in SymPy + NumPy, never touching experimental data files.
+**[`boson_paper_analysis.py`](https://github.com/badmarsh/aisci/blob/main/physics/src/boson_paper_analysis.py)** (18.7 KB) is the core script, most directly tied to Robert's manuscript _"Boson Probability Function for the Moving System"_. It works through seven sections entirely in SymPy + NumPy, never touching experimental data files.
 
-| Script section | What it checks | Paper connection |
-|---|---|---|
-| §1 Core distribution | `f(p) ~ δ(p²−m²)Θ(p⁰)exp(−βU^μp_μ)` — the invariant exponent | The paper's fundamental distribution formula |
-| §2 η integration | Proves `U^μp_μ = pT·cosh(η−Y)` via cosh addition formula | The key step from 4-momentum to observable pT spectrum |
-| §3 Normalization | `∫₀^∞ pT·exp(−λpT)dpT = 1/λ²` | The paper's normalization constant C |
-| §4 U parameterization | Proves `v = U/√(1+U²) < c`, `γv = U`, `Y = arcsinh(U)` | Robert's specific parameterization, not standard textbook |
-| §5 η-cut | Verifies the static limit `U→0` recovers Cooper-Frye | Regression guard: the moving formula must contain the static one |
-| §6 χ²/ndf | Flags the absence of goodness-of-fit in retrieved chunks | The highest-priority open concern in the evidence ledger |
-| §7 Numerics | Numerical shape check at physical and extreme `(T, U)` values | Confirms the distribution is physically sane at low multiplicity; flags U₂ ≈ 0.011 ± 0.847 as unconstrained at high multiplicity |
+| Script section        | What it checks                                                | Paper connection                                                                                                                 |
+| --------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| §1 Core distribution  | `f(p) ~ δ(p²−m²)Θ(p⁰)exp(−βU^μp_μ)` — the invariant exponent  | The paper's fundamental distribution formula                                                                                     |
+| §2 η integration      | Proves `U^μp_μ = pT·cosh(η−Y)` via cosh addition formula      | The key step from 4-momentum to observable pT spectrum                                                                           |
+| §3 Normalization      | `∫₀^∞ pT·exp(−λpT)dpT = 1/λ²`                                 | The paper's normalization constant C                                                                                             |
+| §4 U parameterization | Proves `v = U/√(1+U²) < c`, `γv = U`, `Y = arcsinh(U)`        | Robert's specific parameterization, not standard textbook                                                                        |
+| §5 η-cut              | Verifies the static limit `U→0` recovers Cooper-Frye          | Regression guard: the moving formula must contain the static one                                                                 |
+| §6 χ²/ndf             | Flags the absence of goodness-of-fit in retrieved chunks      | The highest-priority open concern in the evidence ledger                                                                         |
+| §7 Numerics           | Numerical shape check at physical and extreme `(T, U)` values | Confirms the distribution is physically sane at low multiplicity; flags U₂ ≈ 0.011 ± 0.847 as unconstrained at high multiplicity |
 
 **[`fitting_pipeline.py`](https://github.com/badmarsh/aisci/blob/main/physics/src/fitting_pipeline.py)** (32.4 KB — the largest script) is the full numerical fitting infrastructure. It takes per-bin pT spectra (the currently blocked data table) and fits the 3-component model, emitting chi2/ndf, covariance matrices, parameter correlations, residuals, and AIC/BIC model comparison. It exists because `boson_paper_analysis.py` only does symbolic sanity-checks — the actual claim "the 3-component fit is over-parameterized at high multiplicity" requires running real data through this.
 

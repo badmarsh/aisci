@@ -18,17 +18,46 @@ app = FastAPI()
 API_SERVER_URL = os.environ.get("API_SERVER_URL", "http://api_server:8080")
 
 
+import json
+import urllib.parse
+
 @app.post("/auth/login")
 async def login(request: Request):
-    body = await request.json()
-    email = body.get("email", "")
+    print(f"--- INCOMING REQUEST ---")
+    print(f"Headers: {request.headers}")
+    try:
+        raw_body = await request.body()
+        print(f"Body length: {len(raw_body)}")
+        if not raw_body:
+            return Response(status_code=400, content="Empty body")
+            
+        content_type = request.headers.get("content-type", "")
+        if "application/x-www-form-urlencoded" in content_type:
+            # Parse form data into a dict
+            parsed = urllib.parse.parse_qsl(raw_body.decode('utf-8'))
+            body = dict(parsed)
+        else:
+            # Default to JSON parsing
+            body = json.loads(raw_body)
+            
+    except Exception as e:
+        print(f"Error parsing body: {e}")
+        return Response(status_code=400, content="Invalid format")
+
+    email = body.get("email", body.get("username", ""))
     password = body.get("password", "")
 
-    # Forward headers from the original request
+    safe_headers = {
+        "x-forwarded-for", "x-real-ip", "x-forwarded-proto", 
+        "x-forwarded-host", "x-forwarded-port", "user-agent",
+        "accept", "accept-language"
+    }
+    
     headers = {
         k: v for k, v in request.headers.items()
-        if k.lower() not in ("content-length", "content-type", "host")
+        if k.lower() in safe_headers
     }
+    
     # Explicitly set the host header to what nginx sent us, or fallback
     headers["Host"] = request.headers.get("x-forwarded-host", request.headers.get("host", ""))
     headers["Content-Type"] = "application/x-www-form-urlencoded"
