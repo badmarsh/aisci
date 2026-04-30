@@ -36,6 +36,8 @@ Status note: this file is an operational component map. Scientific conclusions m
 - Endpoint: `http://localhost:8095`
 - Routes: `/consensus/`, `/scite/`
 - Authentication: Required for full access
+- The compose-mounted template is `deployment/onyx/nginx_configs/mcp_proxy.conf.template`.
+- `deployment/onyx/nginx_mcp_proxy.conf` is only a standalone reference copy and is not the live compose mount.
 
 ## 3. Onyx Persona Configuration
 
@@ -51,7 +53,8 @@ Status note: this file is an operational component map. Scientific conclusions m
 ### Configuration (`deployment/onyx/docker-compose.yml`)
 - Host GPU: NVIDIA RTX 3090
 - GPU device access is configured for `ollama`, `inference_model_server`, and `indexing_model_server` via Docker Compose device reservations.
-- Current blocker: model-server runtime env still shows MiniLM/384 instead of the active Nomic/768 index. See `docs/ops/platform-backlog.md` for status.
+- Both model servers are now configured for `DOCUMENT_ENCODER_MODEL=nomic-ai/nomic-embed-text-v1` with `EMBEDDING_DIM=768`, matching the active Nomic/768 retrieval configuration.
+- Any future recreate should still verify `/api/gpu-status` and a 768-dimensional embedding response before reindex or retrieval cutover.
 
 ## 5. Directory Structure
 - `physics/src/` — Validation and fitting scripts

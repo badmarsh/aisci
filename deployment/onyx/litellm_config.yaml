@@ -26,33 +26,33 @@ model_list:
   model_name: local-embedding-optical
 
   # ── Contextual RAG: qwen-cloud-fast ──────────────────────────────────────
-  # Three Qwen cloud entries share the same alias → LiteLLM load-balances
+  # Two standard Qwen cloud chat entries share the same alias → LiteLLM load-balances
   # with latency-based routing and auto-retries on failure.
-  # All three have 1M-token free quotas (expires 2026/07).
+  # Keep realtime-capable variants on a separate alias so normal chat/completions
+  # traffic does not get routed through a model intended for realtime workflows.
   #
-  # Weight priority: qwen3.5-omni-flash > qwen-omni-turbo > qwen3-omni-flash
+  # Weight priority: qwen-omni-turbo > qwen3.5-omni-plus
   # Offline emergency: local gemma2:27b (weight 1)
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
-    model: openai/qwen3.5-omni-flash
+    model: openai/qwen-omni-turbo
     weight: 10
   model_name: qwen-cloud-fast
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
-    model: openai/qwen-omni-turbo
+    model: openai/qwen3.5-omni-plus
     weight: 7
   model_name: qwen-cloud-fast
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
-    model: openai/qwen3-omni-flash
-    weight: 5
-  model_name: qwen-cloud-fast
+    model: openai/qwen-omni-turbo-realtime
+  model_name: qwen-cloud-realtime
 
 - litellm_params:
     # Offline emergency fallback — no cloud dependency

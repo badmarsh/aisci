@@ -464,8 +464,6 @@ services:
       - "127.0.0.1:8095:80"
     volumes:
       - ./nginx_configs/mcp_proxy.conf.template:/etc/nginx/templates/default.conf.template:ro
-    environment:
-      - CONSENSUS_API_KEY=${CONSENSUS_API_KEY}
     env_file:
       - path: .env
         required: false

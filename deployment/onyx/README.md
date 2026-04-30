@@ -1,16 +1,24 @@
 # Onyx Deployment Directory
 
-This directory contains all deployment-related files for the Onyx system.
+This directory is the compose and build root for the local Onyx stack. For current status and open tasks, use [docs/ops/platform-backlog.md](../../docs/ops/platform-backlog.md). For the concrete deployment map, use [docs/ops/deployment-reference.md](../../docs/ops/deployment-reference.md).
 
-## Files:
-- `docker-compose.yml` - Main Docker Compose configuration for Onyx services
-- `nginx_mcp_proxy.conf` - Configuration for the Model Context Protocol (MCP) proxy
-- `.env` - Environment variables for the deployment
-- `env.template` - Template for environment variables
-- `litellm_config.yaml` - Configuration for LiteLLM service
-- `Dockerfile.backend` - Dockerfile for the backend service
-- `openapi.json` - OpenAPI specification
-- `trigger_reindex.py` - Script to trigger reindexing
+## What Lives Here
 
-## Purpose:
-This directory contains all necessary files to deploy and run the Onyx system with the physics validation features.
+- `docker-compose.yml`: live compose definition for the Onyx stack
+- `Dockerfile.backend`: live custom backend build used by `api_server` and `background`
+- `litellm_config.yaml`: live LiteLLM routing config
+- `nginx_configs/mcp_proxy.conf.template`: live template mounted by the `mcp_proxy` service
+- `nginx_mcp_proxy.conf`: standalone reference copy for the MCP proxy, not the live compose mount
+- `env.template`: tracked environment template only
+- helper scripts such as `patch_mcp_tool.py`, `trigger_reindex.py`, and parser/indexing utilities
+
+## Path Responsibilities
+
+- The main Onyx web proxy does not use `nginx_configs/`; it currently mounts `deployment/data/nginx/` from the sibling path `../data/nginx`.
+- The MCP proxy does use `nginx_configs/mcp_proxy.conf.template`.
+- Secrets belong in the untracked local `.env` or other untracked local material, not in tracked config files.
+
+## Notes
+
+- `openapi.json` is not a maintained source file in this repository and is intentionally no longer tracked.
+- Historical status notes were retired in favor of `docs/ops/platform-backlog.md`.

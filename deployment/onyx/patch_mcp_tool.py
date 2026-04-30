@@ -5,6 +5,10 @@ MCP_TOOL_PATH = Path("/app/onyx/tools/tool_implementations/mcp/mcp_tool.py")
 LITELLM_FACTORY_PATH = Path(
     "/usr/local/lib/python3.11/site-packages/litellm/litellm_core_utils/prompt_templates/factory.py"
 )
+LITELLM_OPENAI_PATH = Path(
+    "/usr/local/lib/python3.11/site-packages/litellm/llms/openai/openai.py"
+)
+MULTI_LLM_PATH = Path("/app/onyx/llm/multi_llm.py")
 OPENSEARCH_INDEX_PATH = Path(
     "/app/onyx/document_index/opensearch/opensearch_document_index.py"
 )
@@ -111,6 +115,77 @@ def patch_vertex_gemini_tool_results() -> None:
     LITELLM_FACTORY_PATH.write_text(text)
 
 
+def patch_litellm_empty_tool_payloads() -> None:
+    text = LITELLM_OPENAI_PATH.read_text()
+    marker = "patched to omit empty tool payloads for OpenAI-compatible endpoints"
+    if marker in text:
+        return
+
+    old = """        raw_response = None
+        try:
+            raw_response = openai_client.chat.completions.with_raw_response.create(
+                **data, timeout=timeout
+            )
+"""
+    new = """        raw_response = None
+        try:
+            if data.get("tools") == []:
+                data = dict(data)
+                data.pop("tools", None)
+                data.pop("tool_choice", None)
+                # patched to omit empty tool payloads for OpenAI-compatible endpoints
+
+            raw_response = openai_client.chat.completions.with_raw_response.create(
+                **data, timeout=timeout
+            )
+"""
+    if old not in text:
+        raise RuntimeError("Unexpected LiteLLM OpenAI request block")
+    text = text.replace(old, new, 1)
+    LITELLM_OPENAI_PATH.write_text(text)
+
+
+def patch_onyx_empty_tool_kwargs() -> None:
+    text = MULTI_LLM_PATH.read_text()
+    marker = "Only pass tool-related kwargs when tools are present"
+    if marker in text:
+        return
+
+    comment_old = "Only pass tool_choice when tools are present — some providers (e.g. Fireworks)"
+    comment_new = "Only pass tool-related kwargs when tools are present — some providers"
+    rationale_old = "reject requests where tool_choice is explicitly null."
+    rationale_new = "reject empty tool arrays or explicit null tool_choice values."
+    tool_choice_old = (
+        'if tools and tool_choice is not None:\n'
+        '                    optional_kwargs["tool_choice"] = tool_choice'
+    )
+    tool_choice_new = (
+        'if tools:\n'
+        '                    optional_kwargs["tools"] = tools\n'
+        '                    if tool_choice is not None:\n'
+        '                        optional_kwargs["tool_choice"] = tool_choice'
+    )
+    tools_kwarg_old = """                    messages=messages,
+                    tools=tools,
+                    stream=stream,
+"""
+    tools_kwarg_new = """                    messages=messages,
+                    stream=stream,
+"""
+    if (
+        comment_old not in text
+        or rationale_old not in text
+        or tool_choice_old not in text
+        or tools_kwarg_old not in text
+    ):
+        return
+    text = text.replace(comment_old, comment_new, 1)
+    text = text.replace(rationale_old, rationale_new, 1)
+    text = text.replace(tool_choice_old, tool_choice_new, 1)
+    text = text.replace(tools_kwarg_old, tools_kwarg_new, 1)
+    MULTI_LLM_PATH.write_text(text)
+
+
 def patch_opensearch_missing_update_logging() -> None:
     text = OPENSEARCH_INDEX_PATH.read_text()
     marker = "This is likely due to it not having been indexed yet. Skipping update for now... Error: {e!r}\""
@@ -140,4 +215,6 @@ def patch_opensearch_missing_update_logging() -> None:
 if __name__ == "__main__":
     patch_mcp_tool_names()
     patch_vertex_gemini_tool_results()
+    patch_litellm_empty_tool_payloads()
+    patch_onyx_empty_tool_kwargs()
     patch_opensearch_missing_update_logging()

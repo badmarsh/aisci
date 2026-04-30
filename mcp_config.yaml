@@ -1,4 +1,9 @@
-# MCP Configuration for Physics Validation
+# Repo-local MCP client reference for physics-validation workflows.
+# This file is not auto-loaded by `deployment/onyx/docker-compose.yml`.
+# The live shared proxy/auth layer is documented in `docs/ops/deployment-reference.md`
+# and implemented by `deployment/onyx/nginx_configs/mcp_proxy.conf.template`.
+# Keep this file secret-free and treat it as documentation until a specific client is
+# wired to consume it.
 
 consensus:
   enabled: true

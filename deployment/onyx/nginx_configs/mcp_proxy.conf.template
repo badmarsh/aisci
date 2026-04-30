@@ -1,3 +1,9 @@
+# Live MCP proxy template mounted by `deployment/onyx/docker-compose.yml`.
+# Keep this file secret-free.
+# For HTTP MCP servers that use OAuth-style MCP authorization, do not override
+# the client Authorization header with a static bearer token here.
+# `deployment/onyx/nginx_mcp_proxy.conf` is only a standalone reference copy.
+
 proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=mcp_cache:10m max_size=1g inactive=15m use_temp_path=off;
 
 server {
@@ -34,7 +40,6 @@ server {
 
     # Route for Consensus
     location /consensus/ {
-        proxy_set_header Authorization "Bearer ${CONSENSUS_API_KEY}";
         proxy_pass https://mcp.consensus.app/mcp/;
         proxy_read_timeout 60s;
         proxy_connect_timeout 60s;
