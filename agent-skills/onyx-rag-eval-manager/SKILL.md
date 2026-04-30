@@ -38,3 +38,7 @@ Store platform evaluation notes in `docs/ops/`. Do not store science claim concl
 ## Output & Approval Gates
 
 Ask before reindexing, resetting connectors, recreating containers, changing embedding dimensions, or switching production parsers.
+
+After producing findings or tuning recommendations, offer the three
+continuations from `agent-skills/analysis-handoff-router/SKILL.md`:
+implement now, persist to exact files, or write a next-session prompt.
