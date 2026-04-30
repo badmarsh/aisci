@@ -1,6 +1,6 @@
 ---
 name: aisci-tech-kickoff
-description: Start a technical work session in /home/ubuntu/aisci by reading current project context, selecting a safe high-leverage task, and either implementing selected findings or producing an approval-gated plan.
+description: Start a technical work session in /home/ubuntu/aisci by reading current project context, selecting a safe high-leverage task, and either implementing selected findings or producing an approval-gated plan. Use for single-task session kickoff only — not for full structured audits.
 ---
 
 # AiSci Tech Kickoff
@@ -18,6 +18,9 @@ Read:
 - `docs/ops/platform-backlog.md`
 - Latest relevant `docs/ops/*assessment*.md` and `docs/ops/*audit*.md`
 - Relevant deployment files under `deployment/onyx/` or `deployment/deer-flow/`
+- `docs/decisions/2026-04-26-system-boundaries.md`
+  (reminder: Onyx = curated evidence, DeerFlow = orchestration,
+  Repo = durable record — these are not interchangeable)
 
 Then inspect `git status --short` and preserve unrelated changes.
 Use `agent-skills/git-worktree-guard/SKILL.md` when git status or history affects the task choice.
@@ -46,3 +49,6 @@ Report:
 - Files changed.
 - Verification performed.
 - Next approval-gated commands, if relevant.
+- After reporting findings, offer the three continuations from
+  `agent-skills/analysis-handoff-router/SKILL.md`:
+  implement now, persist to exact files, or write a next-session prompt.
