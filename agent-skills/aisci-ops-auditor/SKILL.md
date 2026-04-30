@@ -1,6 +1,6 @@
 ---
 name: aisci-ops-auditor
-description: Audit the technical architecture and operations of AiSci, including Onyx, DeerFlow, MCP, Docker, LiteLLM, models, paths, deployment docs, and security-sensitive config.
+description: Audit the technical architecture and operations of AiSci, including Onyx, DeerFlow, MCP, Docker, LiteLLM, models, paths, deployment docs, and security-sensitive config. Use for full structured audits with a findings table output — not for single-task session kickoff.
 ---
 
 # AiSci Ops Auditor
