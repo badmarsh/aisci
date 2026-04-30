@@ -15,7 +15,7 @@
   "evidence_pages": [
     1
   ],
-  "pdf_path": "boson probability function for the moving system.pdf",
+  "pdf_path": "research/robert/manuscript/boson-probability-function-moving-system.pdf",
   "rationale": "The manuscript text exposes a covariant exponential exp(-beta U.p) without a Bose-Einstein denominator. This is a Juttner / relativistic Boltzmann approximation, not an exact Bose-Einstein form.",
   "related_table_pages": [
     10

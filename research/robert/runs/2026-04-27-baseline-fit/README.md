@@ -9,7 +9,7 @@ Validate whether HEPData record `ins1419652` provides fit-ready `pT` spectra for
 ```bash
 cd /home/ubuntu/aisci
 python3 physics/src/data_loader.py --run-dir research/robert/runs/2026-04-27-baseline-fit
-python3 physics/src/fitting_pipeline.py --run-dir research/robert/runs/2026-04-27-baseline-fit --pdf-path 'boson probability function for the moving system.pdf'
+python3 physics/src/fitting_pipeline.py --run-dir research/robert/runs/2026-04-27-baseline-fit --pdf-path 'research/robert/manuscript/boson-probability-function-moving-system.pdf'
 ```
 
 ## Formula Confirmation
@@ -32,7 +32,7 @@ python3 physics/src/fitting_pipeline.py --run-dir research/robert/runs/2026-04-2
 The following public and repo-local source paths were checked after the initial `ins1419652` gate failed:
 
 1. Local manuscript PDF and repo-local materials
-   - `boson probability function for the moving system.pdf`
+   - `research/robert/manuscript/boson-probability-function-moving-system.pdf`
    - repo-wide searches for `track_p`, manuscript multiplicity-bin labels, and additional local PDFs/extracted materials
    - Result: no repo-local fit-ready source table or extracted per-bin histogram data beyond the existing run artifacts
 

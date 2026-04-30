@@ -22,27 +22,10 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 ## 🟡 Open — Can Proceed Now (symbolic layer is unblocked)
 
-### [O-01] Resolve χ²/ndf absence in manuscript
-**Status in ledger:** Open concern — highest priority
-**What is missing:** The manuscript does not report goodness-of-fit (χ²/ndf) for the fits shown in its figures
-**Action:** Confirm whether χ²/ndf values exist in supplementary material or an earlier version; if absent, flag as a required addition in the referee report draft
-**Script:** `boson_paper_analysis.py` §6 already flags this — no new code needed
-
 ### [O-02] Confirm U₂ ≈ 0.011 ± 0.847 is a known instability
 **Status in ledger:** Flagged — numerics show U₂ unconstrained at high multiplicity
 **What is needed:** Robert to confirm whether this is expected (a known fitting instability at high multiplicity in the original paper) or a new finding
 **Action:** Robert reads `boson_paper_analysis.py` §7 output and provides a one-line confirmation or correction for the ledger
-
-### [O-03] Verify Cooper-Frye static-limit recovery is cited in manuscript
-**Status in ledger:** Sanity checked (§5 passes)
-**What is needed:** Confirm the manuscript explicitly states the U→0 limit recovers the static Cooper-Frye form, or note that it is implicit
-**Action:** Read manuscript §2 or §3; add a citation note to `evidence-ledger.md` claim C-05
-
-### [O-04] Move manuscript PDF to canonical location
-**Current path:** `literature/Boson probability function for the moving system.pdf`
-**Recommended path:** `research/robert/manuscript/boson-probability-function-moving-system.pdf`
-**Rationale:** Co-location with `evidence-ledger.md`, `fit-plan.md`, and `validation-plan.md` per the `research/robert/` boundary rule in `AGENTS.md`
-**Action:** Robert confirms; agent performs `git mv` and updates any cross-references
 
 ---
 
@@ -50,6 +33,9 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 | Item | Completed | Notes |
 |---|---|---|
+| Verify Cooper-Frye static-limit recovery is cited | 2026-04-30 | Implicitly recovered, not explicitly named in text. Ledger updated. |
+| Resolve χ²/ndf absence in manuscript | 2026-04-30 | Found in Fig 7-9 legends; updated draft to request inclusion in Table 1. |
+| Move manuscript PDF to canonical location | 2026-04-30 | Moved to `research/robert/manuscript/` |
 | Symbolic validation of core distribution §1–§5 | 2026-04-26 | `boson_paper_analysis.py` all sections green |
 | U parameterization verified | 2026-04-26 | `v < c`, `γv = U`, `Y = arcsinh(U)` confirmed |
 | η integration proved | 2026-04-26 | `U^μp_μ = pT·cosh(η−Y)` via SymPy |

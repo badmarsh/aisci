@@ -11,7 +11,7 @@ The paper proposes a moving-system boson probability model and applies it to ATL
 
 ## Major Concerns
 
-1. The manuscript should report chi2/ndf for every fitted multiplicity bin.
+1. While χ²/ndf values are provided in the legends of Figures 7-9, they are omitted from Table 1. The manuscript should report chi2/ndf in Table 1 for completeness and easier comparison.
 2. The high-multiplicity bins appear poorly constrained based on very large parameter uncertainties; an independent refit is needed before assigning a root cause.
 3. The paper should state clearly whether the fitted formula is full Bose-Einstein or a Boltzmann/Juttner approximation.
 4. The paper should compare the model with standard phenomenological baselines such as literature-matched Tsallis/Tsallis-Pareto and Blast-Wave fits.

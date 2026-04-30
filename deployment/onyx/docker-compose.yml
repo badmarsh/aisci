@@ -8,6 +8,22 @@
 name: onyx
 
 services:
+  auth_proxy:
+    image: python:3.11-slim
+    command: >
+      /bin/sh -c "pip install fastapi httpx uvicorn &&
+      python /app/auth_proxy.py"
+    working_dir: /app
+    volumes:
+      - ./auth_proxy.py:/app/auth_proxy.py:ro
+    environment:
+      - API_SERVER_URL=http://api_server:8080
+    depends_on:
+      - api_server
+    restart: unless-stopped
+    networks:
+      - default
+
   api_server:
     image: onyx-backend-custom:${IMAGE_TAG:-v3.3.0-beta.0}
     build:
