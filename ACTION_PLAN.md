@@ -46,8 +46,8 @@
 
 ### 2.0 OpenSearch Migration (Priority Alpha) 🔴
 Vespa is currently answering queries, but the project goal is to move to OpenSearch. The migration is currently stalled with `KeyError: 'document_id'`.
-- [ ] **Fix Transformer Bug:** Patch `onyx/background/celery/tasks/opensearch_migration/transformer.py` to handle missing/nested `document_id` in Vespa chunks.
-- [ ] **Model Dimension Alignment:** Ensure OpenSearch index is created with 768 dimensions (Nomic-embed) instead of 384 (MiniLM).
+- [x] **Fix Transformer Bug:** Patch `onyx/background/celery/tasks/opensearch_migration/transformer.py` to handle missing/nested `document_id` in Vespa chunks.
+- [x] **Model Dimension Alignment:** Ensure OpenSearch index is created with 768 dimensions (Nomic-embed) instead of 384 (MiniLM).
 - [ ] **Reconcile Chunk Parity:** Identify why OpenSearch has fewer chunks than Vespa for key science docs (e.g., Tsallis datasets).
 - [ ] **Enable OpenSearch Retrieval:** Set `enable_opensearch_retrieval=true` in `opensearch_tenant_migration_record` after parity is confirmed.
 - [ ] **Decommission Vespa:** Stop `onyx-index-1` after OpenSearch is verified stable.

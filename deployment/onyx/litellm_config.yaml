@@ -113,8 +113,8 @@ model_list:
 router_settings:
   routing_strategy: latency-based-routing
   num_retries: 3
-  timeout: 120
-  retry_after: 5
+  timeout: 300        # raised from 120 — local 27B/32B Ollama models need ~180-300s per chunk
+  retry_after: 10     # raised from 5 — gives backend time to recover between retries
   fallbacks:
     - qwen-cloud-fast:
         - gemma2
