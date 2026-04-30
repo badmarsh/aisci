@@ -39,6 +39,9 @@ The skills form **two parallel pipelines** — one for platform/ops work, one fo
 ║  vendored-runtime-maintainer ║
 ║  (deer-flow / vendor trees)  ║
 ║          ↓                   ║
+║  aisci-living-docs           ║
+║  (mirror: docs vs repo state)║
+║          ↓                   ║
 ║  aisci-tech-kickoff          ║
 ║  (next session kickoff)      ║
 ╚══════════════════════════════╝
@@ -72,6 +75,7 @@ aisci-tech-kickoff          → orient, pick task
   ├── mcp-integration-planner → if adding or fixing an MCP endpoint
   ├── secret-config-auditor  → always when touching .env / config files
   ├── vendored-runtime-maintainer → if deer-flow tree is involved
+  ├── aisci-living-docs      → if docs have drifted from reality
   └── platform-backlog-manager → write accepted findings to backlog
         └── analysis-handoff-router → close session with 3 options
 ```
