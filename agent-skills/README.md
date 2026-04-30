@@ -28,6 +28,7 @@ All skills follow the `TEMPLATE.md` schema:
 - `science-source-curator` - ingest and reconcile manuscript, PDF, literature, and data-table source evidence.
 - `science-ledger-manager` - manage Robert science claims, evidence states, and next actions.
 - `vendored-runtime-maintainer` - work safely in vendored DeerFlow/runtime trees and separate upstream code from local config.
+- `aisci-living-docs` - scan the entire codebase to understand the current real state of AiSci, then update documentation for three audiences: the coding agents manager (ops/platform), Robert the researcher (science workflow), and any new agent onboarding. Optionally uses DeerFlow for live service verification.
 
 ## Common Rules
 
