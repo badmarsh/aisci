@@ -15,3 +15,29 @@ Use this table as the source of truth for scientific claim status. Do not promot
 | Bíró/Paić/Serkin two-component soft/hard baseline matches our model decomposition | DOI 10.48550/arxiv.2510.09692; ALICE pp 2.76–13 TeV pT decomposition | Literature retrieved via Scite 2026-04-29 | Open | Obtain Figure data; compare chi2/ndf and shape parameters against our 3-component fit |
 | BGBW freeze-out temperature and flow velocity in ALICE pp multiplicity classes | DOI 10.1140/epja/i2019-12669-6 (Khuntia+2019) and DOI 10.1088/1361-6471/ab783b (Rath+2020) | Literature retrieved via Scite 2026-04-29 | Open | Run BGBW baseline fit against same multiplicity classes; record T_kin and β per class |
 | Boltzmann/Jüttner approximation is valid for pT > 120 MeV at LHC temperatures | Literature consensus; DOI 10.3390/universe9020111 (Gupta+2023) | Explicit statement: "B-E and F-D tend to Maxwell-Boltzmann at high T" | Sanity checked | Document low-pT gate applied; add sensitivity scan for pT 120–300 MeV bin |
+
+---
+
+## Next Actions
+
+### Now (Blockers)
+
+1. **Juttner approximation — manuscript anchor**: Tie `formula_classification: juttner_relativistic_boltzmann_exponential` from `runs/2026-04-27-baseline-fit/formula_confirmation.json` to a stable page/equation identifier in the manuscript export. Add explicit approximation statement to manuscript text.
+2. **Fit-ready data table**: Obtain per-bin pT spectra matching multiplicity bins `21-30, 31-40, 41-50, 51-60, 61-70, 71-80, 81-90, 91-100, 101-125, 126-150`. `hepdata_mapping_validation.json` confirms `ins1419652` only provides inclusive spectra. Save to `physics/data/` as CSV per `research/robert/archive/data-onboarding.md` format spec.
+3. **Run fitting pipeline**: After `fit_input.csv` exists, re-run `physics/src/fitting_pipeline.py`. Separate acceptance-cut formulas (η, pT, combined), apply region-specific low-pT gates from Figure 5. Emit chi2/ndf, covariance, parameter correlations, residuals, and model-comparison tables as run artifacts.
+4. **Install matplotlib**: Required before first fit-ready rerun to emit residual and pull plots alongside run artifacts.
+5. **Trend plots**: Generate U vs multiplicity and T vs multiplicity only after fit quality gates pass.
+6. **Literature ingestion**: Ingest Tsallis/Blast-Wave comparison papers into Onyx physics persona. Run `physics/src/tsallis_physics_validation.py` and save outputs as a dated run directory.
+
+### Next
+
+1. Run Scite/Consensus/arXiv/INSPIRE/HEPData citation checks and log outcomes in a new run artifact.
+2. Generate first full referee-style report using `research/robert/referee-report-draft.md` as the template.
+3. Evaluate Onyx RAG retrieval against the physics question set; record citation hits, misses, and source-coverage gaps.
+
+### Nice To Have
+
+1. Automated LaTeX equation extraction from manuscript PDFs.
+2. Reproducible paper-to-report pipeline through DeerFlow.
+3. Visual RAG for figures and captions (requires `qwen2.5-vl` in Ollama).
+4. Dashboard summarizing fit quality and anomalous bins per multiplicity class.
