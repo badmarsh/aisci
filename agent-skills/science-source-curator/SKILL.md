@@ -40,3 +40,33 @@ Sources include:
 3. Cross-check against existing ledger entries to avoid duplicates.
 4. Propose updates to `evidence-ledger.md` or `next-actions.md`.
 5. If source ingestion/document-set work is needed, propose a platform backlog item instead.
+
+## MCP Tool: Consensus
+
+Consensus is available as an MCP tool routed via the nginx proxy at `/consensus/`.
+
+### Auth model
+
+Consensus uses **OAuth Bearer tokens**, not a static API key. The calling agent is
+responsible for supplying the `Authorization: Bearer <token>` header. The nginx
+`mcp_proxy.conf.template` passes this header upstream via `proxy_pass_header Authorization`
+without injecting or overriding it.
+
+### Token setup (one-time, ops task)
+
+1. Complete the Consensus OAuth flow at <https://consensus.app>.
+2. Extract the Bearer token from the resulting session (browser DevTools → Network tab,
+   look for `Authorization: Bearer ...` in a request to `consensus.app`).
+3. Add it to your local `.env` file as `CONSENSUS_MCP_BEARER_TOKEN=<token>` (never commit
+   the live value; the template entry is in `deployment/onyx/env.template`).
+
+### When to use Consensus vs. Scite
+
+| Tool | Best for |
+|---|---|
+| **Consensus** | Plain-language questions: "Do papers support X?" — returns AI-synthesised consensus summaries across many papers |
+| **Scite** | Citation-level evidence: "How do papers cite Y?" — returns supporting/contrasting/mentioning citation snippets |
+
+For physics validation, prefer **Scite** for extracting equation-level evidence from
+specific papers. Use **Consensus** for broad literature landscape questions
+(e.g., "Is the Jüttner distribution the standard in relativistic kinetic theory?").
