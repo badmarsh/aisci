@@ -25,51 +25,96 @@ model_list:
     model_type: embedding
   model_name: local-embedding-optical
 
-  # ── Qwen Cloud API (1M ctx, fast — for contextual RAG indexing) ──
-  # api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+  # ── Contextual RAG: qwen-cloud-fast ──────────────────────────────────────
+  # Three Qwen cloud entries share the same alias → LiteLLM load-balances
+  # with latency-based routing and auto-retries on failure.
+  # All three have 1M-token free quotas (expires 2026/07).
+  #
+  # Weight priority: qwen3.5-omni-flash > qwen-omni-turbo > qwen3-omni-flash
+  # Offline emergency: local gemma2:27b (weight 1)
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
     model: openai/qwen3.5-omni-flash
-  model_name: qwen-cloud-fast     # primary contextual RAG model
+    weight: 10
+  model_name: qwen-cloud-fast
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
-    model: openai/qwen-image-2.0-pro
-  model_name: qwen-vision         # visual RAG image analysis
+    model: openai/qwen-omni-turbo
+    weight: 7
+  model_name: qwen-cloud-fast
 
-# qwen-vision-max (qwen-image-max): 100-req trial quota — not in active router.
-# Add back manually when needed for specific high-quality visual RAG queries.
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    model: openai/qwen3-omni-flash
+    weight: 5
+  model_name: qwen-cloud-fast
+
+- litellm_params:
+    # Offline emergency fallback — no cloud dependency
+    api_base: http://ollama:11434/v1
+    api_key: ollama
+    model: openai/gemma2:27b
+    weight: 1
+  model_name: qwen-cloud-fast
+
+  # ── Cloud reranker ────────────────────────────────────────────────────────
+  # qwen3-rerank: 1M quota. Can be used as alternative to local bge-reranker.
+  # Not yet wired into Onyx (Onyx calls its own model server for reranking).
+  # Kept here for future use via direct LiteLLM rerank endpoint.
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    model: openai/qwen3-rerank
+  model_name: qwen-rerank
+
+  # ── Visual RAG (image understanding) ─────────────────────────────────────
+  # All image models: 100-req trial quota each — for user queries only.
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    model: openai/qwen-image-2.0-pro
+  model_name: qwen-vision
+
+# qwen-vision-max (qwen-image-max): 100-req trial — uncomment for high-quality one-offs.
 # - litellm_params:
 #     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
 #     api_key: os.environ/QWEN_API_KEY
 #     model: openai/qwen-image-max
 #   model_name: qwen-vision-max
 
+  # ── Embeddings ────────────────────────────────────────────────────────────
+  # Vision-aware embeddings: 1M quota each
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
     model: openai/tongyi-embedding-vision-flash
     model_type: embedding
-  model_name: qwen-embed-vision-fast   # vision-aware retrieval embeddings
+  model_name: qwen-embed-vision-fast
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
     model: openai/tongyi-embedding-vision-plus
     model_type: embedding
-  model_name: qwen-embed-vision        # high-quality vision embeddings
+  model_name: qwen-embed-vision
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
     model: openai/text-embedding-v4
     model_type: embedding
-  model_name: qwen-embed-text          # text embeddings via cloud
+  model_name: qwen-embed-text
 
 router_settings:
+  routing_strategy: latency-based-routing
   num_retries: 3
   timeout: 120
   retry_after: 5
+  fallbacks:
+    - qwen-cloud-fast:
+        - gemma2
