@@ -57,3 +57,7 @@ arxiv_results.xml
 # Large source PDFs at repo root (store in research/robert/ or external storage)
 /*.pdf
 .aider*
+
+# Literature PDFs
+literature/*.pdf
+!literature/Boson probability function for the moving system.pdf
