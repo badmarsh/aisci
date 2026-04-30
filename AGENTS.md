@@ -11,6 +11,7 @@ These instructions apply to any AI coding or research agent working in this repo
 - `docs/ops/` is for platform, deployment, MCP, Docker, model, and security notes.
 - `research/robert/` is for science-facing questions, evidence, validation criteria, fits, reports, and reproducible runs.
 - `docs/archive/` is historical context only; do not treat archive files as current status.
+- `docs/user-manual/USER_MANUAL.md` is the skill map, pipeline structure, and daily routine reference for all agents and Robert. Read it when onboarding or when unsure which skill applies to a task.
 
 ## Science Rules
 
