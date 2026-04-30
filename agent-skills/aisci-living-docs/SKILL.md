@@ -34,12 +34,13 @@ This skill always writes for three distinct readers:
 - `docs/ops/platform-backlog.md`
 - `docs/ops/deployment-reference.md`
 - `docs/ops/mcp-endpoints.md`
-- `docs/decisions/*.md` (all four ADRs)
+- `docs/decisions/*.md` (all ADRs)
 - `agent-skills/README.md`
 - `research/robert/workflow.md`
 - `deployment/onyx/docker-compose.yml` (ground truth for running services)
 - `deployment/onyx/litellm_config.yaml` (model routing ground truth)
 - `mcp_config.yaml`
+- **`docs/user-manual/USER_MANUAL.md`** (declared skill map, pipelines, daily routines, and physics tools reference — check this last, after all other files, so drift can be assessed against the actual current state)
 
 ---
 
@@ -90,6 +91,45 @@ Work through these areas in order. For each, check whether the current documenta
 - Does `AGENTS.md` need any new rules based on patterns seen during this scan?
 - Are any instructions in `AGENTS.md` now obsolete?
 
+### 7. User Manual Drift (`docs/user-manual/USER_MANUAL.md`)
+
+Run this section **after** completing §1–§6 so you have the full current-state picture before comparing it against the declared model.
+
+The user manual is the authoritative description of how AiSci is *intended* to be used. It declares:
+- The 15-skill map and two-pipeline model (ops + science)
+- The daily routine for each session type (kickoff, platform, science, end-of-session)
+- The three idea inlets and their landing zones
+- The physics tools reference (`physics/src/` dependency map, current blocker, script purposes)
+
+Check each declared section against what you found in §1–§6:
+
+**Skill map accuracy**
+- Does every skill listed in the map diagram still exist in `agent-skills/`?
+- Has any new skill been added to `agent-skills/` that is not yet in the map?
+- Have any skill descriptions drifted from what the actual `SKILL.md` files say?
+
+**Pipeline flow accuracy**
+- Does the ops pipeline sequence (`aisci-tech-kickoff → aisci-ops-auditor → onyx-rag-eval-manager → ...`) still reflect the correct recommended order?
+- Does the science pipeline sequence still match the intended workflow?
+
+**Daily routine accuracy**
+- Does the Morning Kickoff step list match what `aisci-tech-kickoff/SKILL.md` actually instructs?
+- Are the "Read First" files listed in the daily routine still the correct canonical files?
+
+**Physics tools reference accuracy**
+- Do the five script descriptions (`boson_paper_analysis.py`, `fitting_pipeline.py`, `data_loader.py`, `sympy_validation_agent.py`, `tsallis_physics_validation.py`) still accurately describe what those files do?
+- Has the blocker status changed? (i.e., has `physics/data/fit_input.csv` appeared, meaning the data layer is no longer blocked?)
+- Has the manuscript been moved to `research/robert/manuscript/` as recommended? If so, update the "Manuscript Location" note.
+
+**Idea inlets accuracy**
+- Are the three landing zones (`research/robert/next-actions.md`, `docs/ops/platform-backlog.md`, `research/robert/science-questions.md`) still the correct routing targets?
+
+**Proposed adjustment protocol**
+- If a drift is found: add a row to the drift report (see Workflow §2) with `Severity | Section in USER_MANUAL.md | What the manual says | What is actually true | Proposed edit`.
+- Edits to the user manual follow the same approval gate as any other canonical file: present the diff, wait for confirmation, then apply.
+- Do not rewrite entire chapters. Make the minimum targeted edit that makes the section accurate.
+- If a new skill, service, or physics script has been added since the last manual update, add a description that matches the style of the existing entries — do not pad with speculation.
+
 ---
 
 ## DeerFlow Integration (Optional)
@@ -113,11 +153,13 @@ deep-research pass:
 
 ## Workflow
 
-1. Read all files in **Read First** and complete the **Scan Checklist**.
+1. Read all files in **Read First** and complete **Scan Checklist §1–§6**.
 2. Produce a drift report: one row per finding with
    `Severity | File | What the doc says | What is actually true | Proposed fix`.
-3. Separate findings by audience: Ops / Researcher / Onboarding.
-4. Present the drift report to the user.
+   Separate findings by audience: Ops / Researcher / Onboarding.
+3. Complete **Scan Checklist §7** (User Manual). Append any user-manual drift rows
+   to the same drift report under a **User Manual** heading.
+4. Present the full drift report to the user.
 5. For each accepted fix: edit the target file with the minimum necessary change.
 6. For each rejected fix: note it as a known drift item in `docs/ops/platform-backlog.md`.
 7. If DeerFlow live verification is warranted, draft the task prompt and ask for approval.
