@@ -38,9 +38,16 @@ server {
         proxy_ssl_name api.scite.ai;
     }
 
-    # Route for Consensus
+    # Route for Consensus (OAuth — Bearer token supplied by the MCP client)
+    # Do NOT inject a static Authorization header here; the client owns the token.
+    # Token is obtained via the Consensus OAuth flow and passed by the calling agent.
+    # Set CONSENSUS_MCP_BEARER_TOKEN in .env and reference it from your MCP client config.
     location /consensus/ {
         proxy_pass https://mcp.consensus.app/mcp/;
+        proxy_pass_header Authorization;      # pass client-supplied Bearer token upstream
+        proxy_set_header Host mcp.consensus.app;
+        proxy_ssl_server_name on;
+        proxy_ssl_name mcp.consensus.app;
         proxy_read_timeout 60s;
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
