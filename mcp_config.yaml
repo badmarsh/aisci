@@ -8,14 +8,25 @@
 consensus:
   enabled: true
   base_url: "https://mcp.consensus.app/mcp/"
-  api_key: ""  # Leave empty for public API
+  # Consensus uses OAuth Bearer tokens — NOT a static API key.
+  # auth_type: oauth means the calling agent supplies:
+  #   Authorization: Bearer ${CONSENSUS_MCP_BEARER_TOKEN}
+  # The token is obtained by completing the Consensus OAuth flow at https://consensus.app
+  # and is stored in .env as CONSENSUS_MCP_BEARER_TOKEN (see env.template).
+  # nginx passes it through unchanged via proxy_pass_header Authorization.
+  # Do NOT add a static Authorization header in nginx for this service.
+  auth_type: "oauth"
+  token_env_var: "CONSENSUS_MCP_BEARER_TOKEN"
   timeout: 30
   max_retries: 3
 
 scite:
   enabled: true
   base_url: "https://api.scite.ai/mcp/"
-  api_key: ""  # Leave empty for public API
+  # Scite uses a static API key injected as a Bearer token.
+  # Store it in .env as SCITE_API_KEY (see env.template).
+  auth_type: "bearer"
+  token_env_var: "SCITE_API_KEY"
   timeout: 30
   max_retries: 3
 
