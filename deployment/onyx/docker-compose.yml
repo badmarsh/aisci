@@ -9,15 +9,15 @@ name: onyx
 
 services:
   api_server:
-    image: onyx-backend-custom:${IMAGE_TAG:-edge}
+    image: onyx-backend-custom:${IMAGE_TAG:-v3.3.0-beta.0}
     build:
       context: .
       dockerfile: Dockerfile.backend
       args:
-        - IMAGE_TAG=${IMAGE_TAG:-edge}
+        - IMAGE_TAG=${IMAGE_TAG:-v3.3.0-beta.0}
         - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     command: >
-      /bin/sh -c "python /workspace/aisci/deployment/onyx/patch_mcp_tool.py &&
+      /bin/sh -c "python /app/deployment/patch_mcp_tool.py &&
       if [ \"${ENABLE_CRAFT:-false}\" = \"true\" ] || [ \"${ENABLE_CRAFT:-false}\" = \"True\" ]; then
         /app/scripts/setup_craft_templates.sh;
       fi &&
@@ -98,15 +98,15 @@ services:
       - /home/ubuntu/aisci:/workspace/aisci:rw
 
   background:
-    image: onyx-backend-custom:${IMAGE_TAG:-edge}
+    image: onyx-backend-custom:${IMAGE_TAG:-v3.3.0-beta.0}
     build:
       context: .
       dockerfile: Dockerfile.backend
       args:
-        - IMAGE_TAG=${IMAGE_TAG:-edge}
+        - IMAGE_TAG=${IMAGE_TAG:-v3.3.0-beta.0}
         - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     command: >
-      /bin/sh -c "python /workspace/aisci/deployment/onyx/patch_mcp_tool.py &&
+      /bin/sh -c "python /app/deployment/patch_mcp_tool.py &&
       if [ -f /app/scripts/setup_craft_templates.sh ]; then
         /app/scripts/setup_craft_templates.sh;
       fi &&
@@ -179,7 +179,7 @@ services:
         max-file: "6"
 
   web_server:
-    image: ${ONYX_WEB_SERVER_IMAGE}
+    image: ${ONYX_WEB_SERVER_IMAGE:-onyxdotapp/onyx-web-server:v3.3.0-beta.0}
     env_file:
       - path: .env
         required: false
@@ -190,7 +190,7 @@ services:
       - INTERNAL_URL=${INTERNAL_URL:-http://api_server:8080}
 
   inference_model_server:
-    image: ${ONYX_MODEL_SERVER_IMAGE}
+    image: ${ONYX_MODEL_SERVER_IMAGE:-onyxdotapp/onyx-model-server:v3.3.0-beta.0}
     command: >
       /bin/sh -c "if [ \"${DISABLE_MODEL_SERVER:-}\" = \"True\" ] || [ \"${DISABLE_MODEL_SERVER:-}\" = \"true\" ]; then
         echo 'Skipping service...';
@@ -231,7 +231,7 @@ services:
       retries: 3
 
   indexing_model_server:
-    image: ${ONYX_MODEL_SERVER_IMAGE}
+    image: ${ONYX_MODEL_SERVER_IMAGE:-onyxdotapp/onyx-model-server:v3.3.0-beta.0}
     command: >
       /bin/sh -c "if [ \"${DISABLE_MODEL_SERVER:-}\" = \"True\" ] || [ \"${DISABLE_MODEL_SERVER:-}\" = \"true\" ]; then
         echo 'Skipping service...';
@@ -464,6 +464,12 @@ services:
       - "127.0.0.1:8095:80"
     volumes:
       - ./nginx_configs/mcp_proxy.conf.template:/etc/nginx/templates/default.conf.template:ro
+    environment:
+      - SCITE_API_KEY=${SCITE_API_KEY}
+      - CONSENSUS_API_KEY=${CONSENSUS_API_KEY}
+    env_file:
+      - path: .env
+        required: false
     restart: unless-stopped
 
 volumes:

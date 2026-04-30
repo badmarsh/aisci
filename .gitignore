@@ -19,6 +19,9 @@ deployment/onyx/*.json
 !deployment/onyx/*.example.json
 docs/ops/private/
 
+# MCP Proxy Secrets
+deployment/onyx/proxy_*_secret.conf
+
 # Docker volumes & runtime data
 *.log
 *.pid
