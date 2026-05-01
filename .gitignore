@@ -61,3 +61,6 @@ arxiv_results.xml
 # Literature PDFs
 literature/*.pdf
 !research/robert/manuscript/boson-probability-function-moving-system.pdf
+
+# Ignore untracked nested repo files
+deployment/deer-flow/
