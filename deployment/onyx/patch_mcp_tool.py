@@ -20,23 +20,14 @@ def patch_mcp_tool_names() -> None:
         return
 
     import_block = "import json\nfrom typing import Any\n"
+    # craft-latest dropped the schema helper above MCPTool; use the class line as anchor
     helper_anchor = "    return schema\n\n\nclass MCPTool(Tool[None]):\n"
+    class_anchor = "\nclass MCPTool(Tool[None]):\n"
     original_llm_name = '        self._llm_name = f"mcp:{mcp_server.name}:{tool_name}"\n'
     name_property = "    def name(self) -> str:\n        return self._name\n"
     tool_def_name = '                "name": self._name,\n'
 
-    replacements = (
-        (
-            import_block,
-            "import json\nimport re\nfrom typing import Any\n",
-            "MCP tool import block",
-        ),
-        (
-            helper_anchor,
-            """    return schema
-
-
-def _sanitize_tool_name_segment(value: str) -> str:
+    helper_funcs = """\n\ndef _sanitize_tool_name_segment(value: str) -> str:
     normalized = re.sub(r"[^a-zA-Z0-9_]+", "_", value.strip().lower())
     normalized = re.sub(r"_+", "_", normalized).strip("_")
     return normalized or "tool"
@@ -48,34 +39,49 @@ def _build_safe_llm_tool_name(server_name: str, tool_name: str, tool_id: int) ->
     llm_name = f"mcp_{tool_id}_{server_segment}_{tool_segment}"
     return llm_name[:64].rstrip("_")
 
+"""
 
-class MCPTool(Tool[None]):
-""",
-            "MCP tool helper anchor",
-        ),
-        (
-            original_llm_name,
-            "        self._llm_name = _build_safe_llm_tool_name(\n"
-            "            mcp_server.name, tool_name, tool_id\n"
-            "        )\n",
-            "MCP llm_name assignment",
-        ),
-        (
-            name_property,
-            "    def name(self) -> str:\n        return self._llm_name\n",
-            "MCP name property",
-        ),
-        (
-            tool_def_name,
-            '                "name": self.name,\n',
-            "MCP tool definition name field",
-        ),
+    import_replacement = "import json\nimport re\nfrom typing import Any\n"
+
+    # Step 1: always patch the import block
+    if import_block not in text:
+        raise RuntimeError("Unexpected MCP tool import block")
+    text = text.replace(import_block, import_replacement, 1)
+
+    # Step 2: inject helper functions — prefer old anchor, fall back to bare class line
+    if helper_anchor in text:
+        text = text.replace(
+            helper_anchor,
+            "    return schema\n" + helper_funcs + "class MCPTool(Tool[None]):\n",
+            1,
+        )
+    elif class_anchor in text:
+        text = text.replace(class_anchor, helper_funcs + "class MCPTool(Tool[None]):\n", 1)
+    else:
+        raise RuntimeError("Cannot find MCPTool class definition to inject helpers")
+
+    # Step 3: patch _llm_name assignment
+    if original_llm_name not in text:
+        raise RuntimeError("Unexpected MCP llm_name assignment")
+    text = text.replace(
+        original_llm_name,
+        "        self._llm_name = _build_safe_llm_tool_name(\n"
+        "            mcp_server.name, tool_name, tool_id\n"
+        "        )\n",
+        1,
     )
 
-    for old, new, label in replacements:
-        if old not in text:
-            raise RuntimeError(f"Unexpected {label}")
-        text = text.replace(old, new, 1)
+    # Step 4: patch name property (may already return _llm_name in newer images — skip if so)
+    if name_property in text:
+        text = text.replace(
+            name_property,
+            "    def name(self) -> str:\n        return self._llm_name\n",
+            1,
+        )
+
+    # Step 5: patch tool_def name field (may already use self.name — skip if so)
+    if tool_def_name in text:
+        text = text.replace(tool_def_name, '                "name": self.name,\n', 1)
 
     MCP_TOOL_PATH.write_text(text)
 

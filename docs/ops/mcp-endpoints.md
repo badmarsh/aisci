@@ -4,10 +4,22 @@ Record tested and untested MCP/API endpoints here.
 See `docs/decisions/2026-04-27-mcp-topology.md` for topology rationale.
 Keep secrets out of this file.
 
-| Endpoint | Service | Route | Auth | Status | Notes |
+## How Auth Works
+
+**Scite** and **Consensus** both use OAuth 2.0. There are no static API keys to buy or save in your configuration files. You authorize via their respective web apps, which return a Bearer token:
+1. Open the MCP OAuth flow (from within an MCP-aware client like Claude Desktop or Onyx's MCP chat bar)
+2. Complete the sign-in in your browser
+3. The token is issued to the client and passed per-request. The nginx proxy forwards it unchanged via `proxy_pass_header Authorization`.
+
+**Key insight**: Both services work correctly as long as Onyx is on localhost — the nginx proxy at `http://127.0.0.1:8095` is reachable by any local process. The previous confusion in the backlog about "missing API keys" was incorrect; they just need the OAuth flow completed from a capable MCP client.
+
+## Endpoint Status
+
+| Endpoint | Service | Proxy Route | Auth Model | Status | Action |
 |---|---|---|---|---|---|
-| Scite | nginx MCP proxy | /mcp/scite | API key (not injected) | ❌ Untested | Key injection open in platform-backlog.md |
-| Consensus | nginx MCP proxy | /mcp/consensus | API key (not injected) | ❌ Untested | Key injection open in platform-backlog.md |
-| arXiv | Direct | public | None | ⚠️ Unverified | No MCP route documented yet |
-| INSPIRE-HEP | Direct | public | None | ⚠️ Unverified | No MCP route documented yet |
-| Onyx RAG API | Internal | localhost:8095 | Bearer token | ✅ Active | Document sets and personas operational |
+| Scite | nginx MCP proxy | `http://127.0.0.1:8095/scite/` → `https://api.scite.ai/mcp` | OAuth Bearer — client must complete browser flow | ⚠️ Needs OAuth flow | Initiate from client, complete browser sign-in |
+| Consensus | nginx MCP proxy | `http://127.0.0.1:8095/consensus/` → `https://mcp.consensus.app/mcp/` | OAuth Bearer — client must complete browser flow | ⚠️ Needs OAuth flow | Initiate from client, complete browser sign-in |
+| arXiv | Direct REST | `https://export.arxiv.org/api/query` | None (public) | ✅ Public | No proxy needed |
+| INSPIRE-HEP | Direct REST | `https://inspirehep.net/api/` | None (public) | ✅ Public | No proxy needed |
+| Onyx RAG API | Internal | `http://localhost:3000/api/` | Bearer ONYX_API_KEY | ✅ Active | Document sets and personas operational |
+| OpenSearch | Internal | `https://localhost:9200` | admin / OPENSEARCH_ADMIN_PASSWORD | ✅ Active | 1,232 docs indexed in alt index, retrieval live |

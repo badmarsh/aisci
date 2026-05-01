@@ -123,9 +123,6 @@ services:
         - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     command: >
       /bin/sh -c "python /app/deployment/patch_mcp_tool.py &&
-      if [ -f /app/scripts/setup_craft_templates.sh ]; then
-        /app/scripts/setup_craft_templates.sh;
-      fi &&
       if [ -f /etc/ssl/certs/custom-ca.crt ]; then
         update-ca-certificates;
       fi &&

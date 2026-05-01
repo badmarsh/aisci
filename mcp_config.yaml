@@ -23,10 +23,10 @@ consensus:
 scite:
   enabled: true
   base_url: "https://api.scite.ai/mcp/"
-  # Scite uses a static API key injected as a Bearer token.
-  # Store it in .env as SCITE_API_KEY (see env.template).
-  auth_type: "bearer"
-  token_env_var: "SCITE_API_KEY"
+  # Scite uses OAuth Bearer tokens.
+  # The token is obtained by completing the Scite OAuth flow in the client.
+  auth_type: "oauth"
+  token_env_var: "SCITE_MCP_BEARER_TOKEN"
   timeout: 30
   max_retries: 3
 

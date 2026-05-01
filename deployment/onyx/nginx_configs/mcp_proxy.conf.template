@@ -33,14 +33,13 @@ server {
     # Kong returns 404 for that path; the current endpoint is POST /mcp.
     # Diagnosis: curl -v https://api.scite.ai/mcp/sse returns 404 with X-Kong-Request-Id
     #            and Access-Control-Expose-Headers: Mcp-Session-Id (streamable HTTP marker).
-    # Auth: static API key injected here. Set SCITE_API_KEY in .env and ensure
-    #       docker-compose passes it to the mcp_proxy container environment.
-    #       Obtain the key from https://scite.ai/account/api
+    # Route for Scite - streamable HTTP MCP transport
+    # Auth: OAuth — Bearer token supplied by the MCP client via browser login flow
     location /scite/ {
         proxy_pass https://api.scite.ai/mcp;
         proxy_buffering off;
         proxy_cache off;
-        proxy_set_header Authorization "Bearer ${SCITE_API_KEY}";
+        proxy_pass_header Authorization;      # pass client-supplied Bearer token upstream
         proxy_set_header Host api.scite.ai;
         proxy_ssl_server_name on;
         proxy_ssl_name api.scite.ai;
