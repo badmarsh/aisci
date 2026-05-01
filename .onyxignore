@@ -1,0 +1,37 @@
+# .onyxignore
+# Paths excluded from Onyx GitHub connector indexing.
+# Syntax: same as .gitignore (glob patterns, directory trailing slash).
+# Reason: files listed here are tooling artefacts / static snapshots
+# that must NOT be treated as authoritative project state by RAG.
+# ─────────────────────────────────────────────────────────────────────
+
+# ── DeerFlow offline context snapshots ───────────────────────────────
+# These are frozen copies of live docs, pasted here so DeerFlow agents
+# can run without a live Onyx connection. They are always STALE.
+# Source-of-truth lives in docs/ and the files they were copied from.
+deploy*/helper/deerflow-docs-context/
+
+# ── Generic helper / scratch dirs ────────────────────────────────────
+deployment/helper/
+
+# ── Local dev / test artefacts ───────────────────────────────────────
+*.local.md
+*.draft.md
+scratch/
+tmp/
+.tmp/
+
+# ── Build outputs & generated artefacts ─────────────────────────────
+dist/
+build/
+.next/
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+
+# ── Secrets & credentials (belt-and-suspenders, .gitignore also covers)
+.env
+.env.*
+*.pem
+*.key
