@@ -17,6 +17,7 @@ import argparse
 import json
 import math
 import re
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -76,9 +77,18 @@ def parse_args() -> argparse.Namespace:
 
 
 def request_json(url: str, timeout_seconds: float) -> dict[str, Any]:
-    response = requests.get(url, timeout=timeout_seconds)
-    response.raise_for_status()
-    return response.json()
+    """Fetch a JSON resource with 3 attempts and exponential backoff (1s, 2s, 4s)."""
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        try:
+            response = requests.get(url, timeout=timeout_seconds)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as exc:
+            last_exc = exc
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+    raise last_exc  # type: ignore[misc]
 
 
 def normalize_space(value: Any) -> str:
@@ -298,10 +308,16 @@ def validate_mapping(
             "No pT spectrum table in ins1419652 carries an exact manuscript multiplicity-bin qualifier "
             f"among {manuscript_labels}."
         )
-    blockers.append(
-        "Multiplicity-bin rows appear in multiplicity-distribution tables, but those rows do not provide "
-        "conditional pT spectra for the same multiplicity bins."
-    )
+    # FIX 3: only append this blocker when there are genuinely no exact_pt_matches,
+    # i.e. when multiplicity rows exist in distribution tables but not as pT spectra.
+    # Previously this fired unconditionally, polluting the blockers list even when
+    # exact_pt_matches was non-empty.
+    if not exact_pt_matches:
+        blockers.append(
+            "Multiplicity-bin rows appear in multiplicity-distribution tables, "
+            "but those rows do not provide conditional pT spectra for the same "
+            "multiplicity bins."
+        )
 
     return {
         "record_id": HEPDATA_RECORD_ID,

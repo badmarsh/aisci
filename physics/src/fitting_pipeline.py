@@ -521,16 +521,18 @@ def fit_one_spec(
             n_parameters = len(spec.parameter_names)
             ndf = int(len(x_values) - n_parameters)
             chi2_ndf = chi2 / ndf if ndf > 0 else None
-            
+
+            # FIX 2: flag unconstrained parameters including those converged to zero.
             fit_quality_flag = "ok"
             if chi2_ndf is not None and chi2_ndf > 5:
                 fit_quality_flag = "poor"
             for k in spec.parameter_names:
                 err = parameter_errors.get(k)
                 val = parameter_values.get(k)
-                if err is not None and val is not None and val > 0 and err / val > 1:
-                    fit_quality_flag = "poor"
-                    break
+                if err is not None and val is not None:
+                    if val == 0.0 or (val != 0.0 and err / abs(val) > 1):
+                        fit_quality_flag = "poor"
+                        break
 
             aic = chi2 + 2 * n_parameters
             bic = chi2 + n_parameters * math.log(len(x_values))
@@ -618,8 +620,15 @@ def run_fits(run_dir: Path, fit_input: pd.DataFrame, mass_gev: float) -> dict[st
     if "eta_range" not in fit_input.columns:
         raise ValueError("fit_input.csv must include an eta_range column")
 
+    # FIX 1: harden eta_range parser — raise a clear error if fewer than 2
+    # numeric tokens are found instead of silently producing a wrong eta_max.
     eta_range_value = str(fit_input["eta_range"].dropna().iloc[0])
-    eta_bounds = [float(value) for value in re.findall(r'[-+]?\d+\.?\d*', eta_range_value)]
+    eta_bounds = [float(v) for v in re.findall(r'[-+]?\d+\.?\d*', eta_range_value)]
+    if len(eta_bounds) < 2:
+        raise ValueError(
+            f"Cannot parse eta_range '{eta_range_value}': expected two numeric bounds "
+            f"(e.g. '-2.5-2.5' or '0-2.5'); got tokens {eta_bounds}."
+        )
     eta_max = max(abs(eta_bounds[0]), abs(eta_bounds[1]))
     fit_specs = build_fit_specs(eta_max=eta_max, mass_gev=mass_gev)
 
