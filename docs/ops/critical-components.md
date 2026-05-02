@@ -52,9 +52,11 @@ Status note: this file is an operational component map. Scientific conclusions m
 
 ### Configuration (`deployment/onyx/docker-compose.yml`)
 - Host GPU: NVIDIA RTX 3090
-- GPU device access is configured for `ollama`, `inference_model_server`, and `indexing_model_server` via Docker Compose device reservations.
-- Both model servers are now configured for `DOCUMENT_ENCODER_MODEL=nomic-ai/nomic-embed-text-v1` with `EMBEDDING_DIM=768`, matching the active Nomic/768 retrieval configuration.
-- Any future recreate should still verify `/api/gpu-status` and a 768-dimensional embedding response before reindex or retrieval cutover.
+- GPU device access is configured for `ollama`, `inference_model_server`, `indexing_model_server`, and the trial `nemotron_embed_vl` NIM service.
+- The active Onyx model servers remain on `DOCUMENT_ENCODER_MODEL=nomic-ai/nomic-embed-text-v1` with `EMBEDDING_DIM=768`, matching the active Nomic/768 retrieval configuration.
+- `nemotron_embed_vl` deploys `nvcr.io/nim/nvidia/llama-nemotron-embed-vl-1b-v2:1.12.0` as an OpenAI-compatible embedding endpoint at `http://localhost:8000/v1/embeddings` for isolated testing.
+- The NIM model returns up to 2048-dimensional embeddings. Do not switch active Onyx search settings to it without creating a new search setting, reindexing, and validating query/document `input_type` handling.
+- Any future recreate should still verify `/api/gpu-status`, the active 768-dimensional Onyx model-server embedding response, and the NIM `/v1/health/ready` endpoint before reindex or retrieval cutover.
 
 ## 5. Directory Structure
 - `physics/src/` — Validation and fitting scripts
