@@ -39,7 +39,7 @@ services:
       fi &&
       alembic upgrade head &&
       echo \"Starting Onyx Api Server\" &&
-      uvicorn onyx.main:app --host 0.0.0.0 --port 8080"
+      uvicorn onyx.main:app --host 0.0.0.0 --port 8080 --workers 4"
     env_file:
       - path: .env
         required: false
@@ -355,7 +355,7 @@ services:
       - discovery.type=single-node
       - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
       - bootstrap.memory_lock=true
-      - "OPENSEARCH_JAVA_OPTS=-Xms2g -Xmx2g"
+      - "OPENSEARCH_JAVA_OPTS=-Xms4g -Xmx4g"
       - "cluster.routing.allocation.disk.threshold_enabled=true"
       - "cluster.routing.allocation.disk.watermark.low=90%"
       - "cluster.routing.allocation.disk.watermark.high=95%"

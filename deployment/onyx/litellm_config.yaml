@@ -139,8 +139,11 @@ model_list:
 router_settings:
   routing_strategy: latency-based-routing
   num_retries: 3
-  timeout: 300 # raised from 120 — local 27B/32B Ollama models need ~180-300s per chunk
-  retry_after: 10 # raised from 5 — gives backend time to recover between retries
+  timeout: 600 # raised from 300 — local 27B/32B Ollama models on CPU need significantly more time
+  retry_after: 20 # raised from 10 — gives backend more time to recover
   fallbacks:
     - qwen3-omni-flash-2025-09-15:
         - qwen2.5-omni-7b
+        - qwen2.5
+    - qwen2.5-omni-7b:
+        - qwen2.5
