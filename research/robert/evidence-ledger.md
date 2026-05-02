@@ -25,7 +25,7 @@ Use this table as the source of truth for scientific claim status. Do not promot
 1. **Juttner approximation — manuscript anchor**: Tie `formula_classification: juttner_relativistic_boltzmann_exponential` from `runs/2026-04-27-baseline-fit/formula_confirmation.json` to a stable page/equation identifier in the manuscript export. Add explicit approximation statement to manuscript text.
 2. **Fit-ready data table**: Obtain per-bin pT spectra matching multiplicity bins `21-30, 31-40, 41-50, 51-60, 61-70, 71-80, 81-90, 91-100, 101-125, 126-150`. `hepdata_mapping_validation.json` confirms `ins1419652` only provides inclusive spectra. Save to `physics/data/` as CSV per `research/robert/archive/data-onboarding.md` format spec.
 3. **Run fitting pipeline**: After `fit_input.csv` exists, re-run `physics/src/fitting_pipeline.py`. Separate acceptance-cut formulas (η, pT, combined), apply region-specific low-pT gates from Figure 5. Emit chi2/ndf, covariance, parameter correlations, residuals, and model-comparison tables as run artifacts.
-4. **Install matplotlib**: Required before first fit-ready rerun to emit residual and pull plots alongside run artifacts.
+4. **Use physics_env**: Use the existing virtual environment in `physics/physics_env` which already has `matplotlib` 3.10.9 installed; this unblocks the emission of residual and pull plots.
 5. **Trend plots**: Generate U vs multiplicity and T vs multiplicity only after fit quality gates pass.
 6. **Literature ingestion**: Ingest Tsallis/Blast-Wave comparison papers into Onyx physics persona. Run `physics/src/tsallis_physics_validation.py` and save outputs as a dated run directory.
 

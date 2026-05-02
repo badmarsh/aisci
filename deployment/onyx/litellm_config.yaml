@@ -67,7 +67,9 @@ model_list:
   # ── Native Dashscope variants (stable fallbacks) ──
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
-      model: dashscope/qwen-plus
+      model: openai/qwen-plus
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      drop_params: true
     model_name: dashscope-qwen-plus
 
   - litellm_params:
