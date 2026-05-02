@@ -224,8 +224,8 @@ services:
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
-      - DOCUMENT_ENCODER_MODEL=nomic-ai/nomic-embed-text-v1
-      - EMBEDDING_DIM=768
+      - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
+      - EMBEDDING_DIM=1536
       - NORMALIZE_EMBEDDINGS=True
     logging:
       driver: json-file
@@ -260,8 +260,8 @@ services:
     environment:
       - INDEXING_ONLY=True
       - NVIDIA_VISIBLE_DEVICES=all
-      - DOCUMENT_ENCODER_MODEL=nomic-ai/nomic-embed-text-v1
-      - EMBEDDING_DIM=768
+      - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
+      - EMBEDDING_DIM=1536
       - NORMALIZE_EMBEDDINGS=True
     runtime: nvidia
     volumes:

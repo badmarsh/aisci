@@ -70,13 +70,13 @@ The following RAG audit IDs were classified as **structural failures** (wrong so
 - **Tools**: HEP tools `28`, `29`, `30` must remain **removed** unless anchored doc sets are added
 - **Status**: Active guardrail.
 
-## Retrieval-Stack Status (2026-04-27 baseline)
+## Retrieval-Stack Status (2026-05-02)
 
-- **Embedding model**: `nomic-ai/nomic-embed-text-v1`, `EMBEDDING_DIM=768` — active on both `inference_model_server` and `indexing_model_server`
+- **Embedding model**: `Alibaba-NLP/gte-Qwen2-1.5B-instruct`, `EMBEDDING_DIM=1536` — active Alibaba/OpenSearch retrieval target for both `inference_model_server` and `indexing_model_server`
 - **Primary retrieval**: Vespa (active)
-- **OpenSearch alt index**: being populated via connector rebuilds; retrieval flip blocked pending chunk-count parity — see `platform-backlog.md` for current status
+- **OpenSearch active index**: `danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct`; parity gate is green as of 2026-05-02 with `279` documents, `629` chunks, and `0` missing, mismatched, or extra documents. Keep `deployment/helper/onyx_opensearch_cutover.py --json` as the regression check after future reindexes or backend recreates.
 - **LiteLLM contextual-summary timeout**: raised to `timeout=300`, `retry_after=10` to unblock indexing of large local models
-- **Ollama models required**: `gemma2:27b` (weight-1 fallback in `qwen-cloud-fast`), `qwen2.5:32b`, `qwen2.5vl:7b`, `nomic-embed-text:latest`
+- **Ollama models required**: `gemma2:27b` (weight-1 fallback in `qwen-cloud-fast`), `qwen2.5:32b`, and `qwen2.5vl:7b`. `nomic-embed-text:latest` remains useful for rollback but is no longer the active rebuild embedding target.
 
 ## Routing Rules — Future Change Protocol
 

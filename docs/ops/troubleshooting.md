@@ -50,8 +50,9 @@
 ### 7. Background Worker Crash Loops (Craft Templates)
 **Issue:** `onyx-api_server-1` and `onyx-background-1` racing to run `setup_craft_templates.sh` concurrently on shared volume, causing `npm install` failures and `ENOTEMPTY` errors.
 **Solution:**
-- Set `ENABLE_CRAFT=false` in `deployment/onyx/.env` to skip template setup during startup and stabilize the containers.
-- **Status:** Applied.
+- Keep Craft enabled with `IMAGE_TAG=craft-latest`, `ENABLE_CRAFT=true`, and matching `ONYX_WEB_SERVER_IMAGE` / `ONYX_MODEL_SERVER_IMAGE` image tags.
+- If the shared Craft volumes race again, recreate `api_server` and `background` after confirming the image/tag pairing above; do not disable Craft as a workaround.
+- **Status:** Correct Craft pairing is applied in the local ignored `.env` as of 2026-05-02.
 
 ### 8. OpenSearch Migration Failure
 **Issue:** Chunk migration from Vespa to OpenSearch can fail on paginated Vespa visit data that contains metadata-only records with no `document_id`, which can surface as `KeyError: 'document_id'` or as a candidate-count mismatch.
@@ -60,12 +61,13 @@
 - Deploy the matching Vespa metadata-update patch that removes `?create=true` from document PUTs so metadata refreshes cannot create skeletal docs for missing chunks.
 - Re-run the helper visit check after deploy. The `2026-04-28` validation produced `raw_total=403`, `with_document_id=241`, `missing_document_id=162`, `transformed_total=241`, `skipped_total=162`, and `errored_total=0`.
 - Probe a random missing doc id directly after deploy. The `2026-04-28` validation returned `GET 404 -> PUT 200 -> GET 404`, and Vespa chunk count stayed `464`, confirming that metadata updates no longer materialize new skeletal docs.
-- Use `deployment/helper/onyx_opensearch_cutover.py --json` as the live parity check before any tenant flip. It compares Postgres `document.id` chunk counts against the active OpenSearch alt index and reports whether cutover is actually safe.
+- Use `deployment/helper/onyx_opensearch_cutover.py --json` as the live parity check before any tenant flip. It compares Postgres `document.id` chunk counts against the active OpenSearch `search_settings.index_name` index and reports whether cutover is actually safe.
 - The `2026-04-28` live audit still showed cutover blocked: the active alt index had `65` docs but `37` chunk-count mismatches, the primary OpenSearch index was absent, `opensearch_document_migration_record` still had `0` rows, and `opensearch_tenant_migration_record.enable_opensearch_retrieval` remained `false`.
 - To repair that parity gap, full `REINDEX` runs were queued through Onyx's internal trigger path on `2026-04-28` for connector/credential pairs `(11,0)`, `(13,8)`, `(14,9)`, `(10,6)`, `(4,3)`, `(1,1)`, `(7,5)`, and `(3,2)`.
 - The Vespa 507 feed-block was preventing those rebuilds from progressing until the disk-threshold patch above was deployed. After the recreate, the blocker shifted from Vespa NO_SPACE to waiting for the queued reindex attempts to finish and repopulate OpenSearch.
-- Keep OpenSearch retrieval disabled until those reindex attempts complete, `deployment/helper/onyx_opensearch_cutover.py --json` reports parity, and only then flip the tenant flag.
-- **Status:** Transformer patch deployed and rebuilds queued on `2026-04-28`; retrieval cutover still blocked pending parity and tenant-bookkeeping repair.
+- As of `2026-05-02`, the active Alibaba index is `danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct`; use the helper's `active_index_name`, not contextual-RAG status alone, to decide which OpenSearch index is live.
+- OpenSearch 3.4 KNN indexes can fail search requests that return `_source` while still allowing `GET /_doc/{id}`. The tracked `patch_mcp_tool.py` startup patch makes Onyx search request IDs first and hydrate sources by document GET; rebuild/recreate the backend image after changing that patch.
+- **Status:** Transformer patch and OpenSearch search-source hydration patch deployed. The Alibaba/1536 rebuild reached active-index parity on `2026-05-02`: `279` documents, `629` chunks, `0` missing/mismatched/extra documents, and `enable_opensearch_retrieval=true`.
 
 ### 9. Stale Index Attempt Blocks Fresh Runs
 **Issue:** A connector pair can stay stuck in `IN_PROGRESS` with a frozen heartbeat, and background logs show `skipped_active=1` instead of starting a new run.
@@ -104,6 +106,7 @@ docker exec onyx-ollama-1 nvidia-smi
 
 If multiple issues persist:
 1. Stop all Onyx services: `cd ~/aisci/deployment/onyx && docker compose down`
-2. Clear Docker system: `docker system prune -f`
-3. Restart: `cd ~/aisci/deployment/onyx && docker compose up -d`
-4. Re-create the Physics Validation persona if needed
+2. Restart: `cd ~/aisci/deployment/onyx && docker compose up -d`
+3. Re-create or re-sync the Physics Validation persona if the database was reset.
+
+Do not run `docker system prune`, remove volumes, or delete containers as part of routine troubleshooting unless the operator explicitly approves the destructive cleanup for that incident.

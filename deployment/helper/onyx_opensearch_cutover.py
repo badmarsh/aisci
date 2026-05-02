@@ -50,8 +50,8 @@ def parse_args() -> argparse.Namespace:
         "--allow-primary-stale",
         action="store_true",
         help=(
-            "Allow cutover when the active contextual alt index matches the DB "
-            "even if the primary index still has stale or missing docs."
+            "Allow cutover when the active search_settings index matches the "
+            "DB even if the inactive primary index still has stale or missing docs."
         ),
     )
     parser.add_argument(
@@ -166,8 +166,7 @@ def run_inside_container(args: argparse.Namespace) -> dict[str, Any]:
         )
 
         primary_index_name, alt_index_name = derive_index_names(search_settings)
-        contextual_enabled = bool(search_settings.get("enable_contextual_rag"))
-        active_index_name = alt_index_name if contextual_enabled else primary_index_name
+        active_index_name = str(search_settings.get("index_name") or primary_index_name)
 
         primary_index = fetch_opensearch_index(primary_index_name)
         alt_index = fetch_opensearch_index(alt_index_name)
@@ -175,8 +174,12 @@ def run_inside_container(args: argparse.Namespace) -> dict[str, Any]:
         primary_summary = compare_index_to_db(primary_index, db_summary)
         alt_summary = compare_index_to_db(alt_index, db_summary)
 
-        active_summary = alt_summary if contextual_enabled else primary_summary
-        strict_ready = primary_summary["ready"] and active_summary["ready"]
+        active_summary = (
+            alt_summary if active_index_name == alt_index_name else primary_summary
+        )
+        strict_ready = active_summary["ready"]
+        if active_index_name == alt_index_name:
+            strict_ready = primary_summary["ready"] and active_summary["ready"]
         active_only_ready = active_summary["ready"]
         ready_for_cutover = (
             active_only_ready if args.allow_primary_stale else strict_ready
@@ -190,7 +193,9 @@ def run_inside_container(args: argparse.Namespace) -> dict[str, Any]:
                 "model_name": search_settings.get("model_name"),
                 "model_dim": search_settings.get("model_dim"),
                 "status": search_settings.get("status"),
-                "enable_contextual_rag": contextual_enabled,
+                "enable_contextual_rag": bool(
+                    search_settings.get("enable_contextual_rag")
+                ),
                 "primary_index_name": primary_index_name,
                 "alt_index_name": alt_index_name,
                 "active_index_name": active_index_name,
@@ -365,9 +370,9 @@ def fetch_opensearch_index(index_name: str) -> dict[str, Any]:
     payload = {
         "size": MAX_OPENSEARCH_DOCS,
         "track_total_hits": True,
-        "_source": ["document_id", "chunk_id"],
+        "_source": False,
+        "fields": ["document_id", "chunk_index"],
         "query": {"match_all": {}},
-        "sort": ["_doc"],
     }
     try:
         response = opensearch_request(
@@ -451,15 +456,20 @@ def count_index_chunks(hits: list[dict[str, Any]]) -> dict[str, int]:
     raw_counts: dict[str, int] = defaultdict(int)
 
     for hit in hits:
+        fields = hit.get("fields") or {}
         source = hit.get("_source") or {}
-        document_id = source.get("document_id")
+        document_id = first_field_value(fields.get("document_id"))
+        if document_id is None:
+            document_id = source.get("document_id")
         if not document_id:
             continue
 
         document_id = str(document_id)
         raw_counts[document_id] += 1
 
-        chunk_id = source.get("chunk_id")
+        chunk_id = first_field_value(fields.get("chunk_index"))
+        if chunk_id is None:
+            chunk_id = source.get("chunk_id")
         if chunk_id is not None:
             chunk_ids_by_doc[document_id].add(str(chunk_id))
 
@@ -468,6 +478,12 @@ def count_index_chunks(hits: list[dict[str, Any]]) -> dict[str, int]:
         unique_chunks = chunk_ids_by_doc.get(document_id)
         counts[document_id] = len(unique_chunks) if unique_chunks else count
     return counts
+
+
+def first_field_value(value: Any) -> Any:
+    if isinstance(value, list):
+        return value[0] if value else None
+    return value
 
 
 def opensearch_request(

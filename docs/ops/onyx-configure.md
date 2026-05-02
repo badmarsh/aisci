@@ -5,14 +5,14 @@ or any agent with shell and HTTP access to the server). The agent will read curr
 state and apply the desired state idempotently — safe to run repeatedly.
 
 **Pre-requisites before running:**
-- Onyx stack is up: `docker ps | grep onyx-api-server` returns a running container
-- Both MCP tools are reachable:
+- Onyx stack is up: `docker ps | grep onyx-api_server` returns a running container
+- Both MCP proxy routes are reachable:
   ```bash
   curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8095/scite/
-  curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8095/consensus/mcp/
+  curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:8095/consensus/
   ```
-  Both must return `200`. If not, fix the proxy first (see `deployment/onyx/nginx_mcp_proxy.conf`).
-- `.env` contains `ONYX_API_KEY`, `SCITE_API_KEY`, and `CONSENSUS_MCP_BEARER_TOKEN`
+  Scite may return `400` without a valid MCP request body; Consensus may return `401` or `411` without OAuth/body headers. Those statuses still prove the proxy route is alive.
+- `.env` contains `ONYX_API_KEY`; MCP bearer tokens are supplied by the OAuth-capable client or by ignored local env when a custom Onyx tool needs a static bearer header.
 
 ---
 
@@ -66,7 +66,7 @@ If already found, PATCH it to ensure:
   - api_base = "http://litellm:4000"
 
 Models available via LiteLLM (defined in deployment/onyx/litellm_config.yaml):
-  - qwen-cloud-fast   → Qwen2.5-Plus via Alibaba Cloud + gemma2:27b fallback
+  - qwen-cloud-fast   → qwen3-omni-flash-2025-09-15 via Alibaba Cloud + gemma2:27b fallback
   - qwen2.5:32b       → local Ollama, large context, used for deep analysis
 
 Record the provider ID for use in persona creation.
@@ -147,12 +147,12 @@ For each tool below, create if not found:
       }
     },
     "custom_headers": [
-      {"key": "Authorization", "value": "Bearer {SCITE_API_KEY}"}
+      {"key": "Authorization", "value": "Bearer {SCITE_MCP_BEARER_TOKEN}"}
     ],
     "endpoint": "http://127.0.0.1:8095/scite/",
     "method": "POST"
   }
-  → replace {SCITE_API_KEY} with the actual value from .env
+  → replace {SCITE_MCP_BEARER_TOKEN} only if the Onyx custom tool, rather than an OAuth-aware MCP client, owns the bearer header.
 
 3b. Consensus MCP
   POST /api/tool
@@ -179,10 +179,10 @@ For each tool below, create if not found:
     "custom_headers": [
       {"key": "Authorization", "value": "Bearer {CONSENSUS_MCP_BEARER_TOKEN}"}
     ],
-    "endpoint": "http://127.0.0.1:8095/consensus/mcp/",
+    "endpoint": "http://127.0.0.1:8095/consensus/",
     "method": "POST"
   }
-  → replace {CONSENSUS_MCP_BEARER_TOKEN} with the actual value from .env
+  → replace {CONSENSUS_MCP_BEARER_TOKEN} only if the Onyx custom tool, rather than an OAuth-aware MCP client, owns the bearer header.
 
 Record tool IDs: SCITE_TOOL_ID, CONSENSUS_TOOL_ID.
 
@@ -342,7 +342,7 @@ Commit this file: git add docs/ops/onyx-persona-ids.md && git commit -m "ops: re
 - After any `docker compose down && docker compose up` that resets the Onyx database
 - After adding a new persona to `onyx-setup-guide.md`
 - After changing a system prompt (the PATCH path in Step 4 handles this idempotently)
-- After rotating the Scite API key or Consensus bearer token (Step 3 will update headers)
+- After rotating Scite or Consensus OAuth bearer tokens used by custom Onyx tools (Step 3 will update headers)
 - If `docs/ops/onyx-persona-ids.md` is missing or stale
 
 ## What This Does NOT Configure

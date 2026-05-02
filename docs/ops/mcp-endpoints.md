@@ -17,9 +17,9 @@ Keep secrets out of this file.
 
 | Endpoint | Service | Proxy Route | Auth Model | Status | Action |
 |---|---|---|---|---|---|
-| Scite | nginx MCP proxy | `http://127.0.0.1:8095/scite/` → `https://api.scite.ai/mcp` | OAuth Bearer — client must complete browser flow | ⚠️ Needs OAuth flow | Initiate from client, complete browser sign-in |
-| Consensus | nginx MCP proxy | `http://127.0.0.1:8095/consensus/` → `https://mcp.consensus.app/mcp/` | OAuth Bearer — client must complete browser flow | ⚠️ Needs OAuth flow | Initiate from client, complete browser sign-in |
+| Scite | nginx MCP proxy | `http://127.0.0.1:8095/scite/` → `https://api.scite.ai/mcp` | OAuth Bearer — client must complete browser flow | ⚠️ Proxy reachable; needs OAuth flow | Initiate from client, complete browser sign-in |
+| Consensus | nginx MCP proxy | `http://127.0.0.1:8095/consensus/` → `https://mcp.consensus.app/mcp/` | OAuth Bearer — client must complete browser flow | ⚠️ Proxy reachable; needs OAuth flow | Initiate from client, complete browser sign-in |
 | arXiv | Direct REST | `https://export.arxiv.org/api/query` | None (public) | ✅ Public | No proxy needed |
 | INSPIRE-HEP | Direct REST | `https://inspirehep.net/api/` | None (public) | ✅ Public | No proxy needed |
 | Onyx RAG API | Internal | `http://localhost:3000/api/` | Bearer ONYX_API_KEY | ✅ Active | Document sets and personas operational |
-| OpenSearch | Internal | `https://localhost:9200` | admin / OPENSEARCH_ADMIN_PASSWORD | ✅ Active | 1,232 docs indexed in alt index, retrieval live |
+| OpenSearch | Internal | `https://localhost:9200` | admin / OPENSEARCH_ADMIN_PASSWORD | ✅ Active — Alibaba parity green | Keep `deployment/helper/onyx_opensearch_cutover.py --json` as the regression gate after future reindexes; active index `danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct` matches DB chunk parity |

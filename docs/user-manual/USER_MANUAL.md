@@ -7,7 +7,7 @@ There are two entirely separate interfaces here — they serve different people.
 ```
 Robert (physicist, no VS Code)
     │
-    └─► Browser → DeerFlow web UI (port 3000)
+    └─► Browser → DeerFlow web UI (port 2026)
                       │
                       └─► DeerFlow "Local Searcher" agent (SOUL.md)
                                 │

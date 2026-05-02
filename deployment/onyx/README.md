@@ -17,7 +17,8 @@ This directory is the compose and build root for the local Onyx stack. For curre
 - The main Onyx web proxy does not use `nginx_configs/`; it currently mounts `deployment/data/nginx/` from the sibling path `../data/nginx`.
 - The MCP proxy does use `nginx_configs/mcp_proxy.conf.template`.
 - Secrets belong in the untracked local `.env` or other untracked local material, not in tracked config files.
-- `nemotron_embed_vl` is a trial NVIDIA NIM embedding service. Start it with `NGC_API_KEY` available in the shell or ignored `.env`, then verify `http://localhost:8000/v1/health/ready` before testing `http://localhost:8000/v1/embeddings`.
+- The active embedding target is `Alibaba-NLP/gte-Qwen2-1.5B-instruct` at 1536 dimensions.
+- `nemotron_embed_vl` is an optional trial NVIDIA NIM embedding service. Start it only with a valid NGC/NVIDIA key available in the shell or ignored `.env`, then verify `http://localhost:8000/v1/health/ready` before testing `http://localhost:8000/v1/embeddings`.
 
 ## Notes
 

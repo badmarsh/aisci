@@ -12,6 +12,7 @@ MULTI_LLM_PATH = Path("/app/onyx/llm/multi_llm.py")
 OPENSEARCH_INDEX_PATH = Path(
     "/app/onyx/document_index/opensearch/opensearch_document_index.py"
 )
+OPENSEARCH_CLIENT_PATH = Path("/app/onyx/document_index/opensearch/client.py")
 
 
 def patch_mcp_tool_names() -> None:
@@ -218,9 +219,89 @@ def patch_opensearch_missing_update_logging() -> None:
     OPENSEARCH_INDEX_PATH.write_text(text)
 
 
+def patch_opensearch_search_source_hydration() -> None:
+    text = OPENSEARCH_CLIENT_PATH.read_text()
+    marker = "patched to hydrate OpenSearch search sources by id"
+    if marker in text:
+        return
+
+    anchor = '''        params = {"phase_took": "true"}
+        ctx = self._get_emit_metrics_context_manager(search_type)
+        t0 = time.perf_counter()
+        with ctx:
+            if search_pipeline_id:
+                result = self._client.search(
+                    index=self._index_name,
+                    search_pipeline=search_pipeline_id,
+                    body=body,
+                    params=params,
+                )
+            else:
+                result = self._client.search(
+                    index=self._index_name, body=body, params=params
+                )
+        client_duration_s = time.perf_counter() - t0
+'''
+    replacement = '''        params = {"phase_took": "true"}
+        hydrate_source_by_id = body.get("_source") is not False
+        request_body = body
+        if hydrate_source_by_id:
+            request_body = dict(body)
+            request_body["_source"] = False
+            # patched to hydrate OpenSearch search sources by id
+        ctx = self._get_emit_metrics_context_manager(search_type)
+        t0 = time.perf_counter()
+        with ctx:
+            if search_pipeline_id:
+                result = self._client.search(
+                    index=self._index_name,
+                    search_pipeline=search_pipeline_id,
+                    body=request_body,
+                    params=params,
+                )
+            else:
+                result = self._client.search(
+                    index=self._index_name, body=request_body, params=params
+                )
+        client_duration_s = time.perf_counter() - t0
+'''
+    if anchor not in text:
+        raise RuntimeError("Unexpected OpenSearch search request block")
+    text = text.replace(anchor, replacement, 1)
+
+    old = '''        for hit in hits:
+            document_chunk_source: dict[str, Any] | None = hit.get("_source")
+            if not document_chunk_source:
+                raise RuntimeError(
+                    f'Document chunk with ID "{hit.get("_id", "")}" has no data.'
+                )
+            document_chunk_score = hit.get("_score", None)
+'''
+    new = '''        for hit in hits:
+            document_chunk_source: dict[str, Any] | None = hit.get("_source")
+            if not document_chunk_source and hydrate_source_by_id:
+                document_chunk_id = hit.get("_id")
+                if document_chunk_id:
+                    hydrated = self._client.get(
+                        index=self._index_name, id=document_chunk_id
+                    )
+                    document_chunk_source = hydrated.get("_source")
+            if not document_chunk_source:
+                raise RuntimeError(
+                    f'Document chunk with ID "{hit.get("_id", "")}" has no data.'
+                )
+            document_chunk_score = hit.get("_score", None)
+'''
+    if old not in text:
+        raise RuntimeError("Unexpected OpenSearch search hit source block")
+    text = text.replace(old, new, 1)
+    OPENSEARCH_CLIENT_PATH.write_text(text)
+
+
 if __name__ == "__main__":
     patch_mcp_tool_names()
     patch_vertex_gemini_tool_results()
     patch_litellm_empty_tool_payloads()
     patch_onyx_empty_tool_kwargs()
     patch_opensearch_missing_update_logging()
+    patch_opensearch_search_source_hydration()
