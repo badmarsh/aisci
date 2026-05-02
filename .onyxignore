@@ -35,3 +35,28 @@ __pycache__/
 .env.*
 *.pem
 *.key
+
+# ── Ops & infra snapshots — not physics knowledge ────────────────────
+# These are point-in-time operational notes. They describe how the
+# platform was configured at a moment in time, not scientific content.
+# Indexing them causes RAG to surface infra trivia instead of physics.
+docs/ops/troubleshooting.md
+docs/ops/onyx-configure.md
+docs/ops/onyx-rag-optimization-*.md
+docs/ops/platform-backlog.md
+docs/ops/secrets-and-deployment-notes*.md
+
+# ── Ephemeral session / task-tracking files ──────────────────────────
+# These change every session and have no stable scientific signal.
+ACTION_PLAN.md
+CHANGELOG.md
+research/robert/next-actions.md
+
+# ── Archived / superseded material ───────────────────────────────────
+research/robert/archive/
+
+# ── Raw data blobs in run directories ────────────────────────────────
+# CSV/JSON data files are not retrievable as natural language context.
+# The companion README.md in each run dir is kept (not ignored here).
+research/robert/runs/**/*.csv
+research/robert/runs/**/*.json
