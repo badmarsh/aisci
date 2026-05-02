@@ -385,8 +385,8 @@ services:
       - NGINX_PROXY_SEND_TIMEOUT=${NGINX_PROXY_SEND_TIMEOUT:-300}
       - NGINX_PROXY_READ_TIMEOUT=${NGINX_PROXY_READ_TIMEOUT:-300}
     ports:
-      - "127.0.0.1:${HOST_PORT_80:-80}:80"
-      - "127.0.0.1:${HOST_PORT:-3000}:80"
+      - "${HOST_PORT_80:-80}:80"
+      - "${HOST_PORT:-3000}:80"
     volumes:
       - ../data/nginx:/nginx-templates:ro
     command: >
