@@ -86,9 +86,14 @@ class SymPyPhysicsValidator:
             print(f"Failed to parse expression '{expr_str}': {e}")
             return None
     
-    def dimensional_analysis(self, expr: sp.Expr, expected_dimensions: Optional[sp.Symbol] = None) -> bool:
+    def placeholder_dimensional_check(self, expr: sp.Expr, expected_dimensions: Optional[sp.Symbol] = None) -> bool:
         """
-        Run a placeholder dimensional check on an expression.
+        Placeholder — does NOT track physical units.
+
+        Simplifies the expression and returns False if it contains undefined
+        symbolic terms (zoo, nan).  A future implementation would map every
+        symbol to a unit object and verify that each additive term is
+        dimensionally consistent.
         
         Parameters:
         -----------
@@ -118,7 +123,7 @@ class SymPyPhysicsValidator:
                 
             return True
         except Exception as e:
-            print(f"DIMENSIONAL ANALYSIS ERROR: {e}")
+            print(f"PLACEHOLDER DIMENSIONAL CHECK ERROR: {e}")
             return False
     
     def check_kinematic_boundaries(self, expr: sp.Expr) -> Dict[str, bool]:
@@ -239,7 +244,7 @@ class SymPyPhysicsValidator:
             }
         
         # Run the current placeholder dimensional check.
-        dim_check = self.dimensional_analysis(parsed_eq)
+        dim_check = self.placeholder_dimensional_check(parsed_eq)
         
         # Check kinematic boundaries
         kinematic_checks = self.check_kinematic_boundaries(parsed_eq)
