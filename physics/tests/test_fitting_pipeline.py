@@ -6,6 +6,9 @@ from unittest.mock import patch, MagicMock
 from fitting_pipeline import (
     safe_exp,
     manuscript_component_scalar,
+    bose_component_scalar,
+    tsallis_component_scalar,
+    blast_wave_component_scalar,
     fit_one_spec,
     run_fits,
     FitSpec
@@ -19,6 +22,27 @@ def test_safe_exp():
 def test_manuscript_component_scalar():
     val = manuscript_component_scalar(
         pt=1.0, norm=1.0, temperature=0.15, U=0.3, eta_max=2.5, mass_gev=0.13957
+    )
+    assert isinstance(val, float)
+    assert val > 0
+
+def test_bose_component_scalar():
+    val = bose_component_scalar(
+        pt=1.0, norm=1.0, temperature=0.15, U=0.3, eta_max=2.5, mass_gev=0.13957
+    )
+    assert isinstance(val, float)
+    assert val > 0
+
+def test_tsallis_component_scalar():
+    val = tsallis_component_scalar(
+        pt=1.0, norm=1.0, temperature=0.15, q=1.1, eta_max=2.5, mass_gev=0.13957
+    )
+    assert isinstance(val, float)
+    assert val > 0
+
+def test_blast_wave_component_scalar():
+    val = blast_wave_component_scalar(
+        pt=1.0, norm=1.0, temperature=0.15, beta_s=0.5, n_value=1.0, mass_gev=0.13957
     )
     assert isinstance(val, float)
     assert val > 0
