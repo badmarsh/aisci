@@ -1,22 +1,21 @@
 {
-  "mcpInterceptors": [
-    "my_package.mcp.auth:build_auth_interceptor"
-  ],
   "mcpServers": {
     "filesystem": {
-      "enabled": false,
+      "enabled": true,
       "type": "stdio",
       "command": "npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "/path/to/allowed/files"
+        "/app",
+        "/app/backend/.deer-flow",
+        "/app/skills"
       ],
       "env": {},
-      "description": "Provides filesystem access within allowed directories"
+      "description": "Provides filesystem access inside the DeerFlow runtime container"
     },
     "github": {
-      "enabled": false,
+      "enabled": true,
       "type": "stdio",
       "command": "npx",
       "args": [
@@ -28,29 +27,62 @@
       },
       "description": "GitHub MCP server for repository operations"
     },
-    "postgres": {
+    "brave-search": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "$BRAVE_API_KEY"
+      },
+      "description": "Brave Search API for web search results"
+    },
+    "puppeteer": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ],
+      "env": {},
+      "description": "Browser automation with Puppeteer for web scraping and interaction"
+    },
+    "sqlite": {
       "enabled": false,
       "type": "stdio",
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-postgres",
-        "postgresql://localhost/mydb"
+        "@modelcontextprotocol/server-sqlite",
+        "/app/backend/.deer-flow/checkpoints.db"
       ],
       "env": {},
-      "description": "PostgreSQL database access"
+      "description": "SQLite database access for internal LangGraph checkpoints"
     },
     "scite": {
-      "enabled": false,
+      "enabled": true,
       "type": "sse",
       "url": "http://host.docker.internal:8095/scite/sse",
+      "headers": {},
       "description": "Scite API for literature citation contexts and exact manuscript claim verification"
     },
     "consensus": {
-      "enabled": false,
+      "enabled": true,
       "type": "sse",
       "url": "http://host.docker.internal:8095/consensus/sse",
+      "headers": {},
       "description": "Consensus API for academic search and claim grounding"
+    },
+    "onyx": {
+      "enabled": true,
+      "type": "sse",
+      "url": "http://host.docker.internal:8095/onyx/sse",
+      "headers": {},
+      "description": "Local Onyx MCP bridge for source-grounded search and chat against the AiSci knowledge base"
     },
     "arxiv": {
       "enabled": false,
@@ -60,8 +92,36 @@
         "x",
         "mcp-server-arxiv"
       ],
+      "env": {},
       "description": "arXiv MCP server for direct paper lookup and metadata fetching"
+    },
+    "serena": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network",
+        "host",
+        "-v",
+        "/home/ubuntu/aisci:/workspaces/aisci",
+        "ghcr.io/oraios/serena:latest",
+        "serena",
+        "start-mcp-server",
+        "--context=ide",
+        "--project=/workspaces/aisci",
+        "--enable-web-dashboard=false",
+        "--open-web-dashboard=false"
+      ],
+      "env": {},
+      "description": "Serena semantic code navigation and editing MCP server for the AiSci workspace"
     }
   },
-  "skills": {}
+  "skills": {
+    "multi-language": {
+      "enabled": false
+    }
+  }
 }
