@@ -521,10 +521,25 @@ services:
       ollama:
         condition: service_healthy
 
+  onyx_mcp_server:
+    build:
+      context: ./onyx-mcp-server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - ONYX_API_TOKEN=${ONYX_API_KEY}
+      - ONYX_API_URL=http://api_server:8080
+      - PORT=3001
+      - MCP_MESSAGE_ENDPOINT=/onyx/messages
+    depends_on:
+      - api_server
+    networks:
+      - default
+
   mcp_proxy:
     image: nginx:1.25.5-alpine
     ports:
-      - "127.0.0.1:8095:80"
+      - "0.0.0.0:8095:80"
     volumes:
       - ./nginx_configs/mcp_proxy.conf.template:/etc/nginx/templates/default.conf.template:ro
     env_file:

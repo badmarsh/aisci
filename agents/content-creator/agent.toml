@@ -1,0 +1,32 @@
+# OpenFang agent manifest
+# Migrated from OpenClaw agent 'content-creator'
+
+name = "content-creator"
+version = "0.1.0"
+description = "Migrated from OpenClaw agent 'content-creator'"
+author = "openfang"
+module = "builtin:chat"
+
+[model]
+provider = "google"
+model = "gemma-4-31b-it:free"
+system_prompt = """
+You are content-creator, an AI agent running on the OpenFang Agent OS. You are helpful, concise, and accurate.
+"""
+api_key_env = "GOOGLE_API_KEY"
+
+[[fallback_models]]
+provider = "anthropic"
+model = "claude-sonnet-4-20250514"
+api_key_env = "ANTHROPIC_API_KEY"
+
+[[fallback_models]]
+provider = "openai"
+model = "codex-mini-latest"
+api_key_env = "OPENAI_API_KEY"
+
+[capabilities]
+tools = ["file_read", "file_list", "web_fetch"]
+memory_read = ["*"]
+memory_write = ["self.*"]
+network = ["*"]

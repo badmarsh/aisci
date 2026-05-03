@@ -6,11 +6,11 @@ model_list:
       model: openai/gemma2:27b
     model_name: gemma2
 
-  - litellm_params:
-      api_base: http://ollama:11434/v1
-      api_key: ollama
-      model: openai/qwen2.5:32b
-    model_name: qwen2.5
+  - model_name: qwen2.5
+    litellm_params:
+      model: openai/qwen2.5-72b-instruct
+      api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api_key: os.environ/DASHSCOPE_API_KEY
 
   - litellm_params:
       api_base: http://ollama:11434/v1
@@ -43,6 +43,14 @@ model_list:
 
   # qwen-turbo: confirmed working, no free-tier exhaustion
   - litellm_params:
+      api_key: os.environ/NVIDIA_API_KEY
+      model: openai/meta/llama-3.3-70b-instruct
+      api_base: https://integrate.api.nvidia.com/v1
+      drop_params: true
+      weight: 20
+    model_name: qwen-cloud-fast
+
+  - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen-turbo
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
@@ -65,12 +73,11 @@ model_list:
     model_name: qwen3-coder-plus-2025-09-23
 
   # ── Native Dashscope variants (stable fallbacks) ──
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/qwen-plus
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      drop_params: true
-    model_name: dashscope-qwen-plus
+  - model_name: dashscope-qwen-plus
+    litellm_params:
+      model: openai/qwen-plus-latest
+      api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api_key: os.environ/DASHSCOPE_API_KEY
 
   - litellm_params:
       # Offline emergency fallback — no cloud dependency
@@ -92,10 +99,19 @@ model_list:
     # ── Visual RAG (image understanding) ─────────────────────────────────────
     # All image models: 100-req trial quota each — for user queries only.
   - litellm_params:
+      api_key: os.environ/NVIDIA_API_KEY
+      model: openai/meta/llama-3.2-90b-vision-instruct
+      api_base: https://integrate.api.nvidia.com/v1
+      drop_params: true
+      weight: 20
+    model_name: qwen-vision
+
+  - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen3-vl-235b-a22b
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
       drop_params: true
+      weight: 10
     model_name: qwen-vision
 
   - litellm_params:

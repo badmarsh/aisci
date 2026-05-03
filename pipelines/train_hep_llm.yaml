@@ -1,0 +1,19 @@
+name: train_hep_llm
+description: "Trigger fine-tuning or RAG-indexing optimization for High Energy Physics specialized models."
+version: "1.0"
+
+steps:
+  - name: prepare_training_data
+    use: connectors.onyx_connector:OnyxConnector
+    action: search
+    with:
+      query: "High Energy Physics fit diagnostics"
+      num_hits: 100
+
+  - name: optimize_index
+    use: deerflow.sandbox:bash
+    with:
+      command: |
+        # Conceptual call to trigger model server optimization
+        curl -X POST http://host.docker.internal:80/api/admin/optimize-index \
+             -H "Authorization: Bearer $ONYX_API_KEY"

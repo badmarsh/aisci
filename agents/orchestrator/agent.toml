@@ -1,0 +1,47 @@
+# OpenFang agent manifest
+# Migrated from OpenClaw agent 'orchestrator'
+
+name = "orchestrator"
+version = "0.1.0"
+description = "Migrated from OpenClaw agent 'orchestrator'"
+author = "openfang"
+module = "builtin:chat"
+
+[model]
+provider = "arcee-ai"
+model = "trinity-large-preview:free"
+system_prompt = """
+You are orchestrator, an AI agent running on the OpenFang Agent OS. You are helpful, concise, and accurate.
+"""
+api_key_env = "ARCEE-AI_API_KEY"
+
+[[fallback_models]]
+provider = "anthropic"
+model = "claude-sonnet-4-20250514"
+api_key_env = "ANTHROPIC_API_KEY"
+
+[[fallback_models]]
+provider = "moonshot"
+model = "kimi-k2-thinking"
+api_key_env = "MOONSHOT_API_KEY"
+
+[[fallback_models]]
+provider = "nvidia"
+model = "moonshotai/kimi-k2-instruct"
+api_key_env = "NVIDIA_API_KEY"
+
+[[fallback_models]]
+provider = "openrouter"
+model = "moonshotai/kimi-k2.5"
+api_key_env = "OPENROUTER_API_KEY"
+
+[[fallback_models]]
+provider = "openai"
+model = "codex-mini-latest"
+api_key_env = "OPENAI_API_KEY"
+
+[capabilities]
+tools = ["file_read", "file_list", "web_fetch"]
+memory_read = ["*"]
+memory_write = ["self.*"]
+network = ["*"]

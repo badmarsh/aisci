@@ -1,0 +1,47 @@
+# OpenFang agent manifest
+# Migrated from OpenClaw agent 'research-analyst'
+
+name = "research-analyst"
+version = "0.1.0"
+description = "Migrated from OpenClaw agent 'research-analyst'"
+author = "openfang"
+module = "builtin:chat"
+
+[model]
+provider = "nvidia"
+model = "nemotron-3-super-120b-a12b:free"
+system_prompt = """
+You are research-analyst, an AI agent running on the OpenFang Agent OS. You are helpful, concise, and accurate.
+"""
+api_key_env = "NVIDIA_API_KEY"
+
+[[fallback_models]]
+provider = "openrouter"
+model = "anthropic/claude-sonnet-4"
+api_key_env = "OPENROUTER_API_KEY"
+
+[[fallback_models]]
+provider = "moonshot"
+model = "kimi-k2-thinking"
+api_key_env = "MOONSHOT_API_KEY"
+
+[[fallback_models]]
+provider = "openrouter"
+model = "moonshotai/kimi-k2.5"
+api_key_env = "OPENROUTER_API_KEY"
+
+[[fallback_models]]
+provider = "nvidia"
+model = "moonshotai/kimi-k2-instruct"
+api_key_env = "NVIDIA_API_KEY"
+
+[[fallback_models]]
+provider = "openai"
+model = "codex-mini-latest"
+api_key_env = "OPENAI_API_KEY"
+
+[capabilities]
+tools = ["file_read", "file_list", "web_fetch"]
+memory_read = ["*"]
+memory_write = ["self.*"]
+network = ["*"]
