@@ -13,257 +13,398 @@
 # ============================================================================
 # Config Version (used to detect outdated config files)
 # ============================================================================
-# Bump this number when the config schema changes.
-# Run `make config-upgrade` to merge new fields into your local config.yaml.
 config_version: 8
 
 # ============================================================================
 # Logging
 # ============================================================================
-# Log level for deerflow modules (debug/info/warning/error)
 log_level: info
 
 # ============================================================================
 # Token Usage
 # ============================================================================
-# Enable token usage collection and display.
-# When enabled, DeerFlow records input/output/total tokens per model call
-# and shows usage metadata in the workspace UI when providers return it.
 token_usage:
-  enabled: false
+  enabled: true
+
+# ============================================================================
+# Agents
+# ============================================================================
+agents:
+  - name: physics-validation-director
+    type: lead
+    capacity: 100
+  - name: literature-scout
+    type: specialist
+    capacity: 80
+  - name: formula-checker
+    type: specialist
+    capacity: 80
+  - name: fit-analyst
+    type: specialist
+    capacity: 80
+  - name: referee-writer
+    type: specialist
+    capacity: 80
+  - name: figure-table-builder
+    type: specialist
+    capacity: 60
+  - name: evidence-ledger
+    type: operations
+    capacity: 80
+  - name: coder
+    type: operations
+    capacity: 100
+  - name: data-analyst
+    type: operations
+    capacity: 100
+  - name: knowledge-manager
+    type: operations
+    capacity: 100
+  - name: research-coordinator
+    type: assistant
+    capacity: 100
+
+# ============================================================================
+# Agents API
+# ============================================================================
+agents_api:
+  enabled: true
+
+# ============================================================================
+# LangGraph
+# ============================================================================
+langgraph:
+  recursion_limit: 100
+  thinking_enabled: true
+  subagent_enabled: true
+  context_management:
+    max_turns: 50
+    summary_threshold: 5
+  memory:
+    type: persistent
+    storage: ./memory
+    max_entries: 10000
 
 # ============================================================================
 # Models Configuration
 # ============================================================================
-# Configure available LLM models for the agent to use
-
 models:
-  # Example: Volcengine (Doubao) model
-  # - name: doubao-seed-1.8
-  #   display_name: Doubao-Seed-1.8
-  #   use: deerflow.models.patched_deepseek:PatchedChatDeepSeek
-  #   model: doubao-seed-1-8-251228
-  #   api_base: https://ark.cn-beijing.volces.com/api/v3
-  #   api_key: $VOLCENGINE_API_KEY
-  #   timeout: 600.0
-  #   max_retries: 2
-  #   supports_thinking: true
-  #   supports_vision: true
-  #   supports_reasoning_effort: true
-  #   when_thinking_enabled:
-  #     extra_body:
-  #       thinking:
-  #         type: enabled
-  #   when_thinking_disabled:
-  #     extra_body:
-  #       thinking:
-  #         type: disabled
+  # --- OpenRouter ---
+  - name: gemini-2-5-flash
+    display_name: Gemini 2.5 Flash (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: google/gemini-2.5-flash
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_vision: true
 
-  # Example: OpenAI model
-  # - name: gpt-4
-  #   display_name: GPT-4
-  #   use: langchain_openai:ChatOpenAI
-  #   model: gpt-4
-  #   api_key: $OPENAI_API_KEY # Use environment variable
-  #   request_timeout: 600.0
-  #   max_retries: 2
-  #   max_tokens: 4096
-  #   temperature: 0.7
-  #   supports_vision: true # Enable vision support for view_image tool
+  - name: claude-4-7-opus
+    display_name: Claude 4.7 Opus (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: anthropic/claude-4.7-opus
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_thinking: true
+    supports_vision: true
+    when_thinking_enabled:
+      extra_body:
+        thinking:
+          type: enabled
+    when_thinking_disabled:
+      extra_body:
+        thinking:
+          type: disabled
 
-  # Example: OpenAI Responses API model
-  # - name: gpt-5-responses
-  #   display_name: GPT-5 (Responses API)
-  #   use: langchain_openai:ChatOpenAI
-  #   model: gpt-5
-  #   api_key: $OPENAI_API_KEY
-  #   request_timeout: 600.0
-  #   max_retries: 2
-  #   use_responses_api: true
-  #   output_version: responses/v1
-  #   supports_vision: true
+  - name: gemini-2-5-pro
+    display_name: Gemini 2.5 Pro (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: google/gemini-2.5-pro
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_thinking: true
+    supports_vision: true
+    when_thinking_enabled:
+      extra_body:
+        thinking:
+          type: enabled
+    when_thinking_disabled:
+      extra_body:
+        thinking:
+          type: disabled
 
-  # Example: Ollama (native provider — preserves thinking/reasoning content)
-  #
-  # IMPORTANT: Use langchain_ollama:ChatOllama instead of langchain_openai:ChatOpenAI
-  # for Ollama models. The OpenAI-compatible endpoint (/v1/chat/completions) does NOT
-  # return reasoning_content as a separate field — thinking content is either flattened
-  # into <think> tags or dropped entirely (ollama/ollama#15293). The native Ollama API
-  # (/api/chat) correctly separates thinking from response content.
-  #
-  # Install: cd backend && uv pip install 'deerflow-harness[ollama]'
-  #
-  # - name: qwen3-local
-  #   display_name: Qwen3 32B (Ollama)
-  #   use: langchain_ollama:ChatOllama
-  #   model: qwen3:32b
-  #   base_url: http://localhost:11434   # No /v1 suffix — uses native /api/chat
-  #   num_predict: 8192
-  #   temperature: 0.7
-  #   reasoning: true                    # Passes think:true to Ollama native API
-  #   supports_thinking: true
-  #   supports_vision: false
-  #
-  # - name: gemma4-local
-  #   display_name: Gemma 4 27B (Ollama)
-  #   use: langchain_ollama:ChatOllama
-  #   model: gemma4:27b
-  #   base_url: http://localhost:11434
-  #   num_predict: 8192
-  #   temperature: 0.7
-  #   reasoning: true
-  #   supports_thinking: true
-  #   supports_vision: true
-  #
-  # For Docker deployments, use host.docker.internal instead of localhost:
-  #   base_url: http://host.docker.internal:11434
+  - name: gemma-4-31b-it
+    display_name: Gemma 4 31B IT (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: google/gemma-4-31b-it
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_vision: true
 
-  # Example: Anthropic Claude model
-  # - name: claude-3-5-sonnet
-  #   display_name: Claude 3.5 Sonnet
-  #   use: langchain_anthropic:ChatAnthropic
-  #   model: claude-3-5-sonnet-20241022
-  #   api_key: $ANTHROPIC_API_KEY
-  #   default_request_timeout: 600.0
-  #   max_retries: 2
-  #   max_tokens: 8192
-  #   supports_vision: true  # Enable vision support for view_image tool
-  #   when_thinking_enabled:
-  #     thinking:
-  #       type: enabled
-  #   when_thinking_disabled:
-  #     thinking:
-  #       type: disabled
+  - name: gpt-4o
+    display_name: GPT-4o (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: openai/gpt-4o
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_vision: true
 
-  # Example: Google Gemini model (native SDK, no thinking support)
-  # - name: gemini-2.5-pro
-  #   display_name: Gemini 2.5 Pro
-  #   use: langchain_google_genai:ChatGoogleGenerativeAI
-  #   model: gemini-2.5-pro
-  #   gemini_api_key: $GEMINI_API_KEY
-  #   timeout: 600.0
-  #   max_retries: 2
-  #   max_tokens: 8192
-  #   supports_vision: true
+  - name: deepseek-v3-2
+    display_name: DeepSeek V3.2 (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: deepseek/deepseek-v3.2
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_thinking: true
+    when_thinking_enabled:
+      extra_body:
+        enable_thinking: true
 
-  # Example: Gemini model via OpenAI-compatible gateway (with thinking support)
-  # Use PatchedChatOpenAI so that tool-call thought_signature values on tool_calls
-  # are preserved across multi-turn tool-call conversations — required by the
-  # Gemini API when thinking is enabled. See:
-  # https://docs.cloud.google.com/vertex-ai/generative-ai/docs/thought-signatures
-  # - name: gemini-2.5-pro-thinking
-  #   display_name: Gemini 2.5 Pro (Thinking)
-  #   use: deerflow.models.patched_openai:PatchedChatOpenAI
-  #   model: google/gemini-2.5-pro-preview   # model name as expected by your gateway
-  #   api_key: $GEMINI_API_KEY
-  #   base_url: https://<your-openai-compat-gateway>/v1
-  #   request_timeout: 600.0
-  #   max_retries: 2
-  #   max_tokens: 16384
-  #   supports_thinking: true
-  #   supports_vision: true
-  #   when_thinking_enabled:
-  #     extra_body:
-  #       thinking:
-  #         type: enabled
-  #   when_thinking_disabled:
-  #     extra_body:
-  #       thinking:
-  #         type: disabled
+  - name: llama-3-3-70b-instruct
+    display_name: Llama 3.3 70B Instruct (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: meta-llama/llama-3.3-70b-instruct
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
 
-  # Example: DeepSeek model (with thinking support)
-  # - name: deepseek-v3
-  #   display_name: DeepSeek V3 (Thinking)
-  #   use: deerflow.models.patched_deepseek:PatchedChatDeepSeek
-  #   model: deepseek-reasoner
-  #   api_key: $DEEPSEEK_API_KEY
-  #   timeout: 600.0
-  #   max_retries: 2
-  #   max_tokens: 8192
-  #   supports_thinking: true
-  #   supports_vision: false  # DeepSeek V3 does not support vision
-  #   when_thinking_enabled:
-  #     extra_body:
-  #       thinking:
-  #         type: enabled
-  #   when_thinking_disabled:
-  #     extra_body:
-  #       thinking:
-  #         type: disabled
+  - name: glm-5-1
+    display_name: GLM 5.1 (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: z-ai/glm-5.1
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
 
-  # Example: Kimi K2.5 model
-  # - name: kimi-k2.5
-  #   display_name: Kimi K2.5
-  #   use: deerflow.models.patched_deepseek:PatchedChatDeepSeek
-  #   model: kimi-k2.5
-  #   api_base: https://api.moonshot.cn/v1
-  #   api_key: $MOONSHOT_API_KEY
-  #   timeout: 600.0
-  #   max_retries: 2
-  #   max_tokens: 32768
-  #   supports_thinking: true
-  #   supports_vision: true  # Check your specific model's capabilities
-  #   when_thinking_enabled:
-  #     extra_body:
-  #       thinking:
-  #         type: enabled
-  #   when_thinking_disabled:
-  #     extra_body:
-  #       thinking:
-  #         type: disabled
+  - name: minimax-m2-7
+    display_name: MiniMax M2.7 (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: minimax/minimax-m2.7
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    temperature: 1.0
 
-  # Example: Novita AI (OpenAI-compatible)
-  # - name: novita-deepseek-v3.2
-  #   display_name: Novita DeepSeek V3.2
-  #   use: langchain_openai:ChatOpenAI
-  #   model: deepseek/deepseek-v3.2
-  #   api_key: $NOVITA_API_KEY
-  #   base_url: https://api.novita.ai/openai
-  #   request_timeout: 600.0
-  #   max_retries: 2
-  #   max_tokens: 4096
-  #   temperature: 0.7
-  #   supports_thinking: true
-  #   supports_vision: true
-  #   when_thinking_enabled:
-  #     extra_body:
-  #       thinking:
-  #         type: enabled
-  #   when_thinking_disabled:
-  #     extra_body:
-  #       thinking:
-  #         type: disabled
+  - name: uncensored-llm
+    display_name: Hermes 3 70B (Uncensored)
+    use: langchain_openai:ChatOpenAI
+    model: nousresearch/hermes-3-llama-3.1-70b
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
 
-  # Example: MiniMax (OpenAI-compatible) - International Edition
-  # - name: minimax-m2.5
-  #   display_name: MiniMax M2.5
-  #   use: langchain_openai:ChatOpenAI
-  #   model: MiniMax-M2.5
-  #   api_key: $MINIMAX_API_KEY
-  #   base_url: https://api.minimax.io/v1
-  #   request_timeout: 600.0
-  #   max_retries: 2
-  #   max_tokens: 4096
-  #   temperature: 1.0
-  #   supports_vision: true
-  #   supports_thinking: true
+  # --- NVIDIA NIM ---
+  - name: nvidia-nemotron-3-super
+    display_name: Nemotron 3 Super 120B (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: nvidia/nemotron-3-super-120b-a12b
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
 
-  # Example: vLLM 0.19.0 (OpenAI-compatible, with reasoning toggle)
-  # - name: qwen3-32b-vllm
-  #   display_name: Qwen3 32B (vLLM)
-  #   use: deerflow.models.vllm_provider:VllmChatModel
-  #   model: Qwen/Qwen3-32B
-  #   api_key: $VLLM_API_KEY
-  #   base_url: http://localhost:8000/v1
-  #   request_timeout: 600.0
-  #   max_retries: 2
-  #   max_tokens: 8192
-  #   supports_thinking: true
-  #   supports_vision: false
-  #   when_thinking_enabled:
-  #     extra_body:
-  #       chat_template_kwargs:
-  #         enable_thinking: true
+  - name: nvidia-ising-calibration
+    display_name: Ising Calibration 35B (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: nvidia/ising-calibration-1-35b-a3b
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-llama-3-1-405b
+    display_name: Llama 3.1 405B Instruct (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: meta/llama-3.1-405b-instruct
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-llama-3-3-70b
+    display_name: Llama 3.3 70B Instruct (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: meta/llama-3.3-70b-instruct
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-kimi-k2-5
+    display_name: Kimi K2.5 (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: moonshotai/kimi-k2.5
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+    supports_thinking: true
+    supports_vision: true
+
+  - name: nvidia-glm-5-1
+    display_name: GLM 5.1 (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: z-ai/glm-5.1
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-glm5
+    display_name: GLM 5 (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: z-ai/glm5
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+    supports_thinking: true
+
+  - name: nvidia-glm4-7
+    display_name: GLM 4.7 (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: z-ai/glm4.7
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-qwen3-5-122b
+    display_name: Qwen 3.5 122B (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: qwen/qwen3.5-122b-a10b
+    api_key: $NVIDIA_API_KEY
+    # NOTE: this was pointing at $OPENROUTER_API_BASE in the original — corrected to $NVIDIA_API_BASE
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-qwen3-next-80b
+    display_name: Qwen 3 Next 80B Instruct (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: qwen/qwen3-next-80b-a3b-instruct
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-qwen3-next-thinking
+    display_name: Qwen 3 Next 80B Thinking (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: qwen/qwen3-next-80b-a3b-thinking
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+    supports_thinking: true
+
+  # --- DashScope ---
+  - name: qwen3-5-plus-2026-04-20
+    display_name: Qwen 3.5 Plus 2026-04-20 (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3.5-plus-2026-04-20
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+
+  - name: qwen3-vl-235b-a22b-thinking
+    display_name: Qwen 3 VL 235B A22B Thinking (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3-vl-235b-a22b-thinking
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+    supports_vision: true
+    supports_thinking: true
+
+  - name: qwen3-5-plus-2026-02-15
+    display_name: Qwen 3.5 Plus 2026-02-15 (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3.5-plus-2026-02-15
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+
+  - name: deepseek-v3-2-dashscope
+    display_name: DeepSeek V3.2 (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: deepseek-v3.2
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+    supports_thinking: true
+    when_thinking_enabled:
+      extra_body:
+        enable_thinking: true
+
+  - name: wan2-7-i2v
+    display_name: Wan 2.7 Image-to-Video (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: wan2.7-i2v
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 4096
+
+  - name: wan2-7-t2v
+    display_name: Wan 2.7 Text-to-Video (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: wan2.7-t2v
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 4096
+
+  - name: wan2-7-image
+    display_name: Wan 2.7 Image (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: wan2.7-image
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 4096
+
+  # --- Qwen (DashScope direct) ---
+  - name: qwen3-coder-plus-2025-07-22
+    display_name: Qwen 3 Coder Plus
+    use: langchain_openai:ChatOpenAI
+    model: qwen3-coder-plus-2025-07-22
+    api_key: $QWEN_API_KEY
+    base_url: $QWEN_API_BASE
+    max_tokens: 32768
+
+  # --- Ollama (local) ---
+  - name: qwen3-vl-local
+    display_name: Qwen 3 VL (Ollama)
+    use: langchain_ollama:ChatOllama
+    model: qwen3-vl
+    base_url: http://host.docker.internal:11434
+    num_predict: 8192
+    temperature: 0.7
+    supports_vision: true
+
+  - name: deepseek-r1-14b-local
+    display_name: DeepSeek R1 14B (Ollama)
+    use: langchain_ollama:ChatOllama
+    model: deepseek-r1:14b
+    base_url: http://host.docker.internal:11434
+    num_predict: 8192
+    temperature: 0.7
+    reasoning: true
+    supports_thinking: true
+
+  - name: gemma3-27b-local
+    display_name: Gemma 3 27B (Ollama)
+    use: langchain_ollama:ChatOllama
+    model: gemma3:27b
+    base_url: http://host.docker.internal:11434
+    num_predict: 8192
+    temperature: 0.7
+
+  - name: mxbai-embed-large-local
+    display_name: MXBAI Embed Large (Ollama)
+    use: langchain_ollama:ChatOllama
+    model: mxbai-embed-large
+    base_url: http://host.docker.internal:11434
+    num_predict: 4096
+
+  - name: nomic-embed-text-local
+    display_name: Nomic Embed Text (Ollama)
+    use: langchain_ollama:ChatOllama
+    model: nomic-embed-text
+    base_url: http://host.docker.internal:11434
+    num_predict: 4096
 
 # ============================================================================
 # Tool Groups Configuration
@@ -273,6 +414,7 @@ tool_groups:
   - name: file:read
   - name: file:write
   - name: bash
+  - name: knowledge
 
 # ============================================================================
 # Tools Configuration
@@ -323,11 +465,16 @@ tools:
     group: bash
     use: deerflow.sandbox.tools:bash_tool
 
+  - name: onyx_search
+    group: knowledge
+    use: deerflow.community.onyx.tools:onyx_search_tool
+    num_hits: 5
+
 # ============================================================================
 # Tool Search Configuration
 # ============================================================================
 tool_search:
-  enabled: false
+  enabled: true
 
 # ============================================================================
 # Uploads
@@ -343,17 +490,40 @@ uploads:
 # Sandbox Configuration
 # ============================================================================
 sandbox:
-  use: deerflow.sandbox.local:LocalSandboxProvider
+  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  replicas: 3
   allow_host_bash: false
   bash_output_max_chars: 20000
   read_file_output_max_chars: 50000
   ls_output_max_chars: 20000
+  image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+
+# ============================================================================
+# Subagents Configuration
+# ============================================================================
+subagents:
+  timeout_seconds: 900
+  max_turns: 120
+  agents:
+    general-purpose:
+      timeout_seconds: 1800
+      max_turns: 160
+    bash:
+      timeout_seconds: 300
+      max_turns: 80
 
 # ============================================================================
 # Skills Configuration
 # ============================================================================
 skills:
   container_path: /mnt/skills
+
+# ============================================================================
+# Skill Self-Evolution
+# ============================================================================
+skill_evolution:
+  enabled: true
+  moderation_model_name: null
 
 # ============================================================================
 # Title Generation
@@ -367,12 +537,16 @@ title:
 # ============================================================================
 # Summarization
 # ============================================================================
+# BUG FIX: keep/trim_tokens_to_summarize and summary_prompt were nested inside
+# keep: instead of being siblings of keep: — corrected structure below.
 summarization:
   enabled: true
   model_name: null
   trigger:
     - type: tokens
       value: 15564
+    - type: messages
+      value: 50
   keep:
     type: messages
     value: 10
@@ -401,27 +575,15 @@ memory:
   max_injection_tokens: 2000
 
 # ============================================================================
-# Agents API
-# ============================================================================
-agents_api:
-  enabled: false
-
-# ============================================================================
-# Skill Self-Evolution
-# ============================================================================
-skill_evolution:
-  enabled: false
-  moderation_model_name: null
-
-# ============================================================================
 # Database
 # ============================================================================
 # Unified storage backend for LangGraph checkpointer and DeerFlow
 # application data (runs, threads metadata, feedback, etc.).
 #
-# backend: memory  -- No persistence, data lost on restart
-# backend: sqlite  -- Single-node deployment, files in sqlite_dir
-# backend: postgres -- Production multi-node deployment
+# BUG FIX: removed legacy `checkpointer:` section. When both `checkpointer`
+# and `database` are present, `checkpointer` takes precedence for LangGraph
+# state but does NOT cover run/thread application data — leading to split
+# state and broken run ID lookups. Use only `database:` for unified storage.
 database:
   backend: sqlite
   sqlite_dir: .deer-flow/data
@@ -429,15 +591,10 @@ database:
 # ============================================================================
 # Run Events
 # ============================================================================
-# Storage backend for run events (messages + execution traces).
-#
-# IMPORTANT: Use backend: db (not memory) so that run IDs remain valid
-# across API calls and after container restarts. With backend: memory,
-# GET /runs/{run_id} returns HTTP 404 because run state is never persisted.
-#
-# backend: memory  -- No persistence (causes HTTP 404 on run lookup)
-# backend: db      -- SQL via ORM, backed by the database section above (recommended)
-# backend: jsonl   -- Append-only JSONL files (lightweight alternative)
+# BUG FIX: changed backend from `memory` to `db`.
+# With backend: memory, every GET /runs/{run_id} returns HTTP 404 because run
+# state is never written to persistent storage. The `db` backend writes run
+# events into the same SQLite file as the database section above.
 run_events:
   backend: db
   max_trace_content: 10240
