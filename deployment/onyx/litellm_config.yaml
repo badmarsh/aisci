@@ -1,12 +1,10 @@
 model_list:
-  # ── Local Ollama models (openai-compat endpoint, avoids aiohttp SSL bug) ──
+  # ── Local Ollama models ───────────────────────────────────────────────────
   - litellm_params:
       api_base: http://ollama:11434/v1
       api_key: ollama
       model: openai/gemma2:27b
     model_name: gemma2
-
-
 
   - litellm_params:
       api_base: http://ollama:11434/v1
@@ -21,126 +19,168 @@ model_list:
       model_type: embedding
     model_name: local-embedding-optical
 
+  # ── Qwen Cloud: High Speed & Flash ────────────────────────────────────────
   - litellm_params:
-      api_base: http://nemotron_embed_vl:8000/v1
-      api_key: nim-local
-      model: openai/nvidia/llama-nemotron-embed-vl-1b-v2
-      model_type: embedding
-    model_name: nemotron-embed-vl
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3.5-flash
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen3.5-flash
 
-    # ── Contextual RAG: qwen-cloud-fast ──────────────────────────────────────
-    # Two standard Qwen cloud chat entries share the same alias → LiteLLM load-balances
-    # with latency-based routing and auto-retries on failure.
-    # Keep realtime-capable variants on a separate alias so normal chat/completions
-    # traffic does not get routed through a model intended for realtime workflows.
-    #
-    # Weight priority: qwen-omni-turbo > qwen3.5-omni-plus
-    # Offline emergency: local gemma2:27b (weight 1)
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen-flash
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-flash
 
-  # qwen-turbo: confirmed working, no free-tier exhaustion
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3.6-flash-2026-04-16
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      extra_body:
+        enable_thinking: true
+    model_name: qwen3.6-flash-2026-04-16
+
+  # ── Qwen Cloud: Plus (Consolidated Alias) ──────────────────────────────────
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen-plus-latest
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-plus
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen-plus-2025-12-01
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-plus
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen-plus-2025-09-11
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-plus
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen-plus-2025-07-28
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-plus
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen-plus-2025-07-14
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-plus
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen-plus-2025-04-28
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-plus
+
+  # ── Qwen Cloud: Reasoning & Thinking (Large) ──────────────────────────────
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3.6-35b-a3b
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      extra_body:
+        enable_thinking: true
+    model_name: qwen3.6-35b-a3b
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3.6-27b
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      extra_body:
+        enable_thinking: true
+    model_name: qwen3.6-27b
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3-235b-a22b
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      extra_body:
+        enable_thinking: true
+    model_name: qwen3-235b-a22b
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3.5-397b-a17b
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      extra_body:
+        enable_thinking: true
+    model_name: qwen3.5-397b-a17b
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3-next-80b-a3b-thinking
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      extra_body:
+        enable_thinking: true
+    model_name: qwen3-next-80b-a3b-thinking
+
+  # ── Qwen Cloud: Coding & Flagship ─────────────────────────────────────────
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen-max
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-max
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3-next-80b-a3b-instruct
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen3-next-80b-a3b-instruct
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3-coder-30b-a3b-instruct
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen3-coder-30b-a3b-instruct
+
+  # ── NVIDIA Cloud ──────────────────────────────────────────────────────────
+  - litellm_params:
+      api_key: os.environ/NVIDIA_API_KEY
+      model: openai/meta/llama-3.1-405b-instruct
+      api_base: https://integrate.api.nvidia.com/v1
+    model_name: nim-giant
+
   - litellm_params:
       api_key: os.environ/NVIDIA_API_KEY
       model: openai/meta/llama-3.3-70b-instruct
       api_base: https://integrate.api.nvidia.com/v1
-      drop_params: true
-      weight: 20
-    model_name: qwen-cloud-fast
+    model_name: llama-3.3-70b
 
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/qwen-turbo
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      drop_params: true
-      weight: 10
-    model_name: qwen-cloud-fast
-
-
-
-  - litellm_params:
-      # Offline emergency fallback — no cloud dependency
-      api_base: http://ollama:11434/v1
-      api_key: ollama
-      model: openai/gemma2:27b
-      weight: 1
-    model_name: qwen-cloud-fast
-
-    # ── Cloud reranker ────────────────────────────────────────────────────────
-    # qwen3-rerank: 1M quota. Can be used as alternative to local bge-reranker.
-    # Not yet wired into Onyx (Onyx calls its own model server for reranking).
-    # Kept here for future use via direct LiteLLM rerank endpoint.
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: dashscope/qwen3-rerank
-    model_name: qwen-rerank
-
-    # ── Visual RAG (image understanding) ─────────────────────────────────────
-    # All image models: 100-req trial quota each — for user queries only.
-  - litellm_params:
-      api_key: os.environ/NVIDIA_API_KEY
-      model: openai/meta/llama-3.2-90b-vision-instruct
-      api_base: https://integrate.api.nvidia.com/v1
-      drop_params: true
-      weight: 20
-    model_name: qwen-vision
-
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/qwen3-vl-235b-a22b
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      drop_params: true
-      weight: 10
-    model_name: qwen-vision
-
+  # ── Vision & Multi-modal ──────────────────────────────────────────────────
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen-vl-max-latest
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      drop_params: true
-    model_name: qwen-vision
-
-    # ── Image Generation (Fixes broken generate_image tool on Assistant) ───────
-    # These are Text-to-Image models (not image understanding).
-    # Onyx will route 'generate_image' requests here.
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: dashscope/qwen-image-max-2025-12-30
-    model_name: qwen-image-gen
-
-    # ── Embeddings ────────────────────────────────────────────────────────────
-    # Vision-aware embeddings: 1M quota each
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: dashscope/tongyi-embedding-vision-flash
-      model_type: embedding
-    model_name: qwen-embed-vision-fast
+    model_name: qwen-vl-max
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
-      model: dashscope/tongyi-embedding-vision-plus
-      model_type: embedding
-    model_name: qwen-embed-vision
-
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/text-embedding-v4
+      model: openai/qwen3-vl-235b-a22b-instruct
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen3-vl-235b
+
+  # ── Embeddings ────────────────────────────────────────────────────────────
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: dashscope/text-embedding-v3
+      api_base: https://dashscope-intl.aliyuncs.com/api/v1
       model_type: embedding
-      encoding_format: float
-      drop_params: true
-    model_name: qwen-embed-text
+    model_name: text-embedding-v3
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
-      model: openai/text-embedding-v4
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      model: dashscope/text-embedding-v4
+      api_base: https://dashscope-intl.aliyuncs.com/api/v1
       model_type: embedding
-      encoding_format: float
-      drop_params: true
     model_name: text-embedding-v4
 
 router_settings:
   routing_strategy: latency-based-routing
   num_retries: 3
-  timeout: 600 # raised from 300 — local 27B/32B Ollama models on CPU need significantly more time
-  retry_after: 20 # raised from 10 — gives backend more time to recover
-
+  timeout: 600
+  retry_after: 20
+  enable_pre_call_checks: true

@@ -502,6 +502,8 @@ services:
       - DASHSCOPE_API_KEY=${QWEN_API_KEY}
       - DASHSCOPE_API_BASE=https://dashscope-intl.aliyuncs.com/api/v1
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     restart: unless-stopped
     healthcheck:
       # Use /health/readiness — not /health — to avoid calling all configured providers.
