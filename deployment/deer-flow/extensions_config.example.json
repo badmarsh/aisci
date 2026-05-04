@@ -25,7 +25,7 @@
       "env": {
         "GITHUB_TOKEN": "$GITHUB_TOKEN"
       },
-      "description": "GitHub MCP server for repository operations"
+      "description": "GitHub MCP server — research repos, issues, PRs and code directly"
     },
     "brave-search": {
       "enabled": true,
@@ -38,7 +38,7 @@
       "env": {
         "BRAVE_API_KEY": "$BRAVE_API_KEY"
       },
-      "description": "Brave Search API for web search results"
+      "description": "Brave Search API — parallel web search engine (complements Tavily)"
     },
     "puppeteer": {
       "enabled": true,
@@ -49,7 +49,18 @@
         "@modelcontextprotocol/server-puppeteer"
       ],
       "env": {},
-      "description": "Browser automation with Puppeteer for web scraping and interaction"
+      "description": "Browser automation with Puppeteer for JS-heavy sites and screenshots"
+    },
+    "playwright": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp"
+      ],
+      "env": {},
+      "description": "Full browser automation via Playwright — preferred over Puppeteer for complex interactions"
     },
     "sqlite": {
       "enabled": false,
@@ -62,6 +73,78 @@
       ],
       "env": {},
       "description": "SQLite database access for internal LangGraph checkpoints"
+    },
+    "wikipedia": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-server-wikipedia"
+      ],
+      "env": {},
+      "description": "Wikipedia MCP — structured article fetch with disambiguation and section targeting"
+    },
+    "arxiv": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "x",
+        "mcp-server-arxiv"
+      ],
+      "env": {},
+      "description": "arXiv MCP — paper lookup, metadata, abstracts, and citation graph traversal"
+    },
+    "notion": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
+      "env": {
+        "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer $NOTION_API_KEY\", \"Notion-Version\": \"2022-06-28\"}"
+      },
+      "description": "Notion MCP — pull pages as research context and push completed reports back"
+    },
+    "linear": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "linear-mcp-server"
+      ],
+      "env": {
+        "LINEAR_API_KEY": "$LINEAR_API_KEY"
+      },
+      "description": "Linear MCP — pull issue context and project state for technical research"
+    },
+    "obsidian": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-obsidian",
+        "--vault",
+        "/mnt/host/obsidian-vault"
+      ],
+      "env": {},
+      "description": "Obsidian vault MCP — read and write notes as research context and output target"
+    },
+    "exa": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "exa-mcp-server"
+      ],
+      "env": {
+        "EXA_API_KEY": "$EXA_API_KEY"
+      },
+      "description": "Exa AI neural search MCP — high-quality results for niche and technical topics"
     },
     "scite": {
       "enabled": true,
@@ -83,17 +166,6 @@
       "url": "http://host.docker.internal:8095/onyx/sse",
       "headers": {},
       "description": "Local Onyx MCP bridge for source-grounded search and chat against the AiSci knowledge base"
-    },
-    "arxiv": {
-      "enabled": false,
-      "type": "stdio",
-      "command": "uv",
-      "args": [
-        "x",
-        "mcp-server-arxiv"
-      ],
-      "env": {},
-      "description": "arXiv MCP server for direct paper lookup and metadata fetching"
     },
     "serena": {
       "enabled": false,
