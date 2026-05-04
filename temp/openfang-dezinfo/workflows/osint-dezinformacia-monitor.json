@@ -1,0 +1,59 @@
+{
+  "name": "osint-dezinformacia-monitor",
+  "description": "Continuous OSINT: ingest -> classify -> fan-out verify -> knowledge graph -> comms",
+  "steps": [
+    {
+      "name": "ingest-and-classify",
+      "agent_name": "watchdog",
+      "prompt": "Run your full monitoring cycle. Ingest current feeds, translate non-English content, classify all items, and route high-priority claims. Input context: {{input}}",
+      "mode": "sequential",
+      "timeout_secs": 300,
+      "error_mode": "retry",
+      "max_retries": 2,
+      "output_var": "classified_claims"
+    },
+    {
+      "name": "deep-verify-text",
+      "agent_name": "inquisitor",
+      "prompt": "Verify the following high-priority TEXT claims escalated by the watchdog:\n\n{{classified_claims}}\n\nProcess each item flagged modality=text with escalation_score >= 0.72.",
+      "mode": "sequential",
+      "timeout_secs": 600,
+      "error_mode": "retry",
+      "max_retries": 1,
+      "output_var": "text_verdicts"
+    },
+    {
+      "name": "visual-triage",
+      "agent_name": "visual-analyst",
+      "prompt": "Analyze any IMAGE or VIDEO evidence flagged by the watchdog:\n\n{{classified_claims}}\n\nProcess items where modality is image or video.",
+      "mode": "fan_out",
+      "timeout_secs": 300,
+      "error_mode": "skip",
+      "output_var": "visual_verdicts"
+    },
+    {
+      "name": "collect-verdicts",
+      "agent_name": "inquisitor",
+      "prompt": "unused",
+      "mode": "collect"
+    },
+    {
+      "name": "update-knowledge-graph",
+      "agent_name": "archivist",
+      "prompt": "Process all new verdicts from this monitoring cycle and update the knowledge graph:\n\n{{input}}",
+      "mode": "sequential",
+      "timeout_secs": 120,
+      "error_mode": "skip",
+      "output_var": "graph_update"
+    },
+    {
+      "name": "prepare-comms",
+      "agent_name": "impact-comms",
+      "prompt": "Review all confirmed FALSE or MISLEADING verdicts and prepare communications:\n\n{{text_verdicts}}\n\nDraft public debunks and notifications for verdicts with confidence >= 0.80.",
+      "mode": "conditional",
+      "condition": "FALSE",
+      "timeout_secs": 180,
+      "error_mode": "skip"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "meme-deepfake-triage",
+  "description": "Visual disinformation pipeline: OCR -> cross-reference -> comms -> archive",
+  "steps": [
+    {
+      "name": "fetch-and-analyse-visual",
+      "agent_name": "visual-analyst",
+      "prompt": "Fetch and analyse this visual asset. Extract all text, describe the image, assess authenticity:\n\n{{input}}",
+      "mode": "sequential",
+      "timeout_secs": 120,
+      "error_mode": "fail",
+      "output_var": "visual_analysis"
+    },
+    {
+      "name": "cross-reference-extracted-text",
+      "agent_name": "inquisitor",
+      "prompt": "The visual analyst extracted this text from an image. Verify the factual claims:\n\n{{visual_analysis}}\n\nSearch for the original source of any quotes or statistics shown.",
+      "mode": "sequential",
+      "timeout_secs": 300,
+      "error_mode": "retry",
+      "max_retries": 1,
+      "output_var": "text_verification"
+    },
+    {
+      "name": "draft-visual-debunk",
+      "agent_name": "impact-comms",
+      "prompt": "A visual disinformation item has been verified. Prepare debunk response.\n\nVisual analysis: {{visual_analysis}}\nText verification: {{text_verification}}\n\nCreate: (1) short social post <=280 chars, (2) longer explanatory post with sources.",
+      "mode": "conditional",
+      "condition": "FALSE",
+      "timeout_secs": 180,
+      "error_mode": "skip"
+    },
+    {
+      "name": "archive-visual-verdict",
+      "agent_name": "archivist",
+      "prompt": "Archive this visual disinformation case:\n\nVisual: {{visual_analysis}}\nVerification: {{text_verification}}\n\nCreate graph entities and relations. Tag as visual_disinformation.",
+      "mode": "sequential",
+      "timeout_secs": 60,
+      "error_mode": "skip"
+    }
+  ]
+}

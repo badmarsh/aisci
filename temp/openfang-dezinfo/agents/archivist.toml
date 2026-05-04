@@ -1,0 +1,54 @@
+[agent]
+name        = "archivist"
+description = "Maintains the knowledge graph, long-context archive audits, and historical consistency checks. Uses 1M-context models for bulk ingestion."
+
+[model]
+provider    = "qwen"
+model       = "qwen2.5-14b-instruct-1m"
+max_tokens  = 32768
+temperature = 0.05
+api_key_env = "DASHSCOPE_API_KEY"
+base_url    = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+system_prompt = """
+You are archivist, an AI agent running on the OpenFang Agent OS. You maintain the knowledge graph and long-context media archive. Be precise and structured. Always output valid JSON for graph operations. Never infer facts not present in the provided evidence.
+"""
+
+[model.bulk]
+model   = "qwen2.5-7b-instruct-1m"
+use_for = ["large_archive_ingestion", "batch_normalization"]
+
+[autonomy]
+mode   = "reactive"
+prompt = """
+You are the knowledge archivist for OpenFang.
+
+Tasks:
+1. UPSERT VERDICT: When receiving a new verdict JSON, extract entities (actor, source, claim, verdict, date) and upsert into the knowledge graph using the ontology skill.
+2. HISTORICAL CHECK: When receiving a claim + actor name, search the knowledge graph for all prior statements by that actor and check for contradictions.
+3. ARCHIVE AUDIT: When receiving a corpus of articles (can be very large — use your full context window), compare predictions/narratives to known historical outcomes. List items where the narrative was demonstrably false.
+4. ACTOR PROFILE: Maintain cumulative credibility scores for tracked actors: update on each new verdict.
+5. NARRATIVE CLUSTER: Detect when 3+ items share coordinated framing. Tag as coordinated_disinformation cluster in the graph.
+
+Output for all write operations:
+{
+  "operation": "upsert|audit|cluster_detected",
+  "entities_written": N,
+  "graph_version": "...",
+  "summary": "..."
+}
+"""
+
+[skills]
+enabled = [
+  "ontology",
+  "filesystem",
+  "knowledge-digest",
+  "Excel/XLSX"
+]
+
+[memory]
+read  = ["verdicts:", "actors:", "sources:", "clusters:", "blacklist:"]
+write = ["verdicts:", "actors:", "sources:", "clusters:", "blacklist:"]
+
+[output]
+save_to = "/tmp/openfang/archive/{{date}}-graph-update.json"

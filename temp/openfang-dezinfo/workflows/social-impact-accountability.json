@@ -1,0 +1,57 @@
+{
+  "name": "social-impact-accountability",
+  "description": "Accountability pipeline: fetch confirmed verdict -> tiered comms drafts -> quality loop -> log",
+  "steps": [
+    {
+      "name": "retrieve-verdict",
+      "agent_name": "inquisitor",
+      "prompt": "Retrieve and summarise the full verdict details for this claim:\n\n{{input}}\n\nInclude: verdict, confidence, evidence chain, actor details, recommended_action tier.",
+      "mode": "sequential",
+      "timeout_secs": 60,
+      "error_mode": "fail",
+      "output_var": "verdict_details"
+    },
+    {
+      "name": "draft-public-debunk",
+      "agent_name": "impact-comms",
+      "prompt": "Draft the public debunk post:\n\n{{verdict_details}}\n\nShort version (<=280 chars, Slovak + English) and long version (500 words with sources).",
+      "mode": "fan_out",
+      "timeout_secs": 120,
+      "error_mode": "fail",
+      "output_var": "debunk_draft"
+    },
+    {
+      "name": "draft-advertiser-notice",
+      "agent_name": "impact-comms",
+      "prompt": "Draft advertiser notification if confidence >= 0.85:\n\n{{verdict_details}}\n\nIf confidence < 0.85, respond SKIP. Otherwise write formal ad-platform notice.",
+      "mode": "fan_out",
+      "timeout_secs": 120,
+      "error_mode": "skip",
+      "output_var": "advertiser_notice"
+    },
+    {
+      "name": "collect-all-drafts",
+      "agent_name": "impact-comms",
+      "prompt": "unused",
+      "mode": "collect"
+    },
+    {
+      "name": "review-and-humanise",
+      "agent_name": "impact-comms",
+      "prompt": "Review all drafted communications:\n1. Language is calm and factual\n2. All claims backed by verdict evidence\n3. Slovak + English versions present\n4. No AI-sounding patterns\nRefine if needed. Respond APPROVED when satisfied:\n\n{{input}}",
+      "mode": "loop",
+      "max_iterations": 2,
+      "until": "APPROVED",
+      "timeout_secs": 180,
+      "error_mode": "skip"
+    },
+    {
+      "name": "log-and-archive",
+      "agent_name": "archivist",
+      "prompt": "Log all accountability actions and update the knowledge graph with action timestamps:\n\n{{input}}",
+      "mode": "sequential",
+      "timeout_secs": 60,
+      "error_mode": "skip"
+    }
+  ]
+}

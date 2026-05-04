@@ -1,0 +1,31 @@
+# OpenFang dezinfo project -- project config
+
+[core]
+api_key_env      = "DASHSCOPE_API_KEY"
+base_url         = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+api_listen       = "127.0.0.1:4200"
+timezone         = "Europe/Bratislava"
+tmp_dir          = "/tmp/openfang"
+log_level        = "info"
+
+[memory]
+enabled          = true
+backend          = "sqlite"
+path             = "~/.openfang/memory.db"
+ttl_days         = 90
+
+[knowledge_graph]
+enabled          = true
+backend          = "sqlite"
+path             = "~/.openfang/knowledge-graph.db"
+
+[output]
+dir              = "/tmp/openfang"
+
+[monitoring]
+prometheus_port  = 9100
+healthcheck_path = "/health"
+
+[skills]
+search_engine    = "brave"
+brave_api_key    = "${BRAVE_API_KEY}"
