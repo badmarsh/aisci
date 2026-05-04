@@ -211,6 +211,17 @@ model_list:
       model: openai/qwen3-vl-235b-a22b-instruct
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     model_name: qwen3-vl-235b
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3-vl-flash
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen3-vl-flash
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen3-vl-flash
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-vl-fast
 
   # ── Embeddings ────────────────────────────────────────────────────────────
   - litellm_params:
@@ -294,3 +305,7 @@ router_settings:
   timeout: 600
   retry_after: 20
   enable_pre_call_checks: true
+  model_group_fallbacks:
+    - qwen-cloud-fast: ["qwen3-vl-flash", "qwen3.5-flash", "openrouter-free"]
+    - qwen-flash: ["qwen3-vl-flash", "qwen3.5-flash", "openrouter-free"]
+    - qwen-plus: ["qwen3-vl-flash", "openrouter-free"]
