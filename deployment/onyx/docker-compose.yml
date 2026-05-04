@@ -41,6 +41,8 @@ services:
       echo \"Starting Onyx Api Server\" &&
       uvicorn onyx.main:app --host 0.0.0.0 --port 8080 --workers 4"
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     depends_on:
@@ -130,6 +132,8 @@ services:
       rm -f /app/celerybeat-schedule /app/celerybeat-schedule.db &&
       /app/scripts/supervisord_entrypoint.sh"
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     depends_on:
@@ -195,6 +199,8 @@ services:
   web_server:
     image: ${ONYX_WEB_SERVER_IMAGE:-onyxdotapp/onyx-web-server:v3.3.0-beta.0}
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     depends_on:
@@ -213,6 +219,8 @@ services:
         exec uvicorn model_server.main:app --host 0.0.0.0 --port 9000;
       fi"
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     restart: unless-stopped
@@ -254,6 +262,8 @@ services:
         exec uvicorn model_server.main:app --host 0.0.0.0 --port 9000;
       fi"
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     restart: unless-stopped
@@ -323,6 +333,8 @@ services:
     shm_size: 1g
     command: -c 'max_connections=250'
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     restart: unless-stopped
@@ -341,6 +353,8 @@ services:
     image: vespaengine/vespa:8.609.39
     restart: unless-stopped
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     environment:
@@ -377,6 +391,8 @@ services:
       - api_server
       - web_server
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     environment:
@@ -401,6 +417,8 @@ services:
     restart: unless-stopped
     command: redis-server --save "" --appendonly no
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     tmpfs:
@@ -411,6 +429,8 @@ services:
     profiles: ["s3-filestore"]
     restart: unless-stopped
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     environment:
@@ -431,6 +451,8 @@ services:
     command: ["bash", "./entrypoint.sh", "code-interpreter-api"]
     restart: unless-stopped
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     user: root
@@ -545,6 +567,8 @@ services:
     volumes:
       - ./nginx_configs/mcp_proxy.conf.template:/etc/nginx/templates/default.conf.template:ro
     env_file:
+      - path: .env.local
+        required: false
       - path: .env
         required: false
     restart: unless-stopped

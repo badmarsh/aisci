@@ -1,0 +1,17 @@
+Tsallis Fitting Results:
+True parameters:   T=0.160, beta_T=0.600, q=1.150
+Fitted parameters: T=0.076, beta_T=0.457, q=2.656
+Parameter errors:  T=0.133, beta_T=0.720, q=2.619
+
+Kinematic boundary tests:
+Case 1: p=5.0, pT_cut=1.0, theta_cut=0.785 rad -> boundary=3.536
+Case 2: p=2.0, pT_cut=1.5, theta_cut=0.524 rad -> boundary=1.323
+Case 3: p=10.0, pT_cut=0.5, theta_cut=1.047 rad -> boundary=5.000
+Case 4: p=1.0, pT_cut=2.0, theta_cut=0.785 rad -> boundary=0.000
+
+Safe fit range test:
+Original range: 0.1 - 8.0 GeV
+Filtered range: 0.7 - 8.0 GeV
+Points removed: 4 (below 0.6 GeV threshold)
+
+Velocity validation: max(v) = 0.980581 (should be < 1.0)
