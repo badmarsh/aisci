@@ -108,14 +108,6 @@ models:
     max_tokens: 8192
     supports_thinking: true
     supports_vision: true
-    when_thinking_enabled:
-      extra_body:
-        thinking:
-          type: enabled
-    when_thinking_disabled:
-      extra_body:
-        thinking:
-          type: disabled
 
   - name: gemini-2-5-pro
     display_name: Gemini 2.5 Pro (OpenRouter)
@@ -126,14 +118,6 @@ models:
     max_tokens: 8192
     supports_thinking: true
     supports_vision: true
-    when_thinking_enabled:
-      extra_body:
-        thinking:
-          type: enabled
-    when_thinking_disabled:
-      extra_body:
-        thinking:
-          type: disabled
 
   - name: gemma-4-31b-it
     display_name: Gemma 4 31B IT (OpenRouter)
@@ -271,7 +255,6 @@ models:
     use: langchain_openai:ChatOpenAI
     model: qwen/qwen3.5-122b-a10b
     api_key: $NVIDIA_API_KEY
-    # NOTE: this was pointing at $OPENROUTER_API_BASE in the original — corrected to $NVIDIA_API_BASE
     base_url: $NVIDIA_API_BASE
     max_tokens: 4096
 
@@ -293,6 +276,15 @@ models:
     supports_thinking: true
 
   # --- DashScope ---
+  - name: qwen3-235b-a22b-thinking-2507
+    display_name: Qwen 3 235B A22B Thinking 2507 (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3-235b-a22b-thinking-2507
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+    supports_thinking: true
+
   - name: qwen3-5-plus-2026-04-20
     display_name: Qwen 3.5 Plus 2026-04-20 (DashScope)
     use: langchain_openai:ChatOpenAI
@@ -537,8 +529,9 @@ title:
 # ============================================================================
 # Summarization
 # ============================================================================
-# BUG FIX: keep/trim_tokens_to_summarize and summary_prompt were nested inside
-# keep: instead of being siblings of keep: — corrected structure below.
+# NOTE: trim_tokens_to_summarize, summary_prompt, and preserve_* keys must be
+# siblings of keep:, NOT nested inside it. Indenting them under keep: causes
+# them to be silently ignored by the config parser.
 summarization:
   enabled: true
   model_name: null
@@ -577,13 +570,12 @@ memory:
 # ============================================================================
 # Database
 # ============================================================================
-# Unified storage backend for LangGraph checkpointer and DeerFlow
-# application data (runs, threads metadata, feedback, etc.).
+# Unified storage backend for LangGraph checkpointer and DeerFlow application
+# data (runs, threads metadata, feedback, etc.).
 #
-# BUG FIX: removed legacy `checkpointer:` section. When both `checkpointer`
-# and `database` are present, `checkpointer` takes precedence for LangGraph
-# state but does NOT cover run/thread application data — leading to split
-# state and broken run ID lookups. Use only `database:` for unified storage.
+# DO NOT add a legacy `checkpointer:` block alongside this. When both are
+# present, LangGraph state goes into a separate checkpoints.db while run/thread
+# app data goes into sqlite_dir — two files that drift out of sync.
 database:
   backend: sqlite
   sqlite_dir: .deer-flow/data
@@ -591,10 +583,10 @@ database:
 # ============================================================================
 # Run Events
 # ============================================================================
-# BUG FIX: changed backend from `memory` to `db`.
-# With backend: memory, every GET /runs/{run_id} returns HTTP 404 because run
-# state is never written to persistent storage. The `db` backend writes run
-# events into the same SQLite file as the database section above.
+# IMPORTANT: Use backend: db (not memory).
+# With backend: memory, GET /runs/{run_id} returns HTTP 404 because run state
+# is never written to persistent storage. The db backend writes run events into
+# the same SQLite file as the database section above.
 run_events:
   backend: db
   max_trace_content: 10240
