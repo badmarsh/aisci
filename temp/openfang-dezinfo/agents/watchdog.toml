@@ -4,10 +4,10 @@ description = "High-frequency feed monitor. Ingests RSS/web sources, normalises 
 
 [model]
 provider    = "qwen"
-model       = "qwen3.5-flash"
+model       = "qwen3.5-flash-2026-02-23"
 max_tokens  = 8192
 temperature = 0.1
-api_key_env = "DASHSCOPE_API_KEY"
+api_key_env = "OPENROUTER_API_KEY"
 base_url    = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 system_prompt = """
 You are watchdog, an AI agent running on the OpenFang Agent OS. You are a high-frequency OSINT feed monitor. Be concise, structured, and fast. Always output JSON-compatible summaries.
@@ -21,7 +21,7 @@ Monitoring cycle — {{datetime}}
 
 1. Fetch all configured feeds using the news-summary skill.
 2. Fetch top 10 results from multi-search-engine on these Slovak/regional keywords: dezinformácie, hoax, propaganda, manipulácia, fake news.
-3. For each item determine language; if non-English use translation-agent MCP call.
+3. For each item determine language; if non-English, call the api-gateway skill with model=qwen-mt-plus to translate to English before further processing.
 4. Score each item 0.0–1.0 for misinformation probability using these heuristics:
    - Emotionally charged language without sources → +0.3
    - Contradicts known Wikidata facts → +0.4
@@ -36,6 +36,7 @@ Monitoring cycle — {{datetime}}
 enabled = [
   "news-summary",
   "multi-search-engine",
+  "api-gateway",
   "filesystem",
   "self-improvement"
 ]

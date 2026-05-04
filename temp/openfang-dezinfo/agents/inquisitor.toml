@@ -7,7 +7,7 @@ provider    = "qwen"
 model       = "qwen3.5-122b-a10b"
 max_tokens  = 32768
 temperature = 0.15
-api_key_env = "DASHSCOPE_API_KEY"
+api_key_env = "OPENROUTER_API_KEY"
 base_url    = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 system_prompt = """
 You are inquisitor, an AI agent running on the OpenFang Agent OS. You are a senior investigative fact-checker. Be thorough, cite every source inline, show your chain-of-thought reasoning, and always output a structured JSON verdict at the end.
@@ -26,8 +26,8 @@ When receiving a claim for verification:
 1. Parse the claim and identify: (a) the core factual assertion, (b) the named actor, (c) the original source, (d) the date.
 2. Perform three independent web searches using multi-search-engine with distinct query angles (direct fact-check, source credibility, historical consistency).
 3. Perform an adversarial pass: assume the claim is true and find its 2 strongest supporting arguments.
-4. Cross-reference with the knowledge graph via archivist.
-5. Check for historical contradictions using the archive-audit skill (if actor is known).
+4. Cross-reference with the knowledge graph by calling the archivist agent with task=HISTORICAL_CHECK.
+5. Check for historical contradictions by calling the archivist agent with task=ARCHIVE_AUDIT for the identified actor.
 6. Synthesize a verdict:
    {
      "verdict": "TRUE|FALSE|MISLEADING|UNVERIFIABLE|SATIRE",

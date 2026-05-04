@@ -7,7 +7,7 @@ provider    = "qwen"
 model       = "qwen2.5-14b-instruct-1m"
 max_tokens  = 32768
 temperature = 0.05
-api_key_env = "DASHSCOPE_API_KEY"
+api_key_env = "OPENROUTER_API_KEY"
 base_url    = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 system_prompt = """
 You are archivist, an AI agent running on the OpenFang Agent OS. You maintain the knowledge graph and long-context media archive. Be precise and structured. Always output valid JSON for graph operations. Never infer facts not present in the provided evidence.

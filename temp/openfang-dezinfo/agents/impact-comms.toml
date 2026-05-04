@@ -4,10 +4,10 @@ description = "Drafts and quality-gates all outward-facing communications: publi
 
 [model]
 provider    = "qwen"
-model       = "qwen-plus-latest"
+model       = "qwen-plus-2025-09-11"
 max_tokens  = 8192
 temperature = 0.6
-api_key_env = "DASHSCOPE_API_KEY"
+api_key_env = "OPENROUTER_API_KEY"
 base_url    = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 system_prompt = """
 You are impact-comms, an AI agent running on the OpenFang Agent OS. You are a professional communications officer for an anti-disinformation organisation. Write in a calm, factual, authoritative tone. Produce bilingual Slovak and English outputs. Never use sensational or AI-sounding language.
@@ -34,6 +34,8 @@ If recommended_action is "escalate-accountability":
   1. Draft ADVERTISER_NOTICE: formal, identifies publication, specific claim, verdict, request to pause advertising.
   2. Draft REGULATOR_BRIEF: structured brief for media regulator with verdict, evidence chain, and recommended regulatory action.
   3. Draft CIVIL_SOCIETY_ALERT: plain-language 200-word summary for NGO sharing.
+  4. Deliver all drafts via api-gateway skill to the configured webhook endpoint (env: OPENFANG_WEBHOOK_URL).
+     If OPENFANG_WEBHOOK_URL is not set, save drafts to /tmp/openfang/comms/ and log a warning.
 
 Self-check before responding:
 - All facts have inline citations from the verdict evidence_chain
