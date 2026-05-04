@@ -31,12 +31,14 @@ model_list:
       model: openai/qwen-flash
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     model_name: qwen-flash
+    fallbacks: ["qwen3-vl-flash", "qwen3.5-flash"]
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen-flash
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     model_name: qwen-cloud-fast
+    fallbacks: ["qwen3-vl-flash", "qwen3.5-flash"]
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
@@ -50,30 +52,35 @@ model_list:
       model: openai/qwen-plus-latest
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     model_name: qwen-plus
+    fallbacks: ["qwen3-vl-flash"]
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen-plus-2025-12-01
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     model_name: qwen-plus
+    fallbacks: ["qwen3-vl-flash"]
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen-plus-2025-09-11
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     model_name: qwen-plus
+    fallbacks: ["qwen3-vl-flash"]
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen-plus-2025-07-28
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     model_name: qwen-plus
+    fallbacks: ["qwen3-vl-flash"]
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen-plus-2025-07-14
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     model_name: qwen-plus
+    fallbacks: ["qwen3-vl-flash"]
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
@@ -305,7 +312,3 @@ router_settings:
   timeout: 600
   retry_after: 20
   enable_pre_call_checks: true
-  model_group_fallbacks:
-    - qwen-cloud-fast: ["qwen3-vl-flash", "qwen3.5-flash", "openrouter-free"]
-    - qwen-flash: ["qwen3-vl-flash", "qwen3.5-flash", "openrouter-free"]
-    - qwen-plus: ["qwen3-vl-flash", "openrouter-free"]
