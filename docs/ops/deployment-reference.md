@@ -18,6 +18,7 @@ This document records the actual local deployment shape. For current operational
 | LiteLLM proxy | `http://localhost:4000` | LLM routing and key management |
 | MCP proxy | `http://localhost:8095` | Shared gateway for Consensus, Scite, and similar research tools |
 | Unstructured | `http://localhost:9560` | Local document parsing and extraction |
+| Ollama | `http://localhost:11434` | Local LLM and embedding model serving |
 
 ## Actual Repository Layout
 
