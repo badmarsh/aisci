@@ -366,6 +366,44 @@ models:
     temperature: 0.7
     supports_vision: true
 
+  # --- AiSci Onyx LiteLLM aliases ---
+  # These aliases mirror deployment/onyx/litellm_config.yaml and route DeerFlow
+  # through the local LiteLLM proxy instead of scattering provider endpoints.
+  - name: qwen3.5-flash
+    display_name: Qwen 3.5 Flash (Onyx)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3.5-flash
+    api_key: $ONYX_API_KEY
+    base_url: $ONYX_LITELLM_API_BASE
+    max_tokens: 32768
+
+  - name: qwen2.5vl
+    display_name: Qwen 2.5 VL 7B (Onyx/Ollama)
+    use: langchain_openai:ChatOpenAI
+    model: qwen2.5vl
+    api_key: $ONYX_API_KEY
+    base_url: $ONYX_LITELLM_API_BASE
+    max_tokens: 8192
+    supports_vision: true
+
+  - name: qwen-vl-max
+    display_name: Qwen VL Max (Onyx)
+    use: langchain_openai:ChatOpenAI
+    model: qwen-vl-max
+    api_key: $ONYX_API_KEY
+    base_url: $ONYX_LITELLM_API_BASE
+    max_tokens: 32768
+    supports_vision: true
+
+  - name: qwen3-vl-235b
+    display_name: Qwen 3 VL 235B (Onyx)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3-vl-235b
+    api_key: $ONYX_API_KEY
+    base_url: $ONYX_LITELLM_API_BASE
+    max_tokens: 32768
+    supports_vision: true
+
   - name: deepseek-r1-14b-local
     display_name: DeepSeek R1 14B (Ollama)
     use: langchain_ollama:ChatOllama
@@ -383,20 +421,6 @@ models:
     base_url: http://host.docker.internal:11434
     num_predict: 8192
     temperature: 0.7
-
-  - name: mxbai-embed-large-local
-    display_name: MXBAI Embed Large (Ollama)
-    use: langchain_ollama:ChatOllama
-    model: mxbai-embed-large
-    base_url: http://host.docker.internal:11434
-    num_predict: 4096
-
-  - name: nomic-embed-text-local
-    display_name: Nomic Embed Text (Ollama)
-    use: langchain_ollama:ChatOllama
-    model: nomic-embed-text
-    base_url: http://host.docker.internal:11434
-    num_predict: 4096
 
 # ============================================================================
 # Tool Groups Configuration
@@ -483,12 +507,21 @@ uploads:
 # ============================================================================
 sandbox:
   use: deerflow.community.aio_sandbox:AioSandboxProvider
-  replicas: 3
+  image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+  port: 39120
+  replicas: 2
+  container_prefix: deer-flow-aio-sandbox
+  idle_timeout: 1800
   allow_host_bash: false
   bash_output_max_chars: 20000
   read_file_output_max_chars: 50000
   ls_output_max_chars: 20000
-  image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+  mounts:
+    - host_path: /home/ubuntu/aisci
+      container_path: /mnt/host/aisci
+      read_only: false
+  environment:
+    PYTHONUNBUFFERED: "1"
 
 # ============================================================================
 # Subagents Configuration

@@ -1,0 +1,26 @@
+{
+  "name": "social-impact-accountability",
+  "description": "Orchestrates notification of third parties (advertisers, regulators, and civil society) regarding confirmed misinformation to achieve social responsibility and blowback against malicious actors.",
+  "steps": [
+    {
+      "name": "identify-stakeholders",
+      "agent_name": "researcher",
+      "prompt": "For the following debunked claim: {{input}}, identify associated stakeholders including the hosting platform, major advertisers on that platform, and relevant regulatory bodies or fact-checking NGOs.",
+      "mode": "sequential",
+      "output_var": "stakeholder_list"
+    },
+    {
+      "name": "draft-alerts",
+      "agent_name": "analyst",
+      "prompt": "Using the verified evidence from the debunking report, draft professional but firm 'Misinformation Alerts' tailored for each group in {{stakeholder_list}}. Highlight the breach of social responsibility and potential reputational blowback for associated brands.",
+      "mode": "sequential",
+      "output_var": "drafted_alerts"
+    },
+    {
+      "name": "disseminate-reports",
+      "agent_name": "collector",
+      "prompt": "Prepare the drafted alerts in {{drafted_alerts}} for dissemination. Format them as formal PDF reports or email drafts ready for delivery via the appropriate communication channels.",
+      "mode": "sequential"
+    }
+  ]
+}

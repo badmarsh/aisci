@@ -30,7 +30,8 @@ This document records the actual local deployment shape. For current operational
 | `deployment/onyx/nginx_configs/mcp_proxy.conf.template` | Live MCP proxy template | Mounted by the `mcp_proxy` service; secret-free and env-driven |
 | `deployment/onyx/nginx_mcp_proxy.conf` | Standalone reference copy | Not mounted by current compose; keep only as a documented manual/static example |
 | `mcp_config.yaml` | Repo-local MCP client reference | Not auto-loaded by Onyx compose; documents a project-level client-facing MCP layout and should stay secret-free |
-| `deployment/deer-flow/` | Vendored DeerFlow checkout plus local project overlays | Preserve project-owned files such as `.env.example`, `config.example.yaml`, `extensions_config.example.json`, and `agents/`; de-vendoring needs a planned migration |
+| `deployment/deer-flow/` | Vendored DeerFlow checkout plus local project overlays | Live config uses upstream Docker with `AioSandboxProvider`; model aliases route through Onyx LiteLLM at `http://host.docker.internal:4000/v1` |
+| `deployment/deerflow-custom-backup/2026-05-04-aio-redeploy/` | Pre-redeploy custom overlay backup | Contains local custom skills, Onyx tool package, agent prompt, workflows, playbooks, and pre-change config snapshots; no `.env`, logs, DB, cache, or checkpoint files |
 
 ## Operational Commands
 
@@ -38,6 +39,8 @@ This document records the actual local deployment shape. For current operational
 docker ps
 docker exec onyx-ollama-1 ollama list
 docker logs -f deer-flow-gateway
+cd deployment/deer-flow && make setup-sandbox
+cd deployment/deer-flow && make up
 ```
 
 ## Maintenance Notes
@@ -46,3 +49,4 @@ docker logs -f deer-flow-gateway
 - Secret-bearing notes belong in `docs/ops/private/`.
 - `mcp_config.yaml` is documentation/reference until a specific client is wired to consume it.
 - For OpenSearch migration status and cutover checks, use `docs/ops/onyx-rag-optimization-2026-04-27.md` and `deployment/helper/onyx_opensearch_cutover.py --json`.
+- For a clean DeerFlow rebuild, preserve `deployment/deerflow-custom-backup/2026-05-04-aio-redeploy/`, reclone or reset the upstream checkout, then restore only selected overlays instead of copying runtime state, logs, SQLite files, or `.env` files.

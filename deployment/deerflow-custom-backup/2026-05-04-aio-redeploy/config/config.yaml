@@ -1,0 +1,374 @@
+config_version: 8
+agents:
+- name: physics-validation-director
+  type: lead
+  capacity: 100
+- name: literature-scout
+  type: specialist
+  capacity: 80
+- name: formula-checker
+  type: specialist
+  capacity: 80
+- name: fit-analyst
+  type: specialist
+  capacity: 80
+- name: referee-writer
+  type: specialist
+  capacity: 80
+- name: figure-table-builder
+  type: specialist
+  capacity: 60
+- name: evidence-ledger
+  type: operations
+  capacity: 80
+- name: coder
+  type: operations
+  capacity: 100
+- name: data-analyst
+  type: operations
+  capacity: 100
+- name: knowledge-manager
+  type: operations
+  capacity: 100
+- name: research-coordinator
+  type: assistant
+  capacity: 100
+agents_api:
+  enabled: true
+langgraph:
+  recursion_limit: 100
+  thinking_enabled: true
+  subagent_enabled: true
+  context_management:
+    max_turns: 50
+    summary_threshold: 5
+  memory:
+    type: persistent
+    storage: ./memory
+    max_entries: 10000
+models:
+- name: qwen3.5-flash
+  display_name: Qwen 3.5 Flash (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.5-flash
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+- name: qwen-flash
+  display_name: Qwen Flash (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen-flash
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+- name: qwen3.6-flash-2026-04-16
+  display_name: Qwen 3.6 Flash 2026 (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.6-flash-2026-04-16
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+  supports_thinking: true
+- name: qwen-plus
+  display_name: Qwen Plus (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen-plus
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+- name: qwen3.6-35b-a3b
+  display_name: Qwen 3.6 35B A3B Thinking (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.6-35b-a3b
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+  supports_thinking: true
+- name: qwen3.6-27b
+  display_name: Qwen 3.6 27B Thinking (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.6-27b
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+  supports_thinking: true
+- name: qwen3-235b-a22b
+  display_name: Qwen 3 235B Thinking (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-235b-a22b
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+  supports_thinking: true
+- name: qwen3.5-397b-a17b
+  display_name: Qwen 3.5 397B Thinking (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.5-397b-a17b
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+  supports_thinking: true
+- name: qwen3-next-80b-a3b-thinking
+  display_name: Qwen 3 Next 80B Thinking (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-next-80b-a3b-thinking
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+  supports_thinking: true
+- name: qwen-max
+  display_name: Qwen Max (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen-max
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+- name: qwen3-next-80b-a3b-instruct
+  display_name: Qwen 3 Next 80B Instruct (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-next-80b-a3b-instruct
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+- name: qwen3-coder-30b-a3b-instruct
+  display_name: Qwen 3 Coder 30B Instruct (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-coder-30b-a3b-instruct
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+- name: nim-giant
+  display_name: Llama 3.1 405B (NVIDIA via Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: nim-giant
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 4096
+- name: llama-3.3-70b
+  display_name: Llama 3.3 70B (NVIDIA via Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: llama-3.3-70b
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 4096
+- name: gemma-4-26b-free
+  display_name: Gemma 4 26B Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: gemma-4-26b-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: gemma-4-31b-free
+  display_name: Gemma 4 31B Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: gemma-4-31b-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: llama-3.3-70b-free
+  display_name: Llama 3.3 70B Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: llama-3.3-70b-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: minimax-m2.5-free
+  display_name: MiniMax M2.5 Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: minimax-m2.5-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: hermes-3-405b-free
+  display_name: Hermes 3 405B Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: hermes-3-405b-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: nemotron-3-super-free
+  display_name: Nemotron 3 Super Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: nemotron-3-super-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: gpt-5.4
+  display_name: GPT 5.4 (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: gpt-5.4
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+- name: gpt-5.4-vision
+  display_name: GPT 5.4 Vision (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: gpt-5.4-vision
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+  supports_vision: true
+- name: gpt-oss-120b-free
+  display_name: GPT OSS 120B Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: gpt-oss-120b-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: openrouter-free
+  display_name: OpenRouter Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: openrouter-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: qwen3-coder-free
+  display_name: Qwen 3 Coder Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-coder-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 32768
+- name: glm-4.5-air-free
+  display_name: GLM 4.5 Air Free (Onyx)
+  use: langchain_openai:ChatOpenAI
+  model: glm-4.5-air-free
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: gemma-3-27b-local
+  display_name: Gemma 3 27B (Onyx/Ollama)
+  use: langchain_openai:ChatOpenAI
+  model: gemma2
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 8192
+- name: nomic-embed-text-local
+  display_name: Nomic Embed Text (Onyx/Ollama)
+  use: langchain_openai:ChatOpenAI
+  model: local-embedding-optical
+  api_key: $ONYX_API_KEY
+  base_url: $ONYX_LITELLM_API_BASE
+  max_tokens: 4096
+sandbox:
+  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  replicas: 3
+  allow_host_bash: false
+  bash_output_max_chars: 20000
+  read_file_output_max_chars: 50000
+  ls_output_max_chars: 20000
+  image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+log_level: info
+token_usage:
+  enabled: true
+subagents:
+  timeout_seconds: 900
+  max_turns: 120
+  agents:
+    general-purpose:
+      timeout_seconds: 1800
+      max_turns: 160
+    bash:
+      timeout_seconds: 300
+      max_turns: 80
+skill_evolution:
+  enabled: true
+  moderation_model_name: null
+tool_groups:
+- name: web
+- name: file:read
+- name: file:write
+- name: bash
+- name: knowledge
+tools:
+- name: web_search
+  group: web
+  use: deerflow.community.ddg_search.tools:web_search_tool
+  max_results: 5
+- name: web_fetch
+  group: web
+  use: deerflow.community.jina_ai.tools:web_fetch_tool
+  timeout: 10
+- name: image_search
+  group: web
+  use: deerflow.community.image_search.tools:image_search_tool
+  max_results: 5
+- name: ls
+  group: file:read
+  use: deerflow.sandbox.tools:ls_tool
+- name: read_file
+  group: file:read
+  use: deerflow.sandbox.tools:read_file_tool
+- name: glob
+  group: file:read
+  use: deerflow.sandbox.tools:glob_tool
+  max_results: 200
+- name: grep
+  group: file:read
+  use: deerflow.sandbox.tools:grep_tool
+  max_results: 100
+- name: write_file
+  group: file:write
+  use: deerflow.sandbox.tools:write_file_tool
+- name: str_replace
+  group: file:write
+  use: deerflow.sandbox.tools:str_replace_tool
+- name: bash
+  group: bash
+  use: deerflow.sandbox.tools:bash_tool
+- name: onyx_search
+  group: knowledge
+  use: deerflow.community.onyx.tools:onyx_search_tool
+  num_hits: 5
+tool_search:
+  enabled: true
+uploads:
+  pdf_converter: auto
+  max_files: 10
+  max_file_size: 52428800
+  max_total_size: 104857600
+  auto_convert_documents: false
+skills:
+  container_path: /mnt/skills
+title:
+  enabled: true
+  max_words: 6
+  max_chars: 60
+  model_name: null
+summarization:
+  enabled: true
+  model_name: null
+  trigger:
+  - type: tokens
+    value: 15564
+  - type: messages
+    value: 50
+  keep:
+    type: messages
+    value: 10
+  trim_tokens_to_summarize: 15564
+  summary_prompt: null
+  preserve_recent_skill_count: 5
+  preserve_recent_skill_tokens: 25000
+  preserve_recent_skill_tokens_per_skill: 5000
+  skill_file_read_tool_names:
+  - read_file
+  - read
+  - view
+  - cat
+memory:
+  enabled: true
+  storage_path: memory.json
+  debounce_seconds: 30
+  model_name: null
+  max_facts: 100
+  fact_confidence_threshold: 0.7
+  injection_enabled: true
+  max_injection_tokens: 2000
+database:
+  backend: sqlite
+  sqlite_dir: .deer-flow/data
+run_events:
+  backend: db
+  max_trace_content: 10240
+  track_token_usage: true
