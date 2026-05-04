@@ -33,3 +33,8 @@ Use this when inspecting or changing `deployment/deer-flow/`, nested runtime cod
 4. For upstream code changes, keep patches narrow and record why the local fork needs them.
 5. For generated/demo artifacts, avoid editing unless directly requested.
 6. Summarize whether the change should be upstreamed, kept local, or documented as an ops assumption.
+
+## Output & Approval Gates
+
+- Present a summary of the root cause and the proposed narrow patch.
+- Wait for user approval before making invasive upstream edits.

@@ -41,6 +41,11 @@ Sources include:
 4. Propose updates to `evidence-ledger.md` or `next-actions.md`.
 5. If source ingestion/document-set work is needed, propose a platform backlog item instead.
 
+## Output & Approval Gates
+
+- Request approval before writing to the evidence ledger.
+- Do not create new markdown files without user permission.
+
 ## MCP Tool: Consensus
 
 Consensus is available as an MCP tool routed via the nginx proxy at `/consensus/`.

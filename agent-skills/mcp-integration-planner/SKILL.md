@@ -11,7 +11,7 @@ description: Plan shared MCP or direct API integrations for research and citatio
 
 Use this when planning or documenting MCP/API integrations.
 
-## Goals
+## Rules
 
 - Prefer project-level shared config over IDE-specific setup.
 - Keep credentials out of git.

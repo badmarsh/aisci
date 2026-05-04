@@ -25,6 +25,12 @@ Read:
 Then inspect `git status --short` and preserve unrelated changes.
 Use `agent-skills/git-worktree-guard/SKILL.md` when git status or history affects the task choice.
 
+## Rules
+
+- Preserve unrelated changes.
+- Do not run reindexing, container recreation, image rebuilds, large model pulls, destructive cleanup, credential changes, or live secret edits without explicit user approval.
+- Follow instructions in `AGENTS.md`.
+
 ## Workflow
 
 Pick a small, high-leverage, non-destructive first task. Prefer:

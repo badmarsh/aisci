@@ -19,7 +19,7 @@ Do not automatically write all suggestions into canonical files. Offer the user 
 2. Write selected findings into the exact document or documents where they belong.
 3. Write a concise prompt for a fresh agent/session to implement selected findings later.
 
-## Target Mapping
+## Workflow
 
 Name exact targets when offering persistence:
 
