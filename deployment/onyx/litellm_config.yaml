@@ -42,8 +42,6 @@ model_list:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen3.6-flash-2026-04-16
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      extra_body:
-        enable_thinking: true
     model_name: qwen3.6-flash-2026-04-16
 
   # ── Qwen Cloud: Plus (Consolidated Alias) ──────────────────────────────────
@@ -84,50 +82,48 @@ model_list:
     model_name: qwen-plus
 
   # ── Qwen Cloud: Reasoning & Thinking (Large) ──────────────────────────────
+  # Note: enable_thinking removed from extra_body — Dashscope only supports
+  # thinking in streaming mode. DeerFlow controls thinking via supports_thinking
+  # in its own config.yaml, which LiteLLM forwards correctly.
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen3.6-35b-a3b
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      extra_body:
-        enable_thinking: true
     model_name: qwen3.6-35b-a3b
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen3.6-27b
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      extra_body:
-        enable_thinking: true
     model_name: qwen3.6-27b
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen3-235b-a22b
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+      # Dashscope requires enable_thinking: false for non-streaming calls.
+      # When DeerFlow wants thinking, it uses streaming mode and passes
+      # its own extra_body which overrides this default.
       extra_body:
-        enable_thinking: true
+        enable_thinking: false
     model_name: qwen3-235b-a22b
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen3.5-397b-a17b
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      extra_body:
-        enable_thinking: true
     model_name: qwen3.5-397b-a17b
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
       model: openai/qwen3-next-80b-a3b-thinking
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      extra_body:
-        enable_thinking: true
     model_name: qwen3-next-80b-a3b-thinking
 
   # ── Qwen Cloud: Coding & Flagship ─────────────────────────────────────────
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
-      model: openai/qwen-max
+      model: openai/qwen-max-2025-01-25
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     model_name: qwen-max
 
@@ -155,6 +151,53 @@ model_list:
       model: openai/meta/llama-3.3-70b-instruct
       api_base: https://integrate.api.nvidia.com/v1
     model_name: llama-3.3-70b
+
+  - litellm_params:
+      api_key: os.environ/NVIDIA_API_KEY
+      model: openai/nvidia/nemotron-3-super-120b-a12b
+      api_base: https://integrate.api.nvidia.com/v1
+    model_name: nemotron-4-340b
+
+  # ── OpenRouter: Additional Models ─────────────────────────────────────────
+  - litellm_params:
+      api_key: os.environ/OPENROUTER_API_KEY
+      model: openrouter/mistralai/mistral-large-2512
+    model_name: mistral-large-3
+
+  - litellm_params:
+      api_key: os.environ/OPENROUTER_API_KEY
+      model: openrouter/moonshotai/kimi-k2.6
+    model_name: kimi-k2-6
+
+  - litellm_params:
+      api_key: os.environ/OPENROUTER_API_KEY
+      model: openrouter/z-ai/glm-5.1
+    model_name: glm-5-1
+
+  - litellm_params:
+      api_key: os.environ/OPENROUTER_API_KEY
+      model: openrouter/minimax/minimax-m2.7
+    model_name: minimax-m2-7
+
+  - litellm_params:
+      api_key: os.environ/OPENROUTER_API_KEY
+      model: openrouter/deepseek/deepseek-v4-flash
+    model_name: deepseek-v4-flash
+
+  - litellm_params:
+      api_key: os.environ/OPENROUTER_API_KEY
+      model: openrouter/google/gemma-3-27b-it
+    model_name: gemma-3-27b-it
+
+  - litellm_params:
+      api_key: os.environ/OPENROUTER_API_KEY
+      model: openrouter/google/gemma-4-31b-it
+    model_name: gemma-4-31b-it
+
+  - litellm_params:
+      api_key: os.environ/OPENROUTER_API_KEY
+      model: openrouter/qwen/qwen3.5-397b-a17b
+    model_name: qwen3.5-397b-a17b-or
 
   # ── Vision & Multi-modal ──────────────────────────────────────────────────
   - litellm_params:
@@ -232,7 +275,7 @@ model_list:
 
   - litellm_params:
       api_key: os.environ/OPENROUTER_API_KEY
-      model: openrouter/openrouter/free
+      model: openrouter/google/gemma-3-27b-it:free
     model_name: openrouter-free
 
   - litellm_params:
