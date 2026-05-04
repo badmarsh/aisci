@@ -34,6 +34,12 @@ model_list:
 
   - litellm_params:
       api_key: os.environ/QWEN_API_KEY
+      model: openai/qwen-flash
+      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    model_name: qwen-cloud-fast
+
+  - litellm_params:
+      api_key: os.environ/QWEN_API_KEY
       model: openai/qwen3.6-flash-2026-04-16
       api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
       extra_body:
