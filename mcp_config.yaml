@@ -38,21 +38,6 @@ onyx:
   timeout: 60
   max_retries: 3
 
-serena:
-  enabled: true
-  transport: "stdio"
-  command: "serena"
-  args:
-    - "start-mcp-server"
-    - "--context=codex"
-    - "--project=/home/ubuntu/aisci"
-    - "--enable-web-dashboard=false"
-    - "--open-web-dashboard=false"
-  auth_type: "none"
-  timeout: 60
-  max_retries: 1
-  notes: "Host/Codex reference. DeerFlow uses its own Docker-backed stdio entry because the gateway container does not mount the full repo."
-
 # Physics-specific MCP configuration
 physics_validation:
   formula_extraction:
@@ -85,5 +70,4 @@ routing:
     path: "/scite/"
   onyx:
     path: "/onyx/"
-  serena:
-    type: "stdio"
+
