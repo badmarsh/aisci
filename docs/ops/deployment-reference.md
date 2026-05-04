@@ -33,6 +33,21 @@ This document records the actual local deployment shape. For current operational
 | `deployment/deer-flow/` | Vendored DeerFlow checkout plus local project overlays | Live config uses upstream Docker with `AioSandboxProvider`; model aliases route through Onyx LiteLLM at `http://host.docker.internal:4000/v1` |
 | `deployment/deerflow-custom-backup/2026-05-04-aio-redeploy/` | Pre-redeploy custom overlay backup | Contains local custom skills, Onyx tool package, agent prompt, workflows, playbooks, and pre-change config snapshots; no `.env`, logs, DB, cache, or checkpoint files |
 
+## Production Components (DeerFlow Extras)
+
+To enable asynchronous task queues, observability, and vector search in DeerFlow, use the extras stack:
+
+```bash
+cd deployment/deer-flow
+docker compose -f docker-compose.yml -f docker-compose.extras.yml up -d
+```
+
+| Service | Host URL | Purpose |
+|---|---|---|
+| Prometheus | `http://localhost:9090` | System metrics, token usage, and latency tracking |
+| Redis | `http://localhost:6379` | Message broker for ARQ async task queue |
+| Chroma | `http://localhost:8000` | Vector database for research report indexing |
+
 ## Operational Commands
 
 ```bash
