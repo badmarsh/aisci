@@ -73,7 +73,7 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST:-relational_db}
       - VESPA_HOST=${VESPA_HOST:-index}
       - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
-      - OPENSEARCH_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
+      - OPENSEARCH_ADMIN_PASSWORD=StrongPassword123!
       - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
       - ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX=${ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX:-false}
       - REDIS_HOST=${REDIS_HOST:-cache}
@@ -88,6 +88,8 @@ services:
       - WEB_TEMPLATE_PATH=${WEB_TEMPLATE_PATH:-/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs/web}
       - PERSISTENT_DOCUMENT_STORAGE_PATH=${PERSISTENT_DOCUMENT_STORAGE_PATH:-/app/file-system}
       - UNSTRUCTURED_API_URL=${UNSTRUCTURED_API_URL:-http://unstructured:8000}
+      - GENAI_API_ENDPOINT=http://litellm:4001/v1
+      - OPENAI_API_BASE=http://litellm:4001/v1
     extra_hosts:
       - "host.docker.internal:host-gateway"
     logging:
@@ -162,7 +164,7 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST:-relational_db}
       - VESPA_HOST=${VESPA_HOST:-index}
       - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
-      - OPENSEARCH_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
+      - OPENSEARCH_ADMIN_PASSWORD=StrongPassword123!
       - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
       - ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX=${ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX:-false}
       - REDIS_HOST=${REDIS_HOST:-cache}
@@ -181,6 +183,8 @@ services:
       - WEB_TEMPLATE_PATH=${WEB_TEMPLATE_PATH:-/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs/web}
       - PERSISTENT_DOCUMENT_STORAGE_PATH=${PERSISTENT_DOCUMENT_STORAGE_PATH:-/app/file-system}
       - UNSTRUCTURED_API_URL=${UNSTRUCTURED_API_URL:-http://unstructured:8000}
+      - GENAI_API_ENDPOINT=http://litellm:4001/v1
+      - OPENAI_API_BASE=http://litellm:4001/v1
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -365,9 +369,14 @@ services:
   opensearch:
     image: opensearchproject/opensearch:3.4.0
     restart: unless-stopped
+    env_file:
+      - path: .env.local
+        required: false
+      - path: .env
+        required: false
     environment:
       - discovery.type=single-node
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD}
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=StrongPassword123!
       - bootstrap.memory_lock=true
       - "OPENSEARCH_JAVA_OPTS=-Xms4g -Xmx4g"
       - "cluster.routing.allocation.disk.threshold_enabled=true"
@@ -512,17 +521,16 @@ services:
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
     ports:
-      - "127.0.0.1:4000:4000"
+      - "127.0.0.1:4001:4001"
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
-    command: [ "--config", "/app/config.yaml", "--port", "4000", "--num_workers", "4" ]
+    command: [ "--config", "/app/config.yaml", "--port", "4001", "--num_workers", "1" ]
     environment:
       # Prevent external cost-map fetches that corrupt the aiohttp SSL session state
       - LITELLM_LOCAL_MODEL_COST_MAP=true
       # Cloud API key — Qwen Dashscope (contextual RAG + vision + embeddings)
-      - QWEN_API_KEY=${QWEN_API_KEY}
-      - DASHSCOPE_API_KEY=${QWEN_API_KEY}
-      - DASHSCOPE_API_BASE=https://dashscope-intl.aliyuncs.com/api/v1
+      - QWEN_API_KEY=sk-1bb271ee62cf4000857ed3c3009a43b7
+      - DASHSCOPE_API_KEY=sk-1bb271ee62cf4000857ed3c3009a43b7
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - NVIDIA_API_KEY=${NVIDIA_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
@@ -535,7 +543,7 @@ services:
           "CMD",
           "python3",
           "-c",
-          "import urllib.request; urllib.request.urlopen('http://localhost:4000/health/readiness')",
+          "import urllib.request; urllib.request.urlopen('http://localhost:4001/health/readiness')",
         ]
       interval: 30s
       timeout: 10s
@@ -545,7 +553,29 @@ services:
       ollama:
         condition: service_healthy
 
+  image_bridge:
+    image: python:3.11-slim
+    command: >
+      /bin/sh -c "pip install fastapi httpx uvicorn &&
+      uvicorn main:app --host 0.0.0.0 --port 8090"
+    working_dir: /app
+    volumes:
+      - ./image-bridge/main.py:/app/main.py:ro
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8090:8090"
+    environment:
+      - DASHSCOPE_API_KEY=sk-1bb271ee62cf4000857ed3c3009a43b7
+      - IMAGE_MODEL=wan2.7-image
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
   onyx_mcp_server:
+
     build:
       context: ./onyx-mcp-server
       dockerfile: Dockerfile
