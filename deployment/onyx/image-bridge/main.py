@@ -25,7 +25,7 @@ class ImageRequest(BaseModel):
     model: Optional[str] = None
     n: Optional[int] = 1
     size: Optional[str] = "1024x1024"
-    response_format: Optional[str] = "url"
+    response_format: Optional[str] = "b64_json"
     quality: Optional[str] = None
     style: Optional[str] = None
 
@@ -74,21 +74,36 @@ async def generate_image(req: ImageRequest):
         images = []
         if "results" in data.get("output", {}):
             results = data["output"]["results"]
-            images = [{"url": r["url"], "revised_prompt": req.prompt} for r in results]
+            images = [r["url"] for r in results]
         elif "choices" in data.get("output", {}):
             for choice in data["output"]["choices"]:
                 for content in choice.get("message", {}).get("content", []):
                     if content.get("type") == "image":
-                        images.append({"url": content["image"], "revised_prompt": req.prompt})
+                        images.append(content["image"])
         
         if not images:
             raise KeyError("No images found")
+            
+        formatted_images = []
+        for url in images:
+            if req.response_format == "b64_json":
+                import base64
+                async with httpx.AsyncClient(timeout=60.0) as img_client:
+                    img_resp = await img_client.get(url)
+                    if img_resp.status_code == 200:
+                        b64 = base64.b64encode(img_resp.content).decode("utf-8")
+                        formatted_images.append({"b64_json": b64, "revised_prompt": req.prompt})
+                    else:
+                        formatted_images.append({"url": url, "revised_prompt": req.prompt})
+            else:
+                formatted_images.append({"url": url, "revised_prompt": req.prompt})
+                
     except (KeyError, TypeError):
         raise HTTPException(status_code=502, detail=f"Unexpected DashScope response: {data}")
 
     return JSONResponse({
         "created": int(time.time()),
-        "data": images,
+        "data": formatted_images,
     })
 
 

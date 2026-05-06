@@ -2,108 +2,125 @@ model_list:
 - litellm_params:
     api_base: http://ollama:11434/v1
     api_key: ollama
-    model: dashscope/gemma2:27b
+    model: openai/gemma2:27b
   model_name: gemma2
 - litellm_params:
     api_base: http://ollama:11434/v1
     api_key: ollama
-    model: dashscope/qwen2.5vl:7b
+    model: openai/qwen2.5vl:7b
   model_name: qwen2.5vl
 - litellm_params:
     api_base: http://ollama:11434/v1
     api_key: ollama
-    model: dashscope/nomic-embed-text:latest
+    model: openai/qwen2.5-omni:7b
+  model_name: qwen2.5-omni-7b
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: ollama
+    model: openai/nomic-embed-text:latest
     model_type: embedding
   model_name: local-embedding-optical
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3.5-flash
+    model: openai/qwen3.5-flash
   model_name: qwen3.5-flash
-- litellm_params:
+- fallbacks:
+  - qwen3.5-flash
+  - qwen3.6-plus
+  litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen-turbo
+    model: openai/qwen-turbo
     rpm: 40
   model_name: qwen-flash
-  fallbacks:
-  - qwen3.5-flash
+- fallbacks:
+  - qwen-turbo-compatible
   - qwen3.6-plus
-- litellm_params:
+  - gemma2
+  - qwen2.5vl
+  litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen-turbo
+    model: openai/qwen-turbo-2025-04-28
     rpm: 40
   model_name: qwen-cloud-fast
-  fallbacks:
-  - qwen3.6-plus
-  - qwen3.5-flash
-  - deepseek-v3.2
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3.6-flash-2026-04-16
+    model: openai/qwen3.6-flash-2026-04-16
   model_name: qwen3.6-flash-2026-04-16
-- litellm_params:
-    api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen-plus-latest
-  model_name: qwen-plus
-  fallbacks:
+- fallbacks:
   - qwen3-vl-flash
   - qwen3.5-flash
+  litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
+    model: openai/qwen-plus-latest
+  model_name: qwen-plus
 - litellm_params:
-    model: openai/dall-e-3
-    api_key: dummy
-    # OpenAI SDK treats this as the base URL and appends /images/generations.
-    # Keep the /v1 suffix here; do not configure the full endpoint path.
     api_base: http://image_bridge:8090/v1
-  model_name: dall-e-3
+    api_key: dummy
+    model: openai/dall-e-3
   model_info:
     mode: image_generation
+  model_name: dall-e-3
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3.6-35b-a3b
+    model: openai/qwen3.6-35b-a3b
   model_name: qwen3.6-35b-a3b
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3.6-27b
+    model: openai/qwen3.6-27b
   model_name: qwen3.6-27b
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3-235b-a22b
     extra_body:
       enable_thinking: false
+    model: openai/qwen3-235b-a22b
   model_name: qwen3-235b-a22b
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3.5-397b-a17b
+    model: openai/qwen3.5-397b-a17b
   model_name: qwen3.5-397b-a17b
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3-next-80b-a3b-thinking
+    model: openai/qwen3-next-80b-a3b-thinking
   model_name: qwen3-next-80b-a3b-thinking
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen-max-2025-01-25
+    model: openai/qwen-max-2025-01-25
   model_name: qwen-max
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3-next-80b-a3b-instruct
+    model: openai/qwen3-next-80b-a3b-instruct
   model_name: qwen3-next-80b-a3b-instruct
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3-coder-30b-a3b-instruct
+    model: openai/qwen3-coder-30b-a3b-instruct
   model_name: qwen3-coder-30b-a3b-instruct
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/NVIDIA_API_KEY
-    model: dashscope/meta/llama-3.1-405b-instruct
-    api_base: https://integrate.api.nvidia.com/v1
+    model: openai/meta/llama-3.1-405b-instruct
   model_name: nim-giant
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/NVIDIA_API_KEY
-    model: dashscope/meta/llama-3.3-70b-instruct
-    api_base: https://integrate.api.nvidia.com/v1
+    model: openai/meta/llama-3.3-70b-instruct
   model_name: llama-3.3-70b
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/NVIDIA_API_KEY
-    model: dashscope/nvidia/nemotron-3-super-120b-a12b
-    api_base: https://integrate.api.nvidia.com/v1
+    model: openai/nvidia/nemotron-3-super-120b-a12b
   model_name: nemotron-4-340b
 - litellm_params:
     api_key: os.environ/OPENROUTER_API_KEY
@@ -138,27 +155,30 @@ model_list:
     model: openrouter/qwen/qwen3.5-397b-a17b
   model_name: qwen3.5-397b-a17b-or
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen-vl-max-latest
+    model: openai/qwen-vl-max-latest
   model_name: qwen-vl-max
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3-vl-235b-a22b-instruct
+    model: openai/qwen3-vl-235b-a22b-instruct
   model_name: qwen3-vl-235b
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
-    model: dashscope/qwen3-vl-flash
+    model: openai/qwen3-vl-flash
   model_name: qwen3-vl-flash
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/api/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: dashscope/text-embedding-v3
-    api_base: https://dashscope-intl.aliyuncs.com/api/v1
     model_type: embedding
   model_name: text-embedding-v3
 - litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/api/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: dashscope/text-embedding-v4
-    api_base: https://dashscope-intl.aliyuncs.com/api/v1
     model_type: embedding
   model_name: text-embedding-v4
 - litellm_params:
@@ -209,282 +229,292 @@ model_list:
     api_key: os.environ/OPENROUTER_API_KEY
     model: openrouter/z-ai/glm-4.5-air:free
   model_name: glm-4.5-air-free
-- model_name: qwen3.6-plus
-  litellm_params:
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen3.6-plus
+  model_name: qwen3.6-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen3-coder-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen3-coder-plus
+  model_name: qwen3-coder-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-turbo-compatible
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-turbo
+  model_name: qwen-turbo-compatible
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-plus-compatible
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-plus
+  model_name: qwen-plus-compatible
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: deepseek-v3.2
-  litellm_params:
+    api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
+    model: openai/qwen-turbo
+  model_name: qwen-turbo
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
+    model: openai/qwen-turbo-latest
+  model_name: qwen-turbo-latest
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/deepseek-v3.2
+  model_name: deepseek-v3.2
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen3.6-max-preview
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen3.6-max-preview
+  model_name: qwen3.6-max-preview
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.1-vace-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.1-vace-plus
+  model_name: wan2.1-vace-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: happyhorse-1.0-video-edit
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/happyhorse-1.0-video-edit
+  model_name: happyhorse-1.0-video-edit
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.7-videoedit
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.7-videoedit
+  model_name: wan2.7-videoedit
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.5-i2v-preview
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.5-i2v-preview
+  model_name: wan2.5-i2v-preview
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.1-kf2v-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.1-kf2v-plus
+  model_name: wan2.1-kf2v-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.2-t2i-flash
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.2-t2i-flash
+  model_name: wan2.2-t2i-flash
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.2-i2v-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.2-i2v-plus
+  model_name: wan2.2-i2v-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-edit-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-edit-plus
+  model_name: qwen-image-edit-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.2-t2i-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.2-t2i-plus
+  model_name: wan2.2-t2i-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-edit-plus-2025-10-30
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-edit-plus-2025-10-30
+  model_name: qwen-image-edit-plus-2025-10-30
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.2-i2v-flash
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.2-i2v-flash
+  model_name: wan2.2-i2v-flash
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-2.0-2026-03-03
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-2.0-2026-03-03
+  model_name: qwen-image-2.0-2026-03-03
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.6-image
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.6-image
+  model_name: wan2.6-image
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.6-t2v
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.6-t2v
+  model_name: wan2.6-t2v
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-edit-max
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-edit-max
+  model_name: qwen-image-edit-max
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-max
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-max
+  model_name: qwen-image-max
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-2.0-pro-2026-03-03
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-2.0-pro-2026-03-03
+  model_name: qwen-image-2.0-pro-2026-03-03
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-edit
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-edit
+  model_name: qwen-image-edit
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.5-i2i-preview
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.5-i2i-preview
+  model_name: wan2.5-i2i-preview
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image
+  model_name: qwen-image
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-plus
-    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-2.0-pro
-  litellm_params:
-    api_key: dummy
-    model: openai/qwen-image-2.0-pro
+  model_name: qwen-image-plus
+- litellm_params:
     api_base: http://image_bridge:8090/v1
+    api_key: dummy
     drop_params: true
+    model: openai/qwen-image-2.0-pro
   model_info:
     mode: image_generation
-- model_name: qwen-image-2.0
-  litellm_params:
+  model_name: qwen-image-2.0-pro
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-2.0
+  model_name: qwen-image-2.0
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-plus-2026-01-09
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-plus-2026-01-09
+  model_name: qwen-image-plus-2026-01-09
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.2-t2v-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.2-t2v-plus
+  model_name: wan2.2-t2v-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.7-t2v
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.7-t2v
+  model_name: wan2.7-t2v
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.1-i2v-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.1-i2v-plus
+  model_name: wan2.1-i2v-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: z-image-turbo
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/z-image-turbo
+  model_name: z-image-turbo
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-max-2025-12-30
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-max-2025-12-30
+  model_name: qwen-image-max-2025-12-30
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.7-r2v
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.7-r2v
+  model_name: wan2.7-r2v
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.2-animate-move
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.2-animate-move
+  model_name: wan2.2-animate-move
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.7-image-pro
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.7-image-pro
+  model_name: wan2.7-image-pro
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.1-t2i-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.1-t2i-plus
+  model_name: wan2.1-t2i-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.2-animate-mix
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.2-animate-mix
+  model_name: wan2.2-animate-mix
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.6-t2i
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.6-t2i
+  model_name: wan2.6-t2i
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-edit-max-2026-01-16
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-edit-max-2026-01-16
+  model_name: qwen-image-edit-max-2026-01-16
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-2.0-pro-2026-04-22
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-2.0-pro-2026-04-22
+  model_name: qwen-image-2.0-pro-2026-04-22
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.5-t2v-preview
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.5-t2v-preview
+  model_name: wan2.5-t2v-preview
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.1-t2v-plus
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.1-t2v-plus
+  model_name: wan2.1-t2v-plus
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: happyhorse-1.0-t2v
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/happyhorse-1.0-t2v
+  model_name: happyhorse-1.0-t2v
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.7-t2v-2026-04-25
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.7-t2v-2026-04-25
+  model_name: wan2.7-t2v-2026-04-25
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: qwen-image-edit-plus-2025-12-15
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/qwen-image-edit-plus-2025-12-15
+  model_name: qwen-image-edit-plus-2025-12-15
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.6-r2v-flash
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.6-r2v-flash
+  model_name: wan2.6-r2v-flash
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.7-image
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.7-image
+  model_name: wan2.7-image
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.5-t2i-preview
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.5-t2i-preview
+  model_name: wan2.5-t2i-preview
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.1-t2v-turbo
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.1-t2v-turbo
+  model_name: wan2.1-t2v-turbo
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.1-i2v-turbo
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.1-i2v-turbo
+  model_name: wan2.1-i2v-turbo
+- litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-- model_name: wan2.1-t2i-turbo
-  litellm_params:
     api_key: sk-1bb271ee62cf4000857ed3c3009a43b7
     model: openai/wan2.1-t2i-turbo
-    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+  model_name: wan2.1-t2i-turbo
 router_settings:
-  routing_strategy: latency-based-routing
-  num_retries: 3
-  timeout: 600
-  retry_after: 20
   enable_pre_call_checks: true
+  num_retries: 3
+  retry_after: 20
+  routing_strategy: latency-based-routing
+  timeout: 600

@@ -9,6 +9,7 @@ name: onyx
 
 services:
   auth_proxy:
+    container_name: onyx-auth-proxy
     image: python:3.11-slim
     command: >
       /bin/sh -c "pip install fastapi httpx uvicorn &&
@@ -25,12 +26,13 @@ services:
       - default
 
   api_server:
-    image: onyx-backend-custom:${IMAGE_TAG:-v3.3.0-beta.0}
+    container_name: onyx-api-server
+    image: onyx-backend-custom:${IMAGE_TAG:-v3.3.0}
     build:
       context: .
       dockerfile: Dockerfile.backend
       args:
-        - IMAGE_TAG=${IMAGE_TAG:-v3.3.0-beta.0}
+        - IMAGE_TAG=${IMAGE_TAG:-v3.3.0}
         - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     command: >
       /bin/sh -c "python /app/deployment/patch_mcp_tool.py &&
@@ -118,12 +120,13 @@ services:
       - /home/ubuntu/aisci:/workspace/aisci:rw
 
   background:
-    image: onyx-backend-custom:${IMAGE_TAG:-v3.3.0-beta.0}
+    container_name: onyx-background
+    image: onyx-backend-custom:${IMAGE_TAG:-v3.3.0}
     build:
       context: .
       dockerfile: Dockerfile.backend
       args:
-        - IMAGE_TAG=${IMAGE_TAG:-v3.3.0-beta.0}
+        - IMAGE_TAG=${IMAGE_TAG:-v3.3.0}
         - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     command: >
       /bin/sh -c "python /app/deployment/patch_mcp_tool.py &&
@@ -201,7 +204,8 @@ services:
         max-file: "6"
 
   web_server:
-    image: ${ONYX_WEB_SERVER_IMAGE:-onyxdotapp/onyx-web-server:v3.3.0-beta.0}
+    container_name: onyx-web-server
+    image: ${ONYX_WEB_SERVER_IMAGE:-onyxdotapp/onyx-web-server:v3.3.0}
     env_file:
       - path: .env.local
         required: false
@@ -214,7 +218,8 @@ services:
       - INTERNAL_URL=${INTERNAL_URL:-http://api_server:8080}
 
   inference_model_server:
-    image: ${ONYX_MODEL_SERVER_IMAGE:-onyxdotapp/onyx-model-server:v3.3.0-beta.0}
+    container_name: onyx-inference-model-server
+    image: ${ONYX_MODEL_SERVER_IMAGE:-onyxdotapp/onyx-model-server:v3.3.0}
     command: >
       /bin/sh -c "if [ \"${DISABLE_MODEL_SERVER:-}\" = \"True\" ] || [ \"${DISABLE_MODEL_SERVER:-}\" = \"true\" ]; then
         echo 'Skipping service...';
@@ -257,7 +262,8 @@ services:
       retries: 3
 
   indexing_model_server:
-    image: ${ONYX_MODEL_SERVER_IMAGE:-onyxdotapp/onyx-model-server:v3.3.0-beta.0}
+    container_name: onyx-indexing-model-server
+    image: ${ONYX_MODEL_SERVER_IMAGE:-onyxdotapp/onyx-model-server:v3.3.0}
     command: >
       /bin/sh -c "if [ \"${DISABLE_MODEL_SERVER:-}\" = \"True\" ] || [ \"${DISABLE_MODEL_SERVER:-}\" = \"true\" ]; then
         echo 'Skipping service...';
@@ -333,6 +339,7 @@ services:
 #       start_period: 180s
 
   relational_db:
+    container_name: onyx-db
     image: postgres:15.2-alpine
     shm_size: 1g
     command: -c 'max_connections=250'
@@ -354,6 +361,7 @@ services:
       - db_volume:/var/lib/postgresql/data
 
   index:
+    container_name: onyx-vespa
     image: vespaengine/vespa:8.609.39
     restart: unless-stopped
     env_file:
@@ -367,6 +375,7 @@ services:
       - vespa_volume:/opt/vespa/var
 
   opensearch:
+    container_name: onyx-opensearch
     image: opensearchproject/opensearch:3.4.0
     restart: unless-stopped
     env_file:
@@ -394,6 +403,7 @@ services:
         hard: 65536
 
   nginx:
+    container_name: onyx-nginx
     image: nginx:1.25.5-alpine
     restart: unless-stopped
     depends_on:
@@ -422,6 +432,7 @@ services:
       && /tmp/run-nginx.sh app.conf.template"
 
   cache:
+    container_name: onyx-cache
     image: redis:7.4-alpine
     restart: unless-stopped
     command: redis-server --save "" --appendonly no
@@ -434,6 +445,7 @@ services:
       - /data
 
   minio:
+    container_name: onyx-minio
     image: minio/minio:RELEASE.2025-07-23T15-54-02Z-cpuv1
     profiles: ["s3-filestore"]
     restart: unless-stopped
@@ -456,6 +468,7 @@ services:
       retries: 3
 
   code-interpreter:
+    container_name: onyx-code-interpreter
     image: onyxdotapp/code-interpreter:${CODE_INTERPRETER_IMAGE_TAG:-latest}
     command: ["bash", "./entrypoint.sh", "code-interpreter-api"]
     restart: unless-stopped
@@ -471,6 +484,7 @@ services:
       - /home/ubuntu/aisci:/workspace/aisci:rw
 
   ollama:
+    container_name: onyx-ollama
     image: ollama/ollama:latest
     runtime: nvidia
     environment:
@@ -488,8 +502,7 @@ services:
       start_period: 60s
 
   unstructured:
-    # quay.io image is the actual HTTP API server (free, no key required for local use)
-    # downloads.unstructured.io is the Python library image — it exits immediately
+    container_name: onyx-unstructured
     image: ${UNSTRUCTURED_IMAGE:-quay.io/unstructured-io/unstructured-api:latest}
     restart: unless-stopped
     ports:
@@ -519,6 +532,7 @@ services:
         max-file: "3"
 
   litellm:
+    container_name: onyx-litellm
     image: ghcr.io/berriai/litellm:main-latest
     ports:
       - "127.0.0.1:4001:4001"
@@ -530,7 +544,10 @@ services:
       - LITELLM_LOCAL_MODEL_COST_MAP=true
       # Cloud API key — Qwen Dashscope (contextual RAG + vision + embeddings)
       - QWEN_API_KEY=sk-1bb271ee62cf4000857ed3c3009a43b7
+      # OpenRouter API Key
+      - OPENROUTER_API_KEY=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
       - DASHSCOPE_API_KEY=sk-1bb271ee62cf4000857ed3c3009a43b7
+      - DASHSCOPE_API_BASE=https://dashscope-intl.aliyuncs.com/api/v1
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - NVIDIA_API_KEY=${NVIDIA_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
@@ -554,6 +571,7 @@ services:
         condition: service_healthy
 
   image_bridge:
+    container_name: onyx-image-bridge
     image: python:3.11-slim
     command: >
       /bin/sh -c "pip install fastapi httpx uvicorn &&
@@ -575,6 +593,7 @@ services:
       start_period: 15s
 
   onyx_mcp_server:
+    container_name: onyx-mcp-server
 
     build:
       context: ./onyx-mcp-server
@@ -591,6 +610,7 @@ services:
       - default
 
   mcp_proxy:
+    container_name: onyx-mcp-proxy
     image: nginx:1.25.5-alpine
     ports:
       - "0.0.0.0:8095:80"
