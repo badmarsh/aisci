@@ -9,6 +9,7 @@ import os
 import time
 import httpx
 from fastapi import FastAPI, HTTPException
+from fastapi import Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
@@ -105,6 +106,15 @@ async def generate_image(req: ImageRequest):
         "created": int(time.time()),
         "data": formatted_images,
     })
+
+
+@app.post("/images/edits")
+@app.post("/v1/images/edits")
+async def edit_image(_: Request):
+    raise HTTPException(
+        status_code=501,
+        detail="Image editing is not configured on this DashScope image bridge.",
+    )
 
 
 @app.get("/health")
