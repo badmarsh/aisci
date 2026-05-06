@@ -1,0 +1,33 @@
+name: Docs drift
+description: Report duplicated, stale, or conflicting documentation.
+title: "docs: "
+labels: ["documentation", "drift"]
+body:
+  - type: textarea
+    id: drift
+    attributes:
+      label: Drift
+      description: Which files disagree, duplicate each other, or no longer match reality?
+    validations:
+      required: true
+  - type: textarea
+    id: canonical-target
+    attributes:
+      label: Canonical target
+      description: Which existing file should hold the durable update?
+      placeholder: "docs/ops/platform-backlog.md, docs/decisions/<adr>.md, research/robert/next-actions.md"
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-change
+    attributes:
+      label: Proposed change
+      description: The smallest edit that would remove the drift.
+    validations:
+      required: true
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: Non-goals
+      description: Files or topics that should not be touched.
+      placeholder: "Do not create a new markdown report unless explicitly approved."

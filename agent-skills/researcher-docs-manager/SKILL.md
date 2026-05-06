@@ -13,13 +13,14 @@ Use this when creating, updating, or curating project documentation to ensure it
 - `ACTION_PLAN.md`
 - `research/robert/evidence-ledger.md` (Source of Truth for science)
 - `research/robert/next-actions.md` (Active task queue)
-- `docs/ops/platform-backlog.md` (Infrastructure queue)
+- `docs/ops/platform-backlog.md` (concise infrastructure state)
+- Open GitHub Issues (active platform/security/docs-drift work)
 
 ## Rules
 - **Separation of Concerns:** Keep physics theory and results in `research/robert/`. Keep platform and deployment details in `docs/ops/`. Do not mix them.
 - **Evidence-Led:** Do not promote claims beyond "Sanity checked" without ledger-supported evidence. No physical interpretation of fit parameters without chi2/ndf, covariance, and residuals.
 - **Terminology:** Always distinguish between Bose-Einstein distributions and Boltzmann/Juttner approximations. Flag massless/pseudorapidity assumptions.
-- **Curating Hygiene:** Keep active docs short and current. Prefer editing existing active docs over creating new files.
+- **Curating Hygiene:** Keep active docs short and current. Prefer editing existing active docs over creating new files. Use GitHub Issues for active work history instead of growing markdown backlogs.
 - **Archiving:** Move historical detail to `docs/archive/` only when it is no longer current. Preserve a durable one-sentence summary in the active doc. Add a legacy note when archiving. Do not delete scientific evidence history.
 
 ## Workflow
@@ -27,7 +28,7 @@ Use this when creating, updating, or curating project documentation to ensure it
 2. Compare active docs against current repo state and git history.
 3. For implemented items, update status or compress the note to a durable summary.
 4. For stale detail, keep the crucial sentence in the active doc and archive the rest.
-5. Update canonical trackers (`evidence-ledger.md`, `next-actions.md`, or `platform-backlog.md`) appropriately.
+5. Update canonical trackers (`evidence-ledger.md`, `next-actions.md`, or compact `platform-backlog.md` state) appropriately. Put accepted active platform follow-up in GitHub Issues.
 6. Record durable architectural choices in `docs/decisions/`.
 
 ## Output & Approval Gates

@@ -25,7 +25,8 @@ Use this when planning or documenting MCP/API integrations.
 2. Decide whether it belongs in Onyx, DeerFlow, direct agent tooling, or a shared local proxy.
 3. Document auth needs without writing secret values.
 4. Provide a test plan from inside the relevant container or host context.
-5. Add user-approved actionable tasks to `docs/ops/platform-backlog.md`.
+5. Add user-approved active implementation tasks to GitHub Issues. Keep
+   `docs/ops/platform-backlog.md` for concise canonical state and links.
 6. Add durable topology decisions to `docs/decisions/` only when stable.
 
 ## Output & Approval Gates

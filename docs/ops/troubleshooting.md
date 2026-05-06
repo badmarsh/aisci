@@ -120,14 +120,17 @@ _make_file_sandbox_writable(str(file_path))   # ← must NOT be inside `if sync_
 
 **Symptom:** Celery background workers emit `LLMTimeoutError` or `429 quota exceeded` during contextual-summary indexing; chunk gaps appear in OpenSearch.
 
-**Known instance (2026-05-03):** `qwen2.5`, `qwen3-omni-flash-2025-09-15`, `qwen3-coder-plus-2025-09-23`, `dashscope-qwen-plus` all hit free-tier quota limits simultaneously.
+**Known instances:**
+- 2026-05-03: `qwen2.5`, `qwen3-omni-flash-2025-09-15`, `qwen3-coder-plus-2025-09-23`, `dashscope-qwen-plus` all hit free-tier quota limits simultaneously.
+- 2026-05-06: `qwen-cloud-fast` returned repeated DashScope `limit_requests` 429s during the Onyx Documentation connector run.
 
 **Fix:**
-1. Remove the out-of-quota model entries and their fallback group block from `deployment/onyx/litellm_config.yaml`.
-2. Restart the LiteLLM container: `docker compose -f deployment/onyx/docker-compose.yml restart litellm`.
-3. Verify the active fallback model (`gemma2:27b` via Ollama) responds: `curl -s http://localhost:4000/health`.
+1. Check active route status: `deployment/helper/litellm_quota_check.py --timeout 90`.
+2. Keep RAG routes in `deployment/onyx/litellm_config.yaml`: `qwen-rag-fast`, `qwen-rag-balanced`, `qwen-rag-vision`, and local `qwen-rag-local`.
+3. Restart the LiteLLM container after config edits: `docker compose -f deployment/onyx/docker-compose.yml restart litellm`.
+4. If a connector is retrying too often after partial runs, reduce its `refresh_freq` in Postgres rather than repeatedly disabling contextual RAG.
 
-**Prevention:** Check DashScope quota monthly. Keep `gemma2:27b` (Ollama, local) as weight-1 fallback in every LiteLLM pool so quota exhaustion on cloud models never completely blocks indexing.
+**Prevention:** Check DashScope quota monthly. Keep `gemma2:27b` (Ollama, local) as the final fallback so quota exhaustion on cloud models does not completely block indexing.
 
 ---
 

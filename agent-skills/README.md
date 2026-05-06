@@ -17,7 +17,7 @@ All skills follow the `TEMPLATE.md` schema:
 - `aisci-tech-kickoff` - start a technical work session, choose a safe first task, and execute or plan it.
 - `analysis-handoff-router` - after analysis, offer implementation, targeted persistence, or a next-session prompt.
 - `git-worktree-guard` - use git status/history safely for context while preserving unrelated changes.
-- `platform-backlog-manager` - manage actionable platform work in `docs/ops/platform-backlog.md`.
+- `platform-backlog-manager` - route active platform work to GitHub Issues and keep `docs/ops/platform-backlog.md` concise.
 - `researcher-docs-manager` - maintain high-signal research docs, separate physics from infra, clean stale working docs, and archive history.
 - `aisci-ops-auditor` - audit Onyx, DeerFlow, MCP, Docker, models, and deployment docs/config.
 - `secret-config-auditor` - review secrets, env handling, Docker socket exposure, auth mounts, and MCP config leaks.
@@ -36,4 +36,6 @@ All skills follow the `TEMPLATE.md` schema:
 - Preserve unrelated user changes.
 - Do not print secrets.
 - Prefer existing canonical files over creating new Markdown files.
+- Use GitHub Issues/PRs for accepted active work and review history; keep repo
+  docs as concise current-state sources of truth.
 - Ask before promoting analysis suggestions into accepted task, decision, or evidence trackers.

@@ -39,4 +39,7 @@ Use this for security-sensitive config review.
 
 ## Output & Approval Gates
 
-List findings with redacted evidence, risk, and exact next action. Offer targeted persistence into `docs/ops/platform-backlog.md` or a relevant existing ops note.
+List findings with redacted evidence, risk, and exact next action. For accepted
+active remediation, prefer a GitHub security issue with file paths, variable
+names, and commit SHAs only. Put durable platform notes into
+`docs/ops/platform-backlog.md` or a relevant existing ops note.

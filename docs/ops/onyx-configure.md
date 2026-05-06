@@ -37,6 +37,34 @@ startup commands.
   containers except `code-interpreter`.
 - **OpenSearch retrieval**: `ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX=true` with
   the Alibaba/1536 active index.
+- **Connector scheduler**: Celery Beat runs `check_for_indexing` every 15s and
+  `check_for_vespa_sync_task` every 20s. Individual connector retry cadence is
+  controlled by each connector's `refresh_freq` in Postgres.
+- **Onyx Documentation connector**: CC pair `11`, connector `15`, source `WEB`,
+  now uses `refresh_freq=86400` (daily). It was previously `1800` seconds and
+  retried too often after partial/error runs.
+- **Contextual RAG LLM**: `search_settings id=10` has contextual RAG enabled and
+  currently points at `qwen-cloud-fast` through the `LiteLLM` provider.
+
+## LiteLLM RAG Routes
+
+`deployment/onyx/litellm_config.yaml` defines these RAG-focused routes:
+
+| Route | Purpose |
+|---|---|
+| `qwen-cloud-fast` | Existing contextual-RAG route used by `search_settings id=10` |
+| `qwen-rag-fast` | Low-cost non-thinking Qwen flash pool for summaries and routine RAG |
+| `qwen-rag-balanced` | Higher-quality Qwen route for harder document processing |
+| `qwen-rag-vision` | Vision-capable Qwen route for image/table/page-section summaries |
+| `qwen-rag-local` | Local Ollama `gemma2:27b` fallback when cloud quota is exhausted |
+
+Router fallbacks cool down a failing deployment for 1800s after one failure and
+fall back from `qwen-cloud-fast` through `qwen-rag-fast`,
+`qwen-rag-balanced`, and finally `qwen-rag-local`. Probe route health with:
+
+```bash
+deployment/helper/litellm_quota_check.py --timeout 90
+```
 
 ## Secrets And Env Files
 

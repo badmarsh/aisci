@@ -39,7 +39,8 @@ Sources include:
 2. Extract only the relevant evidence, with location and uncertainty.
 3. Cross-check against existing ledger entries to avoid duplicates.
 4. Propose updates to `evidence-ledger.md` or `next-actions.md`.
-5. If source ingestion/document-set work is needed, propose a platform backlog item instead.
+5. If source ingestion/document-set work is needed, propose a GitHub ops issue
+   and a concise `docs/ops/platform-backlog.md` state update instead.
 
 ## Output & Approval Gates
 

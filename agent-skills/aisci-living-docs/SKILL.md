@@ -47,6 +47,9 @@ This skill always writes for three distinct readers:
 ## Rules
 
 - **Do not create new files** unless no existing file can hold the information. Ask first.
+- If the drift is accepted active work rather than durable current-state text,
+  create or update a GitHub Issue using the repo templates and link the existing
+  canonical file that should change.
 - **Do not touch science claims.** `research/robert/evidence-ledger.md`, `fit-plan.md`, `validation-plan.md`, and `runs/` are read-only for this skill.
 - **Only the platform-blocked items** in `research/robert/next-actions.md` are in scope — tasks that say "waiting on Ollama", "waiting on Scite key", or similar. Never add, remove, or reword science task items.
 - Use `secret-config-auditor` if you encounter config files with potential secrets during the scan; do not reproduce values.
@@ -179,5 +182,7 @@ deep-research pass:
   when findings are Medium severity or above.
 - Do not add new files without asking and naming exactly why no existing file
   can hold the content.
+- Do not create a markdown drift report by default. Prefer an Issue for active
+  work and a minimal edit to the canonical file for accepted durable facts.
 - Do not commit unless the user explicitly asks.
 - State what was accurate and unchanged — silence on a file means it was not checked.

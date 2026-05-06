@@ -5,6 +5,7 @@ This document records the actual local deployment shape. For current operational
 ## Canonical Pointers
 
 - Operational source of truth: `docs/ops/platform-backlog.md`
+- Active implementation/review tracking: GitHub Issues and Pull Requests
 - High-level milestones only: `ACTION_PLAN.md`
 - Science queue and evidence: `research/robert/next-actions.md`, `research/robert/evidence-ledger.md`
 - Durable architecture and process decisions: `docs/decisions/`

@@ -29,7 +29,14 @@ Onyx-local operator mirror for deployment-specific blockers.
 - [ ] **API key rotation** — Provider API keys were present in tracked files
   before Session 2 cleanup. Rotate: Dashscope/Qwen, OpenRouter, Nvidia NIM,
   and any other keys that appeared in docker-compose.yml or litellm_config.yaml
-  history. See commit audit output from Task 0 above for affected SHAs.
+  history. Also rotate the DashScope key exposed through
+  `deployment/onyx/append_models.py` (`3fc18a1`) and copied backlog text
+  (`acb3bfd`). Active tracking: GitHub issue #4.
+
+- [ ] **Onyx Documentation connector follow-up** — CC pair `11` now retries
+  daily (`refresh_freq=86400`) and LiteLLM RAG fallbacks are configured. Watch
+  the next run for DashScope 429s, heartbeat timeout, or unresolved
+  `InternalServerError` rows. Active tracking: GitHub issue #5.
 
 - [ ] **OpenSearch resource cost** — Both indexing and retrieval are now enabled.
   OpenSearch uses ~6–8 GB RAM (4 GB JVM heap + OS overhead). If Vespa-only

@@ -48,6 +48,75 @@ model_list:
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3.6-flash-2026-04-16
+    rpm: 20
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-fast
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3.5-flash
+    rpm: 20
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-fast
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen-flash
+    rpm: 20
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 32768
+    mode: chat
+  model_name: qwen-rag-fast
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3.6-plus
+    rpm: 10
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-balanced
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3.6-flash-2026-04-16
+    rpm: 10
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-vision
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: ollama
+    model: openai/gemma2:27b
+  model_info:
+    max_input_tokens: 8192
+    max_output_tokens: 2048
+    mode: chat
+  model_name: qwen-rag-local
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
     model: openai/qwen3.6-flash-2026-04-16
   model_name: qwen3.6-flash-2026-04-16
 - fallbacks:
@@ -513,8 +582,28 @@ model_list:
     model: openai/wan2.1-t2i-turbo
   model_name: wan2.1-t2i-turbo
 router_settings:
+  allowed_fails: 1
+  cooldown_time: 1800
   enable_pre_call_checks: true
+  fallbacks:
+  - qwen-cloud-fast:
+    - qwen-rag-fast
+    - qwen-rag-balanced
+    - qwen-rag-local
+  - qwen-rag-fast:
+    - qwen-rag-balanced
+    - qwen-rag-local
+  - qwen-rag-balanced:
+    - qwen-rag-local
+  - qwen-rag-vision:
+    - qwen3-vl-flash
+    - qwen2.5vl
+  max_fallbacks: 5
   num_retries: 3
   retry_after: 20
+  retry_policy:
+    InternalServerErrorRetries: 1
+    RateLimitErrorRetries: 0
+    TimeoutErrorRetries: 1
   routing_strategy: latency-based-routing
   timeout: 600

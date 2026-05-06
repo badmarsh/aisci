@@ -32,6 +32,14 @@ Current known-good state from 2026-05-06:
 - DeerFlow container route is `http://onyx-mcp-proxy:80/...`.
 - Onyx MCP submodule URL is `https://github.com/badmarsh/onyx-mcp-server.git`;
   do not point the parent repo at an unreachable local submodule commit.
+- GitHub Issues are now the active work layer; canonical docs stay in repo.
+  Start with issues #4 (key rotation), #5 (Onyx docs connector monitoring),
+  and #6 (docs/backlog migration).
+- Onyx Documentation connector is CC pair 11 / connector 15. Its
+  `refresh_freq` was reduced to 86400 seconds on 2026-05-06.
+- LiteLLM has RAG routes `qwen-rag-fast`, `qwen-rag-balanced`,
+  `qwen-rag-vision`, and local fallback `qwen-rag-local`. Probe with
+  `deployment/helper/litellm_quota_check.py --timeout 90`.
 
 Hard constraints:
 - Do not restart `onyx-db`.
@@ -41,19 +49,25 @@ Hard constraints:
 - Preserve unrelated user changes.
 
 Next highest-value work:
-1. Rotate provider/tool API keys listed in the 2026-05-06 secret-history audit,
-   then update only ignored private env/config. Do not commit key values.
-2. Fix the `onyx-mcp-server` full Jest failures around `send-chat-message`
+1. Rotate provider/tool API keys listed in issue #4 and the 2026-05-06
+   secret-history audits, then update only ignored private env/config. Do not
+   commit key values.
+2. Monitor the next Onyx Documentation connector run from issue #5. Confirm it
+   does not retry every 30 minutes, does not hit heartbeat timeout, and does not
+   produce repeated DashScope 429s.
+3. Start issue #6 by migrating only active open backlog rows to GitHub Issues,
+   then shrink `docs/ops/platform-backlog.md` instead of adding new reports.
+4. Fix the `onyx-mcp-server` full Jest failures around `send-chat-message`
    nock expectations, then remove the need for `--no-verify` pushes.
-3. Rebuild `onyx-python-webdeps:3.11` reproducibly once Docker buildx and PyPI
+5. Rebuild `onyx-python-webdeps:3.11` reproducibly once Docker buildx and PyPI
    DNS are healthy.
-4. Verify real DeerFlow MCP tool calls after the `extensions_config.json` route
+6. Verify real DeerFlow MCP tool calls after the `extensions_config.json` route
    update. The gateway was restarted on 2026-05-06 and basic connectivity to
    `onyx-mcp-proxy:80` passed, but an authenticated end-to-end tool call should
    still be exercised.
-5. Add monitoring for `onyx-background` errors, Redis queue depth, and Alembic
+7. Add monitoring for `onyx-background` errors, Redis queue depth, and Alembic
    version drift.
-6. Decide whether OpenSearch retrieval is worth the memory cost or whether a
+8. Decide whether OpenSearch retrieval is worth the memory cost or whether a
    measured Vespa-only fallback should reclaim RAM.
 
 Before closing:

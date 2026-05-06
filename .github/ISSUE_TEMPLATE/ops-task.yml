@@ -1,0 +1,36 @@
+name: Ops task
+description: Track accepted platform, deployment, Docker, MCP, model, or security work.
+title: "ops: "
+labels: ["ops"]
+body:
+  - type: textarea
+    id: current-state
+    attributes:
+      label: Current state
+      description: Link the canonical file that describes the current state.
+      placeholder: "Canonical source: docs/ops/onyx-configure.md"
+    validations:
+      required: true
+  - type: textarea
+    id: target-state
+    attributes:
+      label: Target state
+      description: What should be true when this issue is closed?
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety constraints
+      description: List forbidden actions, services not to restart, or secret-handling rules.
+      placeholder: "Do not restart onyx-db. Do not print secret values."
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Commands, screenshots, logs, or checks required before closing.
+      placeholder: "docker compose config --quiet; curl -fsS http://127.0.0.1:3000/api/health"
+    validations:
+      required: true

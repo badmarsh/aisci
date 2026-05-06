@@ -27,6 +27,19 @@ Transformers 5 and is loaded via `PYTHONPATH` in both model-server commands.
 - **Workspace mount**: `/home/ubuntu/aisci` is read-only in all containers
   except `code-interpreter`.
 - **OpenSearch retrieval**: enabled for the Alibaba/1536 active index.
+- **Connector scheduler**: `check_for_indexing` runs every 15s; connector
+  `refresh_freq` controls when a new attempt is created.
+- **Onyx Documentation connector**: CC pair `11`, connector `15`, source `WEB`,
+  uses `refresh_freq=86400` (daily).
+- **Contextual RAG LLM**: `search_settings id=10` uses `qwen-cloud-fast` via
+  LiteLLM. LiteLLM has RAG fallbacks: `qwen-rag-fast`,
+  `qwen-rag-balanced`, `qwen-rag-vision`, and local `qwen-rag-local`.
+
+## LiteLLM Route Check
+
+```bash
+deployment/helper/litellm_quota_check.py --timeout 90
+```
 
 ## Secrets And Env Files
 

@@ -1,0 +1,36 @@
+name: Security task
+description: Track secret rotation, exposure cleanup, or deployment hardening.
+title: "security: "
+labels: ["security"]
+body:
+  - type: textarea
+    id: exposure
+    attributes:
+      label: Exposure summary
+      description: Identify files, variables, and commit SHAs only. Do not paste secret values.
+      placeholder: "File: deployment/onyx/example.py; variable: PROVIDER_API_KEY; introduced: abc1234"
+    validations:
+      required: true
+  - type: textarea
+    id: remediation
+    attributes:
+      label: Remediation
+      description: Rotation, redaction, binding, or config work required.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Redacted scans or commands proving the issue is cleaned up.
+    validations:
+      required: true
+  - type: checkboxes
+    id: handling
+    attributes:
+      label: Handling rules
+      options:
+        - label: No secret values are included in this issue.
+          required: true
+        - label: Any affected key rotation owner is identified outside public issue text if needed.
+          required: true
