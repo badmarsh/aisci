@@ -23,6 +23,9 @@ Current known-good state from 2026-05-06:
 - Onyx health endpoint returned 200.
 - Redis AOF was verified with `aof_enabled:1`.
 - alembic head is `14162713706c`.
+- `search_settings.multilingual_expansion` exists again as `varchar[] not null
+  default '{}'` because the recreated `craft-latest` background image expects
+  it during `check_for_indexing`.
 - Active embedding is `Alibaba-NLP/gte-Qwen2-1.5B-instruct`, 1536 dims,
   search_settings id 10.
 - `deployment/helper/sitecustomize.py` is required for Transformers 5 / Qwen2.

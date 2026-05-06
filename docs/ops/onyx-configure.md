@@ -13,6 +13,7 @@ tree; update both when runtime assumptions change.
 | Model | `Alibaba-NLP/gte-Qwen2-1.5B-instruct` |
 | Dimensions | 1536 |
 | DB search_settings id | 10 (status: PRESENT) |
+| DB schema | Alembic `14162713706c`; `search_settings.multilingual_expansion` column present for `craft-latest` runtime code |
 | Compatibility shim | `deployment/helper/sitecustomize.py` |
 
 Do not change the embedding model without a full reindex. The shim in
@@ -93,6 +94,11 @@ Onyx uses `DynamicTenantScheduler` (persistent). The `background` service comman
 patches out the duplicate `setup_schedule()` call that caused a gdbm lock
 warning. The schedule file lives at `/tmp/celerybeat-schedule` inside the
 container.
+
+The same startup chain applies `deployment/helper/patch_onyx_monitoring.py` so
+Onyx's memory monitor recognizes the current Celery worker names
+(`docfetching`, `docprocessing`, `user_file_processing`, etc.) instead of
+emitting false `Missing processes` errors every five minutes.
 
 ## Local Images
 

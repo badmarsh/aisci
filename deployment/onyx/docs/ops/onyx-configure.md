@@ -11,6 +11,7 @@ Canonical copy: `docs/ops/onyx-configure.md`.
 | Model | `Alibaba-NLP/gte-Qwen2-1.5B-instruct` |
 | Dimensions | 1536 |
 | DB search_settings id | 10 (status: PRESENT) |
+| DB schema | Alembic `14162713706c`; `search_settings.multilingual_expansion` present |
 | Compatibility shim | `deployment/helper/sitecustomize.py` |
 
 Do not change the embedding model without a full reindex. The shim in
@@ -61,6 +62,8 @@ deployment/helper/litellm_quota_check.py --timeout 90
 The `background` service command patches out the duplicate
 `DynamicTenantScheduler.setup_schedule()` call. The schedule file lives at
 `/tmp/celerybeat-schedule` inside the container.
+It also applies `deployment/helper/patch_onyx_monitoring.py` so current Celery
+worker names do not trigger false `Missing processes` errors.
 
 ## Local Images
 

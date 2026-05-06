@@ -136,6 +136,7 @@ services:
       fi &&
       rm -f /app/celerybeat-schedule* /tmp/celerybeat-schedule* &&
       sed -i '/# Let the parent class handle store initialization/{n;/self.setup_schedule()/d;}' /app/onyx/background/celery/apps/beat.py &&
+      python /workspace/aisci/deployment/helper/patch_onyx_monitoring.py &&
       /app/scripts/supervisord_entrypoint.sh"
     env_file:
       - path: .env
