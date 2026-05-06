@@ -50,6 +50,7 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 .env
+.env.local
 
 # Raw data artifacts (re-downloadable)
 arxiv_results.xml

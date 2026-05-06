@@ -10,10 +10,12 @@ name: onyx
 services:
   auth_proxy:
     container_name: onyx-auth-proxy
-    image: python:3.11-slim
+    image: onyx-python-webdeps:3.11
+    build:
+      context: .
+      dockerfile: Dockerfile.python-webdeps
     command: >
-      /bin/sh -c "pip install fastapi httpx uvicorn &&
-      python /app/auth_proxy.py"
+      python /app/auth_proxy.py
     working_dir: /app
     volumes:
       - ./auth_proxy.py:/app/auth_proxy.py:ro
@@ -41,11 +43,11 @@ services:
       fi &&
       alembic upgrade head &&
       echo \"Starting Onyx Api Server\" &&
-      uvicorn onyx.main:app --host 0.0.0.0 --port 8080 --workers 4"
+      uvicorn onyx.main:app --factory --host 0.0.0.0 --port 8080 --workers $${ONYX_API_WORKERS:-1}"
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     depends_on:
       relational_db:
@@ -75,9 +77,8 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST:-relational_db}
       - VESPA_HOST=${VESPA_HOST:-index}
       - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
-      - OPENSEARCH_ADMIN_PASSWORD=StrongPassword123!
       - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
-      - ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX=${ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX:-false}
+      - ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX=${ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX:-true}
       - REDIS_HOST=${REDIS_HOST:-cache}
       - MODEL_SERVER_HOST=${MODEL_SERVER_HOST:-inference_model_server}
       - CODE_INTERPRETER_BASE_URL=${CODE_INTERPRETER_BASE_URL:-http://code-interpreter:8000}
@@ -117,7 +118,7 @@ services:
       - craft_venv_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
       - craft_outputs_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
       # VS Code workspace volume mapping
-      - /home/ubuntu/aisci:/workspace/aisci:rw
+      - /home/ubuntu/aisci:/workspace/aisci:ro
 
   background:
     container_name: onyx-background
@@ -130,16 +131,16 @@ services:
         - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     command: >
       /bin/sh -c "python /app/deployment/patch_mcp_tool.py &&
-      sed -i 's/_OPENAI_MAX_INPUT_LEN = 2048/_OPENAI_MAX_INPUT_LEN = 10/' /app/onyx/natural_language_processing/search_nlp_models.py &&
       if [ -f /etc/ssl/certs/custom-ca.crt ]; then
         update-ca-certificates;
       fi &&
-      rm -f /app/celerybeat-schedule /app/celerybeat-schedule.db &&
+      rm -f /app/celerybeat-schedule* /tmp/celerybeat-schedule* &&
+      sed -i '/# Let the parent class handle store initialization/{n;/self.setup_schedule()/d;}' /app/onyx/background/celery/apps/beat.py &&
       /app/scripts/supervisord_entrypoint.sh"
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     depends_on:
       relational_db:
@@ -167,9 +168,8 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST:-relational_db}
       - VESPA_HOST=${VESPA_HOST:-index}
       - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
-      - OPENSEARCH_ADMIN_PASSWORD=StrongPassword123!
       - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
-      - ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX=${ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX:-false}
+      - ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX=${ENABLE_OPENSEARCH_RETRIEVAL_FOR_ONYX:-true}
       - REDIS_HOST=${REDIS_HOST:-cache}
       - MODEL_SERVER_HOST=${MODEL_SERVER_HOST:-inference_model_server}
       - INDEXING_MODEL_SERVER_HOST=${INDEXING_MODEL_SERVER_HOST:-indexing_model_server}
@@ -196,7 +196,7 @@ services:
       - craft_venv_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
       - craft_outputs_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
       # VS Code workspace volume mapping
-      - /home/ubuntu/aisci:/workspace/aisci:rw
+      - /home/ubuntu/aisci:/workspace/aisci:ro
     logging:
       driver: json-file
       options:
@@ -207,9 +207,9 @@ services:
     container_name: onyx-web-server
     image: ${ONYX_WEB_SERVER_IMAGE:-onyxdotapp/onyx-web-server:v3.3.0}
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     depends_on:
       - api_server
@@ -225,19 +225,21 @@ services:
         echo 'Skipping service...';
         exit 0;
       else
+        export PYTHONDONTWRITEBYTECODE=1;
+        export PYTHONPATH=\"/workspace/aisci/deployment/helper$${PYTHONPATH:+:$${PYTHONPATH}}\";
         exec uvicorn model_server.main:app --host 0.0.0.0 --port 9000;
       fi"
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     restart: unless-stopped
     volumes:
       - model_cache_huggingface:/app/.cache/huggingface/
       - inference_model_server_logs:/var/log/onyx
       # Optional: Map workspace for model-related files
-      - /home/ubuntu/aisci:/workspace/aisci:rw
+      - /home/ubuntu/aisci:/workspace/aisci:ro
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
@@ -269,12 +271,14 @@ services:
         echo 'Skipping service...';
         exit 0;
       else
+        export PYTHONDONTWRITEBYTECODE=1;
+        export PYTHONPATH=\"/workspace/aisci/deployment/helper$${PYTHONPATH:+:$${PYTHONPATH}}\";
         exec uvicorn model_server.main:app --host 0.0.0.0 --port 9000;
       fi"
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     restart: unless-stopped
     environment:
@@ -288,7 +292,7 @@ services:
       - indexing_huggingface_model_cache:/app/.cache/huggingface/
       - indexing_model_server_logs:/var/log/onyx
       # Optional: Map workspace for indexing-related files
-      - /home/ubuntu/aisci:/workspace/aisci:rw
+      - /home/ubuntu/aisci:/workspace/aisci:ro
     logging:
       driver: json-file
       options:
@@ -344,9 +348,9 @@ services:
     shm_size: 1g
     command: -c 'max_connections=250'
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     restart: unless-stopped
     environment:
@@ -365,9 +369,9 @@ services:
     image: vespaengine/vespa:8.609.39
     restart: unless-stopped
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     environment:
       - VESPA_SKIP_UPGRADE_CHECK=${VESPA_SKIP_UPGRADE_CHECK:-true}
@@ -379,13 +383,13 @@ services:
     image: opensearchproject/opensearch:3.4.0
     restart: unless-stopped
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     environment:
       - discovery.type=single-node
-      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=StrongPassword123!
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD:-StrongPassword123!}
       - bootstrap.memory_lock=true
       - "OPENSEARCH_JAVA_OPTS=-Xms4g -Xmx4g"
       - "cluster.routing.allocation.disk.threshold_enabled=true"
@@ -407,18 +411,22 @@ services:
     image: nginx:1.25.5-alpine
     restart: unless-stopped
     depends_on:
-      - api_server
-      - web_server
+      api_server:
+        condition: service_started
+        restart: true
+      web_server:
+        condition: service_started
+        restart: true
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     environment:
       - DOMAIN=localhost
-      - NGINX_PROXY_CONNECT_TIMEOUT=${NGINX_PROXY_CONNECT_TIMEOUT:-300}
-      - NGINX_PROXY_SEND_TIMEOUT=${NGINX_PROXY_SEND_TIMEOUT:-300}
-      - NGINX_PROXY_READ_TIMEOUT=${NGINX_PROXY_READ_TIMEOUT:-300}
+      - NGINX_PROXY_CONNECT_TIMEOUT=${NGINX_PROXY_CONNECT_TIMEOUT:-600}
+      - NGINX_PROXY_SEND_TIMEOUT=${NGINX_PROXY_SEND_TIMEOUT:-600}
+      - NGINX_PROXY_READ_TIMEOUT=${NGINX_PROXY_READ_TIMEOUT:-600}
     ports:
       - "127.0.0.1:${HOST_PORT_80:-80}:80"
       - "127.0.0.1:${HOST_PORT:-3000}:80"
@@ -435,24 +443,23 @@ services:
     container_name: onyx-cache
     image: redis:7.4-alpine
     restart: unless-stopped
-    command: redis-server --save "" --appendonly no
+    command: redis-server --appendonly yes --appendfsync everysec
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
         required: false
-    tmpfs:
-      - /data
+      - path: .env.local
+        required: false
+    volumes:
+      - redis_data:/data
 
   minio:
     container_name: onyx-minio
     image: minio/minio:RELEASE.2025-07-23T15-54-02Z-cpuv1
-    profiles: ["s3-filestore"]
     restart: unless-stopped
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
@@ -473,9 +480,9 @@ services:
     command: ["bash", "./entrypoint.sh", "code-interpreter-api"]
     restart: unless-stopped
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     user: root
     volumes:
@@ -485,14 +492,14 @@ services:
 
   ollama:
     container_name: onyx-ollama
-    image: ollama/ollama:latest
+    image: ollama/ollama@sha256:05ab093b257a54318fba39293f1640d53b507d1edec8fa6ca2d3e1817c02e53b
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
     volumes:
       - ollama_volume:/root/.ollama
       # Map workspace for Ollama to access files
-      - /home/ubuntu/aisci:/workspace/aisci:rw
+      - /home/ubuntu/aisci:/workspace/aisci:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "ollama", "list"]
@@ -533,24 +540,21 @@ services:
 
   litellm:
     container_name: onyx-litellm
-    image: ghcr.io/berriai/litellm:main-latest
+    image: ghcr.io/berriai/litellm@sha256:7c311546c25e7bb6e8cafede9fcd3d0d622ac636b5c9418befaa32e85dfb0186
     ports:
       - "127.0.0.1:4001:4001"
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
     command: [ "--config", "/app/config.yaml", "--port", "4001", "--num_workers", "1" ]
+    env_file:
+      - path: .env
+        required: false
+      - path: .env.local
+        required: false
     environment:
       # Prevent external cost-map fetches that corrupt the aiohttp SSL session state
       - LITELLM_LOCAL_MODEL_COST_MAP=true
-      # Cloud API key — Qwen Dashscope (contextual RAG + vision + embeddings)
-      - QWEN_API_KEY=sk-1bb271ee62cf4000857ed3c3009a43b7
-      # OpenRouter API Key
-      - OPENROUTER_API_KEY=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
-      - DASHSCOPE_API_KEY=sk-1bb271ee62cf4000857ed3c3009a43b7
       - DASHSCOPE_API_BASE=https://dashscope-intl.aliyuncs.com/api/v1
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - NVIDIA_API_KEY=${NVIDIA_API_KEY}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     restart: unless-stopped
     healthcheck:
       # Use /health/readiness — not /health — to avoid calling all configured providers.
@@ -572,18 +576,24 @@ services:
 
   image_bridge:
     container_name: onyx-image-bridge
-    image: python:3.11-slim
+    image: onyx-python-webdeps:3.11
+    build:
+      context: .
+      dockerfile: Dockerfile.python-webdeps
     command: >
-      /bin/sh -c "pip install fastapi httpx uvicorn &&
-      uvicorn main:app --host 0.0.0.0 --port 8090"
+      uvicorn main:app --host 0.0.0.0 --port 8090
     working_dir: /app
     volumes:
       - ./image-bridge/main.py:/app/main.py:ro
     restart: unless-stopped
     ports:
       - "127.0.0.1:8090:8090"
+    env_file:
+      - path: .env
+        required: false
+      - path: .env.local
+        required: false
     environment:
-      - DASHSCOPE_API_KEY=sk-1bb271ee62cf4000857ed3c3009a43b7
       - IMAGE_MODEL=wan2.7-image
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/health')"]
@@ -599,11 +609,18 @@ services:
       context: ./onyx-mcp-server
       dockerfile: Dockerfile
     restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+      - path: .env.local
+        required: false
     environment:
-      - ONYX_API_TOKEN=${ONYX_API_KEY}
       - ONYX_API_URL=http://api_server:8080
       - PORT=3001
       - MCP_MESSAGE_ENDPOINT=/onyx/messages
+    command: >
+      sh -c 'export ONYX_API_TOKEN="$${ONYX_API_TOKEN:-$${ONYX_API_KEY}}";
+      npm run start:sse'
     depends_on:
       - api_server
     networks:
@@ -613,13 +630,13 @@ services:
     container_name: onyx-mcp-proxy
     image: nginx:1.25.5-alpine
     ports:
-      - "0.0.0.0:8095:80"
+      - "127.0.0.1:8095:80"
     volumes:
       - ./nginx_configs/mcp_proxy.conf.template:/etc/nginx/templates/default.conf.template:ro
     env_file:
-      - path: .env.local
-        required: false
       - path: .env
+        required: false
+      - path: .env.local
         required: false
     restart: unless-stopped
 
@@ -638,3 +655,4 @@ volumes:
   ollama_volume:
   craft_venv_volume:
   craft_outputs_volume:
+  redis_data:

@@ -15,7 +15,7 @@ from typing import Optional
 
 app = FastAPI()
 
-DASHSCOPE_API_KEY = os.environ["DASHSCOPE_API_KEY"]
+DASHSCOPE_API_KEY = os.environ.get("DASHSCOPE_API_KEY") or os.environ["QWEN_API_KEY"]
 DASHSCOPE_URL = "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
 DEFAULT_MODEL = os.environ.get("IMAGE_MODEL", "qwen-image-2.0-pro")
 
