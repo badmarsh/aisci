@@ -1,3 +1,3 @@
 [submodule "deployment/onyx/onyx-mcp-server"]
 	path = deployment/onyx/onyx-mcp-server
-	url = https://github.com/lupuletic/onyx-mcp-server.git
+	url = https://github.com/badmarsh/onyx-mcp-server.git

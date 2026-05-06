@@ -151,7 +151,7 @@ python deployment/helper/onyx_opensearch_cutover.py --json
 # Expect: 0 missing, 0 mismatched, 0 extra; active index = danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct
 
 # 2. Ollama models present
-docker exec onyx-ollama-1 ollama list
+docker exec onyx-ollama ollama list
 # Expect: gemma2:27b listed
 
 # 3. LiteLLM health

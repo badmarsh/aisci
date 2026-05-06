@@ -149,21 +149,21 @@
     "scite": {
       "enabled": true,
       "type": "http",
-      "url": "http://host.docker.internal:8095/scite/",
+      "url": "http://onyx-mcp-proxy:80/scite/",
       "headers": {},
       "description": "Scite API for literature citation contexts and exact manuscript claim verification"
     },
     "consensus": {
       "enabled": true,
       "type": "http",
-      "url": "http://host.docker.internal:8095/consensus/",
+      "url": "http://onyx-mcp-proxy:80/consensus/",
       "headers": {},
       "description": "Consensus API for academic search and claim grounding"
     },
     "onyx": {
       "enabled": true,
       "type": "sse",
-      "url": "http://host.docker.internal:8095/onyx/sse",
+      "url": "http://onyx-mcp-proxy:80/onyx/sse",
       "headers": {},
       "description": "Local Onyx MCP bridge for source-grounded search and chat against the AiSci knowledge base"
     },

@@ -57,13 +57,13 @@ responsible for supplying the `Authorization: Bearer <token>` header. The nginx
 `mcp_proxy.conf.template` passes this header upstream via `proxy_pass_header Authorization`
 without injecting or overriding it.
 
-### Token setup (one-time, ops task)
+### Token setup
 
-1. Complete the Consensus OAuth flow at <https://consensus.app>.
-2. Extract the Bearer token from the resulting session (browser DevTools → Network tab,
-   look for `Authorization: Bearer ...` in a request to `consensus.app`).
-3. Add it to your local `.env` file as `CONSENSUS_MCP_BEARER_TOKEN=<token>` (never commit
-   the live value; the template entry is in `deployment/onyx/env.template`).
+Complete the Consensus OAuth flow from the MCP-aware client that will make the
+request. Do not extract browser session tokens into repo env files, and do not
+commit bearer tokens. If a non-OAuth client must be used, treat the bearer token
+as ignored local operator config and document only the variable name, never the
+value.
 
 ### When to use Consensus vs. Scite
 

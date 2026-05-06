@@ -15,7 +15,9 @@ Please execute the following steps in order. **Do not make unilateral commits**â
 ### 2. Security & Secrets Audit
 - Run a pass over `deployment/deer-flow/config.yaml`, `deployment/onyx/litellm_config.yaml`, and `mcp_config.yaml`.
 - Ensure all API keys (DashScope, OpenAI, Anthropic, Onyx) are safely abstracted via environment variables (e.g., `$DASHSCOPE_API_KEY`) and that no literal secrets (e.g., `sk-...`) are tracked in git.
-- Verify that Docker compose files bind sensitive ports exclusively to `127.0.0.1`, with the single permitted exception of `mcp_proxy` binding to `0.0.0.0` for DeerFlow bridge access.
+- Verify that Docker compose files bind sensitive host ports exclusively to
+  `127.0.0.1`. DeerFlow bridge access should use the shared Docker network
+  route `http://onyx-mcp-proxy:80/...`, not a `0.0.0.0` host bind.
 - Check the working tree for any legacy, un-ignored `.env` files or vendored `.orig` files that shouldn't be tracked.
 
 ### 3. Runtime Configuration Sync

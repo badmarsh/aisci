@@ -2,6 +2,21 @@
 
 This report checks all `SKILL.md` files against `TEMPLATE.md` compliance.
 
+## 2026-05-06 Workflow Audit Update
+
+- All 15 local skills still have valid front matter and the required
+  `Read First`, `Rules`, `Workflow`, and `Output & Approval Gates` sections.
+- `aisci-ops-auditor` now explicitly checks submodule gitlink reachability and
+  separates host-local MCP routes from Docker-network routes.
+- `aisci-living-docs` now treats
+  `deployment/onyx/nginx_configs/mcp_proxy.conf.template` as the MCP proxy
+  ground truth instead of the standalone reference copy.
+- `vendored-runtime-maintainer` no longer points at a removed DeerFlow
+  assessment note; it now reads the canonical deployment reference and platform
+  backlog.
+- Markdown link scan across `docs/`, `agent-skills/`, and
+  `deployment/onyx/docs/` found no broken Markdown links.
+
 | Skill | YAML `name` | YAML `desc` | Title | Read First | Rules | Workflow | Output & Approval | Notes |
 |---|---|---|---|---|---|---|---|---|
 | aisci-living-docs | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Compliant |

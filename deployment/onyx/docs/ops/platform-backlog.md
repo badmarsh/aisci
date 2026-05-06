@@ -2,11 +2,17 @@
 
 _Last updated: 2026-05-06_
 
+Canonical platform backlog: `docs/ops/platform-backlog.md`. This file is the
+Onyx-local operator mirror for deployment-specific blockers.
+
 ## Blocked / Infrastructure Issues
 
 - [ ] **onyx-mcp-server Docker build** — npm hangs inside Docker build context.
   - Root cause: Docker buildx missing on host; PyPI DNS also unreliable.
   - Current workaround: runtime MCP via Compose `command` wrapper works.
+  - Source: parent `.gitmodules` points at
+    `https://github.com/badmarsh/onyx-mcp-server.git` so the SSE/token-fallback
+    commits are reachable for fresh clones.
   - Fix path: install `docker-buildx-plugin`, fix DNS, then
     `docker compose build onyx-mcp-server` and remove the command override.
   - Dockerfile and source changes are committed and ready.

@@ -11,7 +11,8 @@ Use this when inspecting or changing `deployment/deer-flow/`, nested runtime cod
 
 - `AGENTS.md`
 - Root `README.md`
-- `docs/ops/deerflow-assessment-2026-04-26.md`
+- `docs/ops/deployment-reference.md`
+- `docs/ops/platform-backlog.md`
 - `deployment/deer-flow/README.md`
 - Relevant nested `AGENTS.md`, `CLAUDE.md`, or project docs inside the vendored tree
 - `agent-skills/git-worktree-guard/SKILL.md`
