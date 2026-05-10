@@ -35,23 +35,18 @@ model_list:
     rpm: 40
   model_name: qwen-flash
 - fallbacks:
-  - qwen-turbo-compatible
-  - qwen3.6-plus
-  - gemma2
-  - qwen2.5vl
+  - qwen-rag-balanced
   litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
-    model: openai/qwen-turbo-2025-04-28
-    rpm: 40
+    model: openai/qwen-turbo-latest
   model_name: qwen-cloud-fast
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
     extra_body:
       enable_thinking: false
-    model: openai/qwen3.6-flash-2026-04-16
-    rpm: 20
+    model: openai/qwen-plus-2025-09-11
   model_info:
     max_input_tokens: 1000000
     max_output_tokens: 65536
@@ -62,20 +57,7 @@ model_list:
     api_key: os.environ/QWEN_API_KEY
     extra_body:
       enable_thinking: false
-    model: openai/qwen3.5-flash
-    rpm: 20
-  model_info:
-    max_input_tokens: 1000000
-    max_output_tokens: 65536
-    mode: chat
-  model_name: qwen-rag-fast
-- litellm_params:
-    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-    api_key: os.environ/QWEN_API_KEY
-    extra_body:
-      enable_thinking: false
-    model: openai/qwen-flash
-    rpm: 20
+    model: openai/qwen3.5-plus-2026-04-20
   model_info:
     max_input_tokens: 1000000
     max_output_tokens: 32768
@@ -87,7 +69,6 @@ model_list:
     extra_body:
       enable_thinking: false
     model: openai/qwen3.6-plus
-    rpm: 10
   model_info:
     max_input_tokens: 1000000
     max_output_tokens: 65536
@@ -98,20 +79,98 @@ model_list:
     api_key: os.environ/QWEN_API_KEY
     extra_body:
       enable_thinking: false
+    model: openai/qwen3.6-27b
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-balanced
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3.6-35b-a3b
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-balanced
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3.5-35b-a3b
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-balanced
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3-30b-a3b-instruct-2507
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-balanced
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3-next-80b-a3b-instruct
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-deep
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3-235b-a22b-instruct-2507
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-deep
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen3-max-2026-01-23
+  model_info:
+    max_input_tokens: 1000000
+    max_output_tokens: 65536
+    mode: chat
+  model_name: qwen-rag-deep
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
     model: openai/qwen3.6-flash-2026-04-16
-    rpm: 10
   model_info:
     max_input_tokens: 1000000
     max_output_tokens: 65536
     mode: chat
   model_name: qwen-rag-vision
 - litellm_params:
-    api_base: http://ollama:11434/v1
-    api_key: ollama
-    model: openai/gemma2:27b
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/QWEN_API_KEY
+    extra_body:
+      enable_thinking: false
+    model: openai/qwen-plus-2025-07-28
   model_info:
-    max_input_tokens: 8192
-    max_output_tokens: 2048
+    max_input_tokens: 1000000
+    max_output_tokens: 32768
     mode: chat
   model_name: qwen-rag-local
 - litellm_params:
@@ -156,11 +215,6 @@ model_list:
     api_key: os.environ/QWEN_API_KEY
     model: openai/qwen3.5-397b-a17b
   model_name: qwen3.5-397b-a17b
-- litellm_params:
-    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-    api_key: os.environ/QWEN_API_KEY
-    model: openai/qwen3-next-80b-a3b-thinking
-  model_name: qwen3-next-80b-a3b-thinking
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/QWEN_API_KEY
@@ -587,14 +641,11 @@ router_settings:
   enable_pre_call_checks: true
   fallbacks:
   - qwen-cloud-fast:
-    - qwen-rag-fast
     - qwen-rag-balanced
-    - qwen-rag-local
   - qwen-rag-fast:
     - qwen-rag-balanced
-    - qwen-rag-local
-  - qwen-rag-balanced:
-    - qwen-rag-local
+  - qwen-rag-deep:
+    - qwen-rag-balanced
   - qwen-rag-vision:
     - qwen3-vl-flash
     - qwen2.5vl

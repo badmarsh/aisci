@@ -8,8 +8,7 @@ Returns: OpenAI-format response
 import os
 import time
 import httpx
-from fastapi import FastAPI, HTTPException
-from fastapi import Request
+from fastapi import FastAPI, HTTPException, Request, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
@@ -110,11 +109,100 @@ async def generate_image(req: ImageRequest):
 
 @app.post("/images/edits")
 @app.post("/v1/images/edits")
-async def edit_image(_: Request):
-    raise HTTPException(
-        status_code=501,
-        detail="Image editing is not configured on this DashScope image bridge.",
-    )
+async def edit_image(
+    image: UploadFile = File(...),
+    mask: Optional[UploadFile] = File(None),
+    prompt: str = Form(...),
+    model: Optional[str] = Form(None),
+    n: int = Form(1),
+    size: str = Form("1024x1024"),
+    response_format: str = Form("b64_json")
+):
+    target_model = model or "qwen-image-edit-plus"
+
+    # Convert OpenAI size (1024x1024) to DashScope size (1024*1024)
+    size_dashscope = size.replace("x", "*") if size else "1024*1024"
+
+    import base64
+    image_bytes = await image.read()
+    b64_img = base64.b64encode(image_bytes).decode("utf-8")
+    mime_type = image.content_type or "image/png"
+
+    content_list = [{"image": f"data:{mime_type};base64,{b64_img}"}]
+    if mask:
+        mask_bytes = await mask.read()
+        mask_b64 = base64.b64encode(mask_bytes).decode("utf-8")
+        mask_mime = mask.content_type or "image/png"
+        content_list.append({"image": f"data:{mask_mime};base64,{mask_b64}"})
+
+    content_list.append({"text": prompt})
+
+    payload = {
+        "model": target_model,
+        "input": {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": content_list
+                }
+            ]
+        },
+        "parameters": {
+            "size": size_dashscope,
+            "n": n,
+            "prompt_extend": True,
+            "watermark": False,
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient(timeout=120.0) as client:
+        resp = await client.post(DASHSCOPE_URL, json=payload, headers=headers)
+
+    if resp.status_code != 200:
+        raise HTTPException(status_code=resp.status_code, detail=resp.text)
+
+    data = resp.json()
+
+    # Extract image URLs from DashScope response
+    try:
+        images = []
+        if "results" in data.get("output", {}):
+            results = data["output"]["results"]
+            images = [r["url"] for r in results]
+        elif "choices" in data.get("output", {}):
+            for choice in data["output"]["choices"]:
+                for content in choice.get("message", {}).get("content", []):
+                    if content.get("type") == "image":
+                        images.append(content["image"])
+        
+        if not images:
+            raise KeyError("No images found")
+            
+        formatted_images = []
+        for url in images:
+            if response_format == "b64_json":
+                async with httpx.AsyncClient(timeout=60.0) as img_client:
+                    img_resp = await img_client.get(url)
+                    if img_resp.status_code == 200:
+                        b64 = base64.b64encode(img_resp.content).decode("utf-8")
+                        formatted_images.append({"b64_json": b64, "revised_prompt": prompt})
+                    else:
+                        formatted_images.append({"url": url, "revised_prompt": prompt})
+            else:
+                formatted_images.append({"url": url, "revised_prompt": prompt})
+                
+    except (KeyError, TypeError):
+        raise HTTPException(status_code=502, detail=f"Unexpected DashScope response: {data}")
+
+    return JSONResponse({
+        "created": int(time.time()),
+        "data": formatted_images,
+    })
 
 
 @app.get("/health")

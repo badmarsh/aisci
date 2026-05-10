@@ -502,13 +502,12 @@ class GithubConnector(
         self.repo_owner = repo_owner
         self.repositories = repositories
         self.state_filter = state_filter
-        
-        # Hardcoded to only index .md files
-        self.include_prs = False
-        self.include_issues = False
-        self.include_code_files = False
-        self.include_files_md = True
-        
+
+        self.include_prs = include_prs
+        self.include_issues = include_issues
+        self.include_code_files = include_code_files
+        self.include_files_md = include_files_md
+
         self.github_client: Github | None = None
 
     def load_credentials(self, credentials: dict[str, Any]) -> dict[str, Any] | None:
