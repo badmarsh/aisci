@@ -4,34 +4,21 @@ log_format custom_main '$remote_addr - $remote_user [$time_local] "$request" '
                 '"$http_user_agent" "$http_x_forwarded_for" '
                 'rt=$request_time';
 
-upstream api_server {
-    # fail_timeout=0 means we always retry an upstream even if it failed
-    # to return a good HTTP response
-
-    # for UNIX domain socket setups
-    #server unix:/tmp/gunicorn.sock fail_timeout=0;
-
-    # for a TCP configuration
-    # TODO: use gunicorn to manage multiple processes
-    server ${ONYX_BACKEND_API_HOST}:8080 fail_timeout=0;
-}
-
-upstream web_server {
-    server ${ONYX_WEB_SERVER_HOST}:3000 fail_timeout=0;
-}
-
-upstream auth_proxy {
-    server auth_proxy:8081 fail_timeout=0;
-}
-
-# Conditionally include MCP upstream configuration
-include /etc/nginx/conf.d/mcp_upstream.conf.inc;
+# Use Docker's embedded DNS resolver so upstream hostnames are re-resolved
+# on every request rather than cached at nginx startup. This prevents the
+# "backend unavailable" error that occurs when containers are recreated and
+# receive new IP addresses.
+resolver 127.0.0.11 valid=10s ipv6=off;
+resolver_timeout 5s;
 
 # WebSocket support: only set Connection "upgrade" for actual upgrade requests
 map $http_upgrade $connection_upgrade {
     default upgrade;
     ''      close;
 }
+
+# Conditionally include MCP upstream configuration
+include /etc/nginx/conf.d/mcp_upstream.conf.inc;
 
 server {
     listen 80 default_server;
@@ -45,6 +32,7 @@ server {
 
     # Auth login proxy: transforms JSON login requests to form-data for the API server
     location = /api/auth/login {
+        set $upstream_auth http://auth_proxy:8081;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -56,10 +44,11 @@ server {
         proxy_send_timeout ${NGINX_PROXY_SEND_TIMEOUT}s;
         proxy_read_timeout ${NGINX_PROXY_READ_TIMEOUT}s;
         rewrite ^/api(/.*)$ $1 break;
-        proxy_pass http://auth_proxy;
+        proxy_pass $upstream_auth;
     }
 
     location ~ ^/scim(/.*)?$ {
+        set $upstream_api http://${ONYX_BACKEND_API_HOST}:8080;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -72,11 +61,12 @@ server {
         proxy_connect_timeout ${NGINX_PROXY_CONNECT_TIMEOUT}s;
         proxy_send_timeout ${NGINX_PROXY_SEND_TIMEOUT}s;
         proxy_read_timeout ${NGINX_PROXY_READ_TIMEOUT}s;
-        proxy_pass http://api_server;
+        proxy_pass $upstream_api;
     }
 
     # Match both /api/* and /openapi.json in a single rule
     location ~ ^/(api|openapi.json)(/.*)?$ {
+        set $upstream_api http://${ONYX_BACKEND_API_HOST}:8080;
         # Rewrite /api prefixed matched paths
         rewrite ^/api(/.*)$ $1 break;
 
@@ -102,10 +92,11 @@ server {
         # we don't want nginx trying to do something clever with
         # redirects, we set the Host: header above already.
         proxy_redirect off;
-        proxy_pass http://api_server;
+        proxy_pass $upstream_api;
     }
 
     location / {
+        set $upstream_web http://${ONYX_WEB_SERVER_HOST}:3000;
         # misc headers
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -124,7 +115,7 @@ server {
         # we don't want nginx trying to do something clever with
         # redirects, we set the Host: header above already.
         proxy_redirect off;
-        proxy_pass http://web_server;
+        proxy_pass $upstream_web;
     }
 
 }
