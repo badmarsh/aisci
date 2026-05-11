@@ -74,6 +74,8 @@ services:
     environment:
       - AUTH_TYPE=${AUTH_TYPE:-basic}
       - FILE_STORE_BACKEND=${FILE_STORE_BACKEND:-s3}
+      - LOG_LEVEL=ERROR
+      - C_FORCE_ROOT=true
       - POSTGRES_HOST=${POSTGRES_HOST:-relational_db}
       - VESPA_HOST=${VESPA_HOST:-index}
       - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
@@ -166,6 +168,10 @@ services:
     restart: unless-stopped
     environment:
       - FILE_STORE_BACKEND=${FILE_STORE_BACKEND:-s3}
+      - LOG_LEVEL=INFO
+      - C_FORCE_ROOT=true
+      - CELERY_WORKER_DOCPROCESSING_CONCURRENCY=2
+      - CELERY_WORKER_DOCFETCHING_CONCURRENCY=2
       - POSTGRES_HOST=${POSTGRES_HOST:-relational_db}
       - VESPA_HOST=${VESPA_HOST:-index}
       - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
@@ -493,10 +499,13 @@ services:
 
   ollama:
     container_name: onyx-ollama
-    image: ollama/ollama@sha256:05ab093b257a54318fba39293f1640d53b507d1edec8fa6ca2d3e1817c02e53b
+    image: ollama/ollama:latest
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_MAX_LOADED_MODELS=1
+      - OLLAMA_KEEP_ALIVE=5m
     volumes:
       - ollama_volume:/root/.ollama
       # Map workspace for Ollama to access files
@@ -518,6 +527,13 @@ services:
     environment:
       # No cloud API key needed — running fully local
       - UNSTRUCTURED_API_KEY=${UNSTRUCTURED_API_KEY:-}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     healthcheck:
       # wget is available in the image; python3/curl are not
       test:

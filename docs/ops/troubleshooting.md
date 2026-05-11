@@ -144,6 +144,21 @@ _make_file_sandbox_writable(str(file_path))   # ← must NOT be inside `if sync_
 
 ---
 
+### Index Attempts Hang or Loop Forever (0 Batches Processed)
+
+**Symptom:** The Onyx UI shows a connector indexing attempt indefinitely "In Progress" with 0 batches processed, or repeatedly failing and restarting without processing documents. Background logs may show: `RuntimeError('Index attempt <id> is not running, status IndexingStatus.FAILED')`.
+
+**Root cause:** If the `onyx-background` container is restarted while an attempt is running, Celery loses the memory state but the Postgres `index_attempt` row remains `IN_PROGRESS`. Subsequent worker spawns see a corrupted/orphaned task and fail to resume the Celery chain properly, causing a zombie loop.
+
+**Fix:**
+1. Manually fail the stuck attempt in the DB: `docker exec onyx-db psql -U postgres -d postgres -c "UPDATE index_attempt SET status = 'FAILED' WHERE status = 'IN_PROGRESS';"`
+2. If the connector bypasses Unstructured processing due to cached `document_by_connector_credential_pair` records, force a fresh fetch by clearing the tracking state for that connector ID:
+   ```bash
+   docker exec onyx-db psql -U postgres -d postgres -c "DELETE FROM document_by_connector_credential_pair WHERE connector_id = <id>;"
+   docker exec onyx-db psql -U postgres -d postgres -c "DELETE FROM document WHERE id NOT IN (SELECT id FROM document_by_connector_credential_pair);"
+   ```
+3. Ensure the vision model is configured in the UI, otherwise `unstructured_to_result` will refuse to send images for summarization.
+
 ## Regression Gates
 
 Run these checks after any container recreate, volume reset, or config change:

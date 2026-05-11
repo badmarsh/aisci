@@ -67,6 +67,19 @@ fall back from `qwen-cloud-fast` through `qwen-rag-fast`,
 deployment/helper/litellm_quota_check.py --timeout 90
 ```
 
+## Multimodal PDF Indexing (Hi-Res + Vision)
+
+Onyx extracts images and tables from PDFs using `unstructured` (YOLOX), then summarizes them using a Vision LLM.
+
+**Architecture / Assumptions:**
+- `IMAGE_ANALYSIS_ENABLED=true` and `UNSTRUCTURED_STRATEGY=hi_res` must be active in `.env`.
+- The `onyx-unstructured` service uses a host GPU via `deploy: nvidia: count: 1` in `docker-compose.yml`.
+- **GPU Driver Bootstrapping:** The upstream unstructured image lacks `onnxruntime-gpu`. After any container `recreate`, operators MUST run the following command to bootstrap CUDA execution:
+  ```bash
+  docker exec onyx-unstructured bash -c "python3 /usr/share/python-wheels/pip-26.0.1-py3-none-any.whl/pip install -q onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/"
+  ```
+- **Vision Model Config:** The vision model (`qwen2.5vl:7b` via LiteLLM) must be explicitly configured as the active Multimodal Model in the Onyx Admin UI (Settings > Language Models > Multimodal Model). If unconfigured, the background worker will skip image extraction entirely and emit a `no vision-capable LLM` warning.
+
 ## Secrets And Env Files
 
 - `deployment/onyx/.env` is a tracked, secret-free defaults file.
