@@ -12,11 +12,11 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 ## 🔴 Blocked — Data Table Required
 
 ### [B-01] Supply per-multiplicity-bin pT spectrum table
-**Blocking:** `fitting_pipeline.py`, `tsallis_physics_validation.py`, all chi2/ndf results
+**Blocking:** `fitting_pipeline.py`, `tsallis_physics_validation.py`, all chi2/ndf results, and **[O-03]** below
 **What is needed:** Per-bin pT spectra matching multiplicity classes `21–30, 31–40, 41–50, 51–60, 61–70, 71–80, 81–90, 91–100, 101–125, 126–150`
 **Why HEPData is insufficient:** Record `ins1419652` returns only inclusive spectra, not per-class bins
 **Action:** Robert to provide the data table directly, or identify the correct HEPData record / paper table number
-**Unblocks:** `data_loader.py` → `fit_input.csv` → full fitting pipeline
+**Unblocks:** `data_loader.py` → `fit_input.csv` → full fitting pipeline → **[O-03]**
 
 ---
 
@@ -26,6 +26,30 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 **Status in ledger:** Flagged — numerics show U₂ unconstrained at high multiplicity
 **What is needed:** Robert to confirm whether this is expected (a known fitting instability at high multiplicity in the original paper) or a new finding
 **Action:** Robert reads `boson_paper_analysis.py` §7 output and provides a one-line confirmation or correction for the ledger
+
+### [O-03] Train and validate fitting pipeline on preprocessed pT spectra
+**Depends on:** [B-01] — requires `physics/data/fit_input.csv` to exist
+**Action:**
+- Use `python-executor` to run `physics/src/fitting_pipeline.py` against `physics/data/fit_input.csv`. Use the latest model architecture and hyperparameters defined in the script.
+- Use `python-performance-optimization` to profile the fitting loops, scipy optimization calls, and data loading steps. Output a performance report to `physics/reports/fitting_profile.txt`.
+- Use `python-testing-patterns` to extend `physics/tests/test_fitting_pipeline.py` with edge-case tests for out-of-bounds parameter inputs and empty dataset handling. Add regression tests asserting key output metrics (chi2/ndf, T, U, n per bin) are reproducible across runs.
+- Cross-validate outputs of `boson_paper_analysis.py` against reference values in `research/robert/evidence-ledger.md`. Flag any deviation exceeding defined tolerance thresholds.
+- Run `physics/src/tsallis_physics_validation.py` to verify Tsallis distribution parameters (T, q, n) converge within expected physical bounds. Log any fit failures or chi²/ndf anomalies.
+- Run `physics/src/sympy_validation_agent.py` to confirm symbolic derivations match numerical outputs from `fitting_pipeline.py` within floating-point tolerance.
+- Save all run artifacts (chi2/ndf, covariance, parameter correlations, residuals, plots) to `research/robert/runs/YYYY-MM-DD-fitting-pipeline-validation/`.
+- Do not promote any parameter to physical interpretation until chi2/ndf, covariance, correlations, residuals, fit-range sensitivity, and baseline comparisons are recorded in `evidence-ledger.md`.
+
+**Prompt (copy into agent session):**
+```
+Train and validate the machine learning model on the preprocessed data in `physics/data/fit_input.csv`.
+Use the latest model architecture and hyperparameters in `physics/src/fitting_pipeline.py`.
+Use `python-executor` to run training scripts, `python-performance-optimization` to profile and
+optimize the fitting loops and scipy calls, and `python-testing-patterns` to write and run tests
+for the model covering edge cases and regression assertions. Cross-validate against
+`research/robert/evidence-ledger.md` reference values. Save all artifacts to a dated run directory
+under `research/robert/runs/`. Do not promote any fit result beyond `Sanity checked` without
+ledger support.
+```
 
 ---
 
