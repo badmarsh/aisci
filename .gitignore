@@ -65,3 +65,6 @@ literature/*.pdf
 
 # Ignore untracked nested repo files
 deployment/deer-flow/
+
+# Session cookies — never commit
+cookies.txt
