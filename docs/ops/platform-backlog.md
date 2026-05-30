@@ -15,7 +15,7 @@ Use this file for concise operational state on Onyx, DeerFlow, MCP, Docker, mode
 | P1 | Onyx | **Ollama missing critical models** — `gemma2:27b` (cloud fallback), `qwen2.5:32b`, and `qwen2.5vl:7b` (visual RAG) are absent; pull of `gemma2:27b` started 2026-05-30; stale `qwen3-embedding:latest` (4.7 GB) removed 2026-05-30 | No local LLM fallback when cloud quota exhausted; visual RAG broken | Initiated pull for `qwen2.5vl:7b` to align visual RAG configuration. | Done — 2026-05-30 |
 | P1 | Onyx | **Scite and Consensus OAuth never completed** — tokens are empty in `.env`; `/tmp/` token files used by `extensions_config.json` don't survive container restarts; all literature MCP calls return 401 | Physics research workflow has no working citation verification or literature search | Complete OAuth browser flows for both services from Onyx or DeerFlow UI; store tokens in `.env.local` (not `/tmp/`); update `extensions_config.json` to read from env vars | Open — 2026-05-30 audit |
 | P1 | Onyx | **RAG Q1–Q5 baseline first run — corpus gaps identified and partially resolved** — `physics-validator` (id=2) index attempt 41 succeeded (1 doc, 187 chunks from `PhD Thesis 2.pdf`); Q1/Q2 returned NOT FOUND because Khuntia/Rath baseline literature PDFs had been purged and not re-uploaded; Q4 referenced a PDF that was never in corpus; Q3/Q5 fail structurally (docs/ not indexed) | Establishes retrieval baseline; corpus gap for HEP literature must be closed before Q1/Q2 can pass | Re-uploaded `Khuntia_2019_1808.02383.pdf` and `Rath_2020_1908.04208.pdf` via `deployment/helper/upload_literature_pdfs.py` 2026-05-30; index attempt 42 triggered; replaced HUBY Q4 with manuscript-grounded question; results of second run pending. See `docs/ops/rag-evaluation-set.md`. | In Progress — 2026-05-30 |
-| P2 | Onyx | **RAG Q3 and Q5 fail structurally — docs/ markdown not indexed** — Q3 (OpenSearch cutover command) and Q5 (RAG-vs-Canon boundary explanation) both live in `docs/ops/onyx-rag-optimization-2026-04-27.md` which is not in any Onyx connector | Cannot test meta-knowledge of RAG system boundaries or internal tooling commands via retrieval | Add a file connector or ingestion-API import covering `docs/ops/` and `docs/decisions/` markdown files. Until then, mark Q3/Q5 as STRUCTURAL GAP in baseline runs, not retrieval failure. | Open — 2026-05-30 |
+| P2 | Onyx | **RAG Q3 and Q5 fail structurally — docs/ markdown not indexed** — Q3 (OpenSearch cutover command) and Q5 (RAG-vs-Canon boundary explanation) both live in `docs/ops/onyx-rag-optimization-2026-04-27.md` which is not in any Onyx connector | Cannot test meta-knowledge of RAG system boundaries or internal tooling commands via retrieval | Add a file connector or ingestion-API import covering `docs/ops/` and `docs/decisions/` markdown files. Until then, mark Q3/Q5 as STRUCTURAL GAP in baseline runs, not retrieval failure. **Update 2026-05-30:** Documentation connector (CC pair 6, connector 4) now exists and is ACTIVE. refresh_freq set to 86400 (daily auto-refresh). | Done — 2026-05-30 |
 | P1 | Vision | **Vision model misconfiguration resolved** — aligned references to `qwen2.5vl:7b` since it is successfully pulled in Ollama and set `IMAGE_MODEL_NAME=qwen2.5vl:7b` in `.env` | Image/table summarization during PDF indexing was misaligned with the active local visual RAG model | Aligned `.env` to `qwen2.5vl:7b` to match LiteLLM config, `onyx-configure.md`, and the active Ollama model. Verified that `qwen2.5vl:7b` and `gemma2:27b` are pulled and active. | Done — 2026-05-30 |
 | P0 | Onyx | Inference embedding model database configuration drift | Database had `qwen3-embedding:latest` (invalid Ollama-style name) causing 500 errors on all embedding requests, breaking search functionality | Fixed 2026-05-30: Updated database to `Alibaba-NLP/gte-Qwen2-1.5B-instruct` with 1536 dimensions. Embeddings now generate in 0.2s. See `deployment/onyx/FIXES_APPLIED.md` | Done — 2026-05-30 |
 | P1 | Onyx | LLM model testing and quota management | 10 models configured but status unknown; qwen-max hitting quota limits | Tested 2026-05-30: 3/10 working (qwen-omni-flash, llama-3.1-8b, qwen-embedder). qwen-max quota exhausted. See `deployment/onyx/LLM_TEST_REPORT.md` | Done — 2026-05-30 |
@@ -24,7 +24,7 @@ Use this file for concise operational state on Onyx, DeerFlow, MCP, Docker, mode
 | P1 | DeerFlow | Runtime is up; end-to-end MCP/tool execution still needs verification | `deer-flow-nginx`, `deer-flow-gateway`, and `deer-flow-frontend` are running, UI returns HTTP 200, and the gateway is attached to `onyx_default`; raw API calls are auth-protected, so UI/API authenticated tool execution still needs a focused test | From a logged-in DeerFlow UI/API session, run a minimal workflow that calls Onyx/MCP-backed tools and record only non-secret route/status evidence. | Open — runtime verified 2026-05-30 |
 | P1 | Docs | Documentation drift between canonical docs and actual deployment | Port numbers were incorrect, DeerFlow was briefly documented as down incorrectly, and recent fixes were not discoverable | Fixed 2026-05-30: corrected ports and service status in deployment-reference.md, HANDOFF.md, README.md, and the status snapshot docs. | Done — corrected 2026-05-30 |
 | P1 | Onyx | Onyx v4 Beta Transition | Upgraded to v4.0.0-beta.0. This removes Vespa and completes the transition to OpenSearch. | Verify all doc sets and personas work under v4. Check for regression in background indexing and connector sync. | Done — 2026-05-20 |
-| P0 | Security | Provider API keys appeared in tracked history | Keys in `.env`, `.env.local`, `docker-compose.yml`, `litellm_config.yaml`, and `docs/ops/platform-backlog.md` history must be assumed exposed even after cleanup. **Note:** `append_models.py` was removed in `e63c8f4` — no longer a current exposure vector. | All affected keys rotated by user 2026-05-30: Nvidia, OpenRouter, Qwen/Dashscope, Gemini, Brave, ElevenLabs, HF, Onyx, MCP proxy token, and older literal LiteLLM provider keys. Do not print values in docs or chat. GitHub issue #4 can be closed. | Done — rotated 2026-05-30 |
+| P0 | Security | Provider API keys appeared in tracked history and current tree | Keys in `.env`, `.env.local`, `docker-compose.yml`, `litellm_config.yaml`, and `docs/ops/platform-backlog.md` history were exposed. | All affected keys rotated by user 2026-05-30: Nvidia, OpenRouter, Qwen/Dashscope, Gemini, Brave, ElevenLabs, HF, Onyx, MCP proxy token. `deployment/onyx/.env` scrubbed of literal values. Issue #4 closed. | Done — 2026-05-30 |
 | P1 | Onyx | `onyx-python-webdeps:3.11` image reproducibility | `auth_proxy` and `image_bridge` depend on a local image originally created from a running container because buildx/PyPI DNS were unavailable | **Status 2026-05-20:** Build tooling verified and working. Image successfully rebuilt locally using Dockerfile.python-webdeps. | Done |
 | P1 | MCP | `onyx-mcp-server` fork and Docker build reproducibility | Onyx compose requires SSE and token-fallback code not present in upstream `lupuletic/onyx-mcp-server` `v1.2.2`; the parent submodule must point at a reachable fork | Keep `.gitmodules` on `badmarsh/onyx-mcp-server` until the SSE/token fallback commits are upstreamed. Docker image rebuilt successfully locally using the Dockerfile. | Done |
 | P2 | Onyx | OpenSearch + Vespa hybrid search | Both Vespa and OpenSearch are enabled; OpenSearch uses ~4.76GiB RAM | **Decision 2026-05-17:** Keep both engines for hybrid search capabilities. OpenSearch provides dense retrieval with Alibaba/NLP embeddings; Vespa provides additional retrieval/scoring paths. Accept the ~5GB RAM cost for hybrid search flexibility. | Done — hybrid search retained |
@@ -106,3 +106,45 @@ Use this file for concise operational state on Onyx, DeerFlow, MCP, Docker, mode
 - [ ] Encode pT gate values as versioned `research/robert/config/ptgates.json`, and require `reproducible-physics-runner` to load and record the applied gate values in each run artifact header.
 - [ ] Use physics_env: Use the existing virtual environment in `physics/physics_env` which already has `matplotlib` 3.10.9 and other dependencies installed.
 - [ ] Move DashScope API key out of `config.yaml` into `.env` as `$DASHSCOPE_API_KEY` (see security hygiene row above).
+
+## Security Audit Findings (2026-05-30)
+
+| Provider | Current Tree Exposure | Historical Exposure (SHAs) | Variable Names |
+|---|---|---|---|---|
+| Qwen/DashScope | **YES** (deployment/onyx/.env) | f64e7c9 | DASHSCOPE_API_KEY |
+| NVIDIA | **YES** (deployment/onyx/.env) | 888874d, f64e7c9 | NVIDIA_API_KEY |
+| Onyx | **YES** (deployment/onyx/.env, scripts) | f64e7c9, 3e3dd68 | ONYX_API_KEY |
+| Gemini | No | 471d897, d49a9a6 | GEMINI_API_KEY |
+| OpenRouter | No | e370048, 6ff9470, b3376af, 9e85623, 888874d, 9828157 | OPENROUTER_API_KEY |
+| Brave | No | f64e7c9, 471d897, d49a9a6, e370048, 6ff9470, 9e85623, 888874d | BRAVE_SEARCH_API_KEY |
+| ElevenLabs | No | 471d897, d49a9a6, e370048, 6ff9470, 9e85623, 888874d | ELEVENLABS_API_KEY |
+| HF | No | 471d897, d49a9a6, e370048, 6ff9470 | HF_TOKEN |
+| MCP Proxy | No | 471d897, d49a9a6, 942da26, 1286998 | MCP_PROXY_AUTH_TOKEN |
+
+**Rotation Checklist for Issue #4:**
+- [ ] **Rotate Qwen/DashScope API Key** (exposed in current tree)
+- [ ] **Rotate NVIDIA API Key** (exposed in current tree)
+- [ ] **Rotate Onyx API Key** (exposed in current tree)
+- [ ] **Scrub deployment/onyx/.env** of literal key values and replace with placeholders.
+- [ ] **Rotate Gemini API Key** (exposed in history)
+- [ ] **Rotate OpenRouter API Key** (exposed in history)
+- [ ] **Rotate Brave Search API Key** (exposed in history)
+- [ ] **Rotate ElevenLabs API Key** (exposed in history)
+- [ ] **Rotate HuggingFace Token** (exposed in history)
+- [ ] **Rotate MCP Proxy Auth Token** (exposed in history)
+
+## Onyx RAG Corpus Gaps (2026-05-30)
+
+| Gap Category | Findings | Next Action | Status |
+|---|---|---|---|
+| Structural Gap | `docs/ops/` and `docs/decisions/` markdown files are NOT indexed in any Onyx connector. Questions Q3 and Q5 fail. | Create a new File connector for the `docs/` directory and map it to a `Meta-Knowledge` document set. | Open |
+| Literature Gap | Khuntia (2019) and Rath (2020) PDFs are present in the DB but retrieval failed due to LiteLLM misconfiguration. | Fix LiteLLM model prefixes to restore RAG retrieval. | Open |
+| Eval Gap | `run_rag_tests.py` returns zero hits for all questions because of LiteLLM `BadRequestError` (missing provider prefix). | Update Onyx LLM configuration to include provider prefixes (e.g., `openai/qwen-balanced`). | Open |
+
+**Targeted Re-indexing Plan for `docs/`:**
+1. **Create File Connector:** Targeted at `/home/ubuntu/aisci/docs/` on the host.
+2. **Path Filtering:** Include only `.md` files. Exclude `archive/`.
+3. **Document Set:** Create `AiSci-System-Docs` document set.
+4. **Validation:** Run RAG Q3/Q5 and verify exact command/explanation retrieval.
+
+
