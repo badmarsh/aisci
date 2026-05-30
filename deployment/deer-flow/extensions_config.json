@@ -42,7 +42,7 @@
         "@modelcontextprotocol/server-brave-search"
       ],
       "env": {
-        "BRAVE_API_KEY": "ROTATE_AND_SET_VIA_ENV_FILE__SEE_GITHUB_ISSUE_F2"
+        "BRAVE_API_KEY": "$BRAVE_SEARCH_API_KEY"
       },
       "url": null,
       "headers": {},
