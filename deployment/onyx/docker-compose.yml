@@ -96,7 +96,7 @@ services:
       - file-system:/app/file-system
       - craft_venv_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
       - craft_outputs_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
-      - /home/ubuntu/aisci:/workspace/aisci:ro
+      - /home/ubuntu/aisci:/workspace/aisci
     networks:
       - default
 
@@ -175,7 +175,7 @@ services:
       - file-system:/app/file-system
       - craft_venv_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
       - craft_outputs_volume:/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
-      - /home/ubuntu/aisci:/workspace/aisci:ro
+      - /home/ubuntu/aisci:/workspace/aisci
     logging:
       driver: json-file
       options:
@@ -221,7 +221,7 @@ services:
     volumes:
       - model_cache_huggingface:/app/.cache/huggingface/
       - inference_model_server_logs:/var/log/onyx
-      - /home/ubuntu/aisci:/workspace/aisci:ro
+      - /home/ubuntu/aisci:/workspace/aisci
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
@@ -264,7 +264,7 @@ services:
     volumes:
       - indexing_huggingface_model_cache:/app/.cache/huggingface/
       - indexing_model_server_logs:/var/log/onyx
-      - /home/ubuntu/aisci:/workspace/aisci:ro
+      - /home/ubuntu/aisci:/workspace/aisci
     logging:
       driver: json-file
       options:
