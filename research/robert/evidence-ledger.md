@@ -17,27 +17,3 @@ Use this table as the source of truth for scientific claim status. Do not promot
 | Boltzmann/Jüttner approximation is valid for pT > 120 MeV at LHC temperatures | Literature consensus; DOI 10.3390/universe9020111 (Gupta+2023) | Explicit statement: "B-E and F-D tend to Maxwell-Boltzmann at high T" | Sanity checked | Document low-pT gate applied; add sensitivity scan for pT 120–300 MeV bin |
 
 ---
-
-## Next Actions
-
-### Now (Blockers)
-
-1. **Juttner approximation — manuscript anchor**: Tie `formula_classification: juttner_relativistic_boltzmann_exponential` from `runs/2026-04-27-baseline-fit/formula_confirmation.json` to a stable page/equation identifier in the manuscript export. Add explicit approximation statement to manuscript text.
-2. **Fit-ready data table**: Obtain per-bin pT spectra matching multiplicity bins `21-30, 31-40, 41-50, 51-60, 61-70, 71-80, 81-90, 91-100, 101-125, 126-150`. `hepdata_mapping_validation.json` confirms `ins1419652` only provides inclusive spectra. Save to `physics/data/` as CSV per `research/robert/archive/data-onboarding.md` format spec.
-3. **Run fitting pipeline**: After `fit_input.csv` exists, re-run `physics/src/fitting_pipeline.py`. Separate acceptance-cut formulas (η, pT, combined), apply region-specific low-pT gates from Figure 5. Emit chi2/ndf, covariance, parameter correlations, residuals, and model-comparison tables as run artifacts.
-4. **Use physics_env**: Use the existing virtual environment in `physics/physics_env` which already has `matplotlib` 3.10.9 installed; this unblocks the emission of residual and pull plots.
-5. **Trend plots**: Generate U vs multiplicity and T vs multiplicity only after fit quality gates pass.
-6. **Literature ingestion**: Ingest Tsallis/Blast-Wave comparison papers into Onyx physics persona. ~~Run `physics/src/tsallis_physics_validation.py` and save outputs as a dated run directory.~~ **Done 2026-05-04**: `research/robert/runs/2026-05-04-tsallis-vs-bgbw-comparison/` captures thermodynamically consistent baseline vs BGBW truth.
-
-### Next
-
-1. ~~Run Scite/Consensus/arXiv/INSPIRE/HEPData citation checks and log outcomes in a new run artifact.~~ **Partial — done 2026-04-30**: Bíró/Paić/Serkin (`10.48550/arxiv.2510.09692`) Scite check complete; ledger row updated to `Sanity checked`. Remaining: BGBW baseline papers (Khuntia+2019, Rath+2020), Tsallis baseline DOIs, and full HEPData/INSPIRE pass still outstanding.
-2. Generate first full referee-style report using `research/robert/referee-report-draft.md` as the template.
-3. Evaluate Onyx RAG retrieval against the physics question set; record citation hits, misses, and source-coverage gaps.
-
-### Nice To Have
-
-1. Automated LaTeX equation extraction from manuscript PDFs.
-2. Reproducible paper-to-report pipeline through DeerFlow.
-3. Visual RAG for figures and captions (requires `qwen2.5-vl` in Ollama).
-4. Dashboard summarizing fit quality and anomalous bins per multiplicity class.
