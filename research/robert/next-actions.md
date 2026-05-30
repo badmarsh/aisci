@@ -41,14 +41,28 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 **Prompt (copy into agent session):**
 ```
-Train and validate the machine learning model on the preprocessed data in `physics/data/fit_input.csv`.
-Use the latest model architecture and hyperparameters in `physics/src/fitting_pipeline.py`.
-Use `python-executor` to run training scripts, `python-performance-optimization` to profile and
-optimize the fitting loops and scipy calls, and `python-testing-patterns` to write and run tests
-for the model covering edge cases and regression assertions. Cross-validate against
-`research/robert/evidence-ledger.md` reference values. Save all artifacts to a dated run directory
-under `research/robert/runs/`. Do not promote any fit result beyond `Sanity checked` without
-ledger support.
+Run and validate the physics curve-fitting pipeline on the preprocessed spectra in
+physics/data/fit_input.csv. This is NOT a machine learning task — the pipeline uses
+scipy curve_fit / minimize for chi² minimisation of the Jüttner/Boltzmann distribution
+against measured pT spectra. Do NOT use ML frameworks (PyTorch, sklearn, etc.).
+Steps:
+Run physics/src/fitting_pipeline.py against physics/data/fit_input.csv.
+Profile the scipy optimisation calls and data loading using cProfile or line_profiler.
+Output a performance report to physics/reports/fitting_profile.txt.
+Extend physics/tests/test_fitting_pipeline.py with edge-case tests for out-of-bounds
+parameter inputs and empty dataset handling. Add regression tests asserting that key
+output metrics (chi2/ndf, T, U, n per bin) are reproducible across runs.
+Cross-validate outputs of boson_paper_analysis.py against reference values in
+research/robert/evidence-ledger.md. Flag any deviation exceeding defined tolerances.
+Run physics/src/tsallis_physics_validation.py to verify Tsallis distribution parameters
+(T, q, n) converge within expected physical bounds. Log any fit failures or chi²/ndf anomalies.
+Run physics/src/sympy_validation_agent.py to confirm symbolic derivations match
+numerical outputs from fitting_pipeline.py within floating-point tolerance.
+Save all run artifacts (chi2/ndf, covariance, parameter correlations, residuals, plots)
+to research/robert/runs/YYYY-MM-DD-fitting-pipeline-validation/.
+Do not promote any parameter to physical interpretation until chi2/ndf, covariance,
+correlations, residuals, fit-range sensitivity, and baseline comparisons are all recorded
+in evidence-ledger.md.
 ```
 
 ---
