@@ -1,6 +1,6 @@
 # Onyx Runtime Configuration Reference
 
-_Reflects deployment state as of 2026-05-06._
+_Reflects deployment state as of 2026-05-30. Last config-drift corrections applied 2026-05-30._
 
 This is the canonical Onyx runtime reference. The short mirror under
 `deployment/onyx/docs/ops/` exists for operators working inside the deployment
@@ -15,6 +15,7 @@ tree; update both when runtime assumptions change.
 | DB search_settings id | 10 (status: PRESENT) |
 | DB schema | Alembic `14162713706c`; `search_settings.multilingual_expansion` column present for `craft-latest` runtime code |
 | Compatibility shim | `deployment/helper/sitecustomize.py` |
+| `.env` corrected | `DOC_EMBEDDING_DIM=1536` and `EMBEDDING_DIM=1536` (were 1024 — fixed 2026-05-30) |
 
 Do not change the embedding model without a full reindex. The shim in
 `deployment/helper/sitecustomize.py` is required for this model under
@@ -23,9 +24,7 @@ startup commands.
 
 ## Runtime Decisions
 
-- **Craft**: `ENABLE_CRAFT=true`, `IMAGE_TAG=craft-latest`, and the Onyx web
-  and model-server images use `craft-latest`. Do not set Craft false as a crash
-  workaround; fix the startup race or image/runtime issue instead.
+- **Craft**: `ENABLE_CRAFT=true` is set in `.env`. **However `IMAGE_TAG=v4.0.0-beta.0` is currently wrong** — CRAFT binary only ships in `craft-latest`. A stack recreate with `IMAGE_TAG=craft-latest` is pending (GitHub issue). Do not set Craft false as a crash workaround; fix the startup race or image/runtime issue instead.
 - **Workers**: API server runs one Uvicorn worker with `--factory` to avoid the
   Vespa dual-activation race on startup.
 - **Timeouts**: Nginx proxy timeouts and `LLM_SOCKET_READ_TIMEOUT` are 600s for
