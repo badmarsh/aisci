@@ -70,6 +70,7 @@ literature/*.pdf
 
 # Ignore untracked nested repo files
 deployment/deer-flow/
+deployment/multica/
 
 # Session cookies — never commit
 cookies.txt
@@ -83,3 +84,4 @@ cookies.txt
 
 # DeerFlow user data
 .deer-flow/users/
+docs/platform/multica/

@@ -39,6 +39,5 @@ COPY opensearch_migration_transformer.py /app/onyx/background/celery/tasks/opens
 COPY github_connector.py /app/onyx/connectors/github/connector.py
 COPY patch_mcp_tool.py /app/deployment/patch_mcp_tool.py
 COPY multi_llm.py /app/onyx/llm/multi_llm.py
-COPY euteko-obuv-1750206379826-806b8b1cc367.json /app/euteko-obuv-1750206379826-806b8b1cc367.json
 
 ENV PATH="/usr/local/bin:${PATH}"

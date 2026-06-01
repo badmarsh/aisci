@@ -1,7 +1,11 @@
-# Onyx Persona and Document Set Registry
+# Onyx Persona IDs
 
-_Last verified against live API: 2026-05-30_
+- physics-validator: 2
+- evidence-auditor: 5
+- referee-prep: 6
+- arxiv-intake: 3
 
+<<<<<<< Updated upstream
 > This file is the **authoritative** persona/docset map. Keep it in sync with the live Onyx instance;
 > update it after any persona import, Onyx upgrade, or `POST /api/persona` change.
 > _Reconciled with the 2026-05-30 `configure_onyx.py` persona rebuild (see `platform-backlog.md`),
@@ -83,3 +87,9 @@ _Last verified against live API: 2026-05-30_
 The canonical eval questions and run results live in `rag-evaluation-set.md`. The
 last recorded baseline (pre-rebuild) failed because `physics-validator` had no model;
 re-run the set against the rebuilt persona and record results there, not here.
+=======
+## Doc Sets
+- Robert Corpus: 2
+- arXiv Auto — Quarantine: 3
+- Scite Citations: 4
+>>>>>>> Stashed changes
