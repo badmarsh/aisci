@@ -7,6 +7,8 @@ import { EvidenceLedger } from "@/components/aisci/evidence-ledger"
 import { FittingPipeline } from "@/components/aisci/fitting-pipeline"
 import { SpectraPlotter } from "@/components/aisci/spectra-plotter"
 import { SymbolicValidation } from "@/components/aisci/symbolic-validation"
+import { TestsDashboard } from "@/components/aisci/tests-dashboard"
+import { OpsSurface } from "@/components/aisci/ops-surface"
 
 export type Role = "scientist" | "devops"
 export type Section = "evidence" | "pipeline" | "spectra" | "validation" | "tests" | "ops"
@@ -20,12 +22,6 @@ export default function AISCIConsole() {
     setSection(r === "scientist" ? "evidence" : "ops")
   }
 
-  const NotImplemented = ({ name }: { name: string }) => (
-    <div className="flex h-full items-center justify-center p-12 text-sm font-mono text-muted-foreground">
-      {name} surface — not in v0 concept scope. Open the v0 chat to regenerate.
-    </div>
-  )
-
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground font-sans">
       <TopBar role={role} onRoleChange={handleRoleChange} />
@@ -36,8 +32,8 @@ export default function AISCIConsole() {
           {section === "pipeline"   && <FittingPipeline />}
           {section === "spectra"    && <SpectraPlotter />}
           {section === "validation" && <SymbolicValidation />}
-          {section === "tests"      && <NotImplemented name="Tests" />}
-          {section === "ops"        && <NotImplemented name="Ops" />}
+          {section === "tests"      && <TestsDashboard />}
+          {section === "ops"        && <OpsSurface />}
         </main>
       </div>
     </div>
