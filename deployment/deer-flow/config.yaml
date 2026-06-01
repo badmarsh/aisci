@@ -249,6 +249,270 @@ models:
   max_tokens: 16384
   supports_thinking: true
   supports_vision: false
+
+# OpenRouter Models
+- name: deepseek-v3
+  display_name: DeepSeek V3 (OpenRouter)
+  use: langchain_openai:ChatOpenAI
+  model: deepseek/deepseek-v3
+  api_key: $OPENROUTER_API_KEY
+  base_url: $OPENROUTER_API_BASE
+  max_tokens: 16384
+  supports_thinking: false
+  supports_vision: false
+
+- name: deepseek-v4-flash
+  display_name: DeepSeek V4 Flash (OpenRouter)
+  use: langchain_openai:ChatOpenAI
+  model: deepseek/deepseek-v4-flash
+  api_key: $OPENROUTER_API_KEY
+  base_url: $OPENROUTER_API_BASE
+  max_tokens: 16384
+  supports_thinking: false
+  supports_vision: false
+
+- name: deepseek-v4-pro
+  display_name: DeepSeek V4 Pro (OpenRouter)
+  use: langchain_openai:ChatOpenAI
+  model: deepseek/deepseek-v4-pro
+  api_key: $OPENROUTER_API_KEY
+  base_url: $OPENROUTER_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+# NVIDIA Models
+- name: mistral-large-3
+  display_name: Mistral Large 3 (675B) - NVIDIA
+  use: langchain_openai:ChatOpenAI
+  model: nvidia/mistral-large-3
+  api_key: $NVIDIA_API_KEY
+  base_url: $NVIDIA_API_BASE
+  max_tokens: 16384
+  supports_thinking: false
+  supports_vision: false
+
+- name: llama-3-3-nemotron-super-49b
+  display_name: Llama-3.3-Nemotron-Super-49B - NVIDIA
+  use: langchain_openai:ChatOpenAI
+  model: nvidia/llama-3.3-nemotron-super-49b
+  api_key: $NVIDIA_API_KEY
+  base_url: $NVIDIA_API_BASE
+  max_tokens: 16384
+  supports_thinking: false
+  supports_vision: false
+
+# Qwen Proxy Pool - Free Tier Models (1M token quota each)
+- name: qwen-coder-plus
+  display_name: Qwen 3 Coder Plus (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3-coder-plus
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen-coder-next
+  display_name: Qwen 3 Coder Next (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3-coder-next
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen-coder-30b-a3b-instruct
+  display_name: Qwen 3 Coder 30B A3B Instruct (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3-coder-30b-a3b-instruct
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen-deepseek-v32
+  display_name: DeepSeek V3.2 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/deepseek-v3.2
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: false
+  supports_vision: false
+
+- name: qwen3-30b-a3b-instruct-2507
+  display_name: Qwen 3 30B A3B Instruct 2507 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3-30b-a3b-instruct-2507
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3-30b-a3b
+  display_name: Qwen 3 30B A3B (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3-30b-a3b
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3.6-35b-a3b
+  display_name: Qwen 3.6 35B A3B (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3.6-35b-a3b
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3.5-35b-a3b
+  display_name: Qwen 3.5 35B A3B (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3.5-35b-a3b
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3-32b
+  display_name: Qwen 3 32B (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3-32b
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3.6-27b
+  display_name: Qwen 3.6 27B (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3.6-27b
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3.5-27b
+  display_name: Qwen 3.5 27B (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3.5-27b
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: glm-5.1
+  display_name: GLM 5.1 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/glm-5.1
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3.6-plus-2026-04-02
+  display_name: Qwen 3.6 Plus 2026-04-02 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3.6-plus-2026-04-02
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3.5-plus-2026-04-20
+  display_name: Qwen 3.5 Plus 2026-04-20 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3.5-plus-2026-04-20
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3.5-plus-2026-02-15
+  display_name: Qwen 3.5 Plus 2026-02-15 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3.5-plus-2026-02-15
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen3.5-plus-proxy
+  display_name: Qwen 3.5 Plus (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen3.5-plus
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen-plus-latest-proxy
+  display_name: Qwen Plus Latest (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen-plus-latest
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen-plus-2025-09-11
+  display_name: Qwen Plus 2025-09-11 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen-plus-2025-09-11
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen-plus-2025-07-28
+  display_name: Qwen Plus 2025-07-28 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen-plus-2025-07-28
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen-plus-2025-07-14
+  display_name: Qwen Plus 2025-07-14 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen-plus-2025-07-14
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
+- name: qwen-plus-2025-04-28
+  display_name: Qwen Plus 2025-04-28 (Proxy)
+  use: langchain_openai:ChatOpenAI
+  model: dashscope/qwen-plus-2025-04-28
+  api_key: $QWEN_PROXY_API_KEY
+  base_url: $QWEN_PROXY_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+
 # gemini-2.5-flash is defined at the top of models and used by subagents/summarization — no duplicate needed here
 tool_groups:
 - name: web
