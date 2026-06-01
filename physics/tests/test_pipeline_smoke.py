@@ -139,22 +139,20 @@ def test_fitting_pipeline_has_main_function(physics_root):
         pytest.fail(f"Failed to check main function: {e}")
 
 
-def test_data_loader_has_load_function(physics_root):
-    """data_loader.py should have a load or read function"""
+def test_data_loader_exposes_public_api(physics_root):
+    """data_loader.py should expose its real callable entry points"""
     file_path = physics_root / "src" / "data_loader.py"
     try:
         module = import_module_from_path("data_loader_test", file_path)
 
-        has_load = (
-            hasattr(module, "load_data") or
-            hasattr(module, "load") or
-            hasattr(module, "read_data") or
-            hasattr(module, "read")
-        )
-
-        assert has_load, "No load/read function found in data_loader"
+        # data_loader's real public API: a main() entry point plus the
+        # core extraction/validation/serialization helpers it orchestrates.
+        for func_name in ("main", "extract_pt_rows", "validate_mapping", "write_json"):
+            attr = getattr(module, func_name, None)
+            assert attr is not None, f"data_loader is missing {func_name}"
+            assert callable(attr), f"data_loader.{func_name} is not callable"
     except Exception as e:
-        pytest.fail(f"Failed to check load function: {e}")
+        pytest.fail(f"Failed to check data_loader public API: {e}")
 
 
 if __name__ == "__main__":
