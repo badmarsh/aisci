@@ -52,8 +52,6 @@ delete the stale copy in the other file.
 ### Troubleshooting & audits
 - [`troubleshooting.md`](troubleshooting.md) — runbook for known Onyx, DeerFlow,
   MCP, and sandbox failure modes plus regression gates.
-- [`agent-skills-audit-report.md`](agent-skills-audit-report.md) — point-in-time
-  `SKILL.md` compliance audit (2026-05-06).
 - [`gemini-audit-prompt.md`](gemini-audit-prompt.md) — reusable prompt for a
   full infrastructure/documentation audit.
 

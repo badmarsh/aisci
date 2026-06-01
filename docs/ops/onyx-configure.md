@@ -24,7 +24,7 @@ startup commands.
 
 ## Runtime Decisions
 
-- **Craft**: `ENABLE_CRAFT=true` is set in `.env`. **However `IMAGE_TAG=v4.0.0-beta.0` is currently wrong** — CRAFT binary only ships in `craft-latest`. A stack recreate with `IMAGE_TAG=craft-latest` is pending (GitHub issue). Do not set Craft false as a crash workaround; fix the startup race or image/runtime issue instead.
+- **Craft**: `ENABLE_CRAFT=true` with `IMAGE_TAG=craft-latest` (corrected 2026-05-30 — the CRAFT binary only ships in `craft-latest`; the stack was recreated to apply it). Do not set Craft false as a crash workaround; fix the startup race instead.
 - **Workers**: API server runs one Uvicorn worker with `--factory` to avoid the
   Vespa dual-activation race on startup.
 - **Timeouts**: Nginx proxy timeouts and `LLM_SOCKET_READ_TIMEOUT` are 600s for
@@ -65,6 +65,17 @@ fall back from `qwen-cloud-fast` through `qwen-rag-fast`,
 ```bash
 deployment/helper/litellm_quota_check.py --timeout 90
 ```
+
+## GPU Acceleration
+
+- Host GPU: NVIDIA RTX 3090. GPU device access is configured in
+  `deployment/onyx/docker-compose.yml` for `ollama`, `inference_model_server`,
+  and `indexing_model_server` (plus `onyx-unstructured`, see below).
+- The active model servers run the 1536-dim Alibaba model above. `nemotron_embed_vl`
+  is an optional NVIDIA NIM trial service (up to 2048-dim) and is **not** part of the
+  active retrieval path unless explicitly started and validated at
+  `http://localhost:8000/v1/health/ready`. Switching to it requires a new search
+  setting, reindex, and `input_type` validation.
 
 ## Multimodal PDF Indexing (Hi-Res + Vision)
 
