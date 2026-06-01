@@ -1,0 +1,147 @@
+# Multica Custom Runtime Configuration (Conceptual)
+#
+# This file demonstrates how to configure Multica to integrate with
+# DeerFlow and Onyx Craft agents as custom runtimes.
+#
+# Place this in your Multica daemon configuration directory or reference
+# it via Multica workspace settings.
+#
+# Reference: https://multica.ai/docs/daemon-runtimes
+
+runtimes:
+  # DeerFlow HTTP Runtime
+  # DeerFlow exposes a REST API at localhost:2026/api for agent runs
+  deerflow:
+    type: http
+    endpoint: http://localhost:2026/api/runs
+    method: POST
+    headers:
+      Content-Type: application/json
+      Authorization: Bearer ${DEERFLOW_JWT}
+
+    # Request body template
+    # Variables: {issue_id}, {title}, {description}, {workspace_id}
+    request_template: |
+      {
+        "task": {
+          "issue_id": "{issue_id}",
+          "title": "{title}",
+          "description": "{description}",
+          "workspace_id": "{workspace_id}"
+        },
+        "agent_config": {
+          "type": "research",
+          "tools": ["web_search", "inspirehep", "arxiv"],
+          "max_steps": 50
+        }
+      }
+
+    # Response parsing
+    # Extract run_id from response for status polling
+    response_mapping:
+      run_id: "$.run.id"
+      status: "$.run.status"
+
+    # Status polling endpoint
+    status_endpoint: http://localhost:2026/api/runs/{run_id}
+    status_poll_interval: 10s
+    status_complete_values: ["completed", "success"]
+    status_failed_values: ["failed", "error", "timeout"]
+
+    # Timeout configuration
+    timeout: 30m
+
+    # Environment variables required
+    required_env:
+      - DEERFLOW_JWT
+
+  # Onyx Craft Agent Command Runtime
+  # Onyx has no native agent-runner API, so we use a wrapper script
+  onyx-craft:
+    type: command
+
+    # Command template
+    # Variables: {issue_id}, {title}, {description}, {workspace_id}
+    command: python
+    args:
+      - deployment/helper/trigger_onyx_agent.py
+      - --card-id
+      - "{issue_id}"
+      - --persona
+      - physics-validator
+      - --corpus
+      - physics
+      - --output
+      - research/robert/evidence-ledger.md
+
+    # Working directory (relative to workspace root)
+    working_dir: /home/ubuntu/aisci
+
+    # Environment variables
+    env:
+      ONYX_API_URL: http://localhost:3000
+      ONYX_API_KEY: ${ONYX_API_KEY}
+
+    # Success/failure detection
+    success_exit_codes: [0]
+    failure_exit_codes: [1, 2, 3]
+
+    # Timeout
+    timeout: 20m
+
+    # Output capture
+    capture_stdout: true
+    capture_stderr: true
+
+    # Required environment variables
+    required_env:
+      - ONYX_API_KEY
+
+  # Claude Code / Codex Runtime (built-in)
+  # This is the default runtime and ships out of the box
+  # No configuration needed - included here for completeness
+  claude-code:
+    type: builtin
+    description: Native Claude Code/Codex integration
+
+# Runtime selection rules
+# Define which runtime to use based on issue properties
+routing:
+  # Route by assignee type
+  - match:
+      assignee_type: agent
+      assignee_id: "deerflow-agent-uuid"
+    runtime: deerflow
+
+  - match:
+      assignee_type: agent
+      assignee_id: "onyx-craft-agent-uuid"
+    runtime: onyx-craft
+
+  # Route by label
+  - match:
+      labels: ["deep-research"]
+    runtime: deerflow
+
+  - match:
+      labels: ["rag-validation", "physics-check"]
+    runtime: onyx-craft
+
+  # Default to Claude Code
+  - match: {}
+    runtime: claude-code
+
+# Global settings
+settings:
+  # Retry configuration
+  max_retries: 2
+  retry_delay: 30s
+
+  # Logging
+  log_level: info
+  log_requests: true
+  log_responses: true
+
+  # Security
+  allow_env_expansion: true
+  env_prefix: MULTICA_

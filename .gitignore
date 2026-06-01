@@ -85,3 +85,7 @@ cookies.txt
 # DeerFlow user data
 .deer-flow/users/
 docs/platform/multica/
+
+# Generated Archives and Agent folders
+*.zip
+.claude/
