@@ -15,7 +15,7 @@ The Onyx retrieval stack (`internal_search`) is for **grounding external literat
 | pT spectra, HEPData tables | `hepdata` tool → `physics/data/` | `internal_search` |
 | Formula retrieval from manuscript | `read_file` on manuscript export | `internal_search` |
 
-This boundary is enforced via the **source-routing block** in the Physics Validation Mode system prompt (persona id `7`). Re-check the prompt after any persona import or upstream Onyx upgrade.
+This boundary is enforced via the **source-routing block** in the HEP validation persona's system prompt (see `onyx-persona-ids.md` for the current persona ID). Re-check the prompt after any persona import or upstream Onyx upgrade.
 
 ## RAG Audit Findings (2026-04-27)
 
@@ -43,32 +43,10 @@ The following RAG audit IDs were classified as **structural failures** (wrong so
 | RAG-15 | Small-system radial-flow gap in HEP set | Partially closed — see `platform-backlog.md` |
 | RAG-19 | Citation-context gap for Consensus-retrieved papers | Partially closed — see `platform-backlog.md` |
 
-## Persona Configuration State (as of 2026-04-27)
-
-### Physics Validation Mode (persona id `7`) — primary HEP workflow
-- **Doc sets**: `Physics`, `Robert Boson Draft`, `HEP Phenomenology References`
-- **Tools**: `internal_search`, `read_file`, `code_interpreter` (Python), `open_url`, Scite MCP, Consensus MCP, `hep_arxiv` (id `28`), `hep_inspire` (id `29`), `hepdata` (id `30`)
-- **Prompt guardrails**:
-  - Source-routing block: canon files via `read_file`, RAG only for literature grounding
-  - Claim wording: explicit Bose-Einstein vs Boltzmann/Jüttner distinction required
-  - No causal/root-cause inference from `Suggestive` evidence tier
-  - Fit-quality gate (chi²/ndf, covariance, residuals) required before physical interpretation
-  - Baseline gate (Tsallis, Blast-Wave) required before publishing multiplicity-trend claims
-- **Status**: Active. Re-verify source-routing block and tool list after any persona import or Onyx upgrade.
-
-### Science Deep-Dive Mode (persona id `3`) — literature scout
-- **Doc sets**: shares `Physics` and `HEP Phenomenology References` with id `7`
-- **Tools**: `internal_search`, Scite MCP, Consensus MCP, `hep_arxiv` (id `28`), `hep_inspire` (id `29`), `hepdata` (id `30`)
-- **Prompt**: `## Role — literature scout and source curator` header distinguishes it from Physics Validation Mode
-- **Status**: Active. Keep HEP tool ids `28`, `29`, `30` attached after upgrades or persona resets.
-
-### AiSci Wiki Agent (persona id `8`)
-- **Tools**: must include `read_file` (tool id `9`) so it can verify `evidence-ledger.md` before writing wiki output
-- **Status**: Active. Verify tool id `9` is attached after any upgrade.
-
-### Assistant (persona id `0`)
-- **Tools**: HEP tools `28`, `29`, `30` must remain **removed** unless anchored doc sets are added
-- **Status**: Active guardrail.
+> **Persona state moved.** The persona/tool tables that used the pre-v4 IDs
+> (7, 8) once lived here. Current personas, doc sets, and tool IDs are tracked in
+> `onyx-persona-ids.md` — refer there. The source-routing and claim-wording
+> guardrails above remain the design intent for any HEP persona.
 
 ## Retrieval-Stack Status (2026-05-02)
 
