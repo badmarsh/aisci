@@ -78,3 +78,4 @@ These instructions apply to any AI coding or research agent working in this repo
 - Use direct MCP/API tools for task-specific literature or citation lookups when they need fresh external evidence.
 - Do not assume Onyx is a universal MCP gateway unless a working endpoint is documented and tested.
 - If the same external service is needed by multiple agents, document it under `docs/ops/` and route it through the shared local MCP proxy when practical.
+- Do not rotate database passwords in `.env` without purging the respective Docker volumes (e.g., Onyx Postgres), otherwise you will cause auth crashloops for other agents.
