@@ -189,7 +189,7 @@ def manuscript_component_scalar(
 
     def integrand(eta: float) -> float:
         exponent = (gamma * mt * math.cosh(eta) - U * pt * math.sinh(eta)) / temperature
-        return math.cosh(eta) * safe_exp(-exponent)
+        return math.cosh(eta) * mt * safe_exp(-exponent)
 
     return norm * pt * eta_integral(integrand, -eta_max, eta_max)
 
@@ -210,7 +210,7 @@ def bose_component_scalar(
         denominator = safe_exp(exponent) - 1.0
         if denominator <= 0.0:
             return 0.0
-        return math.cosh(eta) / denominator
+        return math.cosh(eta) * mt / denominator
 
     return norm * pt * eta_integral(integrand, -eta_max, eta_max)
 
