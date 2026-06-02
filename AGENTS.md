@@ -62,13 +62,13 @@ These instructions apply to any AI coding or research agent working in this repo
 - Keep `ACTION_PLAN.md` high level; do not duplicate detailed backlog rows there.
 - If the user asks only for analysis and not edits, do not persist suggestions unless asked. Report the recommended storage location and offer either targeted persistence, immediate implementation, or a handoff prompt.
 
-## Reusable Agent Skills
+## Reusable Agent Skills & Coordination
 
-- Vendor-neutral workflow skills live under `agent-skills/`.
-- When a user request clearly matches one of those skills, read only that skill's `SKILL.md` plus any directly relevant project files.
-- These skills are plain Markdown guides for any capable coding agent, not a model-specific or CLI-specific mechanism.
-- Prefer improving these shared skills over adding model-, IDE-, or vendor-specific instruction files.
-- Use `agent-skills/git-worktree-guard/SKILL.md` for git history context, worktree safety, and commit hygiene when coding or changing docs.
+- Vendor-neutral workflow skills have been migrated to the Multica registry. To discover available skills, run `multica skill list`.
+- To fetch the contents of a specific skill, run `multica skill get <skill-name>`.
+- Use the `multica-agent-sync` skill for instructions on how to use `multica issue list` and `multica issue get <id>` to coordinate with other agents and avoid duplicating effort.
+- Prefer improving these shared skills in the registry over adding model-, IDE-, or vendor-specific instruction files.
+- To check git history context, worktree safety, and commit hygiene when coding or changing docs, pull the `git-worktree-guard` skill from the registry.
 
 ## MCP And Tooling
 
