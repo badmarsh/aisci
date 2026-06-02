@@ -62,7 +62,7 @@ models:
 - name: gemini-3.1-flash-free
   display_name: Gemini 3.1 Flash (Free)
   use: langchain_openai:ChatOpenAI
-  model: google/gemini-3.1-flash:free
+  model: google/gemini-2.5-flash
   api_key: $OPENROUTER_API_KEY
   base_url: $OPENROUTER_API_BASE
   max_tokens: 8192
@@ -144,8 +144,6 @@ models:
   display_name: Gemini 3.1 Pro (Direct)
   use: deerflow.models.gemini_cli_provider:GeminiCliChatModel
   model: gemini-3.1-pro
-  api_key: auto
-  base_url: https://generativelanguage.googleapis.com/v1beta/openai/
   max_tokens: 8192
   supports_thinking: true
   supports_vision: true
@@ -153,8 +151,6 @@ models:
   display_name: Gemini 3.1 Flash (Direct)
   use: deerflow.models.gemini_cli_provider:GeminiCliChatModel
   model: gemini-3.1-flash-lite
-  api_key: auto
-  base_url: https://generativelanguage.googleapis.com/v1beta/openai/
   max_tokens: 8192
   supports_thinking: false
   supports_vision: true
@@ -163,7 +159,7 @@ models:
 - name: qwen-coder-plus
   display_name: Qwen 3 Coder Plus (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3-coder-plus
+  model: qwen3-coder-plus
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -172,7 +168,7 @@ models:
 - name: qwen-coder-next
   display_name: Qwen 3 Coder Next (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3-coder-next
+  model: qwen3-coder-next
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -181,7 +177,7 @@ models:
 - name: qwen-coder-30b-a3b-instruct
   display_name: Qwen 3 Coder 30B A3B Instruct (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3-coder-30b-a3b-instruct
+  model: qwen3-coder-30b-a3b-instruct
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -190,7 +186,7 @@ models:
 - name: qwen-deepseek-v32
   display_name: DeepSeek V3.2 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/deepseek-v3.2
+  model: deepseek-v3.2
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -199,7 +195,7 @@ models:
 - name: qwen3-30b-a3b-instruct-2507
   display_name: Qwen 3 30B A3B Instruct 2507 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3-30b-a3b-instruct-2507
+  model: qwen3-30b-a3b-instruct-2507
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -208,7 +204,7 @@ models:
 - name: qwen3-30b-a3b
   display_name: Qwen 3 30B A3B (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3-30b-a3b
+  model: qwen3-30b-a3b
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -217,7 +213,7 @@ models:
 - name: qwen3.6-35b-a3b
   display_name: Qwen 3.6 35B A3B (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3.6-35b-a3b
+  model: qwen3.6-35b-a3b
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -226,7 +222,7 @@ models:
 - name: qwen3.5-35b-a3b
   display_name: Qwen 3.5 35B A3B (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3.5-35b-a3b
+  model: qwen3.5-35b-a3b
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -235,7 +231,7 @@ models:
 - name: qwen3-32b
   display_name: Qwen 3 32B (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3-32b
+  model: qwen3-32b
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -244,7 +240,7 @@ models:
 - name: qwen3.6-27b
   display_name: Qwen 3.6 27B (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3.6-27b
+  model: qwen3.6-27b
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -253,7 +249,7 @@ models:
 - name: qwen3.5-27b
   display_name: Qwen 3.5 27B (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3.5-27b
+  model: qwen3.5-27b
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -262,7 +258,7 @@ models:
 - name: glm-5.1
   display_name: GLM 5.1 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/glm-5.1
+  model: glm-5.1
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -271,7 +267,7 @@ models:
 - name: qwen3.6-plus-2026-04-02
   display_name: Qwen 3.6 Plus 2026-04-02 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3.6-plus-2026-04-02
+  model: qwen3.6-plus-2026-04-02
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -280,7 +276,7 @@ models:
 - name: qwen3.5-plus-2026-04-20
   display_name: Qwen 3.5 Plus 2026-04-20 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3.5-plus-2026-04-20
+  model: qwen3.5-plus-2026-04-20
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -289,7 +285,7 @@ models:
 - name: qwen3.5-plus-2026-02-15
   display_name: Qwen 3.5 Plus 2026-02-15 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3.5-plus-2026-02-15
+  model: qwen3.5-plus-2026-02-15
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -298,7 +294,7 @@ models:
 - name: qwen3.5-plus-proxy
   display_name: Qwen 3.5 Plus (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3.5-plus
+  model: qwen3.5-plus
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -307,7 +303,7 @@ models:
 - name: qwen-plus-latest-proxy
   display_name: Qwen Plus Latest (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen-plus-latest
+  model: qwen-plus-latest
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -316,7 +312,7 @@ models:
 - name: qwen-plus-2025-09-11
   display_name: Qwen Plus 2025-09-11 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen-plus-2025-09-11
+  model: qwen-plus-2025-09-11
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -325,7 +321,7 @@ models:
 - name: qwen-plus-2025-07-28
   display_name: Qwen Plus 2025-07-28 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen-plus-2025-07-28
+  model: qwen-plus-2025-07-28
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -334,7 +330,7 @@ models:
 - name: qwen-plus-2025-07-14
   display_name: Qwen Plus 2025-07-14 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen-plus-2025-07-14
+  model: qwen-plus-2025-07-14
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -343,7 +339,7 @@ models:
 - name: qwen-plus-2025-04-28
   display_name: Qwen Plus 2025-04-28 (Proxy)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen-plus-2025-04-28
+  model: qwen-plus-2025-04-28
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -354,7 +350,7 @@ models:
 - name: dashscope/glm-5.1
   display_name: GLM 5.1 (Alias)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/glm-5.1
+  model: glm-5.1
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -362,7 +358,7 @@ models:
 - name: dashscope/qwen-plus-2025-04-28
   display_name: Qwen Plus 2025-04-28 (Alias)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen-plus-2025-04-28
+  model: qwen-plus-2025-04-28
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384
@@ -370,7 +366,7 @@ models:
 - name: dashscope/qwen3.5-plus
   display_name: Qwen 3.5 Plus (Alias)
   use: langchain_openai:ChatOpenAI
-  model: dashscope/qwen3.5-plus
+  model: qwen3.5-plus
   api_key: $QWEN_PROXY_API_KEY
   base_url: $QWEN_PROXY_BASE
   max_tokens: 16384

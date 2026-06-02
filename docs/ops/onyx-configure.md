@@ -27,6 +27,8 @@ startup commands.
 - **Craft**: `ENABLE_CRAFT=true` with `IMAGE_TAG=craft-latest` (corrected 2026-05-30 — the CRAFT binary only ships in `craft-latest`; the stack was recreated to apply it). Do not set Craft false as a crash workaround; fix the startup race instead.
 - **Workers**: API server runs one Uvicorn worker with `--factory` to avoid the
   Vespa dual-activation race on startup.
+- **Structured logs**: `LOG_FORMAT=json` is the tracked default and is passed
+  into the API, background, inference, and indexing services.
 - **Timeouts**: Nginx proxy timeouts and `LLM_SOCKET_READ_TIMEOUT` are 600s for
   large reasoning-model calls.
 - **File storage**: MinIO is always started. `FILE_STORE_BACKEND=s3` and

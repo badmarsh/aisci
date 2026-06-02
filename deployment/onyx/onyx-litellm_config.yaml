@@ -1,0 +1,126 @@
+model_list:
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: openai/qwen3.5-plus-2026-02-15
+    timeout: 120
+  model_name: qwen-cloud-fast
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: openai/qwen3.5-plus-2026-02-15
+    timeout: 120
+  model_name: qwen-rag-fast
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: openai/qwen3.5-plus-2026-02-15
+    timeout: 120
+  model_name: qwen-rag-balanced
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/gemma2:27b
+  model_name: gemma2
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/qwen2.5vl:7b
+    timeout: 600
+  model_name: qwen-rag-local
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/mistral-small:22b
+    timeout: 600
+  model_name: qwen-rag-quality
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/qwen2.5vl:7b
+    timeout: 600
+  model_name: qwen-rag-vision
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/qwen2.5vl:7b
+  model_name: qwen2.5vl
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/qwen2.5-omni:7b
+  model_name: qwen2.5-omni-7b
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: openai/qwen3.5-plus-2026-02-15
+  model_name: qwen-omni-flash
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: openai/qwen3.5-plus-2026-02-15
+  model_name: qwen-max
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: openai/qwen3.5-plus-2026-02-15
+  model_name: dashscope/qwen-plus-2025-04-28
+
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: openai/qwen3.5-plus-2026-02-15
+  model_name: dashscope/glm-5.1
+
+- litellm_params:
+    api_base: https://integrate.api.nvidia.com/v1
+    api_key: os.environ/NVIDIA_API_KEY
+    model: openai/nvidia/llama-3.1-nemotron-70b-instruct
+  model_name: nvidia-nemotron-70b
+
+- litellm_params:
+    api_base: https://openrouter.ai/api/v1
+    api_key: os.environ/OPENROUTER_API_KEY
+    model: openai/qwen/qwen-2.5-coder-32b-instruct
+  model_name: openrouter-qwen-coder-32b
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/llama3.1:8b
+  model_name: llama-3.1-8b
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/nomic-embed-text:latest
+    model_type: embedding
+  model_name: local-embedding-optical
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/nomic-embed-text:latest
+    model_type: embedding
+  model_name: qwen-embedder
+
+router_settings:
+  allowed_fails: 10
+  cooldown_time: 0
+  enable_pre_call_checks: false
+  routing_strategy: latency-based-routing
+  timeout: 1200
+  num_retries: 3
+  retry_after: 5
+

@@ -22,6 +22,8 @@ Transformers 5 and is loaded via `PYTHONPATH` in both model-server commands.
 
 - **Craft**: `ENABLE_CRAFT=true`, `IMAGE_TAG=craft-latest`.
 - **Workers**: API server runs one Uvicorn worker with `--factory`.
+- **Structured logs**: `LOG_FORMAT=json` is the tracked default for supported
+  Onyx services.
 - **Timeouts**: Nginx proxy and `LLM_SOCKET_READ_TIMEOUT` are 600s.
 - **File storage**: MinIO always starts with `FILE_STORE_BACKEND=s3`.
 - **Redis**: AOF persistence is enabled in named volume `redis_data`.

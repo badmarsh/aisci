@@ -59,9 +59,12 @@ services:
     environment:
     - AUTH_TYPE=${AUTH_TYPE:-basic}
     - FILE_STORE_BACKEND=${FILE_STORE_BACKEND:-s3}
+    - LOG_FORMAT=${LOG_FORMAT:-json}
     - LOG_LEVEL=ERROR
     - C_FORCE_ROOT=true
     - POSTGRES_HOST=onyx-db
+    - POSTGRES_USER=${POSTGRES_USER:-postgres}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
     - OPENSEARCH_HOST=onyx-opensearch
     - OPENSEARCH_USE_SSL=false
     - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
@@ -133,11 +136,14 @@ services:
     restart: unless-stopped
     environment:
     - FILE_STORE_BACKEND=${FILE_STORE_BACKEND:-s3}
+    - LOG_FORMAT=${LOG_FORMAT:-json}
     - LOG_LEVEL=INFO
     - C_FORCE_ROOT=true
     - CELERY_WORKER_DOCPROCESSING_CONCURRENCY=2
     - CELERY_WORKER_DOCFETCHING_CONCURRENCY=2
     - POSTGRES_HOST=onyx-db
+    - POSTGRES_USER=${POSTGRES_USER:-postgres}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
     - OPENSEARCH_HOST=onyx-opensearch
     - OPENSEARCH_USE_SSL=false
     - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
@@ -208,6 +214,7 @@ services:
     - /home/ubuntu/aisci:/workspace/aisci
     runtime: nvidia
     environment:
+    - LOG_FORMAT=${LOG_FORMAT:-json}
     - NVIDIA_VISIBLE_DEVICES=all
     - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
     - EMBEDDING_DIM=1536
@@ -235,6 +242,7 @@ services:
     restart: unless-stopped
     environment:
     - INDEXING_ONLY=True
+    - LOG_FORMAT=${LOG_FORMAT:-json}
     - NVIDIA_VISIBLE_DEVICES=all
     - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
     - EMBEDDING_DIM=1536
