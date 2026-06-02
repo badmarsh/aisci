@@ -8,7 +8,7 @@
 <<<<<<< Updated upstream
 > This file is the **authoritative** persona/docset map. Keep it in sync with the live Onyx instance;
 > update it after any persona import, Onyx upgrade, or `POST /api/persona` change.
-> _Reconciled with the 2026-05-30 `configure_onyx.py` persona rebuild (see `platform-backlog.md`),
+> _Reconciled with the 2026-05-30 `configure_onyx.py` persona rebuild (see `platform-status.md`),
 > which reports the science stack rebuilt on the `qwen-omni-flash` model with literature tools
 > Scite=14 / Consensus=13 and private doc sets (smoke test PASS). Re-verify the per-persona rows
 > against the live API on the next session._ The old persona IDs 7/8 from

@@ -10,7 +10,7 @@ The Onyx retrieval stack (`internal_search`) is for **grounding external literat
 |---|---|---|
 | Claim status, evidence tier, next gate | `research/robert/evidence-ledger.md` (read directly via `read_file`) | `internal_search` |
 | Active fit parameters, run artifacts | `research/robert/runs/<dated-run>/` (read directly) | `internal_search` |
-| Platform task status, port bindings | `docs/ops/platform-backlog.md` (read directly) | `internal_search` |
+| Platform task status, port bindings | `docs/ops/platform-status.md` (read directly) | `internal_search` |
 | HEP literature context, paper abstracts | `internal_search` → Scite / Consensus / arXiv / INSPIRE | canonical files |
 | pT spectra, HEPData tables | `hepdata` tool → `physics/data/` | `internal_search` |
 | Formula retrieval from manuscript | `read_file` on manuscript export | `internal_search` |
@@ -40,8 +40,8 @@ The following RAG audit IDs were classified as **structural failures** (wrong so
 | RAG-12 | Physics doc set lacked core HEP phenomenology references | Seeded and verified |
 | RAG-13 | HEP Phenomenology References set lacked arXiv/INSPIRE grounding | Seeded and verified |
 | RAG-14 | Tsallis and Blast-Wave baseline literature absent from RAG corpus | Seeded and verified |
-| RAG-15 | Small-system radial-flow gap in HEP set | Partially closed — see `platform-backlog.md` |
-| RAG-19 | Citation-context gap for Consensus-retrieved papers | Partially closed — see `platform-backlog.md` |
+| RAG-15 | Small-system radial-flow gap in HEP set | Partially closed — see `Multica Issues` |
+| RAG-19 | Citation-context gap for Consensus-retrieved papers | Partially closed — see `Multica Issues` |
 
 > **Persona state moved.** The persona/tool tables that used the pre-v4 IDs
 > (7, 8) once lived here. Current personas, doc sets, and tool IDs are tracked in
@@ -62,9 +62,9 @@ Before modifying the source-routing boundary or persona prompt:
 1. Document the change rationale in `docs/decisions/` as a new ADR.
 2. Update the routing table in this file.
 3. Re-run the affected RAG audit IDs against the updated prompt.
-4. Update `platform-backlog.md` with the new status.
+4. Update `Multica Issues` with the new status.
 
 Before adding or removing a document set:
 1. Verify the connector is syncing and the chunk count is stable.
-2. Record the doc-set ID and connector pair in `platform-backlog.md`.
+2. Record the doc-set ID and connector pair in `Multica Issues`.
 3. Run at least one representative query per persona that uses that set and record pass/fail in the backlog.

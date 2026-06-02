@@ -15,7 +15,7 @@ the manuscript multiplicity bins.
 in docs/ content (Q3, Q5 of the evaluation set) return no hits because the docs/
 connector is not indexed. Literature PDFs (Khuntia 2019, Rath 2020) were re-uploaded
 2026-05-30. See docs/ops/rag-evaluation-set.md and
-docs/ops/platform-backlog.md for current status.
+Multica Issues for active tasks; docs/ops/platform-status.md for system state.
 
 - **Claim Tracker:** [`research/robert/evidence-ledger.md`](research/robert/evidence-ledger.md)
 - **Active Task Queue:** [`research/robert/next-actions.md`](research/robert/next-actions.md)

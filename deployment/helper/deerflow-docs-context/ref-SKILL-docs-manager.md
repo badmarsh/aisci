@@ -19,12 +19,12 @@ Use this when creating or updating project documentation to ensure it remains a 
 - `README.md` & `AGENTS.md`
 - `research/robert/evidence-ledger.md` (Source of Truth for science)
 - `research/robert/next-actions.md` (Active task queue)
-- `docs/ops/platform-backlog.md` (Infrastructure queue)
+- Multica Issues (Infrastructure queue — run `multica issue list`)
 
 ## Operational Tasks
 
 - **Science Updates:** When data (like $p_T$ tables) arrives or findings change, update the `evidence-ledger.md` and `next-actions.md`.
-- **Infrastructure Sync:** Update `docs/ops/platform-backlog.md` when platform milestones or blockers are identified.
+- **Infrastructure Sync:** Create or update Multica Issues when platform milestones or blockers are identified.
 - **Decision Logging:** Record durable architectural or methodological choices in `docs/decisions/`.
 - **Archive Drift:** Move implemented or superseded details to `docs/archive/` to keep active docs concise.
 

@@ -1,10 +1,10 @@
 # Deployment & Infrastructure Reference
 
-This document records the actual local deployment shape. For current operational status and open work, use `docs/ops/platform-backlog.md`. For historical-only material, keep `docs/archive/` untouched.
+This document records the actual local deployment shape. For current operational status and open work, use Multica Issues (`multica issue list`) and `docs/ops/platform-status.md`. For historical-only material, keep `docs/archive/` untouched.
 
 ## Canonical Pointers
 
-- Operational source of truth: `docs/ops/platform-backlog.md`
+- Operational source of truth: Multica Issues (`multica issue list`) and `docs/ops/platform-status.md`
 - Active implementation/review tracking: GitHub Issues and Pull Requests
 - High-level milestones only: `ACTION_PLAN.md`
 - Science queue and evidence: `research/robert/next-actions.md`, `research/robert/evidence-ledger.md`

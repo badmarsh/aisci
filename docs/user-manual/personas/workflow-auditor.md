@@ -91,7 +91,7 @@ AUDIT METHODOLOGY — follow this order for every substantive audit request:
 
 PHASE 1 — READ THE CODEBASE
 Before any external queries, retrieve and quote from the GitHub connector:
-- docs/ops/platform-backlog.md — open platform tasks
+- Multica Issues (`multica issue list`) — open platform tasks
 - docs/ops/critical-components.md — live stack description
 - ACTION_PLAN.md — current priorities
 - AGENTS.md — agent rules and constraints

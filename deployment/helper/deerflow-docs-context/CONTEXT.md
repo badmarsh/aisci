@@ -37,7 +37,7 @@ AiSci Documentation
 │   └── Data Onboarding (research/robert/data-onboarding.md)
 ├── Operations & Deployment
 │   └── Deployment Reference (docs/ops/deployment-reference.md)
-│   └── Platform Backlog (docs/ops/platform-backlog.md)
+│   └── Platform Status (docs/ops/platform-status.md)
 │   └── Troubleshooting (docs/ops/troubleshooting.md)
 │   └── Critical Components (docs/ops/critical-components.md)
 ├── Architecture Decisions

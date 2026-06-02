@@ -32,11 +32,11 @@ These instructions apply to any AI coding or research agent working in this repo
 - Keep science claims and fit conclusions out of `docs/ops/`.
 - Preserve unrelated user changes in the working tree.
 - Put temporary helper scripts in `deployment/helper/`.
-- Do not create new backlog, audit, or status markdown files when a GitHub Issue plus an update to an existing canonical doc will do.
+- Do not create new backlog, audit, or status markdown files when a Multica Issue plus an update to an existing canonical doc will do.
 
 ## GitHub Workflow
 
-- Use GitHub Issues for accepted actionable work: platform tasks, docs drift, security remediation, and follow-up implementation.
+- Use Multica Issues for accepted actionable work: platform tasks, docs drift, security remediation, and follow-up implementation.
 - Use Pull Requests for reviewable code/docs changes and keep the PR body focused on what changed, why, verification, and safety constraints.
 - Keep durable facts in repo docs: `docs/ops/` for platform state, `docs/decisions/` for stable decisions, and `research/robert/` for science state.
 - When an Issue and a canonical doc disagree, inspect the recent PR/Issue history, then update the canonical file or correct the Issue rather than creating a new parallel note.
@@ -48,15 +48,15 @@ These instructions apply to any AI coding or research agent working in this repo
   - Implement selected findings now, respecting any user exclusions.
   - Write selected findings into the specific document or documents where they belong.
   - Create a concise prompt for a fresh agent/session to implement selected findings later.
-- When offering to persist findings, name the exact target file or files and briefly map what would go where. For example: "I can write the platform tasks into `docs/ops/platform-backlog.md` and the durable rationale into `docs/ops/<existing-note>.md`."
+- When offering to persist findings, name the exact target file or files and briefly map what would go where. For example: "I can write the platform tasks as Multica Issues and the durable rationale into `docs/ops/<existing-note>.md`."
 - If the analysis includes secondary notes that should be logged separately, name those target files too rather than referring to a generic suggestions document.
 - Only promote suggestions into canonical trackers after the user agrees they are accepted tasks, decisions, or evidence updates.
 - Before storing findings anywhere, read the target file and avoid duplicates. Merge with existing entries, update statuses, or add evidence links rather than creating parallel copies.
 - Do not create a new markdown report by default. Prefer updating existing canonical files with the smallest useful durable note.
 - Create a new dated analysis file only when the analysis is substantial, likely to be reread as a standalone artifact, and cannot be represented clearly as backlog rows, evidence-ledger entries, next actions, or a short update to an existing ops note.
 - If a new analysis file is justified, explain why it is justified and ask before creating it. Also identify the canonical tracker updates that should accompany it.
-- Store platform, deployment, MCP, model, Docker, security, and tooling findings in `docs/ops/`, with actionable items added or updated in `docs/ops/platform-backlog.md`.
-- For accepted active platform work, prefer creating or updating a GitHub Issue and linking the relevant canonical doc instead of expanding `docs/ops/platform-backlog.md` with long operational history.
+- Store platform, deployment, MCP, model, Docker, security, and tooling findings in `docs/ops/`, with actionable items added as Multica Issues and concise state updated in `docs/ops/platform-status.md`.
+- For accepted active platform work, prefer creating or updating a Multica Issue and linking the relevant canonical doc instead of expanding `docs/ops/platform-status.md` with long operational history.
 - Store durable architecture or process decisions in `docs/decisions/` only when the decision is stable enough to guide future work.
 - Store science-facing questions, evidence states, validation gates, and run tasks under `research/robert/`, using `research/robert/evidence-ledger.md` and `research/robert/next-actions.md` as the canonical files.
 - Keep `ACTION_PLAN.md` high level; do not duplicate detailed backlog rows there.

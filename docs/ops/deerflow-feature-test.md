@@ -193,7 +193,7 @@ docker exec deer-flow-gateway cat /app/backend/extensions_config.json | grep ony
 ### If Scite/Consensus MCP Fails
 **Error**: "401 Unauthorized"
 
-**Fix**: OAuth tokens not set. See `docs/ops/platform-backlog.md` P1 issue about Scite/Consensus OAuth.
+**Fix**: OAuth tokens not set. See `Multica Issues` for the Scite/Consensus OAuth task.
 
 ### If File Write Fails
 **Error**: "Permission denied" or "Read-only file system"
