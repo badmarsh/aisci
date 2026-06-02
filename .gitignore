@@ -89,3 +89,13 @@ docs/platform/multica/
 # Generated Archives and Agent folders
 *.zip
 .claude/
+
+# Ignore temporary agent helper scripts
+deployment/helper/test_*.py
+deployment/helper/check_*.py
+deployment/helper/probe_*.py
+deployment/helper/find_*.py
+deployment/helper/check_*.sh
+deployment/helper/test_*.sh
+deployment/helper/find_*.sh
+deployment/helper/fix_*.sh
