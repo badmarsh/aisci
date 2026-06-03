@@ -17,7 +17,7 @@ This document records the actual local deployment shape. For current operational
 | Onyx UI | `http://localhost:3000` | Private RAG, document ingestion, and literature search |
 | DeerFlow | `http://localhost:2026` | Multi-agent orchestration and tool execution |
 | LiteLLM proxy | `http://localhost:4000` | LLM routing and key management |
-| MCP proxy | `http://localhost:8095` | Shared gateway for Consensus, Scite, and similar research tools |
+| MCP proxy | `http://localhost:8095` | Shared gateway for Consensus, Scite, Semantic Scholar, and similar research tools |
 | Unstructured | `http://localhost:9560` | Local document parsing and extraction |
 | Ollama | `http://localhost:11434` | Local LLM and embedding model serving |
 

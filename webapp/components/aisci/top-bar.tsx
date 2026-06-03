@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, ChevronDown, Atom, UserRound, Terminal } from "lucide-react"
+import { Search, ChevronDown, UserRound, Terminal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -30,27 +30,7 @@ export function TopBar({ role, onRoleChange }: TopBarProps) {
       className="flex items-center h-12 shrink-0 px-4 gap-6 border-b"
       style={{ background: "var(--sidebar)", borderColor: "var(--sidebar-border)" }}
     >
-      {/* Logo */}
-      <div className="flex items-center gap-2 select-none">
-        <div
-          className="w-6 h-6 rounded flex items-center justify-center border"
-          style={{ borderColor: "var(--border)" }}
-        >
-          <Atom className="w-3.5 h-3.5" style={{ color: "var(--amber)" }} />
-        </div>
-        <span className="font-mono text-sm font-semibold tracking-[0.18em] text-foreground">
-          AISCI
-        </span>
-        <span
-          className="hidden sm:block font-mono text-xs tracking-widest ml-1"
-          style={{ color: "var(--muted-foreground)" }}
-        >
-          / console
-        </span>
-      </div>
 
-      {/* Divider */}
-      <div className="h-5 w-px bg-border shrink-0" />
 
       {/* Role switcher */}
       <DropdownMenu>

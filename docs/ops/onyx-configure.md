@@ -32,7 +32,7 @@ startup commands.
 - **Timeouts**: Nginx proxy timeouts and `LLM_SOCKET_READ_TIMEOUT` are 600s for
   large reasoning-model calls.
 - **File storage**: MinIO is always started. `FILE_STORE_BACKEND=s3` and
-  `S3_ENDPOINT_URL=http://minio:9000`.
+  `S3_ENDPOINT_URL=http://onyx-minio:9000` (the compose service name is `onyx-minio`, not `minio`).
 - **Redis**: AOF persistence is enabled and stored in named volume `redis_data`.
   This preserves queued Celery jobs across Redis container restarts.
 - **Workspace mount**: `/home/ubuntu/aisci` is mounted read-only into all Onyx
@@ -94,12 +94,10 @@ Onyx extracts images and tables from PDFs using `unstructured` (YOLOX), then sum
 
 ## Secrets And Env Files
 
-- `deployment/onyx/.env` is a tracked, secret-free defaults file.
-- `deployment/onyx/.env.local` is ignored and must hold live provider keys.
-- Compose loads `.env` first and `.env.local` second so local secrets override
-  tracked empty defaults.
-- Do not print key values from history or local env files. If auditing history,
-  report only file paths, variable names, and commit SHAs.
+- `deployment/onyx/.env` is a **tracked file that currently holds live API keys** (DashScope, NVIDIA, ElevenLabs, OpenRouter, Brave, ONYX_API_KEY). The intended policy (secret-free tracked defaults + secrets in gitignored `.env.local`) has not been fully implemented. Rotation of these keys is tracked in `platform-status.md`.
+- `deployment/onyx/.env.local` is gitignored and will override any variable set in `.env` if it exists. Currently it does not exist on this host.
+- Compose loads `.env` first and `.env.local` second so local secrets would override tracked defaults if the file were present.
+- Do not print key values from history or local env files. If auditing history, report only file paths, variable names, and commit SHAs.
 
 ## MCP Server
 

@@ -78,6 +78,17 @@ cookies.txt
 # Test files at root
 /test_*.py
 
+# Root-level agent scratch / one-shot dump files
+/aisci_codebase.txt
+/api_logs.txt
+/description.txt
+/issue_*.txt
+/text_extracted.txt
+/patch_*.py
+/restore_*.py
+/pytest.ini
+/skills-lock.json
+
 # Build artifacts
 .next/
 *.pyc
@@ -90,6 +101,40 @@ docs/platform/multica/
 *.zip
 .claude/
 
+# Large local project directories (not part of aisci — live outside repo)
+chat-ui-example/
+open-computer-use/
+ppt-master/
+my-deployments/
+
+# research scratch
+research/robert/scratch/
+
+# Perplexity skills (external, fetched on demand)
+perplexity-skills/
+
+# deployment/onyx one-shot debug / introspection scripts
+deployment/onyx/check_*.py
+deployment/onyx/get_*.py
+deployment/onyx/list_*.py
+deployment/onyx/dump_*.py
+deployment/onyx/parse_*.py
+deployment/onyx/find_*.py
+deployment/onyx/extract_*.py
+deployment/onyx/test_*.py
+deployment/onyx/*.txt
+deployment/onyx/*.sql
+deployment/onyx/COMPLETE_SUMMARY.md
+deployment/onyx/DEPLOYMENT_ANALYSIS.md
+deployment/onyx/DOCKER_LOGS_ANALYSIS.md
+deployment/onyx/FIXES_APPLIED.md
+deployment/onyx/LLM_TEST_REPORT.md
+deployment/onyx/preflight_check.sh
+deployment/onyx/generate_api_key.py
+deployment/onyx/opensearch_document_index.py
+deployment/onyx/litellm_config.optimized.yaml
+deployment/onyx/onyx-litellm_config.yaml.recommended
+
 # Ignore temporary agent helper scripts
 deployment/helper/test_*.py
 deployment/helper/check_*.py
@@ -99,3 +144,34 @@ deployment/helper/check_*.sh
 deployment/helper/test_*.sh
 deployment/helper/find_*.sh
 deployment/helper/fix_*.sh
+deployment/helper/*.txt
+deployment/helper/*.json
+deployment/helper/add_*.py
+deployment/helper/cleanup_*.py
+deployment/helper/consensus_*.py
+deployment/helper/container_*.py
+deployment/helper/create_*.py
+deployment/helper/db_*.py
+deployment/helper/debug_*.py
+deployment/helper/deerflow_e2e_*.py
+deployment/helper/deerflow_e2e_*.sh
+deployment/helper/explore_*.py
+deployment/helper/extract_*.py
+deployment/helper/get_*.py
+deployment/helper/index_*.py
+deployment/helper/llm_api.py
+deployment/helper/merge_config.py
+deployment/helper/monitor_model_quotas.py
+deployment/helper/opensearch_*.py
+deployment/helper/opensearch_*.sh
+deployment/helper/promote_*.py
+deployment/helper/prune_*.py
+deployment/helper/purge_*.py
+deployment/helper/run_fit_*.py
+deployment/helper/scite_*.py
+deployment/helper/set_models.py
+deployment/helper/show_*.py
+deployment/helper/submit_*.py
+deployment/helper/transfer_*.py
+deployment/helper/trigger_*.py
+deployment/helper/update_*.py
