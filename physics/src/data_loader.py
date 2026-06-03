@@ -225,9 +225,17 @@ def extract_pt_rows(metadata: TableMetadata, table_json: dict[str, Any]) -> list
 
             stat_error = (parsed_errors.get("stat") or {}).get("sym")
             sys_error = (parsed_errors.get("sys") or {}).get("sym")
-            total_error = None
+            # Use quadrature sum when both are present; fall back to whichever
+            # single component is available rather than leaving total_error=None
+            # (None becomes NaN in numpy and silently corrupts least-squares fits).
             if stat_error is not None and sys_error is not None:
                 total_error = math.sqrt(stat_error ** 2 + sys_error ** 2)
+            elif stat_error is not None:
+                total_error = stat_error
+            elif sys_error is not None:
+                total_error = sys_error
+            else:
+                total_error = None
 
             rows.append(
                 {

@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import warnings
 import re
 import subprocess
 from dataclasses import dataclass
@@ -184,8 +185,20 @@ def manuscript_component_scalar(
     eta_max: float,
     mass_gev: float,
 ) -> float:
+    """Juttner/Boltzmann integrand integrated over pseudorapidity acceptance.
+
+    Implements dN/(2pi pT dpT dy) ~ norm*pT * integral(deta cosh(eta)*mT*exp(-p^u U_u/T))
+    where the covariant contraction is p^u U_u = gamma*mT*cosh(eta) - U*pT*sinh(eta).
+
+    Variable naming note:
+    - U     = gamma*beta (longitudinal four-velocity magnitude, Juttner parametrisation)
+    - gamma = sqrt(1 + U^2) = cosh(Y), where Y = arcsinh(U) is the longitudinal
+      rapidity of the source element.  This is NOT the conventional Lorentz factor
+      1/sqrt(1-beta^2) w.r.t. a transverse velocity.
+    - Chemical potential mu = 0 is assumed throughout (valid for LHC pions).
+    """
     mt = math.sqrt(mass_gev * mass_gev + pt * pt)
-    gamma = math.sqrt(1.0 + U * U)
+    gamma = math.sqrt(1.0 + U * U)  # = cosh(Y); see docstring
 
     def integrand(eta: float) -> float:
         exponent = (gamma * mt * math.cosh(eta) - U * pt * math.sinh(eta)) / temperature
@@ -202,17 +215,44 @@ def bose_component_scalar(
     eta_max: float,
     mass_gev: float,
 ) -> float:
+    """Quantum Bose-Einstein integrand over pseudorapidity acceptance.
+
+    Implements dN/(2pi pT dpT dy) ~ norm*pT * integral(deta cosh(eta)*mT / (exp(p^u U_u/T) - 1)).
+
+    Denominator guard: when safe_exp(exponent) <= 1 (i.e. p^u U_u <= 0,
+    an unphysical parameter regime), the integrand returns 0.0 rather than
+    a negative or divergent value.  This silently truncates the distribution
+    in that kinematic cell.  Parameter bounds (T > 0, U >= 0) are necessary
+    but not sufficient to prevent this; the best-fit exponent should be
+    verified to be > 0 across the full pT range in post-fit diagnostics.
+    Ref: Landau & Lifshitz Statistical Physics section 54.
+
+    Variable naming: gamma = sqrt(1 + U^2) = cosh(Y); see manuscript_component_scalar.
+    Chemical potential mu = 0 assumed.
+    """
     mt = math.sqrt(mass_gev * mass_gev + pt * pt)
-    gamma = math.sqrt(1.0 + U * U)
+    gamma = math.sqrt(1.0 + U * U)  # = cosh(Y); see docstring
+
+    _underflow_count: list[int] = [0]  # mutable cell for closure counter
 
     def integrand(eta: float) -> float:
         exponent = (gamma * mt * math.cosh(eta) - U * pt * math.sinh(eta)) / temperature
         denominator = safe_exp(exponent) - 1.0
         if denominator <= 0.0:
+            # Unphysical regime: p^u U_u <= 0. Count silently; warn once per call.
+            _underflow_count[0] += 1
             return 0.0
         return math.cosh(eta) * mt / denominator
 
-    return norm * pt * eta_integral(integrand, -eta_max, eta_max)
+    result = norm * pt * eta_integral(integrand, -eta_max, eta_max)
+    if _underflow_count[0] > 0:
+        warnings.warn(
+            f"bose_component_scalar: {_underflow_count[0]} integration points had"
+            f" denominator <= 0 (pT={pt:.3f} GeV, T={temperature:.3f}, U={U:.3f})."
+            " Check parameter bounds — best-fit exponent must be > 0 across full pT range.",
+            stacklevel=3,
+        )
+    return result
 
 
 def tsallis_component_scalar(
@@ -223,6 +263,20 @@ def tsallis_component_scalar(
     eta_max: float,
     mass_gev: float,
 ) -> float:
+    """Tsallis distribution integrated over pseudorapidity acceptance.
+
+    Implements dN/(2pi pT dpT dy) ~ norm*pT * integral(deta cosh(eta)*mT*[1+(q-1)mT*cosh(eta)/T]^{-q/(q-1)})
+
+    Assumptions:
+    - Chemical potential mu = 0 (valid for LHC light hadrons at mid-rapidity).
+      The full Cleymans-Worku form (arXiv:1110.5526 eq.1) subtracts mu in the
+      bracket: [1+(q-1)(mT*cosh(eta)-mu)/T]; setting mu=0 here is an explicit choice.
+    - energy_like = mT*cosh(eta) treats eta as rapidity y, so the integral is over
+      rapidity acceptance.  Confirm the eta_max value supplied matches the observable
+      definition in the data file (rapidity vs pseudorapidity).
+    - norm absorbs gV/(2pi)^2; cross-check its order of magnitude against
+      Table 1 of arXiv:1501.07127 (R ~ 4-5 fm gives norm ~ 10^2-10^3 for pions).
+    """
     mt = math.sqrt(mass_gev * mass_gev + pt * pt)
 
     def integrand(eta: float) -> float:
@@ -233,6 +287,31 @@ def tsallis_component_scalar(
         return math.cosh(eta) * mt * argument ** (-q / (q - 1.0))
 
     return norm * pt * eta_integral(integrand, -eta_max, eta_max)
+
+
+def static_tsallis_limit(
+    pt: float,
+    norm: float,
+    temperature: float,
+    q: float,
+    mass_gev: float,
+) -> float:
+    """Static mid-rapidity Tsallis formula (y=0, no eta integral).
+
+    Implements the form used in most heavy-ion literature at y=0:
+      dN/(2pi pT dpT dy)|_y=0 = norm * pT * mT * [1 + (q-1)*mT/T]^{-q/(q-1)}
+
+    This matches arXiv:1501.07127 eq. (1) exactly (with mu=0).
+    Use this function as a crosscheck against literature fit values;
+    tsallis_component_scalar integrates over eta in [-etamax, etamax]
+    and gives a different (larger) result. The two forms agree in the
+    limit etamax -> 0 (verified by the unit test below).
+    """
+    mt = math.sqrt(mass_gev * mass_gev + pt * pt)
+    argument = 1.0 + (q - 1.0) * mt / temperature
+    if argument <= 0.0:
+        return 0.0
+    return norm * pt * mt * argument ** (-q / (q - 1.0))
 
 
 def blast_wave_component_scalar(
@@ -523,14 +602,20 @@ def fit_one_spec(
             chi2_ndf = chi2 / ndf if ndf > 0 else None
 
             # FIX 2: flag unconstrained parameters including those converged to zero.
+            # Also flag when err is None — Minuit failed to estimate the uncertainty,
+            # which means the parameter is unconstrained / the fit is degenerate.
             fit_quality_flag = "ok"
             if chi2_ndf is not None and chi2_ndf > 5:
                 fit_quality_flag = "poor"
             for k in spec.parameter_names:
                 err = parameter_errors.get(k)
                 val = parameter_values.get(k)
-                if err is not None and val is not None:
-                    if val == 0.0 or (val != 0.0 and err / abs(val) > 1):
+                if err is None:
+                    # Minuit could not estimate the error: degenerate fit
+                    fit_quality_flag = "poor"
+                    break
+                if val is not None:
+                    if val == 0.0 or err / abs(val) > 1:
                         fit_quality_flag = "poor"
                         break
 

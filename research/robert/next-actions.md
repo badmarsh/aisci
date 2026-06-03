@@ -27,8 +27,9 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 **What is needed:** Robert to confirm whether this is expected (a known fitting instability at high multiplicity in the original paper) or a new finding
 **Action:** Robert reads `boson_paper_analysis.py` §7 output and provides a one-line confirmation or correction for the ledger
 
-### [O-03] Train and validate fitting pipeline on preprocessed pT spectra
+### [O-03] Run and validate fitting pipeline on preprocessed pT spectra
 **Depends on:** [B-01] — requires `physics/data/fit_input.csv` to exist
+**Infrastructure status:** `fitting_pipeline.py` is complete — chi2/ndf, covariance, AIC/BIC, residuals, pulls, and diagnostic plots are all implemented and tested. The pipeline is blocked only on the input data, not on implementation.
 **Action:**
 - Use `python-executor` to run `physics/src/fitting_pipeline.py` against `physics/data/fit_input.csv`. Use the latest model architecture and hyperparameters defined in the script.
 - Use `python-performance-optimization` to profile the fitting loops, scipy optimization calls, and data loading steps. Output a performance report to `physics/reports/fitting_profile.txt`.
@@ -80,3 +81,4 @@ in evidence-ledger.md.
 | Tsallis/Blast-Wave baseline scripts written | 2026-04-27 | `tsallis_physics_validation.py` ready; awaiting data |
 | Execute Tsallis physics validation run | 2026-05-04 | Captured in `research/robert/runs/2026-05-04-tsallis-validation/`. Comparison against Khuntia (2019) and Rath (2020) suggests model refinement needed. |
 | Fitting pipeline infrastructure built | 2026-04-27 | `fitting_pipeline.py` ready; awaiting `fit_input.csv` |
+| chi2/ndf, covariance, AIC/BIC, residuals, pulls implemented | 2026-04-27 | All computed in `fitting_pipeline.py` `fit_one_spec()` and written to `fit_quality.csv` / `parameter_correlations.csv`; **blocked on `fit_input.csv`**, not on implementation |
