@@ -21,8 +21,8 @@
 | ID | Name | Public | Doc Sets | Tools | Model Config | Health |
 |----|------|--------|----------|-------|-------------|--------|
 | 0 | **Assistant** | ✅ Yes | none | generate_image, web_search, open_url, read_file, python | id=126 | ✅ OK |
-| 1 | Scientific Researcher | ❌ No | Chemistry | internal_search, open_url, search, search_literature, search_patents, search_clinical_trials, get_clinical_trial, search_grants, get_grant, get_510k_summary, search_device510k, … | none | ⚠️ No model cfg |
-| 2 | **physics-validator** | ✅ Yes | Robert Corpus | internal_search, read_file, Scite=14, Consensus=13 | qwen-omni-flash | ✅ Rebuilt 2026-05-30 (smoke PASS; re-verify) |
+| 1 | Scientific Researcher | ❌ No | Chemistry | internal_search, open_url, search_literature, search_patents, search_clinical_trials, get_clinical_trial, search_grants, get_grant, get_510k_summary, search_device510k, **Scite MCP, Consensus MCP** | none | ✅ Scite+Consensus confirmed active 2026-06-03 |
+| 2 | **physics-validator** | ✅ Yes | Robert Corpus | internal_search, read_file | qwen-omni-flash | ⚠️ Rebuilt 2026-05-30 — **Scite/Consensus MCP NOT configured** (contrary to earlier note); use Scientific Researcher for MCP literature queries |
 | 3 | **arxiv-intake** | ❌ No | arXiv Auto — Quarantine | _(none)_ | qwen-omni-flash | ✅ Rebuilt 2026-05-30 |
 | 5 | **evidence-auditor** | ❌ No | Robert Corpus | per rebuild | qwen-omni-flash | ✅ Rebuilt 2026-05-30 (exact rows pending live confirm) |
 | 6 | **referee-prep** | ❌ No | Robert Corpus | per rebuild | qwen-omni-flash | ✅ Rebuilt 2026-05-30 (exact rows pending live confirm) |
