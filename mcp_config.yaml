@@ -30,6 +30,23 @@ scite:
   timeout: 30
   max_retries: 3
 
+semanticscholar:
+  enabled: true
+  base_url: "https://api.semanticscholar.org/graph/v1/"
+  # Semantic Scholar uses an API key passed via the x-api-key header.
+  auth_type: "api_key"
+  token_env_var: "SEMANTICSCHOLAR_API_KEY"
+  timeout: 30
+  max_retries: 3
+
+asta:
+  enabled: true
+  base_url: "https://asta-tools.allen.ai/mcp/v1/"
+  auth_type: "api_key"
+  token_env_var: "ASTA_API_KEY"
+  timeout: 30
+  max_retries: 3
+
 onyx:
   enabled: true
   base_url: "http://127.0.0.1:8095/onyx/sse"
@@ -68,6 +85,10 @@ routing:
     path: "/consensus/"
   scite:
     path: "/scite/"
+  semanticscholar:
+    path: "/semanticscholar/"
   onyx:
     path: "/onyx/"
+  asta:
+    path: "/asta/"
 

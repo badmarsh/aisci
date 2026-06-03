@@ -4,17 +4,14 @@
 # the client Authorization header with a static bearer token here.
 # `deployment/onyx/nginx_mcp_proxy.conf` is only a standalone reference copy.
 
-proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=mcp_cache:10m max_size=1g inactive=15m use_temp_path=off;
-
 server {
     listen 80;
 
-    # Common cache settings
-    proxy_cache mcp_cache;
-    proxy_cache_methods GET POST;
-    proxy_cache_key "$request_method$request_uri$request_body";
-    proxy_cache_valid 200 15m;
-    proxy_cache_use_stale error timeout http_500 http_502 http_503 http_504;
+    # Caching is intentionally disabled at the server level for all routes.
+    # All routes carry SSE/MCP streaming traffic; caching SSE is unsupported
+    # and risks serving one user's tool-call response to another user
+    # (cache-key collision on POST $request_body).  If static-metadata caching
+    # is needed in future, add it per-location with a session-scoped key only.
     proxy_buffers 16 32k;
     proxy_buffer_size 64k;
 
@@ -37,9 +34,12 @@ server {
     # Auth: OAuth — Bearer token supplied by the MCP client via browser login flow
     location /scite/ {
         proxy_pass https://api.scite.ai/mcp;
+        proxy_http_version 1.1;
         proxy_buffering off;
         proxy_cache off;
-        proxy_pass_header Authorization;      # pass client-supplied Bearer token upstream
+        proxy_set_header Connection "";
+        add_header X-Accel-Buffering no;
+        proxy_set_header Authorization $http_authorization;  # forward client Bearer token upstream
         proxy_set_header Host api.scite.ai;
         proxy_ssl_server_name on;
         proxy_ssl_name api.scite.ai;
@@ -54,22 +54,67 @@ server {
     # Set CONSENSUS_MCP_BEARER_TOKEN in .env and reference it from your MCP client config.
     location /consensus/ {
         proxy_pass https://mcp.consensus.app/mcp/;
-        proxy_pass_header Authorization;      # pass client-supplied Bearer token upstream
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_set_header Connection "";
+        add_header X-Accel-Buffering no;
+        proxy_set_header Authorization $http_authorization;  # forward client Bearer token upstream
         proxy_set_header Host mcp.consensus.app;
         proxy_ssl_server_name on;
         proxy_ssl_name mcp.consensus.app;
-        proxy_read_timeout 60s;
+        proxy_read_timeout 300s;
         proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
+        proxy_send_timeout 300s;
+    }
+    
+    # Route for Semantic Scholar API
+    # Auth: API key supplied by the client via x-api-key header
+    # Token is obtained from Semantic Scholar and passed by the calling agent.
+    # Set SEMANTICSCHOLAR_API_KEY in .env and reference it in the client config.
+    location /semanticscholar/ {
+        proxy_pass https://api.semanticscholar.org/;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_set_header Connection "";
+        add_header X-Accel-Buffering no;
+        proxy_set_header x-api-key $http_x_api_key;
+        proxy_set_header Host api.semanticscholar.org;
+        proxy_ssl_server_name on;
+        proxy_ssl_name api.semanticscholar.org;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 300s;
+    }
+
+    # Route for Asta MCP
+    # Auth: API key supplied by the client via x-api-key header
+    # Set ASTA_API_KEY in .env and reference it in the client config.
+    location /asta/ {
+        proxy_pass https://asta-tools.allen.ai/mcp/v1/;
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_set_header Connection "";
+        add_header X-Accel-Buffering no;
+        proxy_set_header x-api-key $http_x_api_key;
+        proxy_set_header Host asta-tools.allen.ai;
+        proxy_ssl_server_name on;
+        proxy_ssl_name asta-tools.allen.ai;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 300s;
     }
     
     # Route for local Onyx MCP server (SSE transport)
     location /onyx/ {
         proxy_pass http://onyx-mcp-server:3001/;
+        proxy_http_version 1.1;
         proxy_buffering off;
         proxy_cache off;
         proxy_set_header Connection "";
-        proxy_http_version 1.1;
+        add_header X-Accel-Buffering no;
         proxy_read_timeout 300s;
     }
 
@@ -77,10 +122,11 @@ server {
     # images that advertise /messages instead of /onyx/messages.
     location /messages {
         proxy_pass http://onyx-mcp-server:3001/messages;
+        proxy_http_version 1.1;
         proxy_buffering off;
         proxy_cache off;
         proxy_set_header Connection "";
-        proxy_http_version 1.1;
+        add_header X-Accel-Buffering no;
         proxy_read_timeout 300s;
     }
 }

@@ -69,6 +69,12 @@ model_list:
 router_settings:
   allowed_fails: 10
   cooldown_time: 0
-  enable_pre_call_checks: false
+  enable_pre_call_checks: true
   routing_strategy: latency-based-routing
   timeout: 1200
+  context_window_fallbacks:
+    - qwen-rag-fast: [qwen-rag-balanced, gemma2]
+    - qwen-rag-balanced: [gemma2]
+    - qwen-cloud-fast: [qwen-rag-local, gemma2]
+  content_policy_fallbacks:
+    - qwen-cloud-fast: [qwen-rag-local]

@@ -225,3 +225,99 @@ async def edit_image(
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+class VideoRequest(BaseModel):
+    prompt: str
+    model: Optional[str] = "wan2.7-t2v"
+
+@app.post("/videos/generations")
+@app.post("/v1/videos/generations")
+async def generate_video(req: VideoRequest):
+    if not DASHSCOPE_API_KEY:
+        raise HTTPException(status_code=500, detail="DASHSCOPE_API_KEY not configured")
+
+    payload = {
+        "model": req.model,
+        "input": {
+            "prompt": req.prompt
+        }
+    }
+    headers = {
+        "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+        "Content-Type": "application/json",
+        "X-DashScope-Async": "enable"
+    }
+
+    url = "https://dashscope-intl.aliyuncs.com/api/v1/services/aigc/video-generation/video-synthesis"
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        resp = await client.post(url, json=payload, headers=headers)
+
+    if resp.status_code != 200:
+        raise HTTPException(status_code=resp.status_code, detail=resp.text)
+
+    data = resp.json()
+    task_id = data.get("output", {}).get("task_id")
+    if not task_id:
+        raise HTTPException(status_code=500, detail=f"No task_id in response: {data}")
+
+    # Return a dummy URL that points to our polling page
+    polling_url = f"http://localhost:8090/v1/videos/tasks/{task_id}"
+    return JSONResponse({
+        "status": "queued",
+        "task_id": task_id,
+        "message": f"Video generation started. Click here to view status: {polling_url}",
+        "url": polling_url
+    })
+
+from fastapi.responses import HTMLResponse
+
+@app.get("/v1/videos/tasks/{task_id}", response_class=HTMLResponse)
+async def check_video_task(task_id: str):
+    if not DASHSCOPE_API_KEY:
+        return HTMLResponse("<h1>Error: DASHSCOPE_API_KEY not configured</h1>", status_code=500)
+
+    headers = {"Authorization": f"Bearer {DASHSCOPE_API_KEY}"}
+    url = f"https://dashscope-intl.aliyuncs.com/api/v1/tasks/{task_id}"
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.get(url, headers=headers)
+
+    if resp.status_code != 200:
+        return HTMLResponse(f"<h1>Error {resp.status_code} fetching task: {resp.text}</h1>", status_code=resp.status_code)
+
+    data = resp.json()
+    status = data.get("output", {}).get("task_status", "UNKNOWN")
+
+    if status == "SUCCEEDED":
+        video_url = data.get("output", {}).get("video_url", "")
+        return HTMLResponse(f'''
+            <html><body style="font-family: sans-serif; text-align: center; padding: 50px;">
+                <h1>Video Ready!</h1>
+                <video width="800" controls autoplay>
+                  <source src="{video_url}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <br><br>
+                <a href="{video_url}" target="_blank">Download Video</a>
+            </body></html>
+        ''')
+    elif status == "FAILED":
+        error = data.get("output", {}).get("message", "Unknown error")
+        return HTMLResponse(f"<h1>Video Generation Failed</h1><p>{error}</p>")
+    else:
+        return HTMLResponse(f'''
+            <html>
+            <head>
+                <meta http-equiv="refresh" content="10">
+            </head>
+            <body style="font-family: sans-serif; text-align: center; padding: 50px;">
+                <h1>Video Generating...</h1>
+                <p>Status: <strong>{status}</strong></p>
+                <p>This page will auto-refresh every 10 seconds.</p>
+                <div style="margin: 20px auto; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 2s linear infinite;"></div>
+                <style>
+                    @keyframes spin {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
+                </style>
+            </body>
+            </html>
+        ''')

@@ -67,7 +67,7 @@
       "description": "SQLite database access for internal LangGraph checkpoints"
     },
     "scite": {
-      "enabled": true,
+      "enabled": false,
       "type": "http",
       "url": "http://onyx-mcp-proxy:80/scite/",
       "headers": {
@@ -77,7 +77,7 @@
       "description": "Scite API for literature citation contexts and exact manuscript claim verification"
     },
     "consensus": {
-      "enabled": true,
+      "enabled": false,
       "type": "http",
       "url": "http://onyx-mcp-proxy:80/consensus/",
       "headers": {
@@ -85,6 +85,16 @@
       },
       "oauth": null,
       "description": "Consensus API for academic search and claim grounding"
+    },
+    "asta": {
+      "enabled": false,
+      "type": "http",
+      "url": "http://onyx-mcp-proxy:80/asta/",
+      "headers": {
+        "x-api-key": "$ASTA_API_KEY"
+      },
+      "oauth": null,
+      "description": "Asta Scientific Corpus Tool for academic research and paper retrieval via MCP"
     },
     "onyx": {
       "enabled": true,

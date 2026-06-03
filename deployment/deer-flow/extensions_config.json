@@ -107,6 +107,19 @@
       "oauth": null,
       "description": "Consensus API for academic search and claim grounding"
     },
+    "asta": {
+      "enabled": false,
+      "type": "http",
+      "command": null,
+      "args": [],
+      "env": {},
+      "url": "http://onyx-mcp-proxy:80/asta/",
+      "headers": {
+        "x-api-key": "$ASTA_API_KEY"
+      },
+      "oauth": null,
+      "description": "Asta Scientific Corpus Tool for academic research and paper retrieval via MCP"
+    },
     "onyx": {
       "enabled": true,
       "type": "sse",
