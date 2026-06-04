@@ -1,0 +1,605 @@
+{
+  "blockers": [],
+  "exact_manuscript_pt_matches": [
+    {
+      "column_index": 0,
+      "column_name": "d^2N/dEtadpT [C/GEV (X')]",
+      "manuscript_bin": "21-30",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 1,
+      "column_name": "d^2N/dEtadpT [C/GEV (IX')]",
+      "manuscript_bin": "31-40",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 2,
+      "column_name": "d^2N/dEtadpT [C/GEV (VIII')]",
+      "manuscript_bin": "41-50",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 3,
+      "column_name": "d^2N/dEtadpT [C/GEV (VII')]",
+      "manuscript_bin": "51-60",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 4,
+      "column_name": "d^2N/dEtadpT [C/GEV (VI')]",
+      "manuscript_bin": "61-70",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 5,
+      "column_name": "d^2N/dEtadpT [C/GEV (V')]",
+      "manuscript_bin": "71-80",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 6,
+      "column_name": "d^2N/dEtadpT [C/GEV (IV')]",
+      "manuscript_bin": "81-90",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 7,
+      "column_name": "d^2N/dEtadpT [C/GEV (III')]",
+      "manuscript_bin": "91-100",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 8,
+      "column_name": "d^2N/dEtadpT [C/GEV (II')]",
+      "manuscript_bin": "101-125",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 9,
+      "column_name": "d^2N/dEtadpT [C/GEV (I')]",
+      "manuscript_bin": "126-150",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 0,
+      "column_name": "d^2N/dEtadpT [C/GEV (X')]",
+      "manuscript_bin": "21-30",
+      "table": "Table 2"
+    },
+    {
+      "column_index": 1,
+      "column_name": "d^2N/dEtadpT [C/GEV (IX')]",
+      "manuscript_bin": "31-40",
+      "table": "Table 2"
+    },
+    {
+      "column_index": 2,
+      "column_name": "d^2N/dEtadpT [C/GEV (VIII')]",
+      "manuscript_bin": "41-50",
+      "table": "Table 2"
+    },
+    {
+      "column_index": 3,
+      "column_name": "d^2N/dEtadpT [C/GEV (VII')]",
+      "manuscript_bin": "51-60",
+      "table": "Table 2"
+    },
+    {
+      "column_index": 4,
+      "column_name": "d^2N/dEtadpT [C/GEV (VI')]",
+      "manuscript_bin": "61-70",
+      "table": "Table 2"
+    },
+    {
+      "column_index": 5,
+      "column_name": "d^2N/dEtadpT [C/GEV (V')]",
+      "manuscript_bin": "71-80",
+      "table": "Table 2"
+    },
+    {
+      "column_index": 6,
+      "column_name": "d^2N/dEtadpT [C/GEV (IV')]",
+      "manuscript_bin": "81-90",
+      "table": "Table 2"
+    },
+    {
+      "column_index": 7,
+      "column_name": "d^2N/dEtadpT [C/GEV (III')]",
+      "manuscript_bin": "91-100",
+      "table": "Table 2"
+    },
+    {
+      "column_index": 8,
+      "column_name": "d^2N/dEtadpT [C/GEV (II')]",
+      "manuscript_bin": "101-125",
+      "table": "Table 2"
+    },
+    {
+      "column_index": 0,
+      "column_name": "d^2N/dEtadpT [C/GEV (X')]",
+      "manuscript_bin": "21-30",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 1,
+      "column_name": "d^2N/dEtadpT [C/GEV (IX')]",
+      "manuscript_bin": "31-40",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 2,
+      "column_name": "d^2N/dEtadpT [C/GEV (VIII')]",
+      "manuscript_bin": "41-50",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 3,
+      "column_name": "d^2N/dEtadpT [C/GEV (VII')]",
+      "manuscript_bin": "51-60",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 4,
+      "column_name": "d^2N/dEtadpT [C/GEV (VI')]",
+      "manuscript_bin": "61-70",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 5,
+      "column_name": "d^2N/dEtadpT [C/GEV (V')]",
+      "manuscript_bin": "71-80",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 6,
+      "column_name": "d^2N/dEtadpT [C/GEV (IV')]",
+      "manuscript_bin": "81-90",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 7,
+      "column_name": "d^2N/dEtadpT [C/GEV (III')]",
+      "manuscript_bin": "91-100",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 8,
+      "column_name": "d^2N/dEtadpT [C/GEV (II')]",
+      "manuscript_bin": "101-125",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 9,
+      "column_name": "d^2N/dEtadpT [C/GEV (I')]",
+      "manuscript_bin": "126-150",
+      "table": "Table 3"
+    },
+    {
+      "column_index": 0,
+      "column_name": "d^2N/dEtadpT [C/GEV (X)]",
+      "manuscript_bin": "21-30",
+      "table": "Table 4"
+    },
+    {
+      "column_index": 1,
+      "column_name": "d^2N/dEtadpT [C/GEV (IX)]",
+      "manuscript_bin": "31-40",
+      "table": "Table 4"
+    },
+    {
+      "column_index": 2,
+      "column_name": "d^2N/dEtadpT [C/GEV (VIII)]",
+      "manuscript_bin": "41-50",
+      "table": "Table 4"
+    },
+    {
+      "column_index": 3,
+      "column_name": "d^2N/dEtadpT [C/GEV (VII)]",
+      "manuscript_bin": "51-60",
+      "table": "Table 4"
+    },
+    {
+      "column_index": 4,
+      "column_name": "d^2N/dEtadpT [C/GEV (VI)]",
+      "manuscript_bin": "61-70",
+      "table": "Table 4"
+    },
+    {
+      "column_index": 5,
+      "column_name": "d^2N/dEtadpT [C/GEV (V)]",
+      "manuscript_bin": "71-80",
+      "table": "Table 4"
+    },
+    {
+      "column_index": 6,
+      "column_name": "d^2N/dEtadpT [C/GEV (IV)]",
+      "manuscript_bin": "81-90",
+      "table": "Table 4"
+    },
+    {
+      "column_index": 7,
+      "column_name": "d^2N/dEtadpT [C/GEV (III)]",
+      "manuscript_bin": "91-100",
+      "table": "Table 4"
+    },
+    {
+      "column_index": 8,
+      "column_name": "d^2N/dEtadpT [C/GEV (II)]",
+      "manuscript_bin": "101-125",
+      "table": "Table 4"
+    },
+    {
+      "column_index": 9,
+      "column_name": "d^2N/dEtadpT [C/GEV (I)]",
+      "manuscript_bin": "126-150",
+      "table": "Table 4"
+    }
+  ],
+  "fit_ready": true,
+  "manuscript_multiplicity_bins": [
+    "21-30",
+    "31-40",
+    "41-50",
+    "51-60",
+    "61-70",
+    "71-80",
+    "81-90",
+    "91-100",
+    "101-125",
+    "126-150"
+  ],
+  "multiplicity_distribution_tables": [],
+  "pt_spectrum_tables": [
+    {
+      "description": "Transverse momentum spectra as a function of the event multiplicity for pp collisions at 13 TeV. Event multiplicity is estimated with the number of SPD tracklets. Uncorrelated systematic uncertainties are the multiplicity dependent systematic uncertainties.",
+      "doi": "10.17182/hepdata.91996.v2/t1",
+      "eta_range": "",
+      "location": "Data from figure 2",
+      "matched_columns": [
+        {
+          "column_index": 0,
+          "column_name": "d^2N/dEtadpT [C/GEV (X')]",
+          "manuscript_bin": "21-30"
+        },
+        {
+          "column_index": 1,
+          "column_name": "d^2N/dEtadpT [C/GEV (IX')]",
+          "manuscript_bin": "31-40"
+        },
+        {
+          "column_index": 2,
+          "column_name": "d^2N/dEtadpT [C/GEV (VIII')]",
+          "manuscript_bin": "41-50"
+        },
+        {
+          "column_index": 3,
+          "column_name": "d^2N/dEtadpT [C/GEV (VII')]",
+          "manuscript_bin": "51-60"
+        },
+        {
+          "column_index": 4,
+          "column_name": "d^2N/dEtadpT [C/GEV (VI')]",
+          "manuscript_bin": "61-70"
+        },
+        {
+          "column_index": 5,
+          "column_name": "d^2N/dEtadpT [C/GEV (V')]",
+          "manuscript_bin": "71-80"
+        },
+        {
+          "column_index": 6,
+          "column_name": "d^2N/dEtadpT [C/GEV (IV')]",
+          "manuscript_bin": "81-90"
+        },
+        {
+          "column_index": 7,
+          "column_name": "d^2N/dEtadpT [C/GEV (III')]",
+          "manuscript_bin": "91-100"
+        },
+        {
+          "column_index": 8,
+          "column_name": "d^2N/dEtadpT [C/GEV (II')]",
+          "manuscript_bin": "101-125"
+        },
+        {
+          "column_index": 9,
+          "column_name": "d^2N/dEtadpT [C/GEV (I')]",
+          "manuscript_bin": "126-150"
+        }
+      ],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 1"
+    },
+    {
+      "description": "Transverse momentum spectra as a function of the event multiplicity for pp collisions at 5.02 TeV. Event multiplicity is estimated with the number of SPD tracklets. Uncorrelated systematic uncertainties are the multiplicity dependent systematic uncertainties.",
+      "doi": "10.17182/hepdata.91996.v2/t2",
+      "eta_range": "",
+      "location": "Data from figure 2",
+      "matched_columns": [
+        {
+          "column_index": 0,
+          "column_name": "d^2N/dEtadpT [C/GEV (X')]",
+          "manuscript_bin": "21-30"
+        },
+        {
+          "column_index": 1,
+          "column_name": "d^2N/dEtadpT [C/GEV (IX')]",
+          "manuscript_bin": "31-40"
+        },
+        {
+          "column_index": 2,
+          "column_name": "d^2N/dEtadpT [C/GEV (VIII')]",
+          "manuscript_bin": "41-50"
+        },
+        {
+          "column_index": 3,
+          "column_name": "d^2N/dEtadpT [C/GEV (VII')]",
+          "manuscript_bin": "51-60"
+        },
+        {
+          "column_index": 4,
+          "column_name": "d^2N/dEtadpT [C/GEV (VI')]",
+          "manuscript_bin": "61-70"
+        },
+        {
+          "column_index": 5,
+          "column_name": "d^2N/dEtadpT [C/GEV (V')]",
+          "manuscript_bin": "71-80"
+        },
+        {
+          "column_index": 6,
+          "column_name": "d^2N/dEtadpT [C/GEV (IV')]",
+          "manuscript_bin": "81-90"
+        },
+        {
+          "column_index": 7,
+          "column_name": "d^2N/dEtadpT [C/GEV (III')]",
+          "manuscript_bin": "91-100"
+        },
+        {
+          "column_index": 8,
+          "column_name": "d^2N/dEtadpT [C/GEV (II')]",
+          "manuscript_bin": "101-125"
+        }
+      ],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 2"
+    },
+    {
+      "description": "Transverse momentum spectra as a function of the event multiplicity for pp collisions at 13 TeV. Event multiplicity is estimated with the signal in the VZERO detector. Uncorrelated systematic uncertainties are the multiplicity dependent systematic uncertainties.",
+      "doi": "10.17182/hepdata.91996.v2/t3",
+      "eta_range": "",
+      "location": "Data from figure 3",
+      "matched_columns": [
+        {
+          "column_index": 0,
+          "column_name": "d^2N/dEtadpT [C/GEV (X')]",
+          "manuscript_bin": "21-30"
+        },
+        {
+          "column_index": 1,
+          "column_name": "d^2N/dEtadpT [C/GEV (IX')]",
+          "manuscript_bin": "31-40"
+        },
+        {
+          "column_index": 2,
+          "column_name": "d^2N/dEtadpT [C/GEV (VIII')]",
+          "manuscript_bin": "41-50"
+        },
+        {
+          "column_index": 3,
+          "column_name": "d^2N/dEtadpT [C/GEV (VII')]",
+          "manuscript_bin": "51-60"
+        },
+        {
+          "column_index": 4,
+          "column_name": "d^2N/dEtadpT [C/GEV (VI')]",
+          "manuscript_bin": "61-70"
+        },
+        {
+          "column_index": 5,
+          "column_name": "d^2N/dEtadpT [C/GEV (V')]",
+          "manuscript_bin": "71-80"
+        },
+        {
+          "column_index": 6,
+          "column_name": "d^2N/dEtadpT [C/GEV (IV')]",
+          "manuscript_bin": "81-90"
+        },
+        {
+          "column_index": 7,
+          "column_name": "d^2N/dEtadpT [C/GEV (III')]",
+          "manuscript_bin": "91-100"
+        },
+        {
+          "column_index": 8,
+          "column_name": "d^2N/dEtadpT [C/GEV (II')]",
+          "manuscript_bin": "101-125"
+        },
+        {
+          "column_index": 9,
+          "column_name": "d^2N/dEtadpT [C/GEV (I')]",
+          "manuscript_bin": "126-150"
+        }
+      ],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 3"
+    },
+    {
+      "description": "Transverse momentum spectra as a function of the event multiplicity for pp collisions at 5.02 TeV. Event multiplicity is estimated with the signal in the VZERO detector. Uncorrelated systematic uncertainties are the multiplicity dependent systematic uncertainties.",
+      "doi": "10.17182/hepdata.91996.v2/t4",
+      "eta_range": "",
+      "location": "Data from figure 3",
+      "matched_columns": [
+        {
+          "column_index": 0,
+          "column_name": "d^2N/dEtadpT [C/GEV (X)]",
+          "manuscript_bin": "21-30"
+        },
+        {
+          "column_index": 1,
+          "column_name": "d^2N/dEtadpT [C/GEV (IX)]",
+          "manuscript_bin": "31-40"
+        },
+        {
+          "column_index": 2,
+          "column_name": "d^2N/dEtadpT [C/GEV (VIII)]",
+          "manuscript_bin": "41-50"
+        },
+        {
+          "column_index": 3,
+          "column_name": "d^2N/dEtadpT [C/GEV (VII)]",
+          "manuscript_bin": "51-60"
+        },
+        {
+          "column_index": 4,
+          "column_name": "d^2N/dEtadpT [C/GEV (VI)]",
+          "manuscript_bin": "61-70"
+        },
+        {
+          "column_index": 5,
+          "column_name": "d^2N/dEtadpT [C/GEV (V)]",
+          "manuscript_bin": "71-80"
+        },
+        {
+          "column_index": 6,
+          "column_name": "d^2N/dEtadpT [C/GEV (IV)]",
+          "manuscript_bin": "81-90"
+        },
+        {
+          "column_index": 7,
+          "column_name": "d^2N/dEtadpT [C/GEV (III)]",
+          "manuscript_bin": "91-100"
+        },
+        {
+          "column_index": 8,
+          "column_name": "d^2N/dEtadpT [C/GEV (II)]",
+          "manuscript_bin": "101-125"
+        },
+        {
+          "column_index": 9,
+          "column_name": "d^2N/dEtadpT [C/GEV (I)]",
+          "manuscript_bin": "126-150"
+        }
+      ],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 4"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 0-100% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t7",
+      "eta_range": "",
+      "location": "Data from figure 8",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 7"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 0-10% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t8",
+      "eta_range": "",
+      "location": "Data from figure 8",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 8"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 10-20% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t9",
+      "eta_range": "",
+      "location": "Data from figure 10",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 9"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 20-30% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t10",
+      "eta_range": "",
+      "location": "Data from figure 10",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 10"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 30-40% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t11",
+      "eta_range": "",
+      "location": "Data from figure 10",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 11"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 40-50% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t12",
+      "eta_range": "",
+      "location": "Data from figure 10",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 12"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 50-60% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t13",
+      "eta_range": "",
+      "location": "Data from figure 10",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 13"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 60-70% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t14",
+      "eta_range": "",
+      "location": "Data from figure 10",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 14"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 70-80% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t15",
+      "eta_range": "",
+      "location": "Data from figure 10",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 15"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 80-90% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t16",
+      "eta_range": "",
+      "location": "Data from figure 10",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 16"
+    },
+    {
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 90-100% spherocity class are presented. Spherocty-dependent uncertainties are indicated as uncorrelated.",
+      "doi": "10.17182/hepdata.91996.v2/t17",
+      "eta_range": "",
+      "location": "Data from figure 8",
+      "matched_columns": [],
+      "multiplicity_selection": "",
+      "pt_selection": "",
+      "table": "Table 17"
+    }
+  ],
+  "record_id": "ins1735345"
+}

@@ -1,0 +1,143 @@
+{
+  "blockers": [],
+  "exact_manuscript_pt_matches": [
+    {
+      "column_index": 0,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "21-30",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 1,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "31-40",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 2,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "41-50",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 3,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "51-60",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 4,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "61-70",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 5,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "71-80",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 6,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "81-90",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 7,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "91-100",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 8,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "101-125",
+      "table": "Table 1"
+    },
+    {
+      "column_index": 9,
+      "column_name": "d^2N/dEtadpT",
+      "manuscript_bin": "126-150",
+      "table": "Table 1"
+    }
+  ],
+  "fit_ready": true,
+  "manuscript_multiplicity_bins": [
+    "21-30",
+    "31-40",
+    "41-50",
+    "51-60",
+    "61-70",
+    "71-80",
+    "81-90",
+    "91-100",
+    "101-125",
+    "126-150"
+  ],
+  "multiplicity_distribution_tables": [],
+  "pt_spectrum_tables": [
+    {
+      "description": "Transverse momentum spectra as a function of the event multiplicity for pp collisions at 13 TeV from ins1735345",
+      "doi": "10.17182/hepdata.91996.v2/t1",
+      "eta_range": "-0.8-0.8",
+      "location": "Data from Table 1",
+      "matched_columns": [
+        {
+          "column_index": 0,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "21-30"
+        },
+        {
+          "column_index": 1,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "31-40"
+        },
+        {
+          "column_index": 2,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "41-50"
+        },
+        {
+          "column_index": 3,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "51-60"
+        },
+        {
+          "column_index": 4,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "61-70"
+        },
+        {
+          "column_index": 5,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "71-80"
+        },
+        {
+          "column_index": 6,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "81-90"
+        },
+        {
+          "column_index": 7,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "91-100"
+        },
+        {
+          "column_index": 8,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "101-125"
+        },
+        {
+          "column_index": 9,
+          "column_name": "d^2N/dEtadpT",
+          "manuscript_bin": "126-150"
+        }
+      ],
+      "multiplicity_selection": "SPD_tracklets",
+      "pt_selection": "",
+      "table": "Table 1"
+    }
+  ],
+  "record_id": "ins1735345"
+}

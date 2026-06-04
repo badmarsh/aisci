@@ -1,0 +1,8 @@
+{
+  "classification": "undetermined_from_text_extraction",
+  "evidence_lines": [],
+  "evidence_pages": [],
+  "pdf_path": "research/robert/manuscript/PhD Thesis 2.pdf",
+  "rationale": "Automatic PDF text extraction did not isolate a decisive formula pattern.",
+  "related_table_pages": []
+}

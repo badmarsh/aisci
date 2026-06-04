@@ -1,0 +1,12 @@
+{
+  "artifacts": [
+    "hepdata_record_ins1735345.json",
+    "hepdata_table_index.csv",
+    "hepdata_pt_spectra.csv",
+    "hepdata_mapping_validation.json"
+  ],
+  "fit_ready": true,
+  "pt_spectrum_rows": 1833,
+  "record_id": "ins1735345",
+  "table_count": 18
+}

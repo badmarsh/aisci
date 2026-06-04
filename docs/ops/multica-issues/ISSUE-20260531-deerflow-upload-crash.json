@@ -1,0 +1,23 @@
+{
+  "title": "DeerFlow file upload crashes due to environment variable resolution error",
+  "type": "bug",
+  "severity": "high",
+  "component": "deerflow",
+  "status": "open",
+  "created": "2026-05-31T15:39:39.618982",
+  "description": "## Problem\nDeerFlow gateway crashes when attempting to upload files through the web interface at http://localhost:2026.\n\n## Error\n```python\nFile \"/app/backend/packages/harness/deerflow/config/app_config.py\", line 287, in resolve_env_variables\n    return {k: cls.resolve_env_variables(v) for k, v in config.items()}\n```\n\nThe error occurs during environment variable resolution in the config loading process, triggered by the file upload endpoint.\n\n## Impact\n- File upload feature completely broken\n- Users cannot attach files to DeerFlow tasks\n- Workaround: paste content inline or use file paths in mounted directories\n\n## Reproduction Steps\n1. Navigate to http://localhost:2026\n2. Start a new chat/task\n3. Attempt to upload any file using the upload button\n4. Gateway crashes with config resolution error\n\n## Root Cause\nEnvironment variable resolution in `app_config.py` fails during upload operation. Likely causes:\n- Undefined environment variable referenced in config.yaml\n- Circular reference in config variable resolution\n- Type mismatch in environment variable substitution\n\n## Investigation Context\nDiscovered during attempt to upload comprehensive audit prompt file. Full investigation documented in `docs/ops/deerflow-file-access-investigation.md`.\n\n## Affected Files\n- `deployment/deer-flow/backend/packages/harness/deerflow/config/app_config.py` (line 287)\n- `deployment/deer-flow/backend/app/gateway/routers/uploads.py` (line 254)\n- `deployment/deer-flow/config.yaml` (environment variable references)\n\n## Recommended Fix\n1. Add error handling to `resolve_env_variables()` to identify which variable is failing\n2. Validate all environment variables referenced in config.yaml are defined in .env\n3. Add unit tests for config loading with missing/invalid env vars\n4. Consider lazy loading config only when needed, not on every upload request\n\n## Workaround\nUsers can work around by:\n- Pasting file content directly into chat\n- Referencing files by path in mounted directories (/mnt/host/aisci/)\n- Using API with pre-uploaded files to /mnt/user-data/uploads/\n\n## Priority Justification\nHIGH - Core feature completely broken, affects all users attempting file uploads. However, workarounds exist and file access via mounted paths works correctly.\n",
+  "labels": [
+    "bug",
+    "deerflow",
+    "file-upload",
+    "config",
+    "high-priority"
+  ],
+  "assignee": null,
+  "related_docs": [
+    "docs/ops/deerflow-file-access-investigation.md",
+    "deployment/deer-flow/config.yaml",
+    "deployment/deer-flow/.env"
+  ],
+  "logs": "\ndeer-flow-gateway      |   File \"/app/backend/packages/harness/deerflow/config/app_config.py\", line 287, in resolve_env_variables\ndeer-flow-gateway      |     return {k: cls.resolve_env_variables(v) for k, v in config.items()}\ndeer-flow-gateway      |   File \"/app/backend/packages/harness/deerflow/config/app_config.py\", line 287, in resolve_env_variables\ndeer-flow-gateway      |   File \"/app/backend/packages/harness/deerflow/config/app_config.py\", line 350, in _load_and_cache_app_config\ndeer-flow-gateway      |     _app_config = AppConfig.from_file(str(resolved_path))\ndeer-flow-gateway      |   File \"/app/backend/packages/harness/deerflow/config/app_config.py\", line 157, in from_file\ndeer-flow-gateway      |     config_data = cls.resolve_env_variables(config_data)\ndeer-flow-gateway      |   File \"/app/backend/app/gateway/routers/uploads.py\", line 254, in upload_files\ndeer-flow-gateway      |     sandbox_provider = get_sandbox_provider()\n"
+}

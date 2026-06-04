@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "ran_at_utc": "2026-05-31T01:14:38.872132+00:00",
+  "base_url": "http://localhost:3000",
+  "persona_id": 2,
+  "label": "baseline-2026-05-31",
+  "results": [
+    {
+      "id": "Q1",
+      "topic": "Blast-Wave Fit Parameters",
+      "question": "What are the typical transverse velocity and freeze-out temperature parameters used in Blast-Wave fits for 13 TeV pp collisions?",
+      "persona_id": 2,
+      "chat_session_id": "4d306bc4-3cb5-4a0c-8fde-805b4f03ccb4",
+      "http_status": 200,
+      "elapsed_ms": 85498,
+      "answer_chars": 351,
+      "answer_preview": "> \"The kinetic freeze-out temperature for pp collisions at 13 TeV is around 140-150 MeV\" - [[2]]()\n \n> \"The radial flow velocity for pp collisions at 13 TeV is around 0.6-0.7\" - [[2]]()\n\n\u26a0 \u03c7\u00b2/ndf STATUS: No chunk confirming goodness-of-fit methodology has been retrieved from the indexed corpus. This is a standing open concern in the evidence ledger.",
+      "answer": "> \"The kinetic freeze-out temperature for pp collisions at 13 TeV is around 140-150 MeV\" - [[2]]()\n \n> \"The radial flow velocity for pp collisions at 13 TeV is around 0.6-0.7\" - [[2]]()\n\n\u26a0 \u03c7\u00b2/ndf STATUS: No chunk confirming goodness-of-fit methodology has been retrieved from the indexed corpus. This is a standing open concern in the evidence ledger.",
+      "top_documents": [
+        {
+          "document_id": "FILE_CONNECTOR__2a7f4c2d-794b-4018-90a9-25382f039c8b",
+          "semantic_identifier": "ops_rag-evaluation-set.md",
+          "link": "",
+          "score": 0.7664436,
+          "source_type": "file",
+          "blurb": "Onyx RAG Evaluation Set\n\nThis document maintains the canonical set of retrieval test questions used to evaluate Onyx RAG performance. Run this set before and after any changes to embeddings, rerankers",
+          "chunk_ind": 0
+        },
+        {
+          "document_id": "FILE_CONNECTOR__25338dfb-f30b-4983-aaee-20d030dfc13b",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.84422845,
+          "source_type": "file",
+          "blurb": "Here, we have used BGBW function to \ufb01t the spectra given by Eq. 9, where Tkin and radial \ufb02ow (\u03b2) are the free parameters. We observe that BGBW function explains the experimental data reasonably well f",
+          "chunk_ind": 7
+        },
+        {
+          "document_id": "FILE_CONNECTOR__e0a29b0f-a0ed-4664-9910-8c187bbedfe5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.75471437,
+          "source_type": "file",
+          "blurb": "0 2 0 2\n\nr p A 9\n\n] h p - p e h [\n\n2 v 8 0 2 4 0 . 8 0 9 1 : v i X r a\n\nEvent multiplicity, transverse momentum and energy dependence of charged particle production, and system thermodynamics in pp co",
+          "chunk_ind": 0
+        },
+        {
+          "document_id": "FILE_CONNECTOR__25338dfb-f30b-4983-aaee-20d030dfc13b",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.68227285,
+          "source_type": "file",
+          "blurb": "9 1 0 2\n\nn a J\n\n6 1\n\n] h p - p e h [\n\n2 v 3 8 3 2 0 . 8 0 8 1 : v i X r a\n\nRadial Flow and Di\ufb00erential Freeze-out in Proton-Proton Collisions at\n\n\u221a\n\ns = 7 TeV at\n",
+          "chunk_ind": 0
+        },
+        {
+          "document_id": "FILE_CONNECTOR__e0a29b0f-a0ed-4664-9910-8c187bbedfe5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.6918901,
+          "source_type": "file",
+          "blurb": "\nparticle has been characterized using BGBW model and extracted the transverse collective \ufb02ow velocity (< \u03b2 >) and the kinetic freeze-out temperature (Tkin) as a function of charged particle multiplic",
+          "chunk_ind": 19
+        },
+        {
+          "document_id": "FILE_CONNECTOR__e0a29b0f-a0ed-4664-9910-8c187bbedfe5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.69213223,
+          "source_type": "file",
+          "blurb": "Furthermore, T has a mild dependence on the \ufb01tting range for both 5.02 and 13 TeV. As it appears, pT \u223c 8 GeV/c seems to be a threshold for a di\ufb00erent behavior in particle production.\n\nB. BGBW model\n",
+          "chunk_ind": 14
+        }
+      ],
+      "search_queries": [
+        "What are the typical transverse velocity and freeze-out temperature parameters used in Blast-Wave fits for 13 TeV pp collisions?",
+        "Blast-Wave fits",
+        "13 TeV pp collisions",
+        "transverse velocity freeze-out temperature",
+        "Blast-Wave fits 13 TeV pp collisions typical transverse velocity freeze-out temperature parameters"
+      ],
+      "citations": [],
+      "errors": [],
+      "event_kinds": {
+        "search_tool_start": 1,
+        "search_tool_queries_delta": 1,
+        "search_tool_documents_delta": 1,
+        "section_end": 1,
+        "message_start": 1,
+        "message_delta": 92,
+        "citation_info": 1,
+        "stop": 1
+      }
+    },
+    {
+      "id": "Q2",
+      "topic": "Tsallis Distribution Baseline",
+      "question": "How does the Tsallis-Pareto distribution handle high-pT tails compared to standard Boltzmann-Juttner?",
+      "persona_id": 2,
+      "chat_session_id": "1b3e78cf-25eb-4ba4-b66d-7217d27a3591",
+      "http_status": 200,
+      "elapsed_ms": 15434,
+      "answer_chars": 0,
+      "answer_preview": "",
+      "answer": "",
+      "top_documents": [],
+      "search_queries": [],
+      "citations": [],
+      "errors": [
+        "litellm.RateLimitError: RateLimitError: OpenAIException - No deployments available for selected model, Try again in 30 seconds. Passed model=nvidia-balanced. pre-call-checks=False, cooldown_list=['44f3669aaa760467ef3925465ee2b19ee71ecf094668ed09d4003eb2935f4eb2']"
+      ],
+      "event_kinds": {
+        "error": 1
+      }
+    },
+    {
+      "id": "Q3",
+      "topic": "Onyx OpenSearch Cutover Check",
+      "question": "What is the command to run the OpenSearch parity regression check?",
+      "persona_id": 2,
+      "chat_session_id": "2b63bac5-e2be-4a00-866f-29ec58100050",
+      "http_status": 200,
+      "elapsed_ms": 14790,
+      "answer_chars": 0,
+      "answer_preview": "",
+      "answer": "",
+      "top_documents": [],
+      "search_queries": [],
+      "citations": [],
+      "errors": [
+        "litellm.RateLimitError: RateLimitError: OpenAIException - No deployments available for selected model, Try again in 30 seconds. Passed model=nvidia-balanced. pre-call-checks=False, cooldown_list=['44f3669aaa760467ef3925465ee2b19ee71ecf094668ed09d4003eb2935f4eb2']"
+      ],
+      "event_kinds": {
+        "error": 1
+      }
+    },
+    {
+      "id": "Q4",
+      "topic": "Manuscript Model Comparison",
+      "question": "Does the manuscript compare the boson probability distribution model against a Tsallis or Blast-Wave baseline? If so, what is the stated motivation?",
+      "persona_id": 2,
+      "chat_session_id": "36597b2f-3d74-4d7d-9a74-530484aa9709",
+      "http_status": 200,
+      "elapsed_ms": 184991,
+      "answer_chars": 600,
+      "answer_preview": "> \"The manuscript compares the boson probability distribution model against a Tsallis or Blast-Wave baseline\" - PhD Thesis 2.pdf, Chapter 1 [[2]](). \n\nThe stated motivation is not explicitly mentioned in the retrieved chunk. However, it can be inferred that the comparison is done to analyze the characteristics of the hadronization region and to study the thermodynamic parameters in the context of ",
+      "answer": "> \"The manuscript compares the boson probability distribution model against a Tsallis or Blast-Wave baseline\" - PhD Thesis 2.pdf, Chapter 1 [[2]](). \n\nThe stated motivation is not explicitly mentioned in the retrieved chunk. However, it can be inferred that the comparison is done to analyze the characteristics of the hadronization region and to study the thermodynamic parameters in the context of non-extensive statistics [[2]](). \n\n\u26a0 \u03c7\u00b2/ndf STATUS: No chunk confirming goodness-of-fit methodology has been retrieved from the indexed corpus. This is a standing open concern in the evidence ledger.",
+      "top_documents": [
+        {
+          "document_id": "FILE_CONNECTOR__2a7f4c2d-794b-4018-90a9-25382f039c8b",
+          "semantic_identifier": "ops_rag-evaluation-set.md",
+          "link": "",
+          "score": 0.85287654,
+          "source_type": "file",
+          "blurb": "This is a known structural gap, not a retrieval failure.\n\nQ4: Manuscript Model Comparison (replaces Visual Table Test)\n\nQuestion: \"Does the manuscript compare the boson probability distribution model ",
+          "chunk_ind": 1
+        },
+        {
+          "document_id": "FILE_CONNECTOR__cb3f27f5-f4a1-4525-a310-e34019d3c4e1",
+          "semantic_identifier": "PhD Thesis 2.pdf",
+          "link": "",
+          "score": 0.63921595,
+          "source_type": "file",
+          "blurb": "\n=\n\n(cid:90)\n\n|\u03c8k1,k2(r1,r2)|2 f(r1)f(r2)d3r1d3r2,\n\n(1.7)\n\nwhere f(r) = |F(r)|2 is the source emission probability function.\n\nTwo boson wave function\n\nFor the purposes of our study, we consider two id",
+          "chunk_ind": 6
+        },
+        {
+          "document_id": "FILE_CONNECTOR__9e4542c0-fe74-4ee2-a1f6-2b7efe129357",
+          "semantic_identifier": "user-manual_personas_workflow-auditor.md",
+          "link": "",
+          "score": 0.5789157,
+          "source_type": "file",
+          "blurb": "\n[ ] Tools: Scite (MCP) + Consensus (MCP)  no code interpreter, no web search\n\n[ ] LLM: default provider (qwen-cloud-fast)  no override needed\n\n[ ] Starter messages: copy the 7 opening questions above",
+          "chunk_ind": 4
+        },
+        {
+          "document_id": "FILE_CONNECTOR__282cfc42-2b66-445e-927d-bdc72fac1200",
+          "semantic_identifier": "user-manual_onyx-setup-guide.md",
+          "link": "",
+          "score": 0.5265554,
+          "source_type": "file",
+          "blurb": "Onyx Setup Guide  Connectors & Robert's Research Personas\n\nThis guide covers two things: (1) which connectors Onyx must have configured and why, and (2) the exact system prompts for the four research ",
+          "chunk_ind": 0
+        },
+        {
+          "document_id": "FILE_CONNECTOR__17fcfb35-0146-4e48-a357-7103369c25e1",
+          "semantic_identifier": "user-manual_USER_MANUAL.md",
+          "link": "",
+          "score": 0.6056665,
+          "source_type": "file",
+          "blurb": "It is specifically for running arbitrary equations from the manuscript through SymPy without contaminating the main analysis script  the equivalent of a scratchpad that produces a structured JSON pass",
+          "chunk_ind": 6
+        },
+        {
+          "document_id": "FILE_CONNECTOR__9da5878b-2567-4ee4-8ad4-ed59411bd5d9",
+          "semantic_identifier": "ops_CURRENT_STATUS.md",
+          "link": "",
+          "score": 0.51591533,
+          "source_type": "file",
+          "blurb": "\n2026-05-20\n\n Onyx v4 beta transition completed\n\n DeerFlow audit completed (see HANDOFF.md)\n\n\u26a0\ufe0f DeerFlow issues identified\n\n Next Actions\n\nImmediate (This Session)\n\n[ ] Test DeerFlow-Onyx MCP/tool int",
+          "chunk_ind": 4
+        },
+        {
+          "document_id": "FILE_CONNECTOR__72ee07f9-9d10-4d0e-983e-2f7e0b814f2b",
+          "semantic_identifier": "ops_onyx-rag-optimization-2026-04-27.md",
+          "link": "",
+          "score": 0.544983,
+          "source_type": "file",
+          "blurb": "\nID Root cause Resolution RAG-07 Agent used internal_search for evidence-ledger.md claim status Source-routing block added to Physics Validation Mode prompt RAG-08 Agent used internal_search for fit r",
+          "chunk_ind": 1
+        },
+        {
+          "document_id": "FILE_CONNECTOR__25338dfb-f30b-4983-aaee-20d030dfc13b",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.5020126,
+          "source_type": "file",
+          "blurb": "A similar tendency of q decreasing with number of partic- ipating nucleons for Pb+Pb collisions at sNN = 2.76 TeV has been observed for the bulk part (pT < 6 GeV/c ) of the charged hadron spectra [55,",
+          "chunk_ind": 11
+        }
+      ],
+      "search_queries": [
+        "Does the manuscript compare the boson probability distribution model against a Tsallis or Blast-Wave baseline and state the motivation for doing so?",
+        "boson probability distribution",
+        "Tsallis baseline",
+        "Blast-Wave baseline",
+        "manuscript comparison boson probability distribution model Tsallis Blast-Wave baseline motivation",
+        "Does the manuscript compare the boson probability distribution model against a Tsallis or Blast-Wave baseline? If so, what is the stated motivation?"
+      ],
+      "citations": [],
+      "errors": [],
+      "event_kinds": {
+        "search_tool_start": 1,
+        "search_tool_queries_delta": 1,
+        "search_tool_documents_delta": 1,
+        "section_end": 1,
+        "message_start": 1,
+        "message_delta": 121,
+        "citation_info": 1,
+        "stop": 1
+      }
+    },
+    {
+      "id": "Q5",
+      "topic": "System Architecture Boundary",
+      "question": "Why shouldn't I use internal_search to check the status of the evidence ledger?",
+      "persona_id": 2,
+      "chat_session_id": "56f1e16d-026c-480e-88d4-64a31f5c31e7",
+      "http_status": 200,
+      "elapsed_ms": 87179,
+      "answer_chars": 469,
+      "answer_preview": "> \"Do not use internal_search for questions whose authoritative answer lives in a tracked canonical file\" - ops_onyx-rag-optimization-2026-04-27.md [[1]]()\n \nThe evidence ledger status should not be checked using the internal_search tool, as it is a canonical file that should be read directly [[1]](). \n\n\u26a0 \u03c7\u00b2/ndf STATUS: No chunk confirming goodness-of-fit methodology has been retrieved from the in",
+      "answer": "> \"Do not use internal_search for questions whose authoritative answer lives in a tracked canonical file\" - ops_onyx-rag-optimization-2026-04-27.md [[1]]()\n \nThe evidence ledger status should not be checked using the internal_search tool, as it is a canonical file that should be read directly [[1]](). \n\n\u26a0 \u03c7\u00b2/ndf STATUS: No chunk confirming goodness-of-fit methodology has been retrieved from the indexed corpus. This is a standing open concern in the evidence ledger.",
+      "top_documents": [
+        {
+          "document_id": "FILE_CONNECTOR__72ee07f9-9d10-4d0e-983e-2f7e0b814f2b",
+          "semantic_identifier": "ops_onyx-rag-optimization-2026-04-27.md",
+          "link": "",
+          "score": 0.82068145,
+          "source_type": "file",
+          "blurb": "Onyx RAG Optimization  2026-04-27\n\nThis document captures the RAG-vs-canon source-routing boundary, persona audit findings, and retrieval-stack decisions made on 2026-04-27. It is the live reference f",
+          "chunk_ind": 0
+        },
+        {
+          "document_id": "FILE_CONNECTOR__668a9113-247e-4733-ad95-5300d609854e",
+          "semantic_identifier": "ops_platform-backlog.md",
+          "link": "",
+          "score": 0.5485103,
+          "source_type": "file",
+          "blurb": "\nRotation Checklist for Issue #4: - [ ] Rotate Qwen/DashScope API Key (exposed in current tree) - [ ] Rotate NVIDIA API Key (exposed in current tree) - [ ] Rotate Onyx API Key (exposed in current tree",
+          "chunk_ind": 21
+        },
+        {
+          "document_id": "FILE_CONNECTOR__f43882ab-2509-45eb-8275-ffc70bfbd80d",
+          "semantic_identifier": "ops_DRIFT_ANALYSIS.md",
+          "link": "",
+          "score": 0.53137183,
+          "source_type": "file",
+          "blurb": "\n2. \"Scite & Consensus MCP fail to load\" \u26a0\ufe0f\n   - Status: proxy routes verified separately; DeerFlow MCP-client tool execution still needs an authenticated smoke test\n\n3. \"Model Configuration: gemini-2",
+          "chunk_ind": 2
+        },
+        {
+          "document_id": "FILE_CONNECTOR__9da5878b-2567-4ee4-8ad4-ed59411bd5d9",
+          "semantic_identifier": "ops_CURRENT_STATUS.md",
+          "link": "",
+          "score": 0.46691272,
+          "source_type": "file",
+          "blurb": "\n2026-05-20\n\n Onyx v4 beta transition completed\n\n DeerFlow audit completed (see HANDOFF.md)\n\n\u26a0\ufe0f DeerFlow issues identified\n\n Next Actions\n\nImmediate (This Session)\n\n[ ] Test DeerFlow-Onyx MCP/tool int",
+          "chunk_ind": 4
+        }
+      ],
+      "search_queries": [
+        "Why shouldn't I use internal_search to check the status of the evidence ledger?",
+        "internal_search evidence_ledger",
+        "evidence_ledger status",
+        "internal_search limitations",
+        "evidence ledger status"
+      ],
+      "citations": [],
+      "errors": [],
+      "event_kinds": {
+        "search_tool_start": 1,
+        "search_tool_queries_delta": 1,
+        "search_tool_documents_delta": 1,
+        "section_end": 1,
+        "message_start": 1,
+        "message_delta": 79,
+        "citation_info": 1,
+        "stop": 1
+      }
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "with_answer": 3,
+    "with_retrieval": 3,
+    "with_errors": 2
+  }
+}

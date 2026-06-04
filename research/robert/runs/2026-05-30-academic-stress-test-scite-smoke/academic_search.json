@@ -1,0 +1,175 @@
+{
+  "queries": [
+    {
+      "claim_id": "double_ratio_pythia",
+      "query": "\"Bose-Einstein correlations\" double ratio R2 Q PYTHIA 6 LHC",
+      "results": [
+        {
+          "source": "scite_mcp",
+          "title": "Measurements of Bose-Einstein correlations with the ATLAS detector",
+          "url": "https://doi.org/10.22323/1.247.0157",
+          "doi": "10.22323/1.247.0157",
+          "year": 2016,
+          "date": "2016-01-29",
+          "publisher": "Sissa Medialab",
+          "authors": [
+            "I. S\u00fdkora"
+          ],
+          "smart_citations": {
+            "total": 1,
+            "supporting": 0,
+            "contrasting": 0,
+            "mentioning": 1,
+            "citing_publications": 1
+          },
+          "abstract": "The Bose-Einstein correlations provide a unique opportunity for detailed understanding of space-time characteristics of the hadronization region, for determining the size and shape of the source from which particles are emitted and for interpreting quark confinement effects. The correlations lead to enhancement in production of identical bosons that are close in phase space. The ATLAS collaboration has performed a measurement of Bose-Einstein correlations of pairs of charged particles with transverse momentum greater than 100 MeV in p-p collisions at 900 GeV and 7 TeV. Bose-Einstein correlation parameters are investigated up to very high chargedparticle multiplicities. The dependence of the Bose-Einstein correlation parameters on the average transverse momentum per pair is also investigated."
+        },
+        {
+          "source": "scite_mcp",
+          "title": "Bose-Einstein correlations and b-bbar correlations in pp collisions with LHCb",
+          "url": "https://doi.org/10.48550/arxiv.1809.09898",
+          "doi": "10.48550/arxiv.1809.09898",
+          "year": 2018,
+          "date": "2018-01-01",
+          "publisher": "arXiv",
+          "authors": [
+            "Bartosz Malecki"
+          ],
+          "smart_citations": {
+            "total": null,
+            "supporting": null,
+            "contrasting": null,
+            "mentioning": null,
+            "citing_publications": null
+          },
+          "abstract": "Bose-Einstein correlations for same-sign charged pions and kinematic b b correlations in proton-proton collisions at a center-of-mass energy of 7 and 8 TeV are studied by the LHCb experiment. The dependence of Bose-Einstein correlation parameters on the charged-particle multiplicity is investigated. The correlation radius is observed to increase with multiplicity, while the chaoticity parameter decreases. The b b correlations are studied using inclusive b decays to J/\u03c8 and are found to be in good agreement with theoretical predictions."
+        }
+      ],
+      "errors": [
+        {
+          "engine": "arxiv",
+          "error": "arXiv API returned HTTP 429 rate limit"
+        },
+        {
+          "engine": "semanticscholar",
+          "error": "Semantic Scholar API returned HTTP 429 rate limit"
+        }
+      ]
+    },
+    {
+      "claim_id": "ohp_mix_reference",
+      "query": "Bose-Einstein correlations OHP MIX reference sample bias",
+      "results": [
+        {
+          "source": "scite_mcp",
+          "title": "Bose-Einstein correlations",
+          "url": "https://doi.org/10.1016/s0920-5632(00)00538-7",
+          "doi": "10.1016/s0920-5632(00)00538-7",
+          "year": 2000,
+          "date": "2000-06-01",
+          "publisher": "Elsevier BV",
+          "authors": [
+            "Kacper Zalewski"
+          ],
+          "smart_citations": {
+            "total": 1,
+            "supporting": 0,
+            "contrasting": 0,
+            "mentioning": 1,
+            "citing_publications": 1
+          },
+          "abstract": "AbstractBose-Einstein correlations in pairs of identical charged pions produced in a sample of 4.3 million Z 0 hadronic decays are studied as a function of the three components of the momentum difference, transverse (\"out\" and \"side\") and longitudinal with respect to the thrust direction of the event. A significant difference between the transverse, r t side , and longitudinal, r l , dimensions is observed, indicating that the emitting source of identical pions, as observed in the Longitudinally CoMoving System, has an elongated shape. This is observed with a variety of selection techniques. Specifically, the values of the parameters obtained by fitting the extended Goldhaber parametrisation to the correlation function C \u2032 = C DATA /C MC for two-jet events, selected with the Durham algorithm and resolution parameter y cut = 0.04, are r t side = (0.809 \u00b1 0.009 (stat)"
+        },
+        {
+          "source": "scite_mcp",
+          "title": "The\u03c4-model of Bose-Einstein Correlations: Some recent results",
+          "url": "https://doi.org/10.1051/epjconf/201612001003",
+          "doi": "10.1051/epjconf/201612001003",
+          "year": 2016,
+          "date": "2016-01-01",
+          "publisher": "EDP Sciences",
+          "authors": [
+            "W.J. Metzger"
+          ],
+          "smart_citations": {
+            "total": null,
+            "supporting": null,
+            "contrasting": null,
+            "mentioning": null,
+            "citing_publications": null
+          },
+          "abstract": "Abstract. Bose-Einstein correlations of pairs of identical charged pions produced in hadronic Z decays and in 7 TeV pp minimum bias interactions are investigated within the framework of the \u03c4-model."
+        }
+      ],
+      "errors": [
+        {
+          "engine": "arxiv",
+          "error": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=5)"
+        },
+        {
+          "engine": "semanticscholar",
+          "error": "Semantic Scholar API returned HTTP 429 rate limit"
+        }
+      ]
+    },
+    {
+      "claim_id": "fit_quality_models",
+      "query": "Bose-Einstein correlations exponential Levy tau model chi2 ndf LHC",
+      "results": [
+        {
+          "source": "scite_mcp",
+          "title": "Bose-Einstein Correlations and the Tau Model",
+          "url": "https://doi.org/10.5689/ua-proc-2010-09/16",
+          "doi": "10.5689/ua-proc-2010-09/16",
+          "year": 2011,
+          "date": "2011-06-06",
+          "publisher": "ASP Editions",
+          "authors": [
+            "W.J. Metzger",
+            "T. Nov\u00e1k",
+            "T. Cs\u00f6rg\u0151"
+          ],
+          "smart_citations": {
+            "total": 0,
+            "supporting": 0,
+            "contrasting": 0,
+            "mentioning": 0,
+            "citing_publications": 2
+          },
+          "abstract": "Bose-Einstein correlations of pairs of identical charged pions produced in hadronic Z decays are analyzed in terms of various parametrizations. A good description is achieved using a L\u00e9vy stable distribution in conjunction with a model where a particle's momentum is highly correlated with its space-time point of production, the \u03c4 -model. However, a small but significant elongation of the particle emission region is observed in the Longitudinal Center of Mass frame, which is not accommodated in the \u03c4 -model. This is investigated using an ad hoc modification of the \u03c4 -model."
+        },
+        {
+          "source": "scite_mcp",
+          "title": "On long-range pionic Bose-Einstein correlations -- Including analyses of OPAL, L3 and CMS BECs",
+          "url": "https://doi.org/10.48550/arxiv.2102.11083",
+          "doi": "10.48550/arxiv.2102.11083",
+          "year": 2021,
+          "date": "2021-01-01",
+          "publisher": "arXiv",
+          "authors": [
+            "Takuya Mizoguchi",
+            "M. Biyajima"
+          ],
+          "smart_citations": {
+            "total": 2,
+            "supporting": 0,
+            "contrasting": 0,
+            "mentioning": 2,
+            "citing_publications": 1
+          },
+          "abstract": "Long-range correlation plays an important role in analyses of pionic Bose-Einstein correlations (BECs). In many cases, such correlations are phenomenologically introduced. In this investigation, we propose an analytic form. By making use of the form, we analyze the OPAL BEC and the L3 BEC at Z 0 -pole and the CMS BEC at 0.9 and 7 TeV using our formulas and the \u03c4 -model. The parameters estimated by both approaches are found to be consistent. Utilizing the Fourier transform in four-dimensional Euclidean space, a number of pion-pair density distributions are also studied."
+        }
+      ],
+      "errors": [
+        {
+          "engine": "arxiv",
+          "error": "arXiv API returned HTTP 429 rate limit"
+        },
+        {
+          "engine": "semanticscholar",
+          "error": "Semantic Scholar API returned HTTP 429 rate limit"
+        }
+      ]
+    }
+  ]
+}

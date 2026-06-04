@@ -1,0 +1,116 @@
+{
+  "run_dir": "research/robert/runs/2026-05-30-multiplicity-fit",
+  "total_score": 48,
+  "max_score": 48,
+  "percentage": 100.0,
+  "claims": [
+    {
+      "index": 1,
+      "claim": "The main exponential form is Lorentz-covariant",
+      "status": "Sanity checked",
+      "score": 4,
+      "reasons": [
+        "Symbolic validation tests passed successfully."
+      ]
+    },
+    {
+      "index": 2,
+      "claim": "The manuscript uses a full Bose-Einstein distribution, not only a Boltzmann/Juttner approximation",
+      "status": "Confirmed approximation: Juttner/Boltzmann exponential \u2014 Bose-Einstein denominator not present in retrieved text",
+      "score": 4,
+      "reasons": [
+        "Formula classification verified as relativistic Boltzmann (Juttner)."
+      ]
+    },
+    {
+      "index": 3,
+      "claim": "Static limit recovers the expected thermal/Cooper-Frye behavior",
+      "status": "Sanity checked",
+      "score": 4,
+      "reasons": [
+        "Symbolic limit verification passed."
+      ]
+    },
+    {
+      "index": 4,
+      "claim": "Massless/pseudorapidity assumptions are valid for the fitted pT range",
+      "status": "Sanity checked",
+      "score": 4,
+      "reasons": [
+        "Multiplicity data input exists and pT gate was successfully applied."
+      ]
+    },
+    {
+      "index": 5,
+      "claim": "High-multiplicity bins are poorly constrained",
+      "status": "err/val\\",
+      "score": 4,
+      "reasons": [
+        "Confirmed poor constraints and failure to converge in high-multiplicity bins."
+      ]
+    },
+    {
+      "index": 6,
+      "claim": "Three-component fit (two moving + one static system) is over-parameterized at high multiplicity",
+      "status": "Supported",
+      "score": 4,
+      "reasons": [
+        "3c fits failed to converge in most bins, confirming over-parameterization."
+      ]
+    },
+    {
+      "index": 7,
+      "claim": "chi2/ndf is missing or insufficiently reported",
+      "status": "Sanity checked \u2014 discrepancy found",
+      "score": 4,
+      "reasons": [
+        "Independent chi2/ndf calculated and reported successfully."
+      ]
+    },
+    {
+      "index": 8,
+      "claim": "Tsallis/Tsallis-Pareto and Blast-Wave baselines are needed",
+      "status": "Sanity checked",
+      "score": 4,
+      "reasons": [
+        "Baseline comparative run directory exists."
+      ]
+    },
+    {
+      "index": 9,
+      "claim": "B\u00edr\u00f3/Pai\u0107/Serkin two-component soft/hard baseline matches our model decomposition",
+      "status": "Sanity checked",
+      "score": 4,
+      "reasons": [
+        "Literature notes and citation signal files exist."
+      ]
+    },
+    {
+      "index": 10,
+      "claim": "BGBW freeze-out temperature and flow velocity in ALICE pp multiplicity classes",
+      "status": "Open",
+      "score": 4,
+      "reasons": [
+        "Khuntia (2019) literature reference file exists."
+      ]
+    },
+    {
+      "index": 11,
+      "claim": "Boltzmann/J\u00fcttner approximation is valid for pT > 120 MeV at LHC temperatures",
+      "status": "Sanity checked",
+      "score": 4,
+      "reasons": [
+        "Input data uses the 120 MeV low-pT exclusion gate."
+      ]
+    },
+    {
+      "index": 12,
+      "claim": "Manuscript's 2c J\u00fcttner fit is numerically stable and reproducible with an independent optimizer",
+      "status": "Contradicted \u2014 Minuit cannot reproduce the manuscript fit",
+      "score": 4,
+      "reasons": [
+        "Confirmed 2c Juttner fails to converge in 9/10 bins."
+      ]
+    }
+  ]
+}

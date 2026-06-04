@@ -1,0 +1,92 @@
+{
+  "queries": [
+    {
+      "claim_id": "double_ratio_pythia",
+      "query": "\"Bose-Einstein correlations\" double ratio R2 Q PYTHIA 6 LHC",
+      "results": [
+        {
+          "source": "consensus_mcp",
+          "title": "Two-component model description of Bose-Einstein correlations in pp collisions at 13 TeV measured by the CMS Collaboration at the LHC",
+          "url": "https://consensus.app/papers/details/3e0da77487705c1d89bc9b6cd5a5bd5c/?utm_source=python-requests",
+          "metadata": "T. Mizoguchi et al., 2023, 0 citations, Physical Review D",
+          "abstract": "Using the two-component model, we analyze Bose-Einstein correlations in pp collisions at the center-of-mass energy of 13 TeV, measured by the CMS Collaboration at the LHC, and compare results with the $\\tau$-model. We utilize data described by the double ratios with an average pair transverse momentum $0\\le k_T\\le 1.0$ GeV and six intervals described by the reconstructed charged particle multiplicity as $N_{\\rm trk}^{\\rm offline}$. The estimated ranges are 1-4 fm for the magnitude of extension of emitting source expressed by the exponential function $\\exp(-RQ)$ and 0.4-0.5 fm for that by the Gaussian distribution $\\exp(-(RQ)^2))$, respectively. Moreover, we estimate the upper limits of the 3-pion BEC to test the two-component model and investigate the role of the long-range correlation.",
+          "raw_text": "[1] [Two-component model description of Bose-Einstein correlations in \npp\n collisions at 13\u00a0TeV measured by the CMS Collaboration at the LHC](https://consensus.app/papers/details/3e0da77487705c1d89bc9b6cd5a5bd5c/?utm_source=python-requests) (T. Mizoguchi et al., 2023, 0 citations, Physical Review D)\n  Using the two-component model, we analyze Bose-Einstein correlations in pp collisions at the center-of-mass energy of 13 TeV, measured by the CMS Collaboration at the LHC, and compare results with the $\\tau$-model. We utilize data described by the double ratios with an average pair transverse momentum $0\\le k_T\\le 1.0$ GeV and six intervals described by the reconstructed charged particle multiplicity as $N_{\\rm trk}^{\\rm offline}$. The estimated ranges are 1-4 fm for the magnitude of extension of emitting source expressed by the exponential function $\\exp(-RQ)$ and 0.4-0.5 fm for that by the Gaussian distribution $\\exp(-(RQ)^2))$, respectively. Moreover, we estimate the upper limits of the 3-pion BEC to test the two-component model and investigate the role of the long-range correlation.\n"
+        },
+        {
+          "source": "consensus_mcp",
+          "title": "Bose\u2013Einstein Correlations in pp and pPb Collisions at LHCb \u2020",
+          "url": "https://consensus.app/papers/details/420d7851272e5c2ba049545f93ee33a9/?utm_source=python-requests",
+          "metadata": "B. Malecki, 2019, 0 citations, Universe",
+          "abstract": "Bose\u2013Einstein correlations for same-sign charged pions from proton\u2013proton collisions at s = 7 TeV are studied by the Large Hadron Collider beauty (LHCb) experiment. Correlation radii and chaoticity parameters are determined for different regions of charged-particle multiplicity using a double-ratio technique and a Levy parametrization of the correlation function. The correlation radius increases with the charged-particle multiplicity, while the chaoticity parameter decreases, which is consistent with observations from other experiments. A similar study for proton-lead collisions at s N N = 5 . 02 TeV is proposed. These results can give valuable input for the theoretical models that describe the evolution of the particle source, probing both its potential dependence on pseudorapidity region and differences between proton\u2013proton and proton\u2013lead systems.",
+          "raw_text": "[2] [Bose\u2013Einstein Correlations in pp and pPb Collisions at LHCb \u2020](https://consensus.app/papers/details/420d7851272e5c2ba049545f93ee33a9/?utm_source=python-requests) (B. Malecki, 2019, 0 citations, Universe)\n  Bose\u2013Einstein correlations for same-sign charged pions from proton\u2013proton collisions at s = 7 TeV are studied by the Large Hadron Collider beauty (LHCb) experiment. Correlation radii and chaoticity parameters are determined for different regions of charged-particle multiplicity using a double-ratio technique and a Levy parametrization of the correlation function. The correlation radius increases with the charged-particle multiplicity, while the chaoticity parameter decreases, which is consistent with observations from other experiments. A similar study for proton-lead collisions at s N N = 5 . 02 TeV is proposed. These results can give valuable input for the theoretical models that describe the evolution of the particle source, probing both its potential dependence on pseudorapidity region and differences between proton\u2013proton and proton\u2013lead systems.\n"
+        }
+      ],
+      "errors": [
+        {
+          "engine": "arxiv",
+          "error": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=5)"
+        },
+        {
+          "engine": "semanticscholar",
+          "error": "Semantic Scholar API returned HTTP 429 rate limit"
+        }
+      ]
+    },
+    {
+      "claim_id": "ohp_mix_reference",
+      "query": "Bose-Einstein correlations OHP MIX reference sample bias",
+      "results": [
+        {
+          "source": "consensus_mcp",
+          "title": "Bose-Einsten and other two particle correlations - MC study",
+          "url": "https://consensus.app/papers/details/57b1eb6684fa5bb2a235b012077233d3/?utm_source=python-requests",
+          "metadata": "V. Schegelsky, 2012, 0 citations, arXiv: High Energy Physics - Phenomenology",
+          "abstract": "The Monte Carlo toy model of Bose-Einstein correlations is considered to make a best choice from different reference distributions. It occurs that the minimal bias in the Bose-Einstein correlation parameters estimation is provided by the reference sample which is being emulated from a real sample by the turn of all vectors in an event by a random angle in the transverse plane. It proposed to use similar approach in the analysis of two-dimensional correlation. To make the analysis less dependent on a reference sample, new definition of azimuthal angle difference is implemented as the angle between vectors in the transverse plane. Then one-dimensional correlation of azimuthal angles can be studied without a reference sample subtraction. The ridge in two-dimensional correlation appears if an appropriate cut in pair invariant masses is applied.",
+          "raw_text": "[1] [Bose-Einsten and other two particle correlations - MC study](https://consensus.app/papers/details/57b1eb6684fa5bb2a235b012077233d3/?utm_source=python-requests) (V. Schegelsky, 2012, 0 citations, arXiv: High Energy Physics - Phenomenology)\n  The Monte Carlo toy model of Bose-Einstein correlations is considered to make a best choice from different reference distributions. It occurs that the minimal bias in the Bose-Einstein correlation parameters estimation is provided by the reference sample which is being emulated from a real sample by the turn of all vectors in an event by a random angle in the transverse plane. It proposed to use similar approach in the analysis of two-dimensional correlation. To make the analysis less dependent on a reference sample, new definition of azimuthal angle difference is implemented as the angle between vectors in the transverse plane. Then one-dimensional correlation of azimuthal angles can be studied without a reference sample subtraction. The ridge in two-dimensional correlation appears if an appropriate cut in pair invariant masses is applied.\n"
+        },
+        {
+          "source": "consensus_mcp",
+          "title": "Sub-regional event mixing constraints for two-pion Bose\u2013Einstein correlations measurements in \u03c0\u03c0x system",
+          "url": "https://consensus.app/papers/details/bb5690e8383a55cf8d1e33d6aaaaedf2/?utm_source=python-requests",
+          "metadata": "Q. He et al., 2019, 0 citations, International Journal of Modern Physics E",
+          "abstract": "Current BEC measurements in exclusive reactions with very low multiplicities is still a big challenge due to lack of effective observing method. Previously proposed observing approaches using event mixing technique still face problems of sample reduction and introducing extra and unnecessary fitting parameters. Here, we show the viability of a new event mixing approach with sub-regional mixing constraints related to energy hierarchy and energy sum observables. Extensive numerical simulations are performed to test the new mixing technique. Its ability to observe BEC parameters is validated and the systematic bias of the fit BEC parameter [Formula: see text] is improved since this new approach reduces the fitting parameters from 4 to 3 compared to the previously proposed mixing method.",
+          "raw_text": "[2] [Sub-regional event mixing constraints for two-pion Bose\u2013Einstein correlations measurements in \u03c0\u03c0x system](https://consensus.app/papers/details/bb5690e8383a55cf8d1e33d6aaaaedf2/?utm_source=python-requests) (Q. He et al., 2019, 0 citations, International Journal of Modern Physics E)\n  Current BEC measurements in exclusive reactions with very low multiplicities is still a big challenge due to lack of effective observing method. Previously proposed observing approaches using event mixing technique still face problems of sample reduction and introducing extra and unnecessary fitting parameters. Here, we show the viability of a new event mixing approach with sub-regional mixing constraints related to energy hierarchy and energy sum observables. Extensive numerical simulations are performed to test the new mixing technique. Its ability to observe BEC parameters is validated and the systematic bias of the fit BEC parameter [Formula: see text] is improved since this new approach reduces the fitting parameters from 4 to 3 compared to the previously proposed mixing method.\n"
+        }
+      ],
+      "errors": [
+        {
+          "engine": "arxiv",
+          "error": "arXiv API returned HTTP 429 rate limit"
+        },
+        {
+          "engine": "semanticscholar",
+          "error": "Semantic Scholar API returned HTTP 429 rate limit"
+        }
+      ]
+    },
+    {
+      "claim_id": "fit_quality_models",
+      "query": "Bose-Einstein correlations exponential Levy tau model chi2 ndf LHC",
+      "results": [
+        {
+          "source": "consensus_mcp",
+          "title": "Centrality dependence of L\u00e9vy-stable two-pion Bose-Einstein correlations in <mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\"><mml:mrow><mml:msqrt><mml:msub><mml:mi>s</mml:mi><mml:mrow><mml:mi>N</mml:mi><mml:mi>N</mml:mi></mml:mrow></mml:msub></mml:msqrt><mml:mo>=</mml:mo><mml:mn>200</mml:mn",
+          "url": "https://consensus.app/papers/details/53ef4a4afc595f45ae5e2c4b2d27dc56/?utm_source=python-requests",
+          "metadata": "Phenix Collaboration N.J. Abdulameer et al., 2024, 2 citations, Physical Review C",
+          "abstract": "The PHENIX experiment measured the centrality dependence of two-pion Bose-Einstein correlation functions in $\\sqrt{s_{_{NN}}}=200$~GeV Au$+$Au collisions at the Relativistic Heavy Ion Collider at Brookhaven National Laboratory. The data are well represented by L\\'evy-stable source distributions. The extracted source parameters are the correlation-strength parameter $\\lambda$, the L\\'evy index of stability $\\alpha$, and the L\\'evy-scale parameter $R$ as a function of transverse mass $m_T$ and centrality. The $\\lambda(m_T)$ parameter is constant at larger values of $m_T$, but decreases as $m_T$ decreases. The L\\'evy scale parameter $R(m_T)$ decreases with $m_T$ and exhibits proportionality to the length scale of the nuclear overlap region. The L\\'evy exponent $\\alpha(m_T)$ is independent of $m_T$ within uncertainties in each investigated centrality bin, but shows a clear centrality dependence. At all centralities, the L\\'evy exponent $\\alpha$ is significantly different from that of Gaussian ($\\alpha=2$) or Cauchy ($\\alpha=1$) source distributions. Comparisons to the predictions of Monte-Carlo simulations of resonance-decay chains show that in all but the most peripheral centrality class (50%-60%), the obtained results are inconsistent with the measurements, unless a significant reduction of the in-medium mass of the $\\eta'$ meson is included. In each centrality class, the best value of the in-medium $\\eta'$ mass is compared to the mass of the $\\eta$ meson, as well as to several theoretical predictions that consider restoration of $U_A(1)$ symmetry in hot hadronic matter.",
+          "raw_text": "[2] [Centrality dependence of L\u00e9vy-stable two-pion Bose-Einstein correlations in \n<mml:math xmlns:mml=\"http://www.w3.org/1998/Math/MathML\"><mml:mrow><mml:msqrt><mml:msub><mml:mi>s</mml:mi><mml:mrow><mml:mi>N</mml:mi><mml:mi>N</mml:mi></mml:mrow></mml:msub></mml:msqrt><mml:mo>=</mml:mo><mml:mn>200</mml:mn](https://consensus.app/papers/details/53ef4a4afc595f45ae5e2c4b2d27dc56/?utm_source=python-requests) (Phenix Collaboration N.J. Abdulameer et al., 2024, 2 citations, Physical Review C)\n  The PHENIX experiment measured the centrality dependence of two-pion Bose-Einstein correlation functions in $\\sqrt{s_{_{NN}}}=200$~GeV Au$+$Au collisions at the Relativistic Heavy Ion Collider at Brookhaven National Laboratory. The data are well represented by L\\'evy-stable source distributions. The extracted source parameters are the correlation-strength parameter $\\lambda$, the L\\'evy index of stability $\\alpha$, and the L\\'evy-scale parameter $R$ as a function of transverse mass $m_T$ and centrality. The $\\lambda(m_T)$ parameter is constant at larger values of $m_T$, but decreases as $m_T$ decreases. The L\\'evy scale parameter $R(m_T)$ decreases with $m_T$ and exhibits proportionality to the length scale of the nuclear overlap region. The L\\'evy exponent $\\alpha(m_T)$ is independent of $m_T$ within uncertainties in each investigated centrality bin, but shows a clear centrality dependence. At all centralities, the L\\'evy exponent $\\alpha$ is significantly different from that of Gaussian ($\\alpha=2$) or Cauchy ($\\alpha=1$) source distributions. Comparisons to the predictions of Monte-Carlo simulations of resonance-decay chains show that in all but the most peripheral centrality class (50%-60%), the obtained results are inconsistent with the measurements, unless a significant reduction of the in-medium mass of the $\\eta'$ meson is included. In each centrality class, the best value of the in-medium $\\eta'$ mass is compared to the mass of the $\\eta$ meson, as well as to several theoretical predictions that consider restoration of $U_A(1)$ symmetry in hot hadronic matter.\n"
+        }
+      ],
+      "errors": [
+        {
+          "engine": "arxiv",
+          "error": "arXiv API returned HTTP 429 rate limit"
+        },
+        {
+          "engine": "semanticscholar",
+          "error": "Semantic Scholar API returned HTTP 429 rate limit"
+        }
+      ]
+    }
+  ]
+}

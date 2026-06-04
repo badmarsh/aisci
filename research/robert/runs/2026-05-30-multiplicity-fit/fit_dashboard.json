@@ -1,0 +1,753 @@
+{
+  "best_model_per_group": {
+    "126-150": {
+      "aic": 23.68508882942519,
+      "bic": 33.666458706203066,
+      "chi2_ndf": 0.35409360089167236,
+      "component_count": 2,
+      "model_name": "tsallis"
+    },
+    "21-30": {
+      "aic": 11.51013498760771,
+      "bic": 16.500819925996648,
+      "chi2_ndf": 0.1530593052113253,
+      "component_count": 1,
+      "model_name": "tsallis"
+    },
+    "31-40": {
+      "aic": 12.649836151848824,
+      "bic": 22.6312060286267,
+      "chi2_ndf": 0.019692004601479532,
+      "component_count": 2,
+      "model_name": "tsallis"
+    },
+    "51-60": {
+      "aic": 12.586651673859773,
+      "bic": 22.56802155063765,
+      "chi2_ndf": 0.01777732345029618,
+      "component_count": 2,
+      "model_name": "tsallis"
+    },
+    "61-70": {
+      "aic": 13.28464967599829,
+      "bic": 23.266019552776164,
+      "chi2_ndf": 0.038928778060554246,
+      "component_count": 2,
+      "model_name": "tsallis"
+    }
+  },
+  "failed_fits": [
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 64.192 exceeds max 5.0"
+      ],
+      "group_label": "101-125",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 25.020 exceeds max 5.0"
+      ],
+      "group_label": "101-125",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 11.034 exceeds max 5.0"
+      ],
+      "group_label": "101-125",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "EDM = 0.1434 exceeds threshold 0.1; fit may not be at minimum"
+      ],
+      "group_label": "101-125",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)"
+      ],
+      "group_label": "101-125",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit covariance matrix is not accurate",
+        "chi2/ndf = 12.037 exceeds max 5.0",
+        "Unconstrained parameters: norm_1: |err/val|=11849949.72 > 1.0; temperature_1: |err/val|=6.51 > 1.0"
+      ],
+      "group_label": "101-125",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "101-125",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Unconstrained parameters: U_2: |err/val|=350.89 > 1.0"
+      ],
+      "group_label": "101-125",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "101-125",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 44.589 exceeds max 5.0"
+      ],
+      "group_label": "126-150",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 16.821 exceeds max 5.0"
+      ],
+      "group_label": "126-150",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 8.037 exceeds max 5.0"
+      ],
+      "group_label": "126-150",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)"
+      ],
+      "group_label": "126-150",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "126-150",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "EDM = 0.3054 exceeds threshold 0.1; fit may not be at minimum",
+        "Unconstrained parameters: U_2: |err/val|=2.45 > 1.0; U_3: |err/val|=12.92 > 1.0"
+      ],
+      "group_label": "126-150",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate",
+        "EDM = 0.5657 exceeds threshold 0.1; fit may not be at minimum",
+        "Unconstrained parameters: temperature_1: |err/val|=77.07 > 1.0"
+      ],
+      "group_label": "126-150",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 29.404 exceeds max 5.0"
+      ],
+      "group_label": "21-30",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 22.534 exceeds max 5.0"
+      ],
+      "group_label": "21-30",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)"
+      ],
+      "group_label": "21-30",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Unconstrained parameters: norm_1: |err/val|=1.00 > 1.0; norm_2: |err/val|=1.00 > 1.0"
+      ],
+      "group_label": "21-30",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Unconstrained parameters: norm_1: |err/val|=1.14 > 1.0; U_1: |err/val|=2.55 > 1.0; U_2: |err/val|=5.11 > 1.0; norm_3: |err/val|=1.67 > 1.0; U_3: |err/val|=2.44 > 1.0"
+      ],
+      "group_label": "21-30",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Unconstrained parameters: U_1: |err/val|=1.12 > 1.0; norm_2: |err/val|=1.58 > 1.0; temperature_2: |err/val|=1.31 > 1.0; U_2: |err/val|=1.03 > 1.0; U_3: |err/val|=71.40 > 1.0"
+      ],
+      "group_label": "21-30",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit covariance matrix is not accurate",
+        "Unconstrained parameters: norm_2: |err/val|=2.36 > 1.0"
+      ],
+      "group_label": "21-30",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 60.863 exceeds max 5.0"
+      ],
+      "group_label": "31-40",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 37.001 exceeds max 5.0"
+      ],
+      "group_label": "31-40",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)"
+      ],
+      "group_label": "31-40",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "31-40",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Unconstrained parameters: norm_1: |err/val|=1.03 > 1.0; U_1: |err/val|=1.94 > 1.0; U_2: |err/val|=1.15 > 1.0; U_3: |err/val|=1.59 > 1.0"
+      ],
+      "group_label": "31-40",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "31-40",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "31-40",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 54.292 exceeds max 5.0"
+      ],
+      "group_label": "41-50",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 29.091 exceeds max 5.0"
+      ],
+      "group_label": "41-50",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 5.269 exceeds max 5.0"
+      ],
+      "group_label": "41-50",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "EDM = 0.1271 exceeds threshold 0.1; fit may not be at minimum"
+      ],
+      "group_label": "41-50",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "41-50",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Unconstrained parameters: norm_1: |err/val|=1.00 > 1.0"
+      ],
+      "group_label": "41-50",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Unconstrained parameters: U_3: |err/val|=1.15 > 1.0"
+      ],
+      "group_label": "41-50",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Unconstrained parameters: U_2: |err/val|=485.65 > 1.0"
+      ],
+      "group_label": "41-50",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "41-50",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 50.615 exceeds max 5.0"
+      ],
+      "group_label": "51-60",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 24.961 exceeds max 5.0"
+      ],
+      "group_label": "51-60",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 6.155 exceeds max 5.0"
+      ],
+      "group_label": "51-60",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "51-60",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "51-60",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "51-60",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate",
+        "Unconstrained parameters: U_1: |err/val|=55.27 > 1.0; U_2: |err/val|=2.51 > 1.0"
+      ],
+      "group_label": "51-60",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Unconstrained parameters: temperature_3: |err/val|=94.21 > 1.0"
+      ],
+      "group_label": "51-60",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 74.768 exceeds max 5.0"
+      ],
+      "group_label": "61-70",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 33.726 exceeds max 5.0"
+      ],
+      "group_label": "61-70",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 10.589 exceeds max 5.0"
+      ],
+      "group_label": "61-70",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "EDM = 0.2443 exceeds threshold 0.1; fit may not be at minimum"
+      ],
+      "group_label": "61-70",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "61-70",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "61-70",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "EDM = 0.1878 exceeds threshold 0.1; fit may not be at minimum"
+      ],
+      "group_label": "61-70",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "61-70",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 72.356 exceeds max 5.0"
+      ],
+      "group_label": "71-80",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 31.088 exceeds max 5.0"
+      ],
+      "group_label": "71-80",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 11.114 exceeds max 5.0"
+      ],
+      "group_label": "71-80",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "71-80",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "71-80",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)"
+      ],
+      "group_label": "71-80",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "71-80",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit covariance matrix is not accurate",
+        "Unconstrained parameters: U_1: |err/val|=1.51 > 1.0"
+      ],
+      "group_label": "71-80",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate",
+        "EDM = 3.757 exceeds threshold 0.1; fit may not be at minimum"
+      ],
+      "group_label": "71-80",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 69.472 exceeds max 5.0"
+      ],
+      "group_label": "81-90",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 28.638 exceeds max 5.0"
+      ],
+      "group_label": "81-90",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 11.680 exceeds max 5.0"
+      ],
+      "group_label": "81-90",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "EDM = 0.125 exceeds threshold 0.1; fit may not be at minimum"
+      ],
+      "group_label": "81-90",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)"
+      ],
+      "group_label": "81-90",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "EDM = 0.3578 exceeds threshold 0.1; fit may not be at minimum"
+      ],
+      "group_label": "81-90",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "81-90",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Unconstrained parameters: U_1: |err/val|=12.06 > 1.0; norm_2: |err/val|=1.03 > 1.0; U_2: |err/val|=2.81 > 1.0; U_3: |err/val|=1.74 > 1.0"
+      ],
+      "group_label": "81-90",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "81-90",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 67.779 exceeds max 5.0"
+      ],
+      "group_label": "91-100",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 27.167 exceeds max 5.0"
+      ],
+      "group_label": "91-100",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 1,
+      "failures": [
+        "chi2/ndf = 11.579 exceeds max 5.0"
+      ],
+      "group_label": "91-100",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "91-100",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "91-100",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 2,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "EDM = 0.1086 exceeds threshold 0.1; fit may not be at minimum"
+      ],
+      "group_label": "91-100",
+      "model_name": "tsallis"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Unconstrained parameters: U_2: |err/val|=1.86 > 1.0; U_3: |err/val|=1.11 > 1.0"
+      ],
+      "group_label": "91-100",
+      "model_name": "manuscript_juttner"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate"
+      ],
+      "group_label": "91-100",
+      "model_name": "exact_bose_einstein"
+    },
+    {
+      "component_count": 3,
+      "failures": [
+        "Minuit did not converge (valid=False)",
+        "Minuit covariance matrix is not accurate",
+        "EDM = 1.168 exceeds threshold 0.1; fit may not be at minimum",
+        "Unconstrained parameters: norm_3: |err/val|=17.83 > 1.0; temperature_3: |err/val|=1.69 > 1.0"
+      ],
+      "group_label": "91-100",
+      "model_name": "tsallis"
+    }
+  ],
+  "gate_thresholds": {
+    "chi2_ndf_max": 5.0,
+    "chi2_ndf_min": 0.1,
+    "edm_max": 0.1,
+    "rel_error_max": 1.0
+  },
+  "summary": {
+    "gate_failed": 82,
+    "gate_passed": 8,
+    "pass_rate_pct": 8.9,
+    "total_fits": 90
+  }
+}

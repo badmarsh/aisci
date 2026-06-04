@@ -1,0 +1,49 @@
+{
+  "queries": [
+    {
+      "claim_id": "double_ratio_pythia",
+      "query": "\"Bose-Einstein correlations\" double ratio R2 Q PYTHIA 6 LHC",
+      "results": [],
+      "errors": [
+        {
+          "engine": "arxiv",
+          "error": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=3)"
+        },
+        {
+          "engine": "semanticscholar",
+          "error": "Semantic Scholar API returned HTTP 429 rate limit"
+        }
+      ]
+    },
+    {
+      "claim_id": "ohp_mix_reference",
+      "query": "Bose-Einstein correlations OHP MIX reference sample bias",
+      "results": [],
+      "errors": [
+        {
+          "engine": "arxiv",
+          "error": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=3)"
+        },
+        {
+          "engine": "semanticscholar",
+          "error": "Semantic Scholar API returned HTTP 429 rate limit"
+        }
+      ]
+    },
+    {
+      "claim_id": "fit_quality_models",
+      "query": "Bose-Einstein correlations exponential Levy tau model chi2 ndf LHC",
+      "results": [],
+      "errors": [
+        {
+          "engine": "arxiv",
+          "error": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=3)"
+        },
+        {
+          "engine": "semanticscholar",
+          "error": "Semantic Scholar API returned HTTP 429 rate limit"
+        }
+      ]
+    }
+  ]
+}

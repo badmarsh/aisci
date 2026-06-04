@@ -1,0 +1,532 @@
+{
+  "access_count": {
+    "sum": 4899
+  },
+  "additional_resources": true,
+  "breadcrumb_text": "Acharya, Shreyasi et al.",
+  "coordinator": 46,
+  "data_tables": [
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 1/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 1/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 1/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 1/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 1/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 1/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 1/yoda1"
+      },
+      "description": "Transverse momentum spectra as a function of the event multiplicity for pp collisions at 13 TeV. Event multiplicity is estimated...",
+      "doi": "10.17182/hepdata.91996.v2/t1",
+      "id": 505670,
+      "location": "Data from figure 2",
+      "messages": false,
+      "name": "Table 1",
+      "processed_name": "Table1",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 2/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 2/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 2/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 2/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 2/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 2/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 2/yoda1"
+      },
+      "description": "Transverse momentum spectra as a function of the event multiplicity for pp collisions at 5.02 TeV. Event multiplicity is estimated...",
+      "doi": "10.17182/hepdata.91996.v2/t2",
+      "id": 505671,
+      "location": "Data from figure 2",
+      "messages": false,
+      "name": "Table 2",
+      "processed_name": "Table2",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 3/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 3/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 3/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 3/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 3/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 3/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 3/yoda1"
+      },
+      "description": "Transverse momentum spectra as a function of the event multiplicity for pp collisions at 13 TeV. Event multiplicity is estimated...",
+      "doi": "10.17182/hepdata.91996.v2/t3",
+      "id": 505672,
+      "location": "Data from figure 3",
+      "messages": false,
+      "name": "Table 3",
+      "processed_name": "Table3",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 4/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 4/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 4/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 4/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 4/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 4/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 4/yoda1"
+      },
+      "description": "Transverse momentum spectra as a function of the event multiplicity for pp collisions at 5.02 TeV. Event multiplicity is estimated...",
+      "doi": "10.17182/hepdata.91996.v2/t4",
+      "id": 505673,
+      "location": "Data from figure 3",
+      "messages": false,
+      "name": "Table 4",
+      "processed_name": "Table4",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 5/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 5/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 5/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 5/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 5/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 5/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 5/yoda1"
+      },
+      "description": "The spectral shape is characterized by the exponent of the power-law function which fits the high-pTpart (pT&gt;6 GeV/c) of the...",
+      "doi": "10.17182/hepdata.91996.v2/t5",
+      "id": 505674,
+      "location": "Data from figure 5",
+      "messages": false,
+      "name": "Table 5",
+      "processed_name": "Table5",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 6/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 6/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 6/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 6/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 6/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 6/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 6/yoda1"
+      },
+      "description": "The spectral shape is characterized by the exponent of the power-law function which fits the high-pTpart (pT&gt;6 GeV/c) of the...",
+      "doi": "10.17182/hepdata.91996.v2/t6",
+      "id": 505675,
+      "location": "Data from figure 5",
+      "messages": false,
+      "name": "Table 6",
+      "processed_name": "Table6",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 7/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 7/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 7/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 7/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 7/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 7/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 7/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 0-100% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t7",
+      "id": 505676,
+      "location": "Data from figure 8",
+      "messages": false,
+      "name": "Table 7",
+      "processed_name": "Table7",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 8/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 8/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 8/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 8/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 8/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 8/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 8/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 0-10% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t8",
+      "id": 505677,
+      "location": "Data from figure 8",
+      "messages": false,
+      "name": "Table 8",
+      "processed_name": "Table8",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 9/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 9/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 9/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 9/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 9/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 9/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 9/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 10-20% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t9",
+      "id": 505678,
+      "location": "Data from figure 10",
+      "messages": false,
+      "name": "Table 9",
+      "processed_name": "Table9",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 10/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 10/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 10/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 10/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 10/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 10/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 10/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 20-30% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t10",
+      "id": 505679,
+      "location": "Data from figure 10",
+      "messages": false,
+      "name": "Table 10",
+      "processed_name": "Table10",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 11/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 11/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 11/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 11/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 11/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 11/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 11/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 30-40% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t11",
+      "id": 505680,
+      "location": "Data from figure 10",
+      "messages": false,
+      "name": "Table 11",
+      "processed_name": "Table11",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 12/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 12/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 12/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 12/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 12/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 12/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 12/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 40-50% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t12",
+      "id": 505681,
+      "location": "Data from figure 10",
+      "messages": false,
+      "name": "Table 12",
+      "processed_name": "Table12",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 13/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 13/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 13/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 13/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 13/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 13/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 13/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 50-60% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t13",
+      "id": 505682,
+      "location": "Data from figure 10",
+      "messages": false,
+      "name": "Table 13",
+      "processed_name": "Table13",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 14/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 14/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 14/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 14/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 14/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 14/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 14/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 60-70% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t14",
+      "id": 505683,
+      "location": "Data from figure 10",
+      "messages": false,
+      "name": "Table 14",
+      "processed_name": "Table14",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 15/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 15/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 15/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 15/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 15/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 15/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 15/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 70-80% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t15",
+      "id": 505684,
+      "location": "Data from figure 10",
+      "messages": false,
+      "name": "Table 15",
+      "processed_name": "Table15",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 16/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 16/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 16/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 16/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 16/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 16/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 16/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 80-90% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t16",
+      "id": 505685,
+      "location": "Data from figure 10",
+      "messages": false,
+      "name": "Table 16",
+      "processed_name": "Table16",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 17/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 17/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 17/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 17/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 17/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 17/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 17/yoda1"
+      },
+      "description": "Average transverse momentum as a function of event multiplicity in pp collisions at 13 TeV. Results for the 90-100% spherocity...",
+      "doi": "10.17182/hepdata.91996.v2/t17",
+      "id": 505686,
+      "location": "Data from figure 8",
+      "messages": false,
+      "name": "Table 17",
+      "processed_name": "Table17",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins1735345/Table 18/csv",
+        "json": "https://www.hepdata.net/download/table/ins1735345/Table 18/json",
+        "root": "https://www.hepdata.net/download/table/ins1735345/Table 18/root",
+        "yaml": "https://www.hepdata.net/download/table/ins1735345/Table 18/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins1735345/Table 18/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins1735345/Table 18/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins1735345/Table 18/yoda1"
+      },
+      "description": "Spherocity intervals used in this analysis.",
+      "doi": "10.17182/hepdata.91996.v2/t18",
+      "id": 505687,
+      "location": "Data from figures 8 and 10 (complementary material)",
+      "messages": false,
+      "name": "Table 18",
+      "processed_name": "Table18",
+      "resources": []
+    }
+  ],
+  "mode": "record",
+  "overall_status": "finished",
+  "participant_count": 5,
+  "recid": 91996,
+  "record": {
+    "abstract": "We present a study of the inclusive charged-particle transverse momentum ($p_{\\rm T}$) spectra as a function of charged-particle multiplicity density at mid-pseudorapidity, ${\\rm d}N_{\\rm ch}/{\\rm d}\\eta$, in pp collisions at $\\sqrt{s}$ = 5.02 and 13 TeV covering the kinematic range $|\\eta|<0.8$ and $0.15<p_{\\rm{T}}<20$ GeV/$c$. The results are presented for events with at least one charged particle in $|\\eta|<1$ (INEL$ >0$). The $p_{\\rm T}$ spectra are reported for two multiplicity estimators covering different pseudorapidity regions. The $p_{\\rm T}$ spectra normalized to that for INEL $>0$ show little energy dependence. Moreover, the high-$p_{\\rm T}$ yields of charged particles increase faster than the charged-particle multiplicity density. The average $\\it{p}_{\\rm T}$ as a function of multiplicity and transverse spherocity is reported for pp collisions at $\\sqrt{s}=13$ TeV. For low- (high-) spherocity events, corresponding to jet-like (isotropic) events, the average $p_{\\rm T}$ is higher (smaller) than that measured in INEL $>0$ pp collisions. Within uncertainties, the functional form of $\\langle p_{\\rm T} \\rangle(N_{\\rm ch})$ is not affected by the spherocity selection. While EPOS LHC gives a good description of many features of data, PYTHIA overestimates the average $p_{\\rm T}$ in jet-like events.",
+    "access_urls": {
+      "links": {
+        "csv": "https://www.hepdata.net/download/submission/ins1735345/2/csv",
+        "json": "https://www.hepdata.net/download/submission/ins1735345/2/json",
+        "root": "https://www.hepdata.net/download/submission/ins1735345/2/root",
+        "yaml": "https://www.hepdata.net/download/submission/ins1735345/2/yaml",
+        "yoda": "https://www.hepdata.net/download/submission/ins1735345/2/yoda",
+        "yoda-h5": "https://www.hepdata.net/download/submission/ins1735345/2/yoda.h5"
+      }
+    },
+    "analyses": [],
+    "arxiv_id": "arXiv:1905.07208",
+    "collaborations": [
+      "ALICE"
+    ],
+    "control_number": "91996",
+    "creation_date": "2019-05-17",
+    "data_abstract": "CERN-LHC.  Transverse momentum distributions of unidentified primary charged particles are measured for proton-proton collisions at 5.02 and 13 TeV. The distributions are reported for different multiplicity classes defined by either the amplutude in the VZERO forward detector of ALICE or in terms of the track multiplicity at mid-pseudorapidity.\n\nThe average transverse momentum as a function of the mid-pseudorapidity charged particle density is also reported. Events with more than two primary charged particles (transverse momentum above 150 MeV/c) are considered. Results are reported for ten different transverse spherocity classes.",
+    "data_keywords": {
+      "cmenergies": [],
+      "observables": [
+        "D2N/DETARAP/DPT"
+      ],
+      "reactions": [
+        "P P --> CHARGED X"
+      ]
+    },
+    "doc_type": "publication",
+    "doi": "10.1140/epjc/s10052-019-7350-y",
+    "first_author": {
+      "affiliation": "Calcutta, VECC",
+      "full_name": "Acharya, Shreyasi"
+    },
+    "hepdata_doi": "10.17182/hepdata.91996.v2",
+    "id": 91996,
+    "inspire_id": "1735345",
+    "journal_info": "Eur.Phys.J.C 79 (2019) 857",
+    "keywords": [
+      {
+        "schema": "INSPIRE",
+        "value": "charged particle: multiplicity"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "p p: scattering"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "charged particle: production"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "multiplicity: dependence"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "charged particle: yield"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "transverse momentum: momentum spectrum"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "rapidity: difference"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "energy dependence"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "momentum transfer"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "CERN LHC Coll"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "PYTHIA"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "experimental results"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "5020 GeV-cms/nucleon 13000 GeV-cms/nucleon"
+      }
+    ],
+    "last_updated": "Fri, 29 Nov 2019 17:32:47 GMT",
+    "parent_child_join": {
+      "name": "parent_publication"
+    },
+    "publication_date": "2019-04-08T00:00:00",
+    "recid": 91996,
+    "resources": [
+      {
+        "description": "web page with auxiliary material",
+        "type": "html",
+        "url": "http://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/STDM-2012-02/"
+      }
+    ],
+    "subject_area": [
+      "nucl-ex",
+      "hep-ex"
+    ],
+    "summary_authors": [
+      {
+        "affiliation": "Calcutta, VECC",
+        "full_name": "Acharya, Shreyasi"
+      },
+      {
+        "affiliation": "Rez, Nucl. Phys. Inst.",
+        "full_name": "Adamova, Dagmar"
+      },
+      {
+        "affiliation": "Calcutta, VECC",
+        "full_name": "Adhya, Souvik Priyam"
+      },
+      {
+        "affiliation": "Goethe U., Frankfurt, Inst. Inform.",
+        "full_name": "Adler, Alexander"
+      },
+      {
+        "affiliation": "Lund U.",
+        "full_name": "Adolfsson, Jonatan"
+      },
+      {
+        "affiliation": "Panjab U.",
+        "full_name": "Aggarwal, Madan Mohan"
+      },
+      {
+        "affiliation": "CERN",
+        "full_name": "Aglieri Rinella, Gianluca"
+      },
+      {
+        "affiliation": "Turin Polytechnic",
+        "full_name": "Agnello, Michelangelo"
+      },
+      {
+        "affiliation": "Enrico Fermi Ctr., Rome",
+        "full_name": "Agrawal, Neelima"
+      },
+      {
+        "affiliation": "Calcutta, VECC",
+        "full_name": "Ahammed, Zubayer"
+      }
+    ],
+    "title": "Charged-particle production as a function of multiplicity and transverse spherocity in pp collisions at $\\sqrt{s}$ = 5.02 and 13 TeV",
+    "type": [
+      "article"
+    ],
+    "uuid": "f7ebb677-423d-4b5c-937d-d90d8534a559",
+    "version": 2,
+    "year": "2019"
+  },
+  "record_type": "publication",
+  "related_recids": [],
+  "related_to_this_recids": [],
+  "resources_with_doi": [],
+  "reviewers_notified": true,
+  "revision_message": {
+    "message": "in the updated version I removed the factor (2pipT)",
+    "version": 2
+  },
+  "site_url": "https://www.hepdata.net",
+  "status": "finished",
+  "table_id_to_show": 505670,
+  "table_name_to_show": "Table 1",
+  "version": 2,
+  "version_count": 2,
+  "watched": false
+}
