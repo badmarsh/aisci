@@ -5,11 +5,11 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@multica/ui/components/ui/dialog";
 import { Button } from "@multica/ui/components/ui/button";
+import { FileUploadButton } from "@multica/ui/components/common/file-upload-button";
 import {
   ContentEditor,
   type ContentEditorRef,
@@ -21,18 +21,44 @@ import { useCurrentWorkspace } from "@multica/core/paths";
 import { useFileUpload } from "@multica/core/hooks/use-file-upload";
 import { api } from "@multica/core/api";
 import { captureFeedbackOpened } from "@multica/core/analytics";
+import { useT } from "../i18n";
 import { formatShortcut, modKey, enterKey } from "@multica/core/platform";
 
 const MAX_MESSAGE_LEN = 10000;
 
-export function FeedbackModal({ onClose }: { onClose: () => void }) {
+function composeFeedbackInitialMessage(draftMessage: string, incomingInitialMessage: string) {
+  const draft = draftMessage.trim();
+  const incoming = incomingInitialMessage.trim();
+  if (!incoming) return draftMessage;
+  if (!draft) return incomingInitialMessage;
+  if (draft.includes(incoming)) return draftMessage;
+  return `${draftMessage}
+
+---
+
+${incomingInitialMessage}`;
+}
+
+export function FeedbackModal({
+  onClose,
+  data,
+  initialMessage,
+}: {
+  onClose: () => void;
+  data?: Record<string, unknown> | null;
+  initialMessage?: string;
+}) {
+  const { t } = useT("modals");
   const workspace = useCurrentWorkspace();
   const draft = useFeedbackDraftStore((s) => s.draft);
   const setDraft = useFeedbackDraftStore((s) => s.setDraft);
   const clearDraft = useFeedbackDraftStore((s) => s.clearDraft);
 
   const editorRef = useRef<ContentEditorRef>(null);
-  const [message, setMessage] = useState(draft.message);
+  const incomingInitialMessage =
+    initialMessage ?? (typeof data?.initialMessage === "string" ? data.initialMessage : "");
+  const seededMessage = composeFeedbackInitialMessage(draft.message, incomingInitialMessage);
+  const [message, setMessage] = useState(seededMessage);
   const { isDragOver, dropZoneProps } = useFileDropZone({
     onDrop: (files) => files.forEach((f) => editorRef.current?.uploadFile(f)),
   });
@@ -56,7 +82,7 @@ export function FeedbackModal({ onClose }: { onClose: () => void }) {
   const handleSubmit = async () => {
     if (!canSubmit) return;
     if (editorRef.current?.hasActiveUploads()) {
-      toast.info("Please wait for uploads to finish…");
+      toast.info(t(($) => $.feedback.toast_uploading));
       return;
     }
     // Read from the editor ref at submit time — `message` state lags 150ms
@@ -65,7 +91,7 @@ export function FeedbackModal({ onClose }: { onClose: () => void }) {
     const latest = editorRef.current?.getMarkdown()?.trim() ?? "";
     if (!latest) return;
     if (latest.length > MAX_MESSAGE_LEN) {
-      toast.error("Message is too long");
+      toast.error(t(($) => $.feedback.toast_too_long));
       return;
     }
     try {
@@ -75,13 +101,13 @@ export function FeedbackModal({ onClose }: { onClose: () => void }) {
         workspace_id: workspace?.id,
       });
       clearDraft();
-      toast.success("Thanks for the feedback!");
+      toast.success(t(($) => $.feedback.toast_sent));
       onClose();
     } catch (err) {
       const msg =
         err instanceof Error && err.message
           ? err.message
-          : "Failed to send feedback";
+          : t(($) => $.feedback.toast_failed);
       toast.error(msg);
     }
   };
@@ -90,11 +116,18 @@ export function FeedbackModal({ onClose }: { onClose: () => void }) {
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-2xl !h-[28rem] p-0 gap-0 flex flex-col overflow-hidden">
         <DialogHeader className="px-5 pt-4 pb-2 shrink-0">
-          <DialogTitle>Feedback</DialogTitle>
-          <DialogDescription>
-            We&apos;d love to hear what&apos;s working, what isn&apos;t, or
-            what you&apos;d like to see next.
-          </DialogDescription>
+          <DialogTitle>{t(($) => $.feedback.title)}</DialogTitle>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t(($) => $.feedback.github_hint_prefix)}
+            <a
+              href="https://github.com/multica-ai/multica/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand underline decoration-brand/40 underline-offset-2 hover:decoration-brand"
+            >
+              {t(($) => $.feedback.github_hint_link)}
+            </a>
+          </p>
         </DialogHeader>
 
         <div className="flex-1 min-h-0 px-5 pb-3">
@@ -104,8 +137,8 @@ export function FeedbackModal({ onClose }: { onClose: () => void }) {
           >
             <ContentEditor
               ref={editorRef}
-              defaultValue={draft.message}
-              placeholder="Tell us about your experience, bugs you've found, or features you'd like to see…"
+              defaultValue={seededMessage}
+              placeholder={t(($) => $.feedback.placeholder)}
               onUpdate={(md) => { setMessage(md); setDraft({ message: md }); }}
               onUploadFile={uploadWithToast}
               onSubmit={handleSubmit}
@@ -117,9 +150,13 @@ export function FeedbackModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        <div className="flex items-center justify-end px-4 py-3 border-t shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-t shrink-0">
+          <FileUploadButton
+            size="sm"
+            onSelect={(file) => editorRef.current?.uploadFile(file)}
+          />
           <Button size="sm" onClick={handleSubmit} disabled={!canSubmit}>
-            {mutation.isPending ? "Sending…" : "Send feedback"}
+            {mutation.isPending ? t(($) => $.feedback.sending) : t(($) => $.feedback.send)}
             <kbd className="ml-1 inline-flex h-4 items-center gap-0.5 rounded border border-border/50 bg-background/30 px-1 font-mono text-[10px] leading-none">
               {formatShortcut(modKey, enterKey)}
             </kbd>

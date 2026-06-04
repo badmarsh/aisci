@@ -30,6 +30,46 @@ function Test-CommandExists {
     $null -ne (Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Get-EnvFileValue {
+    param(
+        [string]$Path,
+        [string]$Name,
+        [string]$Default
+    )
+
+    if (-not (Test-Path $Path)) {
+        return $Default
+    }
+
+    $prefix = "$Name="
+    $line = Get-Content $Path |
+        Where-Object { $_.StartsWith($prefix) } |
+        Select-Object -Last 1
+    if (-not $line) {
+        return $Default
+    }
+
+    $value = $line.Substring($prefix.Length).Trim().Trim('"').Trim("'")
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        return $Default
+    }
+    return $value
+}
+
+function Get-SelfHostBackendPort {
+    foreach ($name in @("BACKEND_PORT", "API_PORT", "SERVER_PORT", "PORT")) {
+        $value = Get-EnvFileValue -Path (Join-Path $InstallDir ".env") -Name $name -Default ""
+        if (-not [string]::IsNullOrWhiteSpace($value)) {
+            return $value
+        }
+    }
+    return "8080"
+}
+
+function Get-SelfHostFrontendPort {
+    return Get-EnvFileValue -Path (Join-Path $InstallDir ".env") -Name "FRONTEND_PORT" -Default "3000"
+}
+
 function Get-LatestVersion {
     try {
         $release = Invoke-RestMethod -Uri "https://api.github.com/repos/multica-ai/multica/releases/latest" -ErrorAction Stop
@@ -160,6 +200,21 @@ function Get-WindowsCliArch {
     Write-Fail "Unsupported Windows architecture ($details). Only x64 and ARM64 are supported."
 }
 
+function Get-InstalledCliVersion {
+    try {
+        $firstLine = multica version 2>$null | Select-Object -First 1
+        if ("$firstLine" -match '\b(v?\d+(?:\.\d+)+)\b') {
+            $version = $Matches[1]
+            if ($version -notlike 'v*') {
+                $version = "v$version"
+            }
+            return $version
+        }
+    } catch {}
+
+    return $null
+}
+
 # ---------------------------------------------------------------------------
 # CLI Installation
 # ---------------------------------------------------------------------------
@@ -196,9 +251,21 @@ function Install-CliBinary {
     $checksumUrl = "https://github.com/multica-ai/multica/releases/download/$latest/checksums.txt"
     try {
         $checksums = Invoke-WebRequest -Uri $checksumUrl -UseBasicParsing -ErrorAction Stop
+        $checksumContent = if ($checksums.Content -is [byte[]]) {
+            [System.Text.Encoding]::UTF8.GetString($checksums.Content)
+        } else {
+            [string]$checksums.Content
+        }
         $zipFile = Join-Path $tmpDir "multica.zip"
         $actualHash = (Get-FileHash -Path $zipFile -Algorithm SHA256).Hash.ToLower()
-        $expectedLine = ($checksums.Content -split "`n") | Where-Object { $_ -match "multica-cli-$version-windows-$arch\.zip" } | Select-Object -First 1
+        $releaseAsset = "multica-cli-$version-windows-$arch.zip"
+        $legacyAsset = "multica_windows_$arch.zip"
+        $expectedLine = ($checksumContent -split "`r?`n") |
+            Where-Object {
+                $_ -match [regex]::Escape($releaseAsset) -or
+                $_ -match [regex]::Escape($legacyAsset)
+            } |
+            Select-Object -First 1
         if ($expectedLine) {
             $expectedHash = ($expectedLine -split "\s+")[0].ToLower()
             if ($actualHash -ne $expectedHash) {
@@ -207,7 +274,7 @@ function Install-CliBinary {
             }
             Write-Ok "Checksum verified"
         } else {
-            Write-Warn "Could not find checksum entry for windows_$arch — skipping verification."
+            Write-Warn "Could not find checksum entry for $releaseAsset — skipping verification."
         }
     } catch {
         Write-Warn "Could not download checksums.txt — skipping verification."
@@ -253,18 +320,18 @@ function Add-ToUserPath {
 
 function Install-Cli {
     if (Test-CommandExists "multica") {
-        $currentVer = (multica version 2>$null) -replace '.*?(v[\d.]+).*','$1'
+        $currentVer = Get-InstalledCliVersion
         $latestVer = Get-LatestVersion
 
-        $currentCmp = $currentVer -replace '^v',''
+        $currentCmp = if ($currentVer) { $currentVer -replace '^v','' } else { $null }
         $latestCmp = if ($latestVer) { $latestVer -replace '^v','' } else { $null }
 
-        $isUpToDate = -not $latestCmp
+        $isUpToDate = $currentCmp -and -not $latestCmp
         if (-not $isUpToDate) {
             try {
-                $isUpToDate = [System.Version]$currentCmp -ge [System.Version]$latestCmp
+                $isUpToDate = $currentCmp -and $latestCmp -and ([System.Version]$currentCmp -ge [System.Version]$latestCmp)
             } catch {
-                $isUpToDate = $currentCmp -eq $latestCmp
+                $isUpToDate = $currentCmp -and $latestCmp -and ($currentCmp -eq $latestCmp)
             }
         }
 
@@ -276,7 +343,7 @@ function Install-Cli {
         Write-Info "Multica CLI $currentVer installed, latest is $latestVer - upgrading..."
         Install-CliBinary
 
-        $newVer = (multica version 2>$null) -replace '.*?(v[\d.]+).*','$1'
+        $newVer = Get-InstalledCliVersion
         Write-Ok "Multica CLI upgraded ($currentVer -> $newVer)"
         return
     }
@@ -359,10 +426,11 @@ function Install-Server {
     docker compose -f docker-compose.selfhost.yml up -d
 
     Write-Info "Waiting for backend to be ready..."
+    $backendPort = Get-SelfHostBackendPort
     $ready = $false
     for ($i = 1; $i -le 45; $i++) {
         try {
-            $null = Invoke-WebRequest -Uri "http://localhost:8080/health" -UseBasicParsing -TimeoutSec 2
+            $null = Invoke-WebRequest -Uri "http://localhost:$backendPort/health" -UseBasicParsing -TimeoutSec 2
             $ready = $true
             break
         } catch {
@@ -424,8 +492,10 @@ function Start-LocalInstall {
     Write-Host "  [OK] Multica server is running and CLI is ready!" -ForegroundColor Green
     Write-Host "  ============================================" -ForegroundColor Green
     Write-Host ""
-    Write-Host "  Frontend:  http://localhost:3000"
-    Write-Host "  Backend:   http://localhost:8080"
+    $frontendPort = Get-SelfHostFrontendPort
+    $backendPort = Get-SelfHostBackendPort
+    Write-Host "  Frontend:  http://localhost:$frontendPort"
+    Write-Host "  Backend:   http://localhost:$backendPort"
     Write-Host "  Server at: $InstallDir"
     Write-Host ""
     Write-Host "  Next: configure your CLI to connect"
