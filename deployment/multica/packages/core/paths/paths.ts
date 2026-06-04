@@ -35,6 +35,7 @@ function workspaceScoped(slug: string) {
     settings: () => `${ws}/settings`,
     hepPhysics: () => `${ws}/hep-physics`,
     openComputerUse: () => `${ws}/open-computer-use`,
+    workflows: () => `${ws}/workflows`,
   };
 }
 

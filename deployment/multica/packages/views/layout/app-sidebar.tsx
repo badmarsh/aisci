@@ -110,7 +110,8 @@ type NavKey =
   | "skills"
   | "settings"
   | "hepPhysics"
-  | "openComputerUse";
+  | "openComputerUse"
+  | "workflows";
 
 const personalNav: { key: NavKey; label: string; icon: typeof Inbox }[] = [
   { key: "inbox", label: "Inbox", icon: Inbox },
@@ -124,6 +125,7 @@ const workspaceNav: { key: NavKey; label: string; icon: typeof Inbox }[] = [
   { key: "agents", label: "Agents", icon: Bot },
   { key: "hepPhysics", label: "HEP Physics", icon: Activity },
   { key: "openComputerUse", label: "OpenComputer Use", icon: Monitor },
+  { key: "workflows", label: "Workflows", icon: Zap },
 ];
 
 const configureNav: { key: NavKey; label: string; icon: typeof Inbox }[] = [

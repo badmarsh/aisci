@@ -1,0 +1,41 @@
+{
+  "displayName": "Weekly ArXiv Scan",
+  "trigger": {
+    "name": "trigger",
+    "valid": true,
+    "displayName": "Multica Autopilot Webhook",
+    "type": "WEBHOOK",
+    "settings": {
+      "inputUiInfo": {}
+    },
+    "nextAction": {
+      "name": "step_1",
+      "type": "PIECE",
+      "valid": true,
+      "displayName": "Trigger Python Agent",
+      "settings": {
+        "pieceName": "@activepieces/piece-http",
+        "pieceType": "OFFICIAL",
+        "pieceVersion": "^0.3.0",
+        "actionName": "send_request",
+        "input": {
+          "method": "POST",
+          "url": "http://host.docker.internal:8000/run_script",
+          "body": {
+            "script": "trigger_onyx_agent.py",
+            "args": [
+              "--card-id",
+              "{{trigger.body.issue_id}}",
+              "--persona",
+              "arxiv_researcher"
+            ]
+          },
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "inputUiInfo": {}
+      }
+    }
+  }
+}
