@@ -74,8 +74,8 @@ services:
     - INDEXING_MODEL_SERVER_HOST=onyx-indexing
     - CODE_INTERPRETER_BASE_URL=http://onyx-code-interpreter:8000
     - S3_ENDPOINT_URL=http://onyx-minio:9000
-    - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID:-minioadmin}
-    - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY:-minioadmin}
+    - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID}
+    - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY}
     - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     - OUTPUTS_TEMPLATE_PATH=/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
     - VENV_TEMPLATE_PATH=/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
@@ -97,6 +97,7 @@ services:
     - /home/ubuntu/aisci:/workspace/aisci
     networks:
     - default
+    - onyx_storage
   onyx-background:
     container_name: onyx-background
     image: onyx-backend-custom:${IMAGE_TAG:-craft-latest}
@@ -152,8 +153,8 @@ services:
     - MODEL_SERVER_HOST=onyx-inference
     - INDEXING_MODEL_SERVER_HOST=onyx-indexing
     - S3_ENDPOINT_URL=http://onyx-minio:9000
-    - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID:-minioadmin}
-    - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY:-minioadmin}
+    - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID}
+    - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY}
     - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
     - DISCORD_BOT_INVOKE_CHAR=${DISCORD_BOT_INVOKE_CHAR:-!}
     - API_SERVER_PROTOCOL=http
@@ -179,6 +180,7 @@ services:
         max-file: '6'
     networks:
     - default
+    - onyx_storage
   onyx-web:
     container_name: onyx-web-server
     image: onyxdotapp/onyx-web-server:${IMAGE_TAG:-v4.0.3}
@@ -362,14 +364,14 @@ services:
     - path: .env.local
       required: false
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       MINIO_DEFAULT_BUCKETS: ${S3_FILE_STORE_BUCKET_NAME:-onyx-file-store-bucket}
     volumes:
     - minio_data:/data
     command: server /data --console-address ":9001"
     networks:
-    - default
+    - onyx_storage
   onyx-code-interpreter:
     container_name: onyx-code-interpreter
     image: onyxdotapp/code-interpreter:latest
@@ -498,6 +500,9 @@ services:
 networks:
   default:
     name: onyx_default
+  onyx_storage:
+    name: onyx_storage
+    internal: true
 volumes:
   db_volume: null
   minio_data: null
