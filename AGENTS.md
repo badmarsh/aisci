@@ -37,6 +37,7 @@ These instructions apply to any AI coding or research agent working in this repo
 ## GitHub Workflow
 
 - Use Multica Issues for accepted actionable work: platform tasks, docs drift, security remediation, and follow-up implementation.
+- **CRITICAL: When starting a new task, debugging an issue, or even if the user just pastes a raw error log, you MUST create a Multica Issue first to track the work before fixing it.** This creates a durable log of what broke and how it was resolved.
 - Use Pull Requests for reviewable code/docs changes and keep the PR body focused on what changed, why, verification, and safety constraints.
 - Keep durable facts in repo docs: `docs/ops/` for platform state, `docs/decisions/` for stable decisions, and `research/robert/` for science state.
 - When an Issue and a canonical doc disagree, inspect the recent PR/Issue history, then update the canonical file or correct the Issue rather than creating a new parallel note.
@@ -61,6 +62,11 @@ These instructions apply to any AI coding or research agent working in this repo
 - Store science-facing questions, evidence states, validation gates, and run tasks under `research/robert/`, using `research/robert/evidence-ledger.md` and `research/robert/next-actions.md` as the canonical files.
 - Keep `ACTION_PLAN.md` high level; do not duplicate detailed backlog rows there.
 - If the user asks only for analysis and not edits, do not persist suggestions unless asked. Report the recommended storage location and offer either targeted persistence, immediate implementation, or a handoff prompt.
+
+## Workspaces & Deployment Targets
+
+- **Multica Workspaces**: Agents executing in isolated workspaces (like `/home/ubuntu/multica_workspaces`) must remember they are in a sandbox. When providing links or paths to the user, ALWAYS provide the canonical paths (e.g., `/home/ubuntu/aisci/...` or GitHub PR links). NEVER provide the raw `/home/ubuntu/multica_workspaces/...` paths, as they break UI links.
+- **DeerFlow Deployments**: When instructed to "deploy" workload repositories (like webapps or services), ALWAYS deploy them to `/home/ubuntu/deployments/`. NEVER deploy workloads to `/home/ubuntu/aisci/deployment/`, which is strictly reserved for core platform infrastructure (Onyx, DeerFlow, Multica).
 
 ## Reusable Agent Skills & Coordination
 
