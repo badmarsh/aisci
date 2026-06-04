@@ -1,3 +1,12 @@
 [submodule "deployment/onyx/onyx-mcp-server"]
 	path = deployment/onyx/onyx-mcp-server
 	url = https://github.com/badmarsh/onyx-mcp-server.git
+[submodule "deployment/open-computer-use"]
+	path = deployment/open-computer-use
+	url = https://github.com/badmarsh/open-computer-use.git
+[submodule "deployment/multica"]
+	path = deployment/multica
+	url = https://github.com/badmarsh/multica.git
+[submodule "deployment/deer-flow"]
+	path = deployment/deer-flow
+	url = https://github.com/badmarsh/deer-flow.git
