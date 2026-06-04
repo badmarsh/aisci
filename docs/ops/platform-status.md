@@ -54,4 +54,12 @@ Keys still present in `deployment/onyx/.env` (tracked file). These are dev/perso
 | **Drift in OpenSearch Cutover & Preflight script** — Cutover helper searched for docker service name `api_server` (which is named `onyx-api` in compose), and preflight check parsed obsolete JSON keys | High | ✅ Fixed 2026-06-02 | Changed `api_server` service name to `onyx-api` in `onyx_opensearch_cutover.py`; updated JSON parsing in `preflight_check.sh`; aligned `.env` with expected model config |
 | **Looping PM2 Process and Log Build-up** — PM2 process `cmm-api` was in a crash loop (missing `uvicorn`) and created an 18 GB error log file in `/root/.pm2/logs` | Critical | ✅ Fixed 2026-06-02 | Deleted the looping process using `pm2 delete cmm-api` and manually removed the 18 GB log file. |
 
+## Audit Findings & Fixes (2026-06-04)
+
+| Finding | Severity | Status | Fix Applied |
+|---|---|---|---|
+| **Multica Server version mismatch / missing Squads support (AIS-95)** — The self-hosted Multica server ran a local development build lacking the Squads feature, causing 404 errors when newer CLI versions requested squads endpoints. | High | ✅ Fixed 2026-06-04 | Migrated server to official stable images (`ghcr.io/multica-ai/...`), explicitly enabled `MULTICA_SQUADS_ENABLED=true` in `docker-compose.selfhost.yml` and `.env`, and verified squads CLI commands operate successfully. |
+| **MinIO Security Vulnerability (AIS-68)** — Default minioadmin credentials in fallback and no port isolation, exposing MinIO directly on onyx_default. | High | ✅ Fixed 2026-06-04 | Generated random credentials in `.env`, removed fallback from compose/template, isolated on `onyx_storage` network. |
+
+
 
