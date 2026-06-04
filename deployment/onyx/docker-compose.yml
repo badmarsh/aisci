@@ -286,7 +286,12 @@ services:
     - OPENSEARCH_INITIAL_ADMIN_PASSWORD=StrongPassword123!
     - discovery.type=single-node
     - bootstrap.memory_lock=true
-    - OPENSEARCH_JAVA_OPTS=-Xms4g -Xmx4g
+    # AIS-64: Set OPENSEARCH_HEAP in .env to 50% of host RAM (max 32g).
+    # Default 4g is conservative; increase for better k-NN performance.
+    - OPENSEARCH_JAVA_OPTS=-Xms${OPENSEARCH_HEAP:-4g} -Xmx${OPENSEARCH_HEAP:-4g}
+    # AIS-64: Explicit k-NN plugin configuration
+    - node.attr.knn_enabled=true
+    - knn.memory.circuit_breaker.limit=60%
     restart: unless-stopped
     env_file:
     - path: .env

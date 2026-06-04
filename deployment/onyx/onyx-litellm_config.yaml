@@ -143,12 +143,21 @@ model_list:
 
 router_settings:
   allowed_fails: 10
-  cooldown_time: 0
+  cooldown_time: 30   # AIS-67: was 0; give failed cloud models 30s before retry
   enable_pre_call_checks: true
   routing_strategy: latency-based-routing
   timeout: 1200
   num_retries: 3
   retry_after: 5
+  # AIS-67: General fallback chain — triggered on RateLimitError, APIConnectionError,
+  # ServiceUnavailableError, and any other non-context-window error.
+  # Without this key, 429s from DashScope propagate directly to the user.
+  fallbacks:
+    - qwen-cloud-fast: [qwen-rag-local, gemma2]
+    - qwen-rag-fast: [qwen-rag-local, gemma2]
+    - qwen-rag-balanced: [gemma2, qwen-rag-local]
+    - qwen-max: [qwen-rag-balanced, qwen-rag-local, gemma2]
+    - qwen-omni-flash: [qwen-rag-local, gemma2]
   context_window_fallbacks:
     - qwen-rag-fast: [qwen-rag-balanced, gemma2]
     - qwen-rag-balanced: [gemma2]

@@ -1,0 +1,133 @@
+# =============================================================================
+# DeerFlow Extras — Redis, Chroma, Qdrant, ARQ Worker
+# =============================================================================
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.extras.yml up -d
+#
+# These services implement the "quick win" infrastructure additions:
+#   - Redis:   ARQ async task queue broker + SSE pub/sub reconnect buffer
+#   - Chroma:  Local vector store for report memory / semantic search
+#   - Qdrant:  Alternative vector store (enable one, disable the other)
+#   - ARQ worker: Runs long research tasks in the background
+# =============================================================================
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Redis — async task queue broker + SSE pub/sub buffer
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: deerflow-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - deerflow-net
+
+  # ---------------------------------------------------------------------------
+  # Chroma — local vector store for report memory
+  # ---------------------------------------------------------------------------
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: deerflow-chroma
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.token.TokenConfigServerAuthCredentialsProvider
+      - ANONYMIZED_TELEMETRY=False
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - deerflow-net
+
+  # ---------------------------------------------------------------------------
+  # Qdrant — alternative / supplementary vector store
+  # Disable Chroma above and enable this if you prefer Qdrant.
+  # ---------------------------------------------------------------------------
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: deerflow-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"   # HTTP API
+      - "6334:6334"   # gRPC API
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/readyz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - deerflow-net
+
+  # ---------------------------------------------------------------------------
+  # ARQ Worker — runs long research tasks in the background
+  # Users can close the browser without losing progress.
+  # ---------------------------------------------------------------------------
+  arq-worker:
+    build:
+      context: ../../
+      dockerfile: deployment/deer-flow/Dockerfile
+    container_name: deerflow-arq-worker
+    restart: unless-stopped
+    command: python -m deployment.deer_flow.tasks.arq_worker
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../../:/app
+    networks:
+      - deerflow-net
+
+  # ---------------------------------------------------------------------------
+  # Prometheus — metrics scraping
+  # ---------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: deerflow-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./metrics/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+    networks:
+      - deerflow-net
+    profiles:
+      - observability
+
+volumes:
+  redis_data:
+  chroma_data:
+  qdrant_data:
+  prometheus_data:
+
+networks:
+  deerflow-net:
+    name: deerflow-net
+    driver: bridge

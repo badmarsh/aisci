@@ -68,9 +68,8 @@ arxiv_results.xml
 literature/*.pdf
 !research/robert/manuscript/boson-probability-function-moving-system.pdf
 
-# Ignore untracked nested repo files
-deployment/deer-flow/
-deployment/multica/
+# Submodules (deer-flow, multica) are tracked as submodule pointers —
+# do NOT add gitignore lines for them; it contradicts the submodule registration.
 
 # Session cookies — never commit
 cookies.txt
@@ -103,8 +102,7 @@ docs/platform/multica/
 
 # Large local project directories (not part of aisci — live outside repo)
 chat-ui-example/
-open-computer-use/
-ppt-master/
+# open-computer-use/ and ppt-master/ are now tracked as vendored subtrees
 my-deployments/
 
 # research scratch
@@ -175,3 +173,15 @@ deployment/helper/submit_*.py
 deployment/helper/transfer_*.py
 deployment/helper/trigger_*.py
 deployment/helper/update_*.py
+
+# Webapp dependencies
+webapp/node_modules/
+node_modules/
+webapp/.next/
+
+# Global rules for vendored subtrees
+**/node_modules/
+**/.next/
+**/.venv/
+**/venv/
+**/__pycache__/

@@ -1,0 +1,181 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# backend
+/backend
+
+# dependencies
+
+/node_modules
+node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing — root-anchored AND unanchored so vitest/jest output in any
+# sub-package gets ignored (e.g. mcp/coverage/).
+/coverage
+coverage/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# env
+.env
+
+# bun
+bun.lockb
+bun.lock
+
+/.cursor
+.claude/settings.local.json
+
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+pd.env
+backend/dev.env
+dv.env
+backend/prod.env
+
+# claude
+
+.claude\settings.local.json
+.claude/skills/frontend-design/SKILL.md
+
+# campaigns and config
+campaigns/config.py
+scripts/setup-posthog-dashboards.mjs
+scripts/build-golden-ami.mjs
+scripts/build-windows-golden-ami.mjs
+supabase/migrations/
+supabase/scripts/
+campaigns/*
+
+# infra docker secrets
+infra/docker/.env
+
+# Local deploy audit log — contains usernames, timestamps, and git messages
+# we don't want public.  Written by build-and-push and rollback.
+infra/docker/deployments.log
+
+# ── MCP server (TypeScript package — @coasty/mcp) ──
+# node_modules is already covered by the unanchored rule at the top, but
+# we list the build/cache outputs explicitly so a tooling change (yarn,
+# pnpm, bun) can't accidentally start tracking dist/ files.
+mcp/dist/
+mcp/coverage/
+mcp/.vitest-cache/
+mcp/*.tsbuildinfo
+mcp/.env
+temp/*
+
+# OSWorld showcase artifacts — pushed to the dedicated coasty-ai/coasty-osworld
+results/
+logs/

@@ -1,0 +1,33 @@
+{
+  "name": "coordinated-debunk-engine",
+  "description": "Deep investigative fact-checking and debunking of high-priority malicious claims using multi-source verification.",
+  "steps": [
+    {
+      "name": "deconstruct-claim",
+      "agent_name": "researcher",
+      "prompt": "Decompose the high-priority claim: {{input}} into 5-10 specific sub-questions that can be empirically verified.",
+      "mode": "sequential",
+      "output_var": "sub_questions"
+    },
+    {
+      "name": "deep-evidence-gathering",
+      "agent_name": "researcher",
+      "prompt": "Perform an exhaustive search for each sub-question in {{sub_questions}}. Cross-reference at least 15 independent authoritative sources. Prioritize primary sources, academic research, and verified official records.",
+      "mode": "fan_out",
+      "output_var": "gathered_evidence"
+    },
+    {
+      "name": "craap-verification",
+      "agent_name": "analyst",
+      "prompt": "Evaluate the gathered evidence: {{gathered_evidence}} using the CRAAP methodology (Currency, Relevance, Authority, Accuracy, Purpose). Identify contradictions or false premises in the original claim.",
+      "mode": "sequential",
+      "output_var": "verified_facts"
+    },
+    {
+      "name": "generate-debunking-report",
+      "agent_name": "researcher",
+      "prompt": "Synthesize the verified facts: {{verified_facts}} into a comprehensive debunking report. Include a 'Lies Detected' section, a point-by-point rebuttal, and a full bibliography of cited sources in APA format.",
+      "mode": "sequential"
+    }
+  ]
+}

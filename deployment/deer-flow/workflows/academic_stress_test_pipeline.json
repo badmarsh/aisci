@@ -1,0 +1,53 @@
+{
+  "name": "academic-stress-test-pipeline",
+  "description": "Fail-closed HEP thesis stress-test workflow: local quote extraction, verification gate, external academic search, and adversarial synthesis package.",
+  "inputs": {
+    "target_thesis_path": "Path to the uploaded thesis or paper PDF/text file.",
+    "chapters": "Default: 4,5. Use explicit pages when chapter headings cannot be found.",
+    "pages": "Optional 1-indexed page ranges, for example 45-80,92."
+  },
+  "hard_constraints": [
+    "Do not run external search until exact local quotes pass the verification gate.",
+    "Stop immediately if the local parse drifts to generic non-HEP topics such as Neural Networks, PINNs, or Fluid Dynamics.",
+    "Do not update canonical science files from this workflow unless the user accepts specific evidence-ledger changes."
+  ],
+  "steps": [
+    {
+      "name": "literal-local-parse",
+      "agent_name": "physics-validation-director",
+      "tool_scope": ["read_file", "read_pdf", "grep", "bash"],
+      "prompt": "Run deployment/deer-flow/skills/custom/academic-stress-test/scripts/academic_stress_test_pipeline.py against {{target_thesis_path}} with --chapters {{chapters}} or --pages {{pages}}. This step may read only the target local file and must produce extraction.json.",
+      "mode": "sequential",
+      "output_var": "extraction"
+    },
+    {
+      "name": "verification-gate",
+      "agent_name": "physics-validation-director",
+      "tool_scope": ["read_file"],
+      "prompt": "Inspect {{extraction}}. Continue only if gate.passed is true. If false, report the exact missing anchors and stop without external search.",
+      "mode": "sequential",
+      "output_var": "gate_status"
+    },
+    {
+      "name": "external-academic-audit",
+      "agent_name": "literature-scout",
+      "tool_scope": ["academic_search", "onyx_search"],
+      "prompt": "If {{gate_status}} passed, use the verified extracted claim queries to run targeted searches for LHC, ATLAS, CMS, ALICE, PYTHIA baseline limitations, OHP/MIX reference-sample bias, and exponential/Levy/tau fit-quality comparisons.",
+      "mode": "fan_out",
+      "output_var": "academic_audit"
+    },
+    {
+      "name": "adversarial-synthesis-package",
+      "agent_name": "referee-writer",
+      "tool_scope": ["read_file"],
+      "prompt": "Use the generated synthesis_input.md plus the original target file to produce a defense audit report with a claim alignment table, systematic gaps, baseline-comparison gaps, and five defense questions.",
+      "mode": "sequential",
+      "output_var": "final_audit"
+    }
+  ],
+  "implementation": {
+    "primary_skill": "deployment/deer-flow/skills/custom/academic-stress-test/SKILL.md",
+    "runner": "deployment/deer-flow/skills/custom/academic-stress-test/scripts/academic_stress_test_pipeline.py",
+    "default_output_root": "research/robert/runs/YYYY-MM-DD-academic-stress-test"
+  }
+}
