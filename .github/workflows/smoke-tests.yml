@@ -1,4 +1,4 @@
-name: Physics Tests
+name: Smoke Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  smoke:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,13 +16,10 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
         run: pip install -r physics/requirements.txt
 
-      - name: Run physics tests
-        run: cd physics && python -m pytest tests/ -v
-
-      - name: Run root tests
-        run: python -m pytest tests/ -v --tb=short
+      - name: Run root smoke tests
+        run: python -m pytest tests/ -v -m smoke --tb=short

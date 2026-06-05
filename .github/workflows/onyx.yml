@@ -1,4 +1,4 @@
-name: Physics Tests
+name: Onyx CI
 
 on:
   push:
@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: deployment/onyx
 
     steps:
       - uses: actions/checkout@v4
@@ -16,13 +19,10 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r physics/requirements.txt
+        run: pip install -r requirements.txt pytest
 
-      - name: Run physics tests
-        run: cd physics && python -m pytest tests/ -v
-
-      - name: Run root tests
-        run: python -m pytest tests/ -v --tb=short
+      - name: Run Onyx tests
+        run: python -m pytest tests/ -v
