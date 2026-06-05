@@ -1,0 +1,56 @@
+
+==================================================
+Test 1: U/sqrt(1 + U**2)
+==================================================
+
+Validating equation: U/sqrt(1 + U**2)
+Running placeholder dimensional check on: U/sqrt(U**2 + 1)
+Simplified expression: U/sqrt(U**2 + 1)
+Placeholder dimensional check passed: True
+Velocity valid: True
+Overall validity: True
+
+==================================================
+Test 2: exp(-beta_T*p_T/T) * (1 + (q-1)*p_T/T)**(-1/(q-1))
+==================================================
+
+Validating equation: exp(-beta_T*p_T/T) * (1 + (q-1)*p_T/T)**(-1/(q-1))
+Running placeholder dimensional check on: exp(-beta_T*p_T/T)/(1 + p_T*(q - 1)/T)**(1/(q - 1))
+Simplified expression: T**(1/(q - 1))*exp(-beta_T*p_T/T)/(T + p_T*(q - 1))**(1/(q - 1))
+Placeholder dimensional check passed: True
+Velocity valid: True
+Overall validity: True
+
+==================================================
+Test 3: U/sqrt(1 + U**2)
+==================================================
+
+Validating equation: U/sqrt(1 + U**2)
+Running placeholder dimensional check on: U/sqrt(U**2 + 1)
+Simplified expression: U/sqrt(U**2 + 1)
+Placeholder dimensional check passed: True
+Velocity valid: True
+Overall validity: True
+
+==================================================
+Test 4: p_T - p
+==================================================
+
+Validating equation: p_T - p
+Running placeholder dimensional check on: -p + p_T
+Simplified expression: -p + p_T
+Placeholder dimensional check passed: True
+Velocity valid: True
+Overall validity: True
+
+==================================================
+Test 5: E**2 - p**2*c**2 - m**2*c**4
+==================================================
+
+Validating equation: E**2 - p**2*c**2 - m**2*c**4
+Running placeholder dimensional check on: E**2 - c**4*m**2 - c**2*p**2
+Simplified expression: E**2 - c**4*m**2 - c**2*p**2
+Checking energy-momentum relation: E=E, p=p
+Placeholder dimensional check passed: True
+Velocity valid: True
+Overall validity: True
