@@ -46,9 +46,28 @@ SET session_id = COALESCE(sqlc.narg('session_id'), session_id),
     updated_at = now()
 WHERE id = sqlc.arg('id');
 
--- name: ArchiveChatSession :exec
-UPDATE chat_session SET status = 'archived', updated_at = now()
-WHERE id = $1;
+-- name: LockChatSessionForDelete :one
+-- Acquires an exclusive (FOR UPDATE) row lock on chat_session(id). Used by
+-- the delete path so that a concurrent SendChatMessage cannot enqueue a new
+-- agent_task_queue row referencing this session between our cancel and
+-- delete steps. The FK from agent_task_queue.chat_session_id takes a
+-- KEY SHARE lock on the parent row during INSERT validation, which
+-- conflicts with FOR UPDATE — concurrent inserts block here and then fail
+-- their FK check after we commit the delete.
+SELECT id FROM chat_session
+WHERE id = $1
+FOR UPDATE;
+
+-- name: DeleteChatSession :exec
+-- Hard delete. chat_message rows cascade via FK ON DELETE CASCADE; the
+-- chat_session_id on agent_task_queue is set NULL by FK so completed/failed
+-- task history survives the session being removed. Callers MUST run inside
+-- the same transaction that holds LockChatSessionForDelete and that has
+-- already cancelled any in-flight tasks (see CancelAgentTasksByChatSession)
+-- so the daemon does not keep running work whose result has nowhere to
+-- land. workspace_id in the WHERE clause is a SQL-layer tenant guard; see
+-- DeleteIssue.
+DELETE FROM chat_session WHERE id = $1 AND workspace_id = $2;
 
 -- name: TouchChatSession :exec
 UPDATE chat_session SET updated_at = now()
@@ -64,6 +83,16 @@ SELECT * FROM chat_message
 WHERE chat_session_id = $1
 ORDER BY created_at ASC;
 
+-- name: ListChatMessagesPage :many
+SELECT * FROM chat_message
+WHERE chat_session_id = $1
+  AND (
+    sqlc.narg('before_created_at')::timestamptz IS NULL
+    OR (created_at, id) < (sqlc.narg('before_created_at')::timestamptz, sqlc.narg('before_id')::uuid)
+  )
+ORDER BY created_at DESC, id DESC
+LIMIT $2;
+
 -- name: GetChatMessage :one
 SELECT * FROM chat_message
 WHERE id = $1;
@@ -78,10 +107,19 @@ RETURNING *;
 -- session_id. Includes both completed and failed tasks: even a failed task
 -- may have established a real agent session before failing, and we'd rather
 -- resume there than start over and lose conversation memory. Used as a
--- fallback when chat_session.session_id is NULL.
+-- fallback when chat_session.session_id is NULL. Resume-unsafe failures are
+-- excluded because replaying those sessions deterministically reproduces the
+-- same terminal state.
 SELECT session_id, work_dir, runtime_id FROM agent_task_queue
 WHERE chat_session_id = $1
-  AND status IN ('completed', 'failed')
+  AND (
+    status = 'completed'
+    OR (
+      status = 'failed'
+      AND COALESCE(failure_reason, '') NOT IN ('iteration_limit', 'agent_fallback_message', 'api_invalid_request', 'codex_semantic_inactivity')
+      AND NOT (COALESCE(error, '') ILIKE '%400%' AND COALESCE(error, '') ILIKE '%invalid_request_error%')
+    )
+  )
   AND session_id IS NOT NULL
 ORDER BY completed_at DESC
 LIMIT 1;
@@ -93,7 +131,7 @@ LIMIT 1;
 -- elapsed = now - task.created_at), so the pill survives refresh / reopen
 -- without "resetting to 0s".
 SELECT id, status, created_at FROM agent_task_queue
-WHERE chat_session_id = $1 AND status IN ('queued', 'dispatched', 'running')
+WHERE chat_session_id = $1 AND status IN ('queued', 'dispatched', 'running', 'waiting_local_directory')
 ORDER BY created_at DESC
 LIMIT 1;
 
@@ -106,7 +144,7 @@ FROM agent_task_queue atq
 JOIN chat_session cs ON cs.id = atq.chat_session_id
 WHERE cs.workspace_id = $1
   AND cs.creator_id = $2
-  AND atq.status IN ('queued', 'dispatched', 'running')
+  AND atq.status IN ('queued', 'dispatched', 'running', 'waiting_local_directory')
 ORDER BY atq.created_at DESC;
 
 -- name: MarkChatSessionRead :exec
@@ -120,3 +158,14 @@ WHERE id = $1;
 -- unread boundary stable across multiple incoming replies.
 UPDATE chat_session SET unread_since = now()
 WHERE id = $1 AND unread_since IS NULL;
+
+-- name: GetMostRecentUserChatMessage :one
+-- Returns the most recent role='user' message in a session. Used by the
+-- Lark `/issue` command parser: when the user types `/issue` with no
+-- title, the spec falls back to "use the previous user message as the
+-- title". Bot replies (role='assistant') are excluded — only human
+-- input qualifies as a fallback title source.
+SELECT * FROM chat_message
+WHERE chat_session_id = $1 AND role = 'user'
+ORDER BY created_at DESC
+LIMIT 1;

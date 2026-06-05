@@ -23,17 +23,20 @@ import { useScrollFade } from "@multica/ui/hooks/use-scroll-fade";
 import { cn } from "@multica/ui/lib/utils";
 import { useCreateWorkspace } from "@multica/core/workspace/mutations";
 import type { Workspace } from "@multica/core/types";
+import { isImeComposing } from "@multica/core/utils";
+import { useConfigStore } from "@multica/core/config";
 import { DragStrip } from "@multica/views/platform";
+import { useLogout } from "../../auth";
 import { StepHeader } from "../components/step-header";
 import { RadioMark } from "../components/option-card";
 import { WorkspaceAvatar } from "../../workspace/workspace-avatar";
+import { useT } from "../../i18n";
 import {
-  WORKSPACE_SLUG_CONFLICT_ERROR,
-  WORKSPACE_SLUG_FORMAT_ERROR,
   WORKSPACE_SLUG_REGEX,
   isWorkspaceSlugConflict,
   nameToWorkspaceSlug,
 } from "../../workspace/slug";
+import { isReservedSlug } from "@multica/core/paths";
 
 /**
  * Step 2 — create your first workspace, or continue with one set up in
@@ -74,15 +77,28 @@ export function StepWorkspace({
   onCreated: (workspace: Workspace) => void | Promise<void>;
   onBack?: () => void;
 }) {
+  const { t } = useT("onboarding");
   const mainRef = useRef<HTMLElement>(null);
   const fadeStyle = useScrollFade(mainRef);
+  const workspaceCreationDisabled = useConfigStore((s) => s.workspaceCreationDisabled);
+  // Single source of truth for "can the user reach the create path on this
+  // instance?" — drives the resume-mode picker, the eyebrow/headline/lede
+  // copy, the side panel, and the footer CTA so the disabled state can't
+  // leak a clickable create affordance even if /api/config arrives late
+  // (#3433 review feedback).
+  const workspaceCreationAllowed = !workspaceCreationDisabled;
+  const logout = useLogout();
 
   const reusing = existing ?? null;
   // Resume path only: user picks which card. `null` = neither yet, so
   // the footer CTA stays disabled. Clicking either card toggles — a
   // second click on the same card deselects it. No-existing path
-  // ignores this state entirely.
-  const [mode, setMode] = useState<"existing" | "create" | null>(null);
+  // ignores this state entirely. When workspace creation is disabled
+  // and a workspace already exists, default to "existing" so the user
+  // can press the CTA immediately — the only valid action.
+  const [mode, setMode] = useState<"existing" | "create" | null>(() =>
+    !workspaceCreationAllowed && existing ? "existing" : null,
+  );
   const pickExisting = () =>
     setMode((m) => (m === "existing" ? null : "existing"));
   const pickCreate = () =>
@@ -99,9 +115,13 @@ export function StepWorkspace({
 
   const slugValidationError =
     slug.length > 0 && !WORKSPACE_SLUG_REGEX.test(slug)
-      ? WORKSPACE_SLUG_FORMAT_ERROR
+      ? t(($) => $.step_workspace.slug_format_error)
       : null;
-  const slugError = slugValidationError ?? slugServerError;
+  const slugReservedError =
+    slug.length > 0 && isReservedSlug(slug)
+      ? t(($) => $.step_workspace.slug_reserved_error)
+      : null;
+  const slugError = slugValidationError ?? slugReservedError ?? slugServerError;
   const canCreate =
     name.trim().length > 0 && slug.trim().length > 0 && !slugError;
 
@@ -129,11 +149,15 @@ export function StepWorkspace({
         onSuccess: onCreated,
         onError: (error) => {
           if (isWorkspaceSlugConflict(error)) {
-            setSlugServerError(WORKSPACE_SLUG_CONFLICT_ERROR);
-            toast.error("Choose a different workspace URL");
+            setSlugServerError(t(($) => $.step_workspace.slug_taken_error));
+            toast.error(t(($) => $.step_workspace.slug_conflict_toast));
             return;
           }
-          toast.error("Failed to create workspace");
+          toast.error(
+            error instanceof Error && error.message
+              ? error.message
+              : t(($) => $.step_workspace.create_failed_toast),
+          );
         },
       },
     );
@@ -142,9 +166,13 @@ export function StepWorkspace({
   // Compute the footer CTA from whichever path the user is on. `null`
   // is only reachable in the resume path; `existing` is only valid
   // when we actually have a `reusing` workspace; everything else
-  // (including the no-existing path) funnels through `create`.
+  // (including the no-existing path) funnels through `create` — except
+  // when this instance has DISABLE_WORKSPACE_CREATION=true, in which
+  // case the create path is unreachable and a no-reusing user falls
+  // through to the disabled notice (rendered separately below).
   const isCreating = createWorkspace.isPending;
-  const creatingActive = !reusing || mode === "create";
+  const creatingActive =
+    workspaceCreationAllowed && (!reusing || mode === "create");
   const existingActive = Boolean(reusing) && mode === "existing";
 
   let hint: string;
@@ -153,31 +181,32 @@ export function StepWorkspace({
   let onContinue: () => void;
 
   if (existingActive && reusing) {
-    hint = `Opening ${reusing.name}.`;
-    continueLabel = `Open ${reusing.name}`;
+    hint = t(($) => $.step_workspace.hint_opening, { name: reusing.name });
+    continueLabel = t(($) => $.step_workspace.cta_open, { name: reusing.name });
     continueDisabled = isCreating;
     onContinue = () => onCreated(reusing);
   } else if (creatingActive) {
     if (isCreating) {
-      hint = `Creating ${name.trim() || "your workspace"}…`;
-      continueLabel = "Creating…";
+      hint = t(($) => $.step_workspace.hint_creating_pending, {
+        name: name.trim() || t(($) => $.step_workspace.hint_creating_fallback),
+      });
+      continueLabel = t(($) => $.step_workspace.cta_creating);
       continueDisabled = true;
       onContinue = () => {};
     } else if (canCreate) {
-      hint = `Creating ${name.trim()}.`;
-      continueLabel = `Create ${name.trim()}`;
+      hint = t(($) => $.step_workspace.hint_creating, { name: name.trim() });
+      continueLabel = t(($) => $.step_workspace.cta_create_named, { name: name.trim() });
       continueDisabled = false;
       onContinue = handleCreate;
     } else {
-      hint = "Name your workspace to create it.";
-      continueLabel = "Create workspace";
+      hint = t(($) => $.step_workspace.hint_name_first);
+      continueLabel = t(($) => $.step_workspace.cta_create_workspace);
       continueDisabled = true;
       onContinue = () => {};
     }
   } else {
-    // Resume path, nothing picked yet.
-    hint = "Pick your workspace or start a new one.";
-    continueLabel = "Continue";
+    hint = t(($) => $.step_workspace.hint_pick);
+    continueLabel = t(($) => $.common.continue);
     continueDisabled = true;
     onContinue = () => {};
   }
@@ -189,7 +218,7 @@ export function StepWorkspace({
           htmlFor="ws-name"
           className="text-xs font-medium text-muted-foreground"
         >
-          Workspace name
+          {t(($) => $.step_workspace.name_label)}
         </Label>
         <Input
           id="ws-name"
@@ -197,8 +226,11 @@ export function StepWorkspace({
           type="text"
           value={name}
           onChange={(e) => handleNameChange(e.target.value)}
-          placeholder="Acme Inc, My Lab, Side Projects…"
-          onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+          placeholder={t(($) => $.step_workspace.name_placeholder)}
+          onKeyDown={(e) => {
+            if (isImeComposing(e)) return;
+            if (e.key === "Enter") handleCreate();
+          }}
         />
       </div>
       <div className="flex flex-col gap-1.5">
@@ -206,34 +238,37 @@ export function StepWorkspace({
           htmlFor="ws-slug"
           className="text-xs font-medium text-muted-foreground"
         >
-          URL
+          {t(($) => $.step_workspace.url_label)}
         </Label>
         <div className="flex items-center rounded-md border bg-muted transition-colors focus-within:border-foreground">
           <span className="select-none pl-3 font-mono text-sm text-muted-foreground">
-            multica.ai/
+            {"multica.ai/"}
           </span>
           <Input
             id="ws-slug"
             type="text"
             value={slug}
             onChange={(e) => handleSlugChange(e.target.value)}
-            placeholder="acme"
+            placeholder={t(($) => $.step_workspace.slug_placeholder)}
             className="border-0 bg-transparent font-mono shadow-none focus-visible:ring-0"
-            onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+            onKeyDown={(e) => {
+              if (isImeComposing(e)) return;
+              if (e.key === "Enter") handleCreate();
+            }}
           />
         </div>
         {slugError && <p className="text-xs text-destructive">{slugError}</p>}
       </div>
       <div className="flex flex-col gap-1.5">
         <div className="text-xs font-medium text-muted-foreground">
-          Issue prefix
+          {t(($) => $.step_workspace.issue_prefix_label)}
         </div>
         <div className="text-sm leading-[1.55] text-muted-foreground">
-          Issues will look like{" "}
+          {t(($) => $.step_workspace.issue_prefix_prefix)}
           <span className="font-mono text-foreground">
             {issuePrefix(slug)}-123
           </span>
-          . You can change this later in settings.
+          {t(($) => $.step_workspace.issue_prefix_suffix)}
         </div>
       </div>
     </div>
@@ -253,7 +288,7 @@ export function StepWorkspace({
               className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              Back
+              {t(($) => $.common.back)}
             </button>
           ) : (
             <span aria-hidden className="w-0" />
@@ -270,17 +305,31 @@ export function StepWorkspace({
         >
           <div className="mx-auto w-full max-w-[620px] px-6 py-10 sm:px-10 md:px-14 lg:px-0 lg:py-14">
             <div className="mb-2 text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
-              {reusing ? "Pick up or start fresh" : "Your first workspace"}
+              {reusing
+                ? workspaceCreationAllowed
+                  ? t(($) => $.step_workspace.eyebrow_resume)
+                  : t(($) => $.step_workspace.creation_disabled_eyebrow_resume)
+                : workspaceCreationAllowed
+                  ? t(($) => $.step_workspace.eyebrow_first)
+                  : t(($) => $.step_workspace.creation_disabled_eyebrow)}
             </div>
             <h1 className="text-balance font-serif text-[36px] font-medium leading-[1.1] tracking-tight text-foreground">
               {reusing
-                ? `Continue with ${reusing.name}, or start another.`
-                : "Name your workspace."}
+                ? workspaceCreationAllowed
+                  ? t(($) => $.step_workspace.headline_resume, { name: reusing.name })
+                  : t(($) => $.step_workspace.creation_disabled_headline_resume, { name: reusing.name })
+                : workspaceCreationAllowed
+                  ? t(($) => $.step_workspace.headline_first)
+                  : t(($) => $.step_workspace.creation_disabled_headline)}
             </h1>
             <p className="mt-4 text-[15.5px] leading-[1.55] text-foreground/80">
               {reusing
-                ? "Resume setup with the workspace you already have, or create a new one alongside it — you can belong to any number of workspaces."
-                : "A workspace is where your issues, agents, and projects live. You can invite teammates or spin up more workspaces later."}
+                ? workspaceCreationAllowed
+                  ? t(($) => $.step_workspace.lede_resume)
+                  : t(($) => $.step_workspace.creation_disabled_lede_resume)
+                : workspaceCreationAllowed
+                  ? t(($) => $.step_workspace.lede_first)
+                  : t(($) => $.step_workspace.creation_disabled_lede)}
             </p>
 
             <div className="mt-10">
@@ -291,29 +340,42 @@ export function StepWorkspace({
                     selected={mode === "existing"}
                     onSelect={pickExisting}
                   />
-                  <CreateNewWorkspaceCard
-                    selected={mode === "create"}
-                    onSelect={pickCreate}
-                  >
-                    {createFields}
-                  </CreateNewWorkspaceCard>
+                  {/* Hide the create-new card entirely when the self-host
+                      gate (DISABLE_WORKSPACE_CREATION) is on (#3433) — the
+                      backend would 403 the POST and the user would be stuck
+                      with a useless form. */}
+                  {!workspaceCreationDisabled && (
+                    <CreateNewWorkspaceCard
+                      selected={mode === "create"}
+                      onSelect={pickCreate}
+                    >
+                      {createFields}
+                    </CreateNewWorkspaceCard>
+                  )}
                 </div>
+              ) : workspaceCreationDisabled ? (
+                <CreationDisabledNotice onLogout={logout} />
               ) : (
                 createFields
               )}
             </div>
+
+            {!(workspaceCreationDisabled && !reusing) && (
+              <div className="mt-8 flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
+                <span
+                  aria-live="polite"
+                  className="mr-auto text-xs text-muted-foreground"
+                >
+                  {hint}
+                </span>
+                <Button size="lg" disabled={continueDisabled} onClick={onContinue}>
+                  {continueLabel}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </main>
-
-        <footer className="flex shrink-0 items-center justify-end gap-4 bg-background px-6 py-4 sm:px-10 md:px-14 lg:px-16">
-          <span aria-live="polite" className="text-xs text-muted-foreground">
-            {hint}
-          </span>
-          <Button size="lg" disabled={continueDisabled} onClick={onContinue}>
-            {continueLabel}
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </footer>
       </div>
 
       {/* Right — side panel.
@@ -332,6 +394,24 @@ export function StepWorkspace({
           )}
         </div>
       </aside>
+    </div>
+  );
+}
+
+/**
+ * Onboarding-step notice rendered when the operator has set
+ * DISABLE_WORKSPACE_CREATION=true (#3433) AND the user has no existing
+ * workspace yet. The headline / lede above this block already carry the
+ * messaging; this component only provides the logout escape so a user who
+ * landed here without an invitation is not trapped.
+ */
+function CreationDisabledNotice({ onLogout }: { onLogout: () => void }) {
+  const { t } = useT("onboarding");
+  return (
+    <div className="flex flex-col gap-3">
+      <Button variant="outline" size="lg" onClick={onLogout}>
+        {t(($) => $.step_workspace.creation_disabled_logout)}
+      </Button>
     </div>
   );
 }
@@ -358,13 +438,13 @@ function ExistingWorkspaceCard({
           : "hover:border-foreground/20 hover:bg-accent/30",
       )}
     >
-      <WorkspaceAvatar name={workspace.name} size="lg" />
+      <WorkspaceAvatar name={workspace.name} avatarUrl={workspace.avatar_url} size="lg" />
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="truncate text-[14.5px] font-medium text-foreground">
           {workspace.name}
         </div>
         <div className="truncate font-mono text-xs text-muted-foreground">
-          multica.ai/{workspace.slug}
+          {`multica.ai/${workspace.slug}`}
         </div>
       </div>
       <RadioMark selected={selected} />
@@ -388,6 +468,7 @@ function CreateNewWorkspaceCard({
   onSelect: () => void;
   children: ReactNode;
 }) {
+  const { t } = useT("onboarding");
   return (
     <div
       className={cn(
@@ -413,10 +494,10 @@ function CreateNewWorkspaceCard({
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="truncate text-[14.5px] font-medium text-foreground">
-            Create a new workspace
+            {t(($) => $.step_workspace.create_new_title)}
           </div>
           <div className="truncate text-xs text-muted-foreground">
-            Start fresh — a separate space for a different side of your work.
+            {t(($) => $.step_workspace.create_new_subtitle)}
           </div>
         </div>
         <RadioMark selected={selected} />
@@ -427,45 +508,48 @@ function CreateNewWorkspaceCard({
 }
 
 function CreateWorkspaceSide() {
+  const { t } = useT("onboarding");
   return (
     <div className="flex flex-col gap-6">
       <div className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        What lives inside a workspace
+        {t(($) => $.step_workspace.side_create_eyebrow)}
       </div>
 
-      <WorkspacePreviewCard name="Your workspace" slug="workspace" />
+      <WorkspacePreviewCard
+        name={t(($) => $.step_workspace.side_preview_name)}
+        slug={t(($) => $.step_workspace.side_preview_slug)}
+      />
 
       <div className="mt-2 text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        Things you&apos;ll do here
+        {t(($) => $.step_workspace.side_things_eyebrow)}
       </div>
       <div className="flex flex-col gap-3.5">
-        <PerkRow>Assign issues to agents like you would a teammate</PerkRow>
-        <PerkRow>Chat with any agent without creating an issue</PerkRow>
-        <PerkRow>Invite teammates — they see only this workspace</PerkRow>
-        <PerkRow>Switch to other workspaces anytime from the top-left</PerkRow>
+        <PerkRow>{t(($) => $.step_workspace.perk_assign)}</PerkRow>
+        <PerkRow>{t(($) => $.step_workspace.perk_chat)}</PerkRow>
+        <PerkRow>{t(($) => $.step_workspace.perk_invite)}</PerkRow>
+        <PerkRow>{t(($) => $.step_workspace.perk_switch)}</PerkRow>
       </div>
     </div>
   );
 }
 
 function ExistingWorkspaceSide({ workspace }: { workspace: Workspace }) {
+  const { t } = useT("onboarding");
   return (
     <div className="flex flex-col gap-6">
       <div className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        Your workspace
+        {t(($) => $.step_workspace.side_existing_eyebrow)}
       </div>
 
       <WorkspacePreviewCard name={workspace.name} slug={workspace.slug} />
 
       <div className="mt-2 text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        What&apos;s next
+        {t(($) => $.step_workspace.side_next_eyebrow)}
       </div>
       <div className="flex flex-col gap-3.5">
-        <PerkRow>
-          Connect a runtime so your agents have somewhere to run
-        </PerkRow>
-        <PerkRow>Create your first agent matched to your role</PerkRow>
-        <PerkRow>Watch it pick up a starter task and reply</PerkRow>
+        <PerkRow>{t(($) => $.step_workspace.next_runtime)}</PerkRow>
+        <PerkRow>{t(($) => $.step_workspace.next_agent)}</PerkRow>
+        <PerkRow>{t(($) => $.step_workspace.next_starter)}</PerkRow>
       </div>
     </div>
   );
@@ -486,6 +570,7 @@ function WorkspacePreviewCard({
   name: string;
   slug: string;
 }) {
+  const { t } = useT("onboarding");
   return (
     <div className="overflow-hidden rounded-xl border bg-card shadow-xs">
       <div className="flex items-center gap-3 border-b px-4 py-3.5">
@@ -495,7 +580,7 @@ function WorkspacePreviewCard({
             {name}
           </div>
           <div className="truncate font-mono text-[11.5px] text-muted-foreground">
-            multica.ai/{slug}
+            {`multica.ai/${slug}`}
           </div>
         </div>
         <Lock
@@ -506,44 +591,44 @@ function WorkspacePreviewCard({
       <div className="flex flex-col">
         <EntityRow
           icon={<Inbox className="h-4 w-4" />}
-          label="Inbox"
-          meta="your notifications"
+          label={t(($) => $.step_workspace.preview.inbox_label)}
+          meta={t(($) => $.step_workspace.preview.inbox_meta)}
         />
         <EntityRow
           icon={<ListTodo className="h-4 w-4" />}
-          label="Issues"
-          meta="shared task board"
+          label={t(($) => $.step_workspace.preview.issues_label)}
+          meta={t(($) => $.step_workspace.preview.issues_meta)}
         />
         <EntityRow
           icon={<Bot className="h-4 w-4" />}
-          label="Agents"
-          meta="your AI teammates"
+          label={t(($) => $.step_workspace.preview.agents_label)}
+          meta={t(($) => $.step_workspace.preview.agents_meta)}
         />
         <EntityRow
           icon={<FolderKanban className="h-4 w-4" />}
-          label="Projects"
-          meta="group related issues"
+          label={t(($) => $.step_workspace.preview.projects_label)}
+          meta={t(($) => $.step_workspace.preview.projects_meta)}
         />
         <EntityRow
           icon={<Zap className="h-4 w-4" />}
-          label="Autopilot"
-          meta="scheduled automation"
+          label={t(($) => $.step_workspace.preview.autopilot_label)}
+          meta={t(($) => $.step_workspace.preview.autopilot_meta)}
         />
         <EntityRow
           icon={<Monitor className="h-4 w-4" />}
-          label="Runtimes"
-          meta="where agents run"
+          label={t(($) => $.step_workspace.preview.runtimes_label)}
+          meta={t(($) => $.step_workspace.preview.runtimes_meta)}
         />
         <EntityRow
           icon={<BookOpenText className="h-4 w-4" />}
-          label="Skills"
-          meta="reusable playbooks"
+          label={t(($) => $.step_workspace.preview.skills_label)}
+          meta={t(($) => $.step_workspace.preview.skills_meta)}
         />
         <EntityRow
           dim
           icon={<MoreHorizontal className="h-4 w-4" />}
-          label="And more"
-          meta="and more"
+          label={t(($) => $.step_workspace.preview.more_label)}
+          meta={t(($) => $.step_workspace.preview.more_meta)}
         />
       </div>
     </div>

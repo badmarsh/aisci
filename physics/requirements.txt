@@ -4,4 +4,5 @@ matplotlib>=3.8,<4
 pandas>=2.2,<3
 sympy>=1.12,<2
 iminuit>=2.25,<3
-antlr4-python3-runtime
+antlr4-python3-runtime==4.13.1
+pytest>=8.0,<9

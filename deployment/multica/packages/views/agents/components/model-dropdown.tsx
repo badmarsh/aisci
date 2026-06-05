@@ -12,14 +12,16 @@ import {
 } from "@multica/ui/components/ui/popover";
 import { Input } from "@multica/ui/components/ui/input";
 import { Label } from "@multica/ui/components/ui/label";
+import { useT } from "../../i18n";
 
 // ModelDropdown renders a searchable, creatable model picker for an agent.
 // It fetches the supported-model catalog from the selected runtime — the
 // daemon enumerates models on demand via heartbeat piggyback. Providers
 // that don't honour per-agent model selection at runtime (currently
-// hermes) return supported=false, and the dropdown renders disabled
-// with an explanation instead of silently accepting a value the
-// backend would ignore.
+// antigravity — `agy` has no `--model` flag and reads selection from
+// its own settings) return supported=false, and the dropdown renders
+// disabled with an explanation instead of silently accepting a value
+// the backend would ignore.
 export function ModelDropdown({
   runtimeId,
   runtimeOnline,
@@ -33,6 +35,7 @@ export function ModelDropdown({
   onChange: (value: string) => void;
   disabled?: boolean;
 }) {
+  const { t } = useT("agents");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -41,7 +44,12 @@ export function ModelDropdown({
   );
 
   const supported = modelsQuery.data?.supported ?? true;
-  const models = modelsQuery.data?.models ?? [];
+  // Stable reference for the model list — `?? []` would mint a fresh
+  // array each render and force every downstream useMemo to invalidate.
+  const models = useMemo(
+    () => modelsQuery.data?.models ?? [],
+    [modelsQuery.data],
+  );
   const grouped = useMemo(() => groupByProvider(models), [models]);
 
   // When the selected runtime reports it doesn't support per-agent
@@ -83,25 +91,23 @@ export function ModelDropdown({
   const triggerLabel =
     value ||
     (disabled
-      ? "Select a runtime first"
+      ? t(($) => $.model_dropdown.select_runtime_first)
       : runtimeOnline
-        ? "Default (provider)"
-        : "Runtime offline — enter manually");
+        ? t(($) => $.model_dropdown.default_provider)
+        : t(($) => $.model_dropdown.runtime_offline_manual));
 
   if (!supported && !modelsQuery.isLoading) {
-    // Provider doesn't honour per-agent model selection — show a
-    // clearly-disabled state so the user knows why the control is
-    // inert. (Hermes reads its model from ~/.hermes/.env.)
     return (
-      <div className="min-w-0">
-        <Label className="text-xs text-muted-foreground">Model</Label>
+      <div className="flex flex-col min-w-0">
+        <div className="flex h-6 items-center">
+          <Label className="text-xs text-muted-foreground">{t(($) => $.model_dropdown.label)}</Label>
+        </div>
         <div className="mt-1.5 flex items-start gap-2 rounded-lg border border-dashed border-border bg-muted/30 px-3 py-2.5 text-sm text-muted-foreground">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           <div className="min-w-0">
-            <div>Model selection is managed by this runtime.</div>
+            <div>{t(($) => $.model_dropdown.managed_by_runtime_title)}</div>
             <div className="mt-0.5 text-xs">
-              Configure the model on the runtime host (e.g. Hermes reads it
-              from its own config file).
+              {t(($) => $.model_dropdown.managed_by_runtime_hint)}
             </div>
           </div>
         </div>
@@ -110,11 +116,11 @@ export function ModelDropdown({
   }
 
   return (
-    <div className="min-w-0">
-      <div className="flex items-center justify-between">
-        <Label className="text-xs text-muted-foreground">Model</Label>
+    <div className="flex flex-col min-w-0">
+      <div className="flex h-6 items-center justify-between">
+        <Label className="text-xs text-muted-foreground">{t(($) => $.model_dropdown.label)}</Label>
         {modelsQuery.isError && (
-          <span className="text-xs text-muted-foreground">discovery failed</span>
+          <span className="text-xs text-muted-foreground">{t(($) => $.model_dropdown.discovery_failed)}</span>
         )}
       </div>
       <Popover open={open} onOpenChange={setOpen}>
@@ -124,8 +130,11 @@ export function ModelDropdown({
         >
           <Cpu className="h-4 w-4 shrink-0 text-muted-foreground" />
           <div className="min-w-0 flex-1">
-            <div className="truncate font-medium">
-              {triggerLabel}
+            {/* Wrapped in flex to mirror RuntimePicker's trigger DOM. The
+                two pickers sit side-by-side; inline-in-flex vs block-line-
+                box height calc would otherwise leave them ~1px misaligned. */}
+            <div className="flex items-center gap-2">
+              <span className="truncate font-medium">{triggerLabel}</span>
             </div>
             {value && (
               <div className="truncate text-xs text-muted-foreground">
@@ -144,7 +153,7 @@ export function ModelDropdown({
           <div className="border-b border-border p-2">
             <Input
               autoFocus
-              placeholder="Search or type a model ID"
+              placeholder={t(($) => $.pickers.model_search_placeholder)}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="h-8"
@@ -154,7 +163,7 @@ export function ModelDropdown({
             {modelsQuery.isLoading && (
               <div className="flex items-center gap-2 px-3 py-6 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Discovering models…
+                {t(($) => $.pickers.model_discovering)}
               </div>
             )}
 
@@ -168,6 +177,7 @@ export function ModelDropdown({
                   )}
                   {list.map((m) => (
                     <button
+                      type="button"
                       key={m.id}
                       onClick={() => select(m.id)}
                       className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors ${
@@ -175,14 +185,7 @@ export function ModelDropdown({
                       }`}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="truncate font-medium">{m.label}</span>
-                          {m.default && (
-                            <span className="shrink-0 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">
-                              default
-                            </span>
-                          )}
-                        </div>
+                        <div className="truncate font-medium">{m.label}</div>
                         {m.label !== m.id && (
                           <div className="truncate text-xs text-muted-foreground">
                             {m.id}
@@ -201,28 +204,30 @@ export function ModelDropdown({
               Object.keys(filtered).length === 0 &&
               !canCreate && (
                 <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-                  No models available.
+                  {t(($) => $.pickers.model_empty_with_dot)}
                 </div>
               )}
 
             {canCreate && (
               <button
+                type="button"
                 onClick={() => select(trimmedSearch)}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-primary transition-colors hover:bg-accent/50"
               >
                 <Plus className="h-4 w-4 shrink-0" />
                 <span className="truncate">
-                  Use “{trimmedSearch}”
+                  {t(($) => $.pickers.model_custom_use, { value: trimmedSearch })}
                 </span>
               </button>
             )}
 
             {value && (
               <button
+                type="button"
                 onClick={() => select("")}
                 className="mt-1 flex w-full items-center gap-2 border-t border-border px-3 py-2 text-left text-xs text-muted-foreground transition-colors hover:bg-accent/50"
               >
-                Clear selection (use provider default)
+                {t(($) => $.model_dropdown.clear_full)}
               </button>
             )}
           </div>

@@ -30,6 +30,11 @@ type ProjectResponse struct {
 	UpdatedAt   string  `json:"updated_at"`
 	IssueCount  int64   `json:"issue_count"`
 	DoneCount   int64   `json:"done_count"`
+	// ResourceCount is a breadcrumb pointing at the sub-collection at
+	// /api/projects/{id}/resources. Resources themselves stay out of this
+	// payload to keep parent metadata and child collections separate; clients
+	// that need the list call ListProjectResources directly.
+	ResourceCount int64 `json:"resource_count"`
 }
 
 func projectToResponse(p db.Project) ProjectResponse {
@@ -54,6 +59,14 @@ func (h *Handler) loadProjectIssueStats(ctx context.Context, projectID pgtype.UU
 		return 0, 0
 	}
 	return stats[0].TotalCount, stats[0].DoneCount
+}
+
+func (h *Handler) loadProjectResourceCount(ctx context.Context, projectID pgtype.UUID) int64 {
+	rows, err := h.Queries.GetProjectResourceCounts(ctx, []pgtype.UUID{projectID})
+	if err != nil || len(rows) == 0 {
+		return 0
+	}
+	return rows[0].ResourceCount
 }
 
 type CreateProjectRequest struct {
@@ -111,8 +124,9 @@ func (h *Handler) ListProjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Batch-fetch issue stats for all projects
+	// Batch-fetch issue stats and resource counts for all projects
 	statsMap := make(map[string]db.GetProjectIssueStatsRow)
+	resourceCountMap := make(map[string]int64)
 	if len(projects) > 0 {
 		projectIDs := make([]pgtype.UUID, len(projects))
 		for i, p := range projects {
@@ -124,6 +138,12 @@ func (h *Handler) ListProjects(w http.ResponseWriter, r *http.Request) {
 				statsMap[uuidToString(s.ProjectID)] = s
 			}
 		}
+		counts, err := h.Queries.GetProjectResourceCounts(r.Context(), projectIDs)
+		if err == nil {
+			for _, c := range counts {
+				resourceCountMap[uuidToString(c.ProjectID)] = c.ResourceCount
+			}
+		}
 	}
 
 	resp := make([]ProjectResponse, len(projects))
@@ -133,6 +153,7 @@ func (h *Handler) ListProjects(w http.ResponseWriter, r *http.Request) {
 			resp[i].IssueCount = s.TotalCount
 			resp[i].DoneCount = s.DoneCount
 		}
+		resp[i].ResourceCount = resourceCountMap[resp[i].ID]
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"projects": resp, "total": len(resp)})
 }
@@ -157,6 +178,7 @@ func (h *Handler) GetProject(w http.ResponseWriter, r *http.Request) {
 	}
 	resp := projectToResponse(project)
 	resp.IssueCount, resp.DoneCount = h.loadProjectIssueStats(r.Context(), project.ID)
+	resp.ResourceCount = h.loadProjectResourceCount(r.Context(), project.ID)
 	writeJSON(w, http.StatusOK, resp)
 }
 
@@ -201,8 +223,15 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Pre-validate every resource payload before opening a transaction so an
-	// invalid ref produces a clean 400 with no DB work.
+	// invalid ref produces a clean 400 with no DB work. For local_directory we
+	// also enforce one row per daemon_id within the batch — the daemon-side
+	// resolver picks the first match by daemon_id, so two rows on the same
+	// daemon would silently route the agent into whichever sorts first.
+	// The standalone POST/PUT paths run the same check via
+	// findLocalDirectoryConflict; this loop just covers the bundled-create
+	// surface, where there is no existing row to compare against yet.
 	normalizedRefs := make([]json.RawMessage, len(req.Resources))
+	localDirSeen := map[string]int{}
 	for i, res := range req.Resources {
 		res.ResourceType = strings.TrimSpace(res.ResourceType)
 		if res.ResourceType == "" {
@@ -215,6 +244,18 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		normalizedRefs[i] = ref
+		if res.ResourceType == "local_directory" {
+			var ld localDirectoryRef
+			if err := json.Unmarshal(ref, &ld); err != nil {
+				writeError(w, http.StatusBadRequest, "resources["+strconv.Itoa(i)+"]: "+err.Error())
+				return
+			}
+			if prev, ok := localDirSeen[ld.DaemonID]; ok {
+				writeError(w, http.StatusBadRequest, "resources["+strconv.Itoa(i)+"]: duplicate local_directory for daemon (already at index "+strconv.Itoa(prev)+"); each daemon may attach at most one local_directory per project")
+				return
+			}
+			localDirSeen[ld.DaemonID] = i
+		}
 	}
 
 	createParams := db.CreateProjectParams{
@@ -291,11 +332,12 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := projectToResponse(project)
 	resourceResp := make([]ProjectResourceResponse, len(resourceRows))
 	for i, row := range resourceRows {
 		resourceResp[i] = projectResourceToResponse(row)
 	}
+	resp := projectToResponse(project)
+	resp.ResourceCount = int64(len(resourceResp))
 	h.publish(protocol.EventProjectCreated, workspaceID, "member", userID, map[string]any{"project": resp})
 	for _, rr := range resourceResp {
 		h.publish(protocol.EventProjectResourceCreated, workspaceID, "member", userID, map[string]any{
@@ -303,21 +345,15 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 			"project_id": resp.ID,
 		})
 	}
-	writeJSON(w, http.StatusCreated, map[string]any{
-		"id":           resp.ID,
-		"workspace_id": resp.WorkspaceID,
-		"title":        resp.Title,
-		"description":  resp.Description,
-		"icon":         resp.Icon,
-		"status":       resp.Status,
-		"priority":     resp.Priority,
-		"lead_type":    resp.LeadType,
-		"lead_id":      resp.LeadID,
-		"created_at":   resp.CreatedAt,
-		"updated_at":   resp.UpdatedAt,
-		"issue_count":  resp.IssueCount,
-		"done_count":   resp.DoneCount,
-		"resources":    resourceResp,
+	// One-shot create echo: the parent ProjectResponse fields plus the just-
+	// created resources. This is a transient creation echo, not a contract for
+	// reads — GET /projects/{id} stays metadata-only with resource_count.
+	writeJSON(w, http.StatusCreated, struct {
+		ProjectResponse
+		Resources []ProjectResourceResponse `json:"resources"`
+	}{
+		ProjectResponse: resp,
+		Resources:       resourceResp,
 	})
 }
 
@@ -410,6 +446,8 @@ func (h *Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp := projectToResponse(project)
+	resp.IssueCount, resp.DoneCount = h.loadProjectIssueStats(r.Context(), project.ID)
+	resp.ResourceCount = h.loadProjectResourceCount(r.Context(), project.ID)
 	h.publish(protocol.EventProjectUpdated, workspaceID, "member", userID, map[string]any{"project": resp})
 	writeJSON(w, http.StatusOK, resp)
 }
@@ -436,7 +474,10 @@ func (h *Handler) DeleteProject(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	if err := h.Queries.DeleteProject(r.Context(), project.ID); err != nil {
+	if err := h.Queries.DeleteProject(r.Context(), db.DeleteProjectParams{
+		ID:          project.ID,
+		WorkspaceID: project.WorkspaceID,
+	}); err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to delete project")
 		return
 	}
@@ -668,8 +709,9 @@ func (h *Handler) SearchProjects(w http.ResponseWriter, r *http.Request) {
 		total = results[0].totalCount
 	}
 
-	// Batch-fetch issue stats
+	// Batch-fetch issue stats and resource counts
 	statsMap := make(map[string]db.GetProjectIssueStatsRow)
+	resourceCountMap := make(map[string]int64)
 	if len(results) > 0 {
 		projectIDs := make([]pgtype.UUID, len(results))
 		for i, r := range results {
@@ -681,6 +723,12 @@ func (h *Handler) SearchProjects(w http.ResponseWriter, r *http.Request) {
 				statsMap[uuidToString(s.ProjectID)] = s
 			}
 		}
+		counts, err := h.Queries.GetProjectResourceCounts(ctx, projectIDs)
+		if err == nil {
+			for _, c := range counts {
+				resourceCountMap[uuidToString(c.ProjectID)] = c.ResourceCount
+			}
+		}
 	}
 
 	resp := make([]SearchProjectResponse, len(results))
@@ -690,6 +738,7 @@ func (h *Handler) SearchProjects(w http.ResponseWriter, r *http.Request) {
 			pr.IssueCount = s.TotalCount
 			pr.DoneCount = s.DoneCount
 		}
+		pr.ResourceCount = resourceCountMap[pr.ID]
 		spr := SearchProjectResponse{
 			ProjectResponse: pr,
 			MatchSource:     row.matchSource,

@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "skills": {
+    "astropy": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/astropy/SKILL.md",
+      "computedHash": "f52691982f2871706fa3d95d3374845c712bb57ad3fb710a6d435080ec866edf"
+    },
+    "database-lookup": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/database-lookup/SKILL.md",
+      "computedHash": "898d280f60eeb5372585192f2b16de0805d0c0e93c3726c96262c3d8e1f341dd"
+    },
+    "literature-review": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/literature-review/SKILL.md",
+      "computedHash": "19c07d4f2bcddef9b047f3d9f99b4641ae1a2d16b7c460ab4d399911182d7547"
+    },
+    "matplotlib": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/matplotlib/SKILL.md",
+      "computedHash": "6392ccc43005b5cfbdf7b4aa708434d73e1c0f4d0f2c5755ddfdc52183c02796"
+    },
+    "paper-lookup": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/paper-lookup/SKILL.md",
+      "computedHash": "cb51a7afa41249ca6808eed04dc806556239cfc024d94f003fef7faafcfac1ba"
+    },
+    "peer-review": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/peer-review/SKILL.md",
+      "computedHash": "a42d623a9254271ba8fc2392aa2fdf21a150e3c9818d12b07cd28d2eb2477870"
+    },
+    "scientific-visualization": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/scientific-visualization/SKILL.md",
+      "computedHash": "4700eae2d81ee813ea69d6dba3936890e9dcb91b5c3b3f1c117af4451580e534"
+    },
+    "scientific-writing": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/scientific-writing/SKILL.md",
+      "computedHash": "f7972fed70b7cef07b4ad20d4aae4098702289074b023258518db8e99a78a5e8"
+    },
+    "statistical-analysis": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/statistical-analysis/SKILL.md",
+      "computedHash": "936105b3995d090321d300d0b2e18779837feba7159c3492da295fb80b48d877"
+    },
+    "sympy": {
+      "source": "K-Dense-AI/scientific-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sympy/SKILL.md",
+      "computedHash": "18f04dc95a386dc79162294cbfc52078553aa4bf7daee01d571877119f51f8b1"
+    }
+  }
+}

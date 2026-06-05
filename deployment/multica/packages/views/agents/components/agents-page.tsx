@@ -19,6 +19,7 @@ import {
   useWorkspaceActivityMap,
   useWorkspacePresenceMap,
 } from "@multica/core/agents";
+import { useAgentsViewStore } from "@multica/core/agents/stores";
 import { api } from "@multica/core/api";
 import { useAuthStore } from "@multica/core/auth";
 import { useWorkspaceId } from "@multica/core/hooks";
@@ -45,32 +46,74 @@ import { PageHeader } from "../../layout/page-header";
 import { availabilityConfig, availabilityOrder } from "../presence";
 import { CreateAgentDialog } from "./create-agent-dialog";
 import { type AgentRow, createAgentColumns } from "./agent-columns";
+import { useT } from "../../i18n";
+import { matchesPinyin } from "../../editor/extensions/pinyin-match";
+import {
+  buildRuntimeMachines,
+  type RuntimeMachine,
+} from "../../runtimes/components/runtime-machines";
+import { RuntimeMachineFilterDropdown } from "./runtime-machine-filter-dropdown";
 
 // Filter axes:
 //
-//   View         = active vs archived dataset. Archived is low-frequency,
-//                  accessed through a ghost link in the toolbar.
-//   Scope        = ownership lens (All vs Mine). Layer-1 segment.
-//   Availability = "Can the agent take work right now?" — 3-state chip
-//                  group (online / unstable / offline) sourced from
-//                  AgentAvailability. The only chip filter we keep —
-//                  the previous Workload axis was dropped because its
-//                  "queued / failed / cancelled" buckets became
-//                  meaningless once Failed left the workload model.
+//   View           = active vs archived dataset. Archived is low-frequency,
+//                    accessed through a ghost link in the toolbar.
+//   Scope          = ownership lens (All vs Mine). Layer-1 segment.
+//   Runtime machine = "Which host is the agent bound to?" — dropdown
+//                    filter grouped by section (Local / Remote / Cloud).
+//                    Mirrors the machine grouping on the Runtimes page
+//                    so a user can drill from a machine into the agents
+//                    hosted on it.
+//   Availability   = "Can the agent take work right now?" — 3-state chip
+//                    group (online / unstable / offline) sourced from
+//                    AgentAvailability. The only chip filter we keep —
+//                    the previous Workload axis was dropped because its
+//                    "queued / failed / cancelled" buckets became
+//                    meaningless once Failed left the workload model.
 type View = "active" | "archived";
 type Scope = "all" | "mine";
 type AvailabilityFilter = "all" | AgentAvailability;
 
 type SortKey = "recent" | "name" | "runs" | "created";
 const SORT_KEYS: SortKey[] = ["recent", "name", "runs", "created"];
-const SORT_LABEL: Record<SortKey, string> = {
-  recent: "Recent activity",
-  name: "Name",
-  runs: "Most runs",
-  created: "Recently created",
+const SORT_LABEL_KEY: Record<SortKey, "label_recent" | "label_name" | "label_runs" | "label_created"> = {
+  recent: "label_recent",
+  name: "label_name",
+  runs: "label_runs",
+  created: "label_created",
 };
 
-export function AgentsPage() {
+export interface AgentsPageProps {
+  /**
+   * Desktop-only daemon id for the current host. Forwarded into
+   * `buildRuntimeMachines` so the local machine renders under the
+   * "Local" section (rather than "Remote") on the same host that owns
+   * the daemon. Web omits this — the SaaS shell doesn't bundle a
+   * daemon, so the local section never has a real candidate anyway.
+   */
+  localDaemonId?: string | null;
+  /**
+   * Desktop-only friendly device name for the local daemon. Paired
+   * with `localDaemonId` for the "Local" section title; web omits.
+   */
+  localMachineName?: string | null;
+  /**
+   * Desktop-only signal that this host always owns a local machine
+   * row, even when no server-side runtime is currently registered
+   * (daemon stopped, not yet started, or runtime GC'd). Mirrors
+   * `RuntimesPage.hasLocalMachine`. The filter dropdown uses the
+   * synthesized placeholder to keep "Local" available for selection
+   * in the empty window.
+   */
+  hasLocalMachine?: boolean;
+}
+
+export function AgentsPage({
+  localDaemonId = null,
+  localMachineName = null,
+  hasLocalMachine = false,
+}: AgentsPageProps = {}) {
+  const { t } = useT("agents");
   const wsId = useWorkspaceId();
   const paths = useWorkspacePaths();
   const navigation = useNavigation();
@@ -97,12 +140,17 @@ export function AgentsPage() {
   const { byAgent: activityMap } = useWorkspaceActivityMap(wsId);
 
   const [view, setView] = useState<View>("active");
-  // Default to "mine" — matches runtimes page convention and the visual
-  // ordering (Mine first). All is one click away when users want the
-  // workspace-wide view.
-  const [scope, setScope] = useState<Scope>("mine");
+  // Scope (Mine/All) is persisted per workspace so it survives list →
+  // detail → back navigation. Default is "mine" on first visit.
+  const scope = useAgentsViewStore((s) => s.scope);
+  const setScope = useAgentsViewStore((s) => s.setScope);
   const [availabilityFilter, setAvailabilityFilter] =
     useState<AvailabilityFilter>("all");
+  // `null` means "all runtimes" (the default). When set, the value is a
+  // RuntimeMachine id from `buildRuntimeMachines` (the same grouping the
+  // Runtimes page uses), so the user can drill from a machine on that
+  // page into the agents bound to it.
+  const [runtimeMachineId, setRuntimeMachineId] = useState<string | null>(null);
   const [sort, setSort] = useState<SortKey>("recent");
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
@@ -181,10 +229,109 @@ export function AgentsPage() {
     return visibleInView.filter((a) => a.owner_id === currentUser.id);
   }, [visibleInView, scope, currentUser, view]);
 
-  // Final cut — availability chip + search.
+  // Build the workspace's runtime machines (local / remote / cloud
+  // groupings) the same way the Runtimes page does, so the filter
+  // dropdown labels match the machines the user sees there. The
+  // `now` clock only affects health rollups — we don't render health
+  // chips in this list, so a snapshot from mount time is fine. We
+  // also forward `localDaemonId` / `localMachineName` /
+  // `hasLocalMachine` so the Local section (and the synthesized
+  // placeholder on Desktop) appears here the same way it does on the
+  // Runtimes page; `currentUserId` gates device-name consolidation
+  // so a remote member's identically-named host doesn't get claimed
+  // as the viewer's local machine.
+  const [machinesNow] = useState(() => Date.now());
+  const machines = useMemo(
+    () =>
+      buildRuntimeMachines(runtimes, {
+        now: machinesNow,
+        localDaemonId,
+        localMachineName,
+        currentUserId: currentUser?.id ?? null,
+        ensureLocalMachine: hasLocalMachine,
+      }),
+    [runtimes, machinesNow, localDaemonId, localMachineName, currentUser?.id, hasLocalMachine],
+  );
+
+  // Reverse map: runtime_id → machine id. Lets the filter step look up
+  // an agent's machine in O(1). Built off the machine grouping rather
+  // than `runtimesById` so a runtime's machine identity matches the
+  // dropdown labels (machines dedupe across providers by daemon).
+  const runtimeIdToMachineId = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const machine of machines) {
+      for (const r of machine.runtimes) m.set(r.id, machine.id);
+    }
+    return m;
+  }, [machines]);
+
+  // Per-machine agent counts in `inScope` — used both for the chip
+  // badges in the dropdown AND to make the runtime filter respect the
+  // current scope (e.g. "Mine" only shows machines that have one of
+  // my agents). Computed against `inScope` (not `visibleInView`).
+  // Agents whose runtime doesn't map to a current machine
+  // (e.g. bound to a GC'd runtime) are intentionally skipped here
+  // — they still appear in the list when the filter is "All
+  // runtimes", just not bucketed under any per-machine chip. The
+  // "All runtimes" badge uses `inScope.length` directly so it stays
+  // consistent with the unfiltered list.
+  const agentCountByMachine = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const a of inScope) {
+      const machineId = runtimeIdToMachineId.get(a.runtime_id);
+      if (!machineId) continue;
+      counts.set(machineId, (counts.get(machineId) ?? 0) + 1);
+    }
+    return counts;
+  }, [inScope, runtimeIdToMachineId]);
+
+  // If the selected machine is GC'd while we're on the page (daemon
+  // stopped, runtime deleted), the filter would zero out the list with
+  // no UI to clear it. Bounce back to "all" so the user always sees
+  // something actionable.
+  useEffect(() => {
+    if (
+      runtimeMachineId !== null &&
+      !machines.some((machine) => machine.id === runtimeMachineId)
+    ) {
+      setRuntimeMachineId(null);
+    }
+  }, [runtimeMachineId, machines]);
+
+  // Resolved title for the current machine filter — used by the
+  // no-matches state so the user sees "No agents on `dev.local`" rather
+  // than a bare "No agents match this filter" when the search is empty
+  // but the machine filter is doing the narrowing.
+  const selectedMachine = useMemo(
+    () =>
+      runtimeMachineId === null
+        ? null
+        : machines.find((machine) => machine.id === runtimeMachineId) ?? null,
+    [runtimeMachineId, machines],
+  );
+
+  // Machine-scoped list: `inScope` narrowed by the selected runtime
+  // machine, but NOT by the availability chip or search. The
+  // availability row needs this intermediate step so its chips show
+  // counts for "agents on this machine", not "agents on every machine"
+  // — once a machine is selected, the chips further narrow the
+  // already-machine-scoped list. The `inScope.length` total stays
+  // available for the dropdown's "All runtimes" badge (the count the
+  // user would see if they cleared the machine filter).
+  const inScopeOnMachine = useMemo(() => {
+    if (view !== "active") return inScope;
+    if (runtimeMachineId === null) return inScope;
+    return inScope.filter(
+      (a) => runtimeIdToMachineId.get(a.runtime_id) === runtimeMachineId,
+    );
+  }, [inScope, view, runtimeMachineId, runtimeIdToMachineId]);
+
+  // Final cut — availability chip + search. Starts from
+  // `inScopeOnMachine` so a selected machine filter is already
+  // applied; the availability chip and search refine within it.
   const filteredAgents = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return inScope.filter((a) => {
+    return inScopeOnMachine.filter((a) => {
       // Availability chip filter only applies to the Active view —
       // archived agents have no presence to match against.
       if (view === "active" && availabilityFilter !== "all") {
@@ -194,6 +341,7 @@ export function AgentsPage() {
       if (q) {
         if (
           !a.name.toLowerCase().includes(q) &&
+          !matchesPinyin(a.name, q) &&
           !(a.description ?? "").toLowerCase().includes(q)
         ) {
           return false;
@@ -201,25 +349,35 @@ export function AgentsPage() {
       }
       return true;
     });
-  }, [inScope, view, availabilityFilter, presenceMap, search]);
+  }, [
+    inScopeOnMachine,
+    view,
+    availabilityFilter,
+    presenceMap,
+    search,
+  ]);
 
   // Per-availability counts for the chip badges. Computed against
-  // `inScope` (ignoring the availability filter itself) so the numbers
-  // reflect "if I clicked this chip, this many agents would match"
-  // rather than collapsing to 0 for the unselected chips.
+  // `inScopeOnMachine` (ignoring the availability filter itself) so
+  // the numbers reflect "if I clicked this chip, this many agents
+  // would match on the currently-selected machine" rather than
+  // collapsing to 0 for the unselected chips.
   const availabilityCounts = useMemo(() => {
     const counts: Record<AgentAvailability, number> = {
       online: 0,
       unstable: 0,
       offline: 0,
+      // Active-view scope excludes archived agents, so this bucket stays 0
+      // here; present only to satisfy the exhaustive availability Record.
+      archived: 0,
     };
-    for (const a of inScope) {
+    for (const a of inScopeOnMachine) {
       const detail = presenceMap.get(a.id);
       if (!detail) continue;
       counts[detail.availability] += 1;
     }
     return counts;
-  }, [inScope, presenceMap]);
+  }, [inScopeOnMachine, presenceMap]);
 
   const sortedAgents = useMemo(() => {
     const xs = [...filteredAgents];
@@ -278,35 +436,24 @@ export function AgentsPage() {
     if (view === "archived" && archivedCount === 0) setView("active");
   }, [view, archivedCount]);
 
-  const handleCreate = async (data: CreateAgentRequest) => {
+  const handleCreate = async (data: CreateAgentRequest): Promise<Agent> => {
     const agent = await api.createAgent(data);
-    let cachedAgent = agent;
-    // When duplicating, carry the source agent's skill assignments over.
-    // Skills aren't part of CreateAgentRequest (they're managed via
-    // setAgentSkills) so the create endpoint can't take them inline; we
-    // do a follow-up call. Failure here doesn't abort the duplicate —
-    // the agent already exists and the user can re-attach skills from
-    // the detail page.
-    if (duplicateTemplate?.skills.length) {
-      try {
-        await api.setAgentSkills(agent.id, {
-          skill_ids: duplicateTemplate.skills.map((s) => s.id),
-        });
-        cachedAgent = { ...agent, skills: duplicateTemplate.skills };
-      } catch {
-        // Surfaced softly; the agent itself is fine.
-      }
-    }
+    // Skill follow-up is now owned by the dialog (it reads the user's
+    // form selection, which already includes the duplicate source's
+    // skills as a default when applicable). The dialog will call
+    // setAgentSkills after we return; we just have to surface the
+    // created agent so it can.
     qc.setQueryData<Agent[]>(workspaceKeys.agents(wsId), (current = []) => {
-      const exists = current.some((a) => a.id === cachedAgent.id);
+      const exists = current.some((a) => a.id === agent.id);
       return exists
-        ? current.map((a) => (a.id === cachedAgent.id ? cachedAgent : a))
-        : [...current, cachedAgent];
+        ? current.map((a) => (a.id === agent.id ? agent : a))
+        : [...current, agent];
     });
     setShowCreate(false);
     setDuplicateTemplate(null);
     navigation.push(paths.agentDetail(agent.id));
     qc.invalidateQueries({ queryKey: workspaceKeys.agents(wsId) });
+    return agent;
   };
 
   const handleDuplicate = useCallback((agent: Agent) => {
@@ -351,8 +498,8 @@ export function AgentsPage() {
   ]);
 
   const columns = useMemo(
-    () => createAgentColumns({ onDuplicate: handleDuplicate }),
-    [handleDuplicate],
+    () => createAgentColumns({ onDuplicate: handleDuplicate, t }),
+    [handleDuplicate, t],
   );
 
   const table = useReactTable({
@@ -394,30 +541,7 @@ export function AgentsPage() {
 
   // ---- List request error ----
   if (listError) {
-    return (
-      <div className="flex flex-1 min-h-0 flex-col">
-        <PageHeaderBar totalCount={0} onCreate={() => setShowCreate(true)} />
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-          <AlertCircle className="h-8 w-8 text-destructive" />
-          <div>
-            <p className="text-sm font-medium">Couldn&rsquo;t load agents</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {listError instanceof Error
-                ? listError.message
-                : "Something went wrong fetching the agent list."}
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => refetchList()}
-          >
-            Try again
-          </Button>
-        </div>
-      </div>
-    );
+    return <ListError onCreate={() => setShowCreate(true)} listError={listError} onRetry={refetchList} />;
   }
 
   const showEmpty = totalActiveCount === 0 && archivedCount === 0;
@@ -450,12 +574,16 @@ export function AgentsPage() {
                   totalCount={inScope.length}
                   archivedCount={archivedCount}
                   onShowArchived={() => setView("archived")}
+                  machines={machines}
+                  runtimeMachineId={runtimeMachineId}
+                  onRuntimeMachineChange={setRuntimeMachineId}
+                  agentCountByMachine={agentCountByMachine}
                 />
                 <AvailabilityFilterRow
                   value={availabilityFilter}
                   onChange={setAvailabilityFilter}
                   counts={availabilityCounts}
-                  totalCount={inScope.length}
+                  totalCount={inScopeOnMachine.length}
                 />
               </>
             ) : (
@@ -468,7 +596,12 @@ export function AgentsPage() {
             )}
 
             {sortedAgents.length === 0 ? (
-              <NoMatches view={view} search={search} scope={scope} />
+              <NoMatches
+                view={view}
+                search={search}
+                scope={scope}
+                runtimeMachineTitle={selectedMachine?.title ?? null}
+              />
             ) : (
               <DataTable
                 table={table}
@@ -510,38 +643,71 @@ function PageHeaderBar({
   totalCount: number;
   onCreate: () => void;
 }) {
+  const { t } = useT("agents");
   return (
     <PageHeader className="justify-between px-5">
       <div className="flex items-center gap-2">
         <Bot className="h-4 w-4 text-muted-foreground" />
-        <h1 className="text-sm font-medium">Agents</h1>
+        <h1 className="text-sm font-medium">{t(($) => $.page.title)}</h1>
         {totalCount > 0 && (
           <span className="font-mono text-xs tabular-nums text-muted-foreground/70">
             {totalCount}
           </span>
         )}
-        {/* Tagline next to the title — mirrors Runtimes / Skills. Single
-            sentence + docs link, hidden below md so it never collides with
-            the title on narrow screens. The presence chip row below carries
-            the state-legend job, so the tagline only needs to anchor what
-            an agent IS, not what each colour means. */}
+        {/* Tagline next to the title — mirrors Runtimes / Skills. */}
         <p className="ml-2 hidden text-xs text-muted-foreground md:block">
-          AI teammates that pick up issues, comment, and update status.{" "}
+          {t(($) => $.page.tagline)}{" "}
           <a
             href="https://multica.ai/docs/agents"
             target="_blank"
             rel="noopener noreferrer"
             className="underline decoration-muted-foreground/30 underline-offset-4 transition-colors hover:text-foreground"
           >
-            Learn more →
+            {t(($) => $.page.learn_more)}
           </a>
         </p>
       </div>
       <Button type="button" size="sm" onClick={onCreate}>
         <Plus className="h-3 w-3" />
-        New agent
+        {t(($) => $.page.new_agent)}
       </Button>
     </PageHeader>
+  );
+}
+
+function ListError({
+  onCreate,
+  listError,
+  onRetry,
+}: {
+  onCreate: () => void;
+  listError: unknown;
+  onRetry: () => void;
+}) {
+  const { t } = useT("agents");
+  return (
+    <div className="flex flex-1 min-h-0 flex-col">
+      <PageHeaderBar totalCount={0} onCreate={onCreate} />
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+        <AlertCircle className="h-8 w-8 text-destructive" />
+        <div>
+          <p className="text-sm font-medium">{t(($) => $.page.list_load_failed)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {listError instanceof Error
+              ? listError.message
+              : t(($) => $.page.list_load_failed_default)}
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onRetry}
+        >
+          {t(($) => $.page.try_again)}
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -561,6 +727,10 @@ function ActiveToolbarRow({
   totalCount,
   archivedCount,
   onShowArchived,
+  machines,
+  runtimeMachineId,
+  onRuntimeMachineChange,
+  agentCountByMachine,
 }: {
   scope: Scope;
   setScope: (v: Scope) => void;
@@ -573,12 +743,12 @@ function ActiveToolbarRow({
   totalCount: number;
   archivedCount: number;
   onShowArchived: () => void;
+  machines: RuntimeMachine[];
+  runtimeMachineId: string | null;
+  onRuntimeMachineChange: (id: string | null) => void;
+  agentCountByMachine: Map<string, number>;
 }) {
-  // Layout: [Search] [Mine|All] ......... [Show archived] [N of M] [Sort ▼]
-  // Filter chips were removed (status / workload chips on a small team
-  // gain less than they cost), so the toolbar collapses to a single row.
-  // Visible/total count and the archived link inherit their old position
-  // from the deleted PresenceFilterRows.
+  const { t } = useT("agents");
   return (
     <div className="flex h-12 shrink-0 items-center gap-3 border-b px-4">
       <div className="relative">
@@ -586,23 +756,30 @@ function ActiveToolbarRow({
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search agents…"
+          placeholder={t(($) => $.page.search_placeholder)}
           className="h-8 w-64 pl-8 text-sm"
         />
       </div>
       <ScopeSegment scope={scope} setScope={setScope} counts={scopeCounts} />
       <div className="ml-auto flex items-center gap-3">
+        <RuntimeMachineFilterDropdown
+          machines={machines}
+          value={runtimeMachineId}
+          onChange={onRuntimeMachineChange}
+          agentCountByMachine={agentCountByMachine}
+          totalAgentCount={totalCount}
+        />
         {archivedCount > 0 && (
           <button
             type="button"
             onClick={onShowArchived}
             className="text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
-            Show archived ({archivedCount}) →
+            {t(($) => $.page.show_archived, { count: archivedCount })}
           </button>
         )}
         <span className="font-mono text-xs tabular-nums text-muted-foreground/70">
-          {visibleCount} of {totalCount}
+          {t(($) => $.page.of_total, { visible: visibleCount, total: totalCount })}
         </span>
         <SortDropdown sort={sort} setSort={setSort} />
       </div>
@@ -619,19 +796,18 @@ function ScopeSegment({
   setScope: (v: Scope) => void;
   counts: { all: number; mine: number };
 }) {
-  // Mine first — that's the more frequent scope (your own agents) and
-  // also the default selection, so it lives in the leading slot.
+  const { t } = useT("agents");
   return (
     <div className="flex items-center gap-0.5 rounded-md bg-muted p-0.5">
       <ScopeButton
         active={scope === "mine"}
-        label="Mine"
+        label={t(($) => $.scope.mine)}
         count={counts.mine}
         onClick={() => setScope("mine")}
       />
       <ScopeButton
         active={scope === "all"}
-        label="All"
+        label={t(($) => $.scope.all)}
         count={counts.all}
         onClick={() => setScope("all")}
       />
@@ -679,6 +855,7 @@ function SortDropdown({
   sort: SortKey;
   setSort: (v: SortKey) => void;
 }) {
+  const { t } = useT("agents");
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -691,7 +868,7 @@ function SortDropdown({
         }
       >
         <ArrowUpDown className="h-3 w-3" />
-        {SORT_LABEL[sort]}
+        {t(($) => $.sort[SORT_LABEL_KEY[sort]])}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-auto">
         {SORT_KEYS.map((k) => (
@@ -700,7 +877,7 @@ function SortDropdown({
             onClick={() => setSort(k)}
             className="text-xs"
           >
-            {SORT_LABEL[k]}
+            {t(($) => $.sort[SORT_LABEL_KEY[k]])}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -724,12 +901,13 @@ function AvailabilityFilterRow({
   counts: Record<AgentAvailability, number>;
   totalCount: number;
 }) {
+  const { t } = useT("agents");
   return (
     <div className="flex h-11 shrink-0 items-center gap-2 border-b px-4">
       <AvailabilityChip
         active={value === "all"}
         onClick={() => onChange("all")}
-        label="All"
+        label={t(($) => $.availability.all)}
         count={totalCount}
       />
       {availabilityOrder.map((a) => {
@@ -739,7 +917,7 @@ function AvailabilityFilterRow({
             key={a}
             active={value === a}
             onClick={() => onChange(a)}
-            label={cfg.label}
+            label={t(($) => $.availability[a])}
             count={counts[a]}
             dotClass={cfg.dotClass}
           />
@@ -798,6 +976,7 @@ function ArchivedToolbarRow({
   sort: SortKey;
   setSort: (v: SortKey) => void;
 }) {
+  const { t } = useT("agents");
   return (
     <div className="flex h-12 shrink-0 items-center gap-3 border-b px-4">
       <button
@@ -806,10 +985,10 @@ function ArchivedToolbarRow({
         className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="h-3 w-3" />
-        Active agents
+        {t(($) => $.archived.active_link)}
       </button>
       <span className="text-muted-foreground/40">/</span>
-      <span className="text-xs font-medium">Archived agents</span>
+      <span className="text-xs font-medium">{t(($) => $.archived.title)}</span>
       <span className="font-mono text-xs tabular-nums text-muted-foreground/70">
         {archivedCount}
       </span>
@@ -825,19 +1004,19 @@ function ArchivedToolbarRow({
 // ---------------------------------------------------------------------------
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
+  const { t } = useT("agents");
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
         <Bot className="h-6 w-6 text-muted-foreground" />
       </div>
-      <h2 className="mt-4 text-base font-semibold">No agents yet</h2>
+      <h2 className="mt-4 text-base font-semibold">{t(($) => $.empty.title)}</h2>
       <p className="mt-1 max-w-md text-sm text-muted-foreground">
-        Create an agent and assign it issues, like any teammate. Local agents
-        run on your machine; cloud agents run on Multica&rsquo;s runtime.
+        {t(($) => $.empty.description)}
       </p>
       <Button type="button" onClick={onCreate} size="sm" className="mt-5">
         <Plus className="h-3 w-3" />
-        New agent
+        {t(($) => $.page.new_agent)}
       </Button>
     </div>
   );
@@ -847,32 +1026,44 @@ function NoMatches({
   view,
   search,
   scope,
+  runtimeMachineTitle,
 }: {
   view: View;
   search: string;
   scope: Scope;
+  runtimeMachineTitle: string | null;
 }) {
+  const { t } = useT("agents");
   const hasSearch = search.length > 0;
-  // "mine" is the only remaining narrowing dimension after chip filters
-  // were dropped — keep the wording aware of it so an empty Mine view
-  // doesn't suggest the workspace itself is empty.
   const hasFilter = scope === "mine";
+  const hasRuntimeFilter = runtimeMachineTitle !== null;
 
   let body: string;
   if (view === "archived") {
     body = hasSearch
-      ? `No archived agents match "${search}".`
-      : "No archived agents yet.";
+      ? t(($) => $.no_matches.search_archived, { query: search })
+      : t(($) => $.no_matches.no_archived);
+  } else if (hasSearch && hasRuntimeFilter) {
+    body = t(($) => $.no_matches.search_runtime_filtered, {
+      query: search,
+      machine: runtimeMachineTitle,
+    });
   } else if (hasSearch) {
-    body = `No agents match "${search}"${hasFilter ? " in this filter" : ""}.`;
+    body = hasFilter
+      ? t(($) => $.no_matches.search_active_filtered, { query: search })
+      : t(($) => $.no_matches.search_active, { query: search });
+  } else if (hasRuntimeFilter) {
+    body = t(($) => $.no_matches.runtime_filtered, {
+      machine: runtimeMachineTitle,
+    });
   } else {
-    body = "No agents match this filter.";
+    body = t(($) => $.no_matches.no_filter_match);
   }
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-16 text-center text-muted-foreground">
       <Search className="h-8 w-8 text-muted-foreground/40" />
-      <p className="text-sm">No matches</p>
+      <p className="text-sm">{t(($) => $.no_matches.title)}</p>
       <p className="max-w-xs text-xs">{body}</p>
     </div>
   );

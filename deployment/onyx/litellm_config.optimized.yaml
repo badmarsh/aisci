@@ -1,0 +1,87 @@
+model_list:
+# Primary chat model - Paid tier (OpenRouter Gemini 2.5 Flash)
+- litellm_params:
+    api_base: https://openrouter.ai/api/v1
+    api_key: os.environ/OPENROUTER_API_KEY
+    model: google/gemini-2.5-flash
+    timeout: 300
+  model_name: gemini-flash
+
+# RAG-specific fast model - Paid tier
+- litellm_params:
+    api_base: https://openrouter.ai/api/v1
+    api_key: os.environ/OPENROUTER_API_KEY
+    model: google/gemini-2.5-flash
+    timeout: 300
+  model_name: qwen-rag-fast
+
+# RAG-specific balanced model - Paid tier
+- litellm_params:
+    api_base: https://openrouter.ai/api/v1
+    api_key: os.environ/OPENROUTER_API_KEY
+    model: google/gemini-2.5-flash
+    timeout: 300
+  model_name: qwen-rag-balanced
+
+# Local fallback - Unlimited (Ollama gemma2:27b)
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: gemma2:27b
+    timeout: 600
+  model_name: gemma2
+
+# Local RAG fallback - Unlimited (Ollama qwen2.5vl:7b)
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: qwen2.5vl:7b
+    timeout: 600
+  model_name: qwen-rag-local
+
+# Local quality model - Unlimited (Ollama mistral-small:22b)
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: mistral-small:22b
+    timeout: 600
+  model_name: qwen-rag-quality
+
+# Vision model - Unlimited (Ollama qwen2.5vl:7b)
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: qwen2.5vl:7b
+    timeout: 600
+  model_name: qwen-rag-vision
+
+# Vision model alias
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: qwen2.5vl:7b
+    timeout: 600
+  model_name: qwen2.5vl
+
+# Local omni model - Unlimited (Ollama qwen2.5-omni:7b)
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: qwen2.5-omni:7b
+    timeout: 600
+  model_name: qwen2.5-omni-7b
+
+# Embedding model - Local (Ollama nomic-embed-text)
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: nomic-embed-text:latest
+    model_type: embedding
+  model_name: local-embedding-optical
+
+router_settings:
+  allowed_fails: 10
+  cooldown_time: 300  # 5 minutes cooldown on quota exhaustion
+  enable_pre_call_checks: false
+  routing_strategy: simple-shuffle  # Distribute load evenly
+  timeout: 300  # 5 minutes server-side timeout

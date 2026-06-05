@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "ran_at_utc": "2026-06-04T18:32:12.685741+00:00",
+  "base_url": "http://localhost:3000",
+  "persona_id": 2,
+  "label": "post-v4-qwen-balanced-128k-context-retry-3",
+  "results": [
+    {
+      "id": "Q1",
+      "topic": "Blast-Wave Fit Parameters",
+      "question": "What are the typical transverse velocity and freeze-out temperature parameters used in Blast-Wave fits for 13 TeV pp collisions?",
+      "persona_id": 2,
+      "chat_session_id": "87cac954-83dc-4c5b-97cb-b9513c9bb512",
+      "http_status": 200,
+      "elapsed_ms": 27767,
+      "answer_chars": 1238,
+      "answer_preview": "> \"[The kinetic freeze-out temperature (Tkin) and radial flow (\u03b2) are obtained after fitting the pT-distribution with BGBW model.] The Tkin exhibits mild dependence on multiplicity class while \u03b2 shows almost independent behaviour. [[1]]() [[2]]()\"\n\n> \"For heavier particles, the temperature is observed to be higher, which indicates an early freeze-out of these particles. \"\n\nIn this context, the typ",
+      "answer": "> \"[The kinetic freeze-out temperature (Tkin) and radial flow (\u03b2) are obtained after fitting the pT-distribution with BGBW model.] The Tkin exhibits mild dependence on multiplicity class while \u03b2 shows almost independent behaviour. [[1]]() [[2]]()\"\n\n> \"For heavier particles, the temperature is observed to be higher, which indicates an early freeze-out of these particles. \"\n\nIn this context, the typical transverse velocity and freeze-out temperature parameters used in Blast-Wave fits for 13 TeV pp collisions are as follows:\n\n- The kinetic freeze-out temperature (Tkin) is observed to be higher for heavier particles compared to lighter ones, indicating that heavier particles freeze out earlier [[1]]() [[2]]().\n- The radial flow (\u03b2) parameter is found to be almost independent of the multiplicity class, but it shows a significant variation with charged particle multiplicity for heavier particles .\n\nNOT FOUND IN CORPUS \u2014 no relevant chunk retrieved for this query regarding specific numerical values. However, the general behavior and trends are as described above.\n\n\u26a0 \u03c7\u00b2/ndf STATUS: No chunk confirming goodness-of-fit methodology has been retrieved from the indexed corpus. This is a standing open concern in the evidence ledger.",
+      "top_documents": [
+        {
+          "document_id": "FILE_CONNECTOR__a8c313de-9254-4e09-b8e6-e07238de0e27",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 1.0,
+          "source_type": "file",
+          "blurb": "\nwhere \u03c1 in the integrand is a parameter given by \u03c1 = tanh\u22121\u03b2, with \u03b2 = \u03b2s [3, 4446] is the radial \ufb02ow. (cid:17)\n\n(cid:16)\n\n(cid:17)n\n\n\u03be\n\n(cid:16)\n\n, \u03b2s is the maximum surface velocity and \u03be = with r ",
+          "chunk_ind": 6
+        },
+        {
+          "document_id": "FILE_CONNECTOR__942982d6-5667-4a9b-901d-176412716161",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 1.0,
+          "source_type": "file",
+          "blurb": "\nwhere \u03c1 in the integrand is a parameter given by \u03c1 = tanh\u22121\u03b2, with \u03b2 = \u03b2s [3, 4446] is the radial \ufb02ow. (cid:17)\n\n(cid:16)\n\n(cid:17)n\n\n\u03be\n\n(cid:16)\n\n, \u03b2s is the maximum surface velocity and \u03be = with r ",
+          "chunk_ind": 6
+        }
+      ],
+      "search_queries": [
+        "What are the typical transverse velocity and freeze-out temperature parameters used in Blast-Wave fits for 13 TeV pp collisions?",
+        "blast-wave fit",
+        "transverse velocity",
+        "freeze-out temperature",
+        "13 TeV pp collisions",
+        "Blast-Wave fits for 13 TeV pp collisions"
+      ],
+      "citations": [],
+      "errors": [],
+      "event_kinds": {
+        "search_tool_start": 1,
+        "search_tool_queries_delta": 1,
+        "search_tool_documents_delta": 1,
+        "section_end": 1,
+        "message_start": 1,
+        "message_delta": 243,
+        "citation_info": 2,
+        "stop": 1
+      }
+    },
+    {
+      "id": "Q2",
+      "topic": "Tsallis Distribution Baseline",
+      "question": "How does the Tsallis-Pareto distribution handle high-pT tails compared to standard Boltzmann-Juttner?",
+      "persona_id": 2,
+      "chat_session_id": "4b738208-ecc1-4220-9319-ede3de6f4359",
+      "http_status": 200,
+      "elapsed_ms": 19367,
+      "answer_chars": 0,
+      "answer_preview": "",
+      "answer": "",
+      "top_documents": [
+        {
+          "document_id": "FILE_CONNECTOR__a8c313de-9254-4e09-b8e6-e07238de0e27",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.95633405,
+          "source_type": "file",
+          "blurb": "\n(cid:16)\n\nexp (cid:16) p0 pT\n\nfor pT  0,\n\nfor pT  \u221e,\n\nwhere C, p0, and n are \ufb01tting parameters.\n\nThe resultant expression acts as an exponential and a power-law function for small and large pT, respe",
+          "chunk_ind": 3
+        },
+        {
+          "document_id": "FILE_CONNECTOR__942982d6-5667-4a9b-901d-176412716161",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.95633405,
+          "source_type": "file",
+          "blurb": "\n(cid:16)\n\nexp (cid:16) p0 pT\n\nfor pT  0,\n\nfor pT  \u221e,\n\nwhere C, p0, and n are \ufb01tting parameters.\n\nThe resultant expression acts as an exponential and a power-law function for small and large pT, respe",
+          "chunk_ind": 3
+        },
+        {
+          "document_id": "FILE_CONNECTOR__8c559733-d40d-4120-a3c5-d56067849d8a",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.86508644,
+          "source_type": "file",
+          "blurb": "This \ufb02uctuation in the temperature is directly related to the non-extensive parameter q [18] and tells us about the departure of the system from an equilibrium state. To have a link between the phenom",
+          "chunk_ind": 2
+        },
+        {
+          "document_id": "FILE_CONNECTOR__f27dc287-274f-40eb-a50d-d90b48616ea5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.86508644,
+          "source_type": "file",
+          "blurb": "This \ufb02uctuation in the temperature is directly related to the non-extensive parameter q [18] and tells us about the departure of the system from an equilibrium state. To have a link between the phenom",
+          "chunk_ind": 2
+        },
+        {
+          "document_id": "FILE_CONNECTOR__8c559733-d40d-4120-a3c5-d56067849d8a",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.68430126,
+          "source_type": "file",
+          "blurb": "\n\u221a\n\nbehaviour in multiplicity from pp to heavy-ion collisions is not envisaged, as the system dynamics becomes com- pletely di\ufb00erent. We have seen the onset of collectivity in high-multiplicity pp col",
+          "chunk_ind": 11
+        },
+        {
+          "document_id": "FILE_CONNECTOR__f27dc287-274f-40eb-a50d-d90b48616ea5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.68430126,
+          "source_type": "file",
+          "blurb": "\n\u221a\n\nbehaviour in multiplicity from pp to heavy-ion collisions is not envisaged, as the system dynamics becomes com- pletely di\ufb00erent. We have seen the onset of collectivity in high-multiplicity pp col",
+          "chunk_ind": 11
+        },
+        {
+          "document_id": "FILE_CONNECTOR__a8c313de-9254-4e09-b8e6-e07238de0e27",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.5116613,
+          "source_type": "file",
+          "blurb": "\n\u221a\n\nB. Non-extensivity and pT-spectra\n\nThe Tsallis distribution function at mid-rapidity, with\n\n\ufb01nite chemical potential [48] is given by,\n\n(cid:21)\u2212 q\n\n(cid:12) (cid:12) (cid:12) (cid:12)y=0\n\n(cid:20",
+          "chunk_ind": 9
+        }
+      ],
+      "search_queries": [
+        "How does the Tsallis-Pareto distribution handle high-pT tails compared to standard Boltzmann-Juttner?",
+        "Tsallis-Pareto distribution",
+        "high-pT tails",
+        "Boltzmann-Juttner comparison",
+        "Tsallis-Pareto distribution vs standard Boltzmann-Juttner for high-pT tails"
+      ],
+      "citations": [],
+      "errors": [
+        "Not enough tokens to include the last user message and subsequent messages. Required: 37648, Available: 29851"
+      ],
+      "event_kinds": {
+        "search_tool_start": 1,
+        "search_tool_queries_delta": 1,
+        "search_tool_documents_delta": 1,
+        "section_end": 1,
+        "error": 1
+      }
+    },
+    {
+      "id": "Q3",
+      "topic": "Onyx OpenSearch Cutover Check",
+      "question": "What is the command to run the OpenSearch parity regression check?",
+      "persona_id": 2,
+      "chat_session_id": "77c665c0-86c3-4a23-8794-08675e645290",
+      "http_status": 200,
+      "elapsed_ms": 18318,
+      "answer_chars": 0,
+      "answer_preview": "",
+      "answer": "",
+      "top_documents": [
+        {
+          "document_id": "FILE_CONNECTOR__99d82e29-416b-4c1f-bbbb-94601aee87b4",
+          "semantic_identifier": "boson-probability-function-moving-system.pdf",
+          "link": "",
+          "score": 0.3950933,
+          "source_type": "file",
+          "blurb": "\nmultiplicity_51_60/no_kt_split/track_p\n",
+          "chunk_ind": 9
+        },
+        {
+          "document_id": "FILE_CONNECTOR__f27dc287-274f-40eb-a50d-d90b48616ea5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.40328276,
+          "source_type": "file",
+          "blurb": "\n\u221a\n\nFIG. 2: (Color online) Charged particle spectra \ufb01t with Tsal- s = 13 TeV [20]. lis distribution function for pp collisions at\n\n\u221a\n\ndence on the multiplicity class as shown in Fig. 4.\n\nas compared t",
+          "chunk_ind": 9
+        },
+        {
+          "document_id": "FILE_CONNECTOR__8c559733-d40d-4120-a3c5-d56067849d8a",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.40328276,
+          "source_type": "file",
+          "blurb": "\n\u221a\n\nFIG. 2: (Color online) Charged particle spectra \ufb01t with Tsal- s = 13 TeV [20]. lis distribution function for pp collisions at\n\n\u221a\n\ndence on the multiplicity class as shown in Fig. 4.\n\nas compared t",
+          "chunk_ind": 9
+        },
+        {
+          "document_id": "FILE_CONNECTOR__8c559733-d40d-4120-a3c5-d56067849d8a",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.66740584,
+          "source_type": "file",
+          "blurb": "This \ufb02uctuation in the temperature is directly related to the non-extensive parameter q [18] and tells us about the departure of the system from an equilibrium state. To have a link between the phenom",
+          "chunk_ind": 2
+        },
+        {
+          "document_id": "FILE_CONNECTOR__f27dc287-274f-40eb-a50d-d90b48616ea5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.66740584,
+          "source_type": "file",
+          "blurb": "This \ufb02uctuation in the temperature is directly related to the non-extensive parameter q [18] and tells us about the departure of the system from an equilibrium state. To have a link between the phenom",
+          "chunk_ind": 2
+        },
+        {
+          "document_id": "FILE_CONNECTOR__a8c313de-9254-4e09-b8e6-e07238de0e27",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.37682694,
+          "source_type": "file",
+          "blurb": "\n(cid:16)\n\nexp (cid:16) p0 pT\n\nfor pT  0,\n\nfor pT  \u221e,\n\nwhere C, p0, and n are \ufb01tting parameters.\n\nThe resultant expression acts as an exponential and a power-law function for small and large pT, respe",
+          "chunk_ind": 3
+        },
+        {
+          "document_id": "FILE_CONNECTOR__942982d6-5667-4a9b-901d-176412716161",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.37682694,
+          "source_type": "file",
+          "blurb": "\n(cid:16)\n\nexp (cid:16) p0 pT\n\nfor pT  0,\n\nfor pT  \u221e,\n\nwhere C, p0, and n are \ufb01tting parameters.\n\nThe resultant expression acts as an exponential and a power-law function for small and large pT, respe",
+          "chunk_ind": 3
+        }
+      ],
+      "search_queries": [
+        "What is the command to run the OpenSearch parity regression check?",
+        "opensearch parity regression check",
+        "command opensearch parity",
+        "regression check run",
+        "command to run OpenSearch parity regression check"
+      ],
+      "citations": [],
+      "errors": [
+        "Not enough tokens to include the last user message and subsequent messages. Required: 36835, Available: 29851"
+      ],
+      "event_kinds": {
+        "search_tool_start": 1,
+        "search_tool_queries_delta": 1,
+        "search_tool_documents_delta": 1,
+        "section_end": 1,
+        "error": 1
+      }
+    },
+    {
+      "id": "Q4",
+      "topic": "Manuscript Model Comparison",
+      "question": "Does the manuscript compare the boson probability distribution model against a Tsallis or Blast-Wave baseline? If so, what is the stated motivation?",
+      "persona_id": 2,
+      "chat_session_id": "e5d27ada-cf62-48bf-bc0e-37546ea0b5e4",
+      "http_status": 200,
+      "elapsed_ms": 17442,
+      "answer_chars": 975,
+      "answer_preview": "> \"[In the present work, we study the recent collision energy and multiplicity dependence of the charged particle transverse momentum spectra as measured by the ALICE collaboration in pp collisions at the Large Hadron Collider using the non-extensive Tsallis distribution and the Boltzmann-Gibbs (BGBW) model. A thermodynamically consistent form of the Tsallis distribution is used to extract the kin",
+      "answer": "> \"[In the present work, we study the recent collision energy and multiplicity dependence of the charged particle transverse momentum spectra as measured by the ALICE collaboration in pp collisions at the Large Hadron Collider using the non-extensive Tsallis distribution and the Boltzmann-Gibbs (BGBW) model. A thermodynamically consistent form of the Tsallis distribution is used to extract the kinetic freeze-out parameters from the transverse momentum spectra of charged particles at mid-rapidity.]\"\n\nThe manuscript compares the boson probability distribution model against both a Tsallis and Blast-Wave baseline [[1]](). The stated motivation for using these models is to study the recent collision energy and multiplicity dependence of the charged particle transverse momentum spectra in pp collisions at the Large Hadron Collider, specifically focusing on extracting kinetic freeze-out parameters from the transverse momentum spectra.\n\n[[1]]() Rath_2020_1908.04208.pdf",
+      "top_documents": [
+        {
+          "document_id": "FILE_CONNECTOR__8c559733-d40d-4120-a3c5-d56067849d8a",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 1.0,
+          "source_type": "file",
+          "blurb": "This \ufb02uctuation in the temperature is directly related to the non-extensive parameter q [18] and tells us about the departure of the system from an equilibrium state. To have a link between the phenom",
+          "chunk_ind": 2
+        },
+        {
+          "document_id": "FILE_CONNECTOR__f27dc287-274f-40eb-a50d-d90b48616ea5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.58916515,
+          "source_type": "file",
+          "blurb": "Further to test the sensitivity of these fractions in a tolerance limit of experimental uncertainties, we have varied the pion fraction and found that the obtained \ufb01tting parameters are not signi\ufb01cant",
+          "chunk_ind": 5
+        }
+      ],
+      "search_queries": [
+        "Does the manuscript compare the boson probability distribution model against a Tsallis or Blast-Wave baseline? If so, what is the stated motivation?",
+        "boson probability distribution",
+        "Tsallis baseline",
+        "Blast-Wave baseline",
+        "comparison motivation",
+        "boson probability distribution model comparison Tsallis",
+        "boson probability distribution model comparison Blast-Wave"
+      ],
+      "citations": [],
+      "errors": [],
+      "event_kinds": {
+        "search_tool_start": 1,
+        "search_tool_queries_delta": 1,
+        "search_tool_documents_delta": 1,
+        "section_end": 1,
+        "message_start": 1,
+        "message_delta": 191,
+        "citation_info": 1,
+        "stop": 1
+      }
+    },
+    {
+      "id": "Q5",
+      "topic": "System Architecture Boundary",
+      "question": "Why shouldn't I use internal_search to check the status of the evidence ledger?",
+      "persona_id": 2,
+      "chat_session_id": "4e949893-0c7c-47a2-8448-40cb313e1802",
+      "http_status": 200,
+      "elapsed_ms": 22797,
+      "answer_chars": 783,
+      "answer_preview": "The internal_search tool was used to check why you shouldn't use internal_search to check the status of the evidence ledger. The relevant passage is as follows:\n\n> \"NOT FOUND IN CORPUS \u2014 no relevant chunk retrieved for this query.\"\n\nThis indicates that there are currently no documents in the indexed corpus that address the specific reason why one should not use `internal_search` to check the statu",
+      "answer": "The internal_search tool was used to check why you shouldn't use internal_search to check the status of the evidence ledger. The relevant passage is as follows:\n\n> \"NOT FOUND IN CORPUS \u2014 no relevant chunk retrieved for this query.\"\n\nThis indicates that there are currently no documents in the indexed corpus that address the specific reason why one should not use `internal_search` to check the status of the evidence ledger.\n\nTherefore, based on the information available from the indexed corpus, I cannot provide a specific reason. The response is:\n\nNOT FOUND IN CORPUS \u2014 no relevant chunk retrieved for this query.\n\n\u26a0 \u03c7\u00b2/ndf STATUS: No chunk confirming goodness-of-fit methodology has been retrieved from the indexed corpus. This is a standing open concern in the evidence ledger.",
+      "top_documents": [
+        {
+          "document_id": "FILE_CONNECTOR__8c559733-d40d-4120-a3c5-d56067849d8a",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.7133445,
+          "source_type": "file",
+          "blurb": "\n\u221a\n\nbehaviour in multiplicity from pp to heavy-ion collisions is not envisaged, as the system dynamics becomes com- pletely di\ufb00erent. We have seen the onset of collectivity in high-multiplicity pp col",
+          "chunk_ind": 11
+        },
+        {
+          "document_id": "FILE_CONNECTOR__99d82e29-416b-4c1f-bbbb-94601aee87b4",
+          "semantic_identifier": "boson-probability-function-moving-system.pdf",
+          "link": "",
+          "score": 0.35470968,
+          "source_type": "file",
+          "blurb": "\nEntries 3.344041e+07Mean 1.17Std Dev 1.056 / ndf 2c 5555 / 480A1 1.104e+05 5.042e+06 kT1 0.0006 0.1292 U1 0.0144 0.7907 A2 2.806e+04 1.316e+06 kT2 0.0030 0.3613 U2 0.003 0.741 A3 1.653e+03 5.345e+04 ",
+          "chunk_ind": 8
+        },
+        {
+          "document_id": "FILE_CONNECTOR__f27dc287-274f-40eb-a50d-d90b48616ea5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.7133445,
+          "source_type": "file",
+          "blurb": "\n\u221a\n\nbehaviour in multiplicity from pp to heavy-ion collisions is not envisaged, as the system dynamics becomes com- pletely di\ufb00erent. We have seen the onset of collectivity in high-multiplicity pp col",
+          "chunk_ind": 11
+        },
+        {
+          "document_id": "FILE_CONNECTOR__8c559733-d40d-4120-a3c5-d56067849d8a",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.4091049,
+          "source_type": "file",
+          "blurb": "In a jet rich environment, which might happen in high-multiplicity classes, the produced (mini)jets hardly interact with the system. Along with collectivity seen in these events, the pT spectra seem t",
+          "chunk_ind": 18
+        },
+        {
+          "document_id": "FILE_CONNECTOR__a8c313de-9254-4e09-b8e6-e07238de0e27",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.56045717,
+          "source_type": "file",
+          "blurb": "The criticality in the non-extensive q-parameter is also observed while study- ing the speed of sound for hadron gas using non-extensive statistics [39]. Recently, comprehensive studies have\n\n(2)\n\n(3)",
+          "chunk_ind": 4
+        },
+        {
+          "document_id": "FILE_CONNECTOR__f27dc287-274f-40eb-a50d-d90b48616ea5",
+          "semantic_identifier": "Rath_2020_1908.04208.pdf",
+          "link": "",
+          "score": 0.4091049,
+          "source_type": "file",
+          "blurb": "In a jet rich environment, which might happen in high-multiplicity classes, the produced (mini)jets hardly interact with the system. Along with collectivity seen in these events, the pT spectra seem t",
+          "chunk_ind": 18
+        },
+        {
+          "document_id": "FILE_CONNECTOR__942982d6-5667-4a9b-901d-176412716161",
+          "semantic_identifier": "Khuntia_2019_1808.02383.pdf",
+          "link": "",
+          "score": 0.56045717,
+          "source_type": "file",
+          "blurb": "The criticality in the non-extensive q-parameter is also observed while study- ing the speed of sound for hadron gas using non-extensive statistics [39]. Recently, comprehensive studies have\n\n(2)\n\n(3)",
+          "chunk_ind": 4
+        }
+      ],
+      "search_queries": [
+        "Why shouldn't I use internal_search to check the status of the evidence ledger?",
+        "internal_search",
+        "status",
+        "evidence ledger"
+      ],
+      "citations": [],
+      "errors": [],
+      "event_kinds": {
+        "search_tool_start": 1,
+        "search_tool_queries_delta": 1,
+        "search_tool_documents_delta": 1,
+        "section_end": 1,
+        "message_start": 1,
+        "message_delta": 155,
+        "stop": 1
+      }
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "with_answer": 3,
+    "with_retrieval": 5,
+    "with_errors": 2
+  }
+}

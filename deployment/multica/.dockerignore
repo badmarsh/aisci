@@ -1,9 +1,9 @@
 # Dependencies
-node_modules
+**/node_modules
 .pnpm-store
 
 # Build outputs
-.next
+**/.next
 dist
 server/bin
 server/tmp

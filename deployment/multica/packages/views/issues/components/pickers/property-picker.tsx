@@ -12,6 +12,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@multica/ui/components/ui/tooltip";
+import { isImeComposing } from "@multica/core/utils";
+import { useT } from "../../../i18n";
 
 const HIGHLIGHT_CLASS = "bg-accent";
 const ITEM_SELECTOR = "button[data-picker-item]:not(:disabled)";
@@ -27,8 +29,9 @@ export function PropertyPicker({
   triggerRender,
   width = "w-48",
   align = "end",
+  side = "bottom",
   searchable = false,
-  searchPlaceholder = "Filter...",
+  searchPlaceholder,
   onSearchChange,
   header,
   tooltip,
@@ -41,8 +44,9 @@ export function PropertyPicker({
   triggerRender?: React.ReactElement;
   width?: string;
   align?: "start" | "center" | "end";
+  side?: React.ComponentProps<typeof PopoverContent>["side"];
   searchable?: boolean;
-  searchPlaceholder?: string;
+  searchPlaceholder?: string | undefined;
   onSearchChange?: (query: string) => void;
   /** Custom sticky header rendered above the scrollable list. Use for
    *  filter toggles, search inputs, or any UI that must stay visible while
@@ -62,6 +66,9 @@ export function PropertyPicker({
    */
   footer?: React.ReactNode;
 }) {
+  const { t } = useT("issues");
+  const placeholder = searchPlaceholder ?? t(($) => $.filters.placeholder);
+  const filterAria = t(($) => $.pickers.filter_options_aria);
   const [query, setQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [tooltipHover, setTooltipHover] = useState(false);
@@ -103,6 +110,9 @@ export function PropertyPicker({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
+      // IME is composing — Enter/Arrow belong to the IME (Enter commits
+      // composition; Arrow rotates candidates). Don't hijack them.
+      if (isImeComposing(e)) return;
       const items = getItems();
       if (items.length === 0) return;
 
@@ -152,7 +162,7 @@ export function PropertyPicker({
       ) : (
         popoverTrigger
       )}
-      <PopoverContent align={align} className={`${width} gap-0 p-0`}>
+      <PopoverContent align={align} side={side} className={`${width} gap-0 p-0`}>
         {searchable && (
           <div className="px-2 py-1.5 border-b">
             <input
@@ -164,8 +174,8 @@ export function PropertyPicker({
                 onSearchChange?.(e.target.value);
               }}
               onKeyDown={handleKeyDown}
-              placeholder={searchPlaceholder}
-              aria-label="Filter options"
+              placeholder={placeholder}
+              aria-label={filterAria}
               className="w-full bg-transparent text-sm placeholder:text-muted-foreground outline-none"
             />
           </div>
@@ -207,7 +217,7 @@ export function PickerItem({
       data-picker-item
       disabled={disabled}
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-sm ${disabled ? "opacity-50 cursor-not-allowed" : hoverClassName ?? "hover:bg-accent"} transition-colors`}
+      className={`flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left text-sm ${disabled ? "opacity-50 cursor-not-allowed" : hoverClassName ?? "hover:bg-accent"} transition-colors`}
     >
       {/* min-w-0 lets long children (like truncated label names) shrink
           inside the flex row instead of pushing the selected checkmark off
@@ -260,9 +270,10 @@ export function PickerSection({
 // ---------------------------------------------------------------------------
 
 export function PickerEmpty() {
+  const { t } = useT("issues");
   return (
     <div className="px-2 py-3 text-center text-sm text-muted-foreground">
-      No results
+      {t(($) => $.pickers.no_results)}
     </div>
   );
 }

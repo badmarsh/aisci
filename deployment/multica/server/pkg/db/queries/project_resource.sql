@@ -23,8 +23,22 @@ INSERT INTO project_resource (
     $1, $2, $3, $4, $5, $6, $7
 ) RETURNING *;
 
+-- name: UpdateProjectResource :one
+UPDATE project_resource
+SET resource_ref = $2,
+    label        = $3,
+    position     = $4
+WHERE id = $1
+RETURNING *;
+
 -- name: DeleteProjectResource :exec
 DELETE FROM project_resource WHERE id = $1;
 
 -- name: CountProjectResources :one
 SELECT count(*) FROM project_resource WHERE project_id = $1;
+
+-- name: GetProjectResourceCounts :many
+SELECT project_id, count(*)::bigint AS resource_count
+FROM project_resource
+WHERE project_id = ANY(sqlc.arg('project_ids')::uuid[])
+GROUP BY project_id;

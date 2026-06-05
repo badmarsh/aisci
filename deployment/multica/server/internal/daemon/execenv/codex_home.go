@@ -80,12 +80,18 @@ func prepareCodexHomeWithOpts(codexHome string, opts CodexHomeOptions, logger *s
 		}
 	}
 
-	// Copy config files (isolated per task).
+	// Surface the resulting auth.json state (file kind only, never contents)
+	// so operators diagnosing token-refresh failures can tell whether the
+	// per-task home is tracking the shared ~/.codex/auth.json or has drifted
+	// into a stale local copy.
+	logCodexAuthState(filepath.Join(codexHome, "auth.json"), logger)
+
+	// Sync config files from the shared source (isolated per task).
 	for _, name := range codexCopiedFiles {
 		src := filepath.Join(sharedHome, name)
 		dst := filepath.Join(codexHome, name)
-		if err := copyFileIfExists(src, dst); err != nil {
-			logger.Warn("execenv: codex-home copy failed", "file", name, "error", err)
+		if err := syncCopiedFile(src, dst); err != nil {
+			logger.Warn("execenv: codex-home sync failed", "file", name, "error", err)
 		}
 	}
 
@@ -117,6 +123,14 @@ func prepareCodexHomeWithOpts(codexHome string, opts CodexHomeOptions, logger *s
 	// codex_multi_agent.go for the full rationale and escape hatch.
 	if err := ensureCodexMultiAgentConfig(filepath.Join(codexHome, "config.toml"), logger); err != nil {
 		logger.Warn("execenv: codex-home ensure multi-agent config failed", "error", err)
+	}
+
+	// Disable Codex native auto-memory inside daemon-managed task sessions
+	// so cross-task and cross-workspace context leaks (multica#3130) cannot
+	// happen via `codex-home/memories/` or `~/.codex/memories/`. See
+	// codex_memory.go for the full rationale and escape hatch.
+	if err := ensureCodexMemoryConfig(filepath.Join(codexHome, "config.toml"), logger); err != nil {
+		logger.Warn("execenv: codex-home ensure memory config failed", "error", err)
 	}
 
 	return nil
@@ -195,31 +209,61 @@ func ensureDirSymlink(src, dst string) error {
 	return createDirLink(src, dst)
 }
 
-// ensureSymlink creates a symlink dst → src. If src doesn't exist, it's a no-op.
-// If dst already exists as a correct symlink, it's a no-op. If dst is a broken
-// symlink, it's replaced.
+// ensureSymlink ensures dst tracks src. If src doesn't exist, it's a no-op.
+// If dst is already a symlink pointing at src, it's a no-op. Otherwise — a
+// wrong-target symlink, a broken symlink, or a regular file left over from a
+// prior createFileLink copy fallback — dst is removed and recreated via
+// createFileLink so the per-task home doesn't drift from the shared source.
+//
+// The "regular file" branch matters on Windows: when os.Symlink fails (no
+// Developer Mode / not elevated), createFileLink falls back to copying the
+// file. Without this re-creation step, a once-stale auth.json would never
+// pick up token refreshes from the shared ~/.codex/auth.json, leaving Codex
+// stuck on a revoked refresh token across env reuses (issue #2081).
 func ensureSymlink(src, dst string) error {
 	if _, err := os.Stat(src); os.IsNotExist(err) {
 		return nil // source doesn't exist — skip
 	}
 
-	// Check if dst already exists.
 	if fi, err := os.Lstat(dst); err == nil {
 		if fi.Mode()&os.ModeSymlink != 0 {
-			// It's a symlink — check if it points to the right place.
-			target, err := os.Readlink(dst)
-			if err == nil && target == src {
-				return nil // already correct
+			if target, err := os.Readlink(dst); err == nil && target == src {
+				return nil // symlink already points to src
 			}
-			// Wrong target — remove and recreate.
-			os.Remove(dst)
-		} else {
-			// Regular file exists — don't overwrite.
-			return nil
+		}
+		// Wrong-target symlink, broken symlink, or stale regular file —
+		// drop it so createFileLink can re-link/re-copy from the current src.
+		if err := os.Remove(dst); err != nil {
+			return fmt.Errorf("remove stale dst %s: %w", dst, err)
 		}
 	}
 
 	return createFileLink(src, dst)
+}
+
+// logCodexAuthState records the kind of auth.json the per-task CODEX_HOME
+// ended up with — symlink (with target), regular file (with size + mtime),
+// or missing — so an operator chasing refresh_token_reused / token_expired
+// reports can immediately tell whether the per-task home is tracking the
+// shared ~/.codex/auth.json or has drifted into a stale local copy.
+//
+// Never logs the file contents.
+func logCodexAuthState(authPath string, logger *slog.Logger) {
+	fi, err := os.Lstat(authPath)
+	if err != nil {
+		logger.Info("execenv: codex auth.json absent", "path", authPath, "error", err)
+		return
+	}
+	if fi.Mode()&os.ModeSymlink != 0 {
+		target, _ := os.Readlink(authPath)
+		logger.Info("execenv: codex auth.json is symlink", "path", authPath, "target", target)
+		return
+	}
+	logger.Info("execenv: codex auth.json is regular file",
+		"path", authPath,
+		"size", fi.Size(),
+		"mtime", fi.ModTime().UTC(),
+	)
 }
 
 // (The daemon used to write a minimal inline config here; the authoritative
@@ -227,18 +271,47 @@ func ensureSymlink(src, dst string) error {
 // codex_sandbox.go's ensureCodexSandboxConfig so they can be updated
 // idempotently without touching user-managed keys.)
 
-// copyFileIfExists copies src to dst. If src doesn't exist, it's a no-op.
-// If dst already exists, it's not overwritten.
-func copyFileIfExists(src, dst string) error {
-	if _, err := os.Stat(src); os.IsNotExist(err) {
-		return nil
+// syncCopiedFile mirrors a per-task dst onto the current state of the shared
+// src so the per-task copy tracks the shared source across Reuse() runs:
+//
+//   - src present, dst absent:  copy src → dst
+//   - src present, dst present: drop dst and re-copy src → dst (refresh)
+//   - src absent,  dst present: drop dst (the shared source has been removed,
+//     so the per-task stale copy must not linger)
+//   - src absent,  dst absent:  no-op
+//
+// Regression for MUL-2646: the prior "don't overwrite" guard left per-task
+// config.toml / config.json / instructions.md stuck on whatever snapshot they
+// were seeded with at first Prepare. A user who edited ~/.codex/config.toml
+// between runs — switching the active [model_providers.X] base_url, pointing
+// env_key at a freshly rotated API key, or removing the file outright to
+// drop a provider — kept hitting the stale per-task copy on session resume,
+// with Codex calling the new URL using the old key (or replaying a provider
+// the user had since deleted from the shared config).
+//
+// For config.toml the subsequent ensureCodex{Sandbox,MultiAgent,Memory}Config
+// passes recreate the file from scratch when the shared source is gone, so
+// the per-task home keeps the daemon-managed defaults but loses every
+// user-managed [model_providers.X] / model_provider line that no longer
+// exists in the shared config. For config.json / instructions.md there is
+// no daemon-managed default, so they simply disappear in lockstep with the
+// shared source.
+func syncCopiedFile(src, dst string) error {
+	_, srcErr := os.Stat(src)
+	srcMissing := os.IsNotExist(srcErr)
+	if srcErr != nil && !srcMissing {
+		return fmt.Errorf("stat src %s: %w", src, srcErr)
 	}
 
-	// Don't overwrite existing file.
-	if _, err := os.Stat(dst); err == nil {
-		return nil
+	if _, err := os.Lstat(dst); err == nil {
+		if err := os.Remove(dst); err != nil {
+			return fmt.Errorf("remove stale dst %s: %w", dst, err)
+		}
 	}
 
+	if srcMissing {
+		return nil
+	}
 	return copyFile(src, dst)
 }
 
