@@ -60,3 +60,30 @@ config.yaml.bak
 /frontend/playwright-report/
 .gstack/
 .worktrees
+
+# Onyx debug/diagnostic scripts and data dumps (ephemeral)
+deployment/onyx/app_code/
+deployment/onyx/api_db_dump.txt
+deployment/onyx/db_dump.sql
+deployment/onyx/llm_provider_dump*.txt
+deployment/onyx/model_configurations_output.txt
+deployment/onyx/fallback_matches.txt
+deployment/onyx/provider_output.json
+deployment/onyx/test_llm*.json
+deployment/onyx/*.json
+deployment/onyx/euteko-*.json
+
+# Research scratch directory
+research/robert/scratch/
+
+# Screenshots (ephemeral)
+deployment/helper/screenshot*.png
+deployment/helper/*.png
+
+# Issue text stubs (ephemeral helper output)
+deployment/helper/issue_*.txt
+deployment/helper/commit_msg.txt
+deployment/helper/fix.patch
+
+# Build artifacts
+deployment/hep-physics/tsconfig.tsbuildinfo
