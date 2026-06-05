@@ -1,0 +1,76 @@
+model_list:
+# PRIMARY CHAT MODEL - Fast and reliable
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: openai/qwen-omni-turbo
+  model_name: qwen-omni-flash
+
+# VISION MODEL - Multimodal
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: openai/qwen-vl-plus
+  model_name: qwen-vl-vision
+
+# EMBEDDING MODEL - Local Ollama
+- litellm_params:
+    api_base: http://onyx-ollama:11434
+    api_key: none
+    model: ollama/nomic-embed-text
+  model_name: qwen-embedder
+
+# RERANKER MODEL
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: dashscope/gte-reranker
+  model_name: qwen-reranker
+
+# LOCAL CHAT MODEL - Slow first load (20-30s), then fast
+- litellm_params:
+    api_base: http://onyx-ollama:11434
+    api_key: none
+    model: ollama/gemma2:9b
+    num_ctx: 8192
+  model_name: local-context-model
+
+# LOCAL VISION MODEL
+- litellm_params:
+    api_base: http://onyx-ollama:11434
+    api_key: none
+    model: ollama/qwen2.5vl:3b
+    num_ctx: 8192
+  model_name: local-vision-model
+
+# NVIDIA MODELS - Reliable and fast
+- litellm_params:
+    api_base: https://integrate.api.nvidia.com/v1
+    api_key: os.environ/NVIDIA_API_KEY
+    model: openai/meta/llama-3.1-8b-instruct
+  model_name: meta/llama-3.1-8b-instruct
+
+# NVIDIA VISION MODEL
+- litellm_params:
+    api_base: https://integrate.api.nvidia.com/v1
+    api_key: os.environ/NVIDIA_API_KEY
+    model: openai/nvidia/llama-3.1-nemotron-nano-vl-8b-v1
+  model_name: nvidia/llama-3.1-nemotron-nano-vl-8b-v1
+
+# NVIDIA REASONING MODEL - Returns reasoning_content instead of content
+# Use only when reasoning trace is needed
+- litellm_params:
+    api_base: https://integrate.api.nvidia.com/v1
+    api_key: os.environ/NVIDIA_API_KEY
+    model: openai/nvidia/nvidia-nemotron-nano-9b-v2
+  model_name: nvidia/nvidia-nemotron-nano-9b-v2
+
+# REMOVED: qwen-max (quota exhausted - free tier depleted)
+# If you need this model, enable paid tier in Dashscope console
+
+router_settings:
+  allowed_fails: 10
+  cooldown_time: 0
+  enable_pre_call_checks: false
+  routing_strategy: latency-based-routing
+  timeout: 1200
