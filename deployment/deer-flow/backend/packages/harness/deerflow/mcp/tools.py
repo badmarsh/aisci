@@ -1,10 +1,9 @@
-"""Load MCP tools using langchain-mcp-adapters."""
+"""Load MCP tools using langchain-mcp-adapters with stdio session pooling."""
 
-import asyncio
-import atexit
-import concurrent.futures
+from __future__ import annotations
+
 import logging
-from collections.abc import Callable
+from collections.abc import Mapping
 from typing import Any
 
 from langchain_core.tools import BaseTool, StructuredTool
@@ -15,40 +14,14 @@ from deerflow.mcp.client import build_servers_config
 from deerflow.mcp.oauth import build_oauth_tool_interceptor, get_initial_oauth_headers
 from deerflow.mcp.session_pool import get_session_pool
 from deerflow.reflection import resolve_variable
+from deerflow.tools.sync import make_sync_tool_wrapper
 from deerflow.tools.types import Runtime
 
 logger = logging.getLogger(__name__)
 
-# Global thread pool for sync tool invocation in async environments
-_SYNC_TOOL_EXECUTOR = concurrent.futures.ThreadPoolExecutor(max_workers=10, thread_name_prefix="mcp-sync-tool")
-
-# Register shutdown hook for the global executor
-atexit.register(lambda: _SYNC_TOOL_EXECUTOR.shutdown(wait=False))
-
-
-def _make_sync_tool_wrapper(coro: Callable[..., Any], tool_name: str) -> Callable[..., Any]:
-    """Build a synchronous wrapper for an asynchronous tool coroutine."""
-
-    def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
-
-        try:
-            if loop is not None and loop.is_running():
-                future = _SYNC_TOOL_EXECUTOR.submit(asyncio.run, coro(*args, **kwargs))
-                return future.result()
-            return asyncio.run(coro(*args, **kwargs))
-        except Exception as e:
-            logger.error(f"Error invoking MCP tool '{tool_name}' via sync wrapper: {e}", exc_info=True)
-            raise
-
-    return sync_wrapper
-
 
 def _extract_thread_id(runtime: Runtime | None) -> str:
-    """Extract thread_id from tool runtime or LangGraph config."""
+    """Extract thread_id from the injected tool runtime or LangGraph config."""
     if runtime is not None:
         tid = runtime.context.get("thread_id") if runtime.context else None
         if tid is not None:
@@ -66,23 +39,31 @@ def _extract_thread_id(runtime: Runtime | None) -> str:
 
 
 def _convert_call_tool_result(call_tool_result: Any) -> Any:
-    """Convert an MCP CallToolResult to LangChain content_and_artifact format."""
+    """Convert an MCP CallToolResult to the LangChain ``content_and_artifact`` format.
+
+    Implements the same conversion logic as the adapter without relying on
+    the private ``langchain_mcp_adapters.tools._convert_call_tool_result`` symbol.
+    """
     from langchain_core.messages import ToolMessage
     from langchain_core.messages.content import create_file_block, create_image_block, create_text_block
     from langchain_core.tools import ToolException
     from mcp.types import EmbeddedResource, ImageContent, ResourceLink, TextContent, TextResourceContents
 
+    # Pass ToolMessage through directly (interceptor short-circuit).
     if isinstance(call_tool_result, ToolMessage):
         return call_tool_result, None
 
+    # Pass LangGraph Command through directly when langgraph is installed.
     try:
         from langgraph.types import Command
 
         if isinstance(call_tool_result, Command):
             return call_tool_result, None
     except ImportError:
+        # langgraph is optional; if unavailable, continue with standard MCP content conversion.
         pass
 
+    # Convert MCP content blocks to LangChain content blocks.
     lc_content = []
     for item in call_tool_result.content:
         if isinstance(item, TextContent):
@@ -129,7 +110,16 @@ def _make_session_pool_tool(
     connection: dict[str, Any],
     tool_interceptors: list[Any] | None = None,
 ) -> BaseTool:
-    """Wrap an MCP tool so stdio sessions persist per thread."""
+    """Wrap an MCP tool so it reuses a persistent session from the pool.
+
+    Replaces the per-call session creation with pool-managed sessions scoped
+    by ``(server_name, thread_id)``.  This ensures stateful MCP servers (e.g.
+    Playwright) keep their state across tool calls within the same thread.
+
+    The configured ``tool_interceptors`` (OAuth, custom) are preserved and
+    applied on every call before invoking the pooled session.
+    """
+    # Strip the server-name prefix to recover the original MCP tool name.
     original_name = tool.name
     prefix = f"{server_name}_"
     if original_name.startswith(prefix):
@@ -148,7 +138,15 @@ def _make_session_pool_tool(
             from langchain_mcp_adapters.interceptors import MCPToolCallRequest
 
             async def base_handler(request: MCPToolCallRequest) -> Any:
-                return await session.call_tool(request.name, request.args)
+                # Preserve interceptor-injected headers for stdio MCP calls by
+                # forwarding them through MCP call meta.
+                call_kwargs: dict[str, Any] = {}
+                if request.headers:
+                    if isinstance(request.headers, Mapping):
+                        call_kwargs["meta"] = {"headers": dict(request.headers)}
+                    else:
+                        logger.warning("Ignoring MCP interceptor headers with unsupported type: %s", type(request.headers).__name__)
+                return await session.call_tool(request.name, request.args, **call_kwargs)
 
             handler = base_handler
             for interceptor in reversed(tool_interceptors):
@@ -182,13 +180,26 @@ def _make_session_pool_tool(
 
 
 async def get_mcp_tools() -> list[BaseTool]:
-    """Get all tools from enabled MCP servers."""
+    """Get all tools from enabled MCP servers.
+
+    Tools using stdio transport are wrapped with persistent-session logic so
+    consecutive calls within the same thread reuse the same MCP session.
+    HTTP/SSE tools are returned unwrapped to avoid cross-task TaskGroup
+    cleanup errors.
+
+    Returns:
+        List of LangChain tools from all enabled MCP servers.
+    """
     try:
         from langchain_mcp_adapters.client import MultiServerMCPClient
     except ImportError:
         logger.warning("langchain-mcp-adapters not installed. Install it to enable MCP tools: pip install langchain-mcp-adapters")
         return []
 
+    # NOTE: We use ExtensionsConfig.from_file() instead of get_extensions_config()
+    # to always read the latest configuration from disk. This ensures that changes
+    # made through the Gateway API (which runs in a separate process) are immediately
+    # reflected when initializing MCP tools.
     extensions_config = ExtensionsConfig.from_file()
     servers_config = build_servers_config(extensions_config)
 
@@ -197,8 +208,10 @@ async def get_mcp_tools() -> list[BaseTool]:
         return []
 
     try:
+        # Create the multi-server MCP client
         logger.info(f"Initializing MCP client with {len(servers_config)} server(s)")
 
+        # Inject initial OAuth headers for server connections (tool discovery/session init)
         initial_oauth_headers = await get_initial_oauth_headers(extensions_config)
         for server_name, auth_header in initial_oauth_headers.items():
             if server_name not in servers_config:
@@ -213,6 +226,8 @@ async def get_mcp_tools() -> list[BaseTool]:
         if oauth_interceptor is not None:
             tool_interceptors.append(oauth_interceptor)
 
+        # Load custom interceptors declared in extensions_config.json
+        # Format: "mcpInterceptors": ["pkg.module:builder_func", ...]
         raw_interceptor_paths = (extensions_config.model_extra or {}).get("mcpInterceptors")
         if isinstance(raw_interceptor_paths, str):
             raw_interceptor_paths = [raw_interceptor_paths]
@@ -220,7 +235,6 @@ async def get_mcp_tools() -> list[BaseTool]:
             if raw_interceptor_paths is not None:
                 logger.warning(f"mcpInterceptors must be a list of strings, got {type(raw_interceptor_paths).__name__}; skipping")
             raw_interceptor_paths = []
-
         for interceptor_path in raw_interceptor_paths:
             try:
                 builder = resolve_variable(interceptor_path)
@@ -231,32 +245,49 @@ async def get_mcp_tools() -> list[BaseTool]:
                 elif interceptor is not None:
                     logger.warning(f"Builder {interceptor_path} returned non-callable {type(interceptor).__name__}; skipping")
             except Exception as e:
-                logger.warning(f"Failed to load MCP interceptor {interceptor_path}: {e}", exc_info=True)
-
-        all_mcp_tools: list[BaseTool] = []
-        for server_name, server_config in servers_config.items():
-            try:
-                client = MultiServerMCPClient(
-                    {server_name: server_config},
-                    tool_interceptors=tool_interceptors,
-                    tool_name_prefix=True,
+                logger.warning(
+                    f"Failed to load MCP interceptor {interceptor_path}: {e}",
+                    exc_info=True,
                 )
-                server_tools = await client.get_tools()
-                if server_config.get("transport", "stdio") == "stdio":
-                    server_tools = [
-                        _make_session_pool_tool(tool, server_name, server_config, tool_interceptors)
-                        for tool in server_tools
-                    ]
-                all_mcp_tools.extend(server_tools)
-                logger.info(f"Successfully loaded {len(server_tools)} tool(s) from MCP server: {server_name}")
-            except Exception as e:
-                logger.warning(f"Failed to load tools from MCP server '{server_name}': {e}. This server will be skipped.")
 
-        for tool in all_mcp_tools:
+        client = MultiServerMCPClient(
+            servers_config,
+            tool_interceptors=tool_interceptors,
+            tool_name_prefix=True,
+        )
+
+        # Get all tools from all servers (discovers tool definitions via
+        # temporary sessions – the persistent-session wrapping is applied below).
+        tools = await client.get_tools()
+        logger.info(f"Successfully loaded {len(tools)} tool(s) from MCP servers")
+
+        # Wrap each tool with persistent-session logic.
+        # Only pool stdio sessions. HTTP/SSE transports use anyio TaskGroups
+        # internally which cannot be closed from a different async task, so
+        # pooling them causes RuntimeError on cleanup (see #3203).
+        wrapped_tools: list[BaseTool] = []
+        for tool in tools:
+            tool_server: str | None = None
+            for name in servers_config:
+                if tool.name.startswith(f"{name}_"):
+                    tool_server = name
+                    break
+
+            if tool_server is not None:
+                transport = servers_config[tool_server].get("transport", "stdio")
+                if transport == "stdio":
+                    wrapped_tools.append(_make_session_pool_tool(tool, tool_server, servers_config[tool_server], tool_interceptors))
+                else:
+                    wrapped_tools.append(tool)
+            else:
+                wrapped_tools.append(tool)
+
+        # Patch tools to support sync invocation, as deerflow client streams synchronously
+        for tool in wrapped_tools:
             if getattr(tool, "func", None) is None and getattr(tool, "coroutine", None) is not None:
-                tool.func = _make_sync_tool_wrapper(tool.coroutine, tool.name)
+                tool.func = make_sync_tool_wrapper(tool.coroutine, tool.name)
 
-        return all_mcp_tools
+        return wrapped_tools
 
     except Exception as e:
         logger.error(f"Failed to load MCP tools: {e}", exc_info=True)

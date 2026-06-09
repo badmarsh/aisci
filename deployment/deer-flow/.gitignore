@@ -60,7 +60,3 @@ config.yaml.bak
 /frontend/playwright-report/
 .gstack/
 .worktrees
-
-# LangGraph runtime state (never commit)
-backend/.langgraph_api/
-*.pckl

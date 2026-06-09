@@ -22,12 +22,13 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import threading
 from collections.abc import Iterator
-from types import SimpleNamespace
 
 from langgraph.store.base import BaseStore
 
 from deerflow.config.app_config import get_app_config
+from deerflow.config.checkpointer_config import ensure_config_loaded
 from deerflow.runtime.store._sqlite_utils import ensure_sqlite_parent_dir, resolve_sqlite_conn_str
 
 logger = logging.getLogger(__name__)
@@ -101,23 +102,7 @@ def _sync_store_cm(config) -> Iterator[BaseStore]:
 
 _store: BaseStore | None = None
 _store_ctx = None  # open context manager keeping the connection alive
-
-
-def _store_backend_config(app_config):
-    """Resolve the effective backend config for the Store."""
-    if app_config.checkpointer is not None:
-        return app_config.checkpointer
-
-    db_config = getattr(app_config, "database", None)
-    if db_config is None or db_config.backend == "memory":
-        return None
-
-    if db_config.backend == "sqlite":
-        return SimpleNamespace(type="sqlite", connection_string=db_config.checkpointer_sqlite_path)
-    if db_config.backend == "postgres":
-        return SimpleNamespace(type="postgres", connection_string=db_config.postgres_url)
-
-    raise ValueError(f"Unknown database backend: {db_config.backend!r}")
+_store_lock = threading.Lock()
 
 
 def get_store() -> BaseStore:
@@ -135,34 +120,29 @@ def get_store() -> BaseStore:
     if _store is not None:
         return _store
 
-    # Lazily load app config, mirroring the checkpointer singleton pattern so
-    # that tests that set the global checkpointer config explicitly remain isolated.
-    from deerflow.config.app_config import _app_config
-    from deerflow.config.checkpointer_config import get_checkpointer_config
+    # Config loading can reset both persistence singletons. Keep it outside
+    # this provider lock to avoid cross-provider lock-order inversion.
+    ensure_config_loaded()
 
-    app_config = _app_config
-    if app_config is None:
-        try:
-            app_config = get_app_config()
-        except FileNotFoundError:
-            pass
+    with _store_lock:
+        if _store is not None:
+            return _store
 
-    config = get_checkpointer_config()
-    if config is None and app_config is not None:
-        config = _store_backend_config(app_config)
+        from deerflow.config.checkpointer_config import get_checkpointer_config
 
-    if config is None:
-        from langgraph.store.memory import InMemoryStore
+        config = get_checkpointer_config()
 
-        logger.warning(
-            "No persistent store backend configured in config.yaml — using InMemoryStore for the store. "
-            "Thread list will be lost on server restart. Configure `database.backend` or legacy `checkpointer` for persistence."
-        )
-        _store = InMemoryStore()
-        return _store
+        if config is None:
+            from langgraph.store.memory import InMemoryStore
 
-    _store_ctx = _sync_store_cm(config)
-    _store = _store_ctx.__enter__()
+            logger.warning("No 'checkpointer' section in config.yaml — using InMemoryStore for the store. Thread list will be lost on server restart. Configure a sqlite or postgres backend for persistence.")
+            _store = InMemoryStore()
+            return _store
+
+        store_ctx = _sync_store_cm(config)
+        store = store_ctx.__enter__()
+        _store_ctx = store_ctx
+        _store = store
     return _store
 
 
@@ -173,13 +153,14 @@ def reset_store() -> None:
     Useful in tests or after a configuration change.
     """
     global _store, _store_ctx
-    if _store_ctx is not None:
-        try:
-            _store_ctx.__exit__(None, None, None)
-        except Exception:
-            logger.warning("Error during store cleanup", exc_info=True)
-        _store_ctx = None
-    _store = None
+    with _store_lock:
+        if _store_ctx is not None:
+            try:
+                _store_ctx.__exit__(None, None, None)
+            except Exception:
+                logger.warning("Error during store cleanup", exc_info=True)
+            _store_ctx = None
+        _store = None
 
 
 # ---------------------------------------------------------------------------
@@ -199,19 +180,15 @@ def store_context() -> Iterator[BaseStore]:
             store.put(("threads",), thread_id, {...})
 
     Yields an :class:`~langgraph.store.memory.InMemoryStore` when no
-    persistent backend is configured in *config.yaml*.
+    checkpointer is configured in *config.yaml*.
     """
-    app_config = get_app_config()
-    config = _store_backend_config(app_config)
-    if config is None:
+    config = get_app_config()
+    if config.checkpointer is None:
         from langgraph.store.memory import InMemoryStore
 
-        logger.warning(
-            "No persistent store backend configured in config.yaml — using InMemoryStore for the store. "
-            "Thread list will be lost on server restart. Configure `database.backend` or legacy `checkpointer` for persistence."
-        )
+        logger.warning("No 'checkpointer' section in config.yaml — using InMemoryStore for the store. Thread list will be lost on server restart. Configure a sqlite or postgres backend for persistence.")
         yield InMemoryStore()
         return
 
-    with _sync_store_cm(config) as store:
+    with _sync_store_cm(config.checkpointer) as store:
         yield store

@@ -30,10 +30,6 @@ EXPOSE 3000
 
 # ── Builder: install + compile Next.js ───────────────────────────────────────
 FROM base AS builder
-ARG DEER_FLOW_INTERNAL_GATEWAY_BASE_URL=http://gateway:8001
-ARG DEER_FLOW_INTERNAL_LANGGRAPH_BASE_URL=http://langgraph:2024
-ENV DEER_FLOW_INTERNAL_GATEWAY_BASE_URL=$DEER_FLOW_INTERNAL_GATEWAY_BASE_URL
-ENV DEER_FLOW_INTERNAL_LANGGRAPH_BASE_URL=$DEER_FLOW_INTERNAL_LANGGRAPH_BASE_URL
 RUN cd /app/frontend && pnpm install --frozen-lockfile
 # Skip env validation — runtime vars are injected by nginx/container
 RUN cd /app/frontend && SKIP_ENV_VALIDATION=1 pnpm build

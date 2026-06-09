@@ -3,8 +3,6 @@
 import logging
 import os
 import stat
-import zipfile
-from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel, Field
@@ -41,13 +39,37 @@ DEFAULT_MAX_FILE_SIZE = 50 * 1024 * 1024
 DEFAULT_MAX_TOTAL_SIZE = 100 * 1024 * 1024
 
 
+class UploadedFileInfo(BaseModel):
+    """Uploaded file metadata exposed by upload and list APIs."""
+
+    filename: str
+    size: int
+    path: str
+    virtual_path: str
+    artifact_url: str
+    extension: str | None = None
+    modified: float | None = None
+    original_filename: str | None = None
+    markdown_file: str | None = None
+    markdown_path: str | None = None
+    markdown_virtual_path: str | None = None
+    markdown_artifact_url: str | None = None
+
+
 class UploadResponse(BaseModel):
     """Response model for file upload."""
 
     success: bool
-    files: list[dict[str, str]]
+    files: list[UploadedFileInfo]
     message: str
     skipped_files: list[str] = Field(default_factory=list)
+
+
+class UploadListResponse(BaseModel):
+    """Response model for uploaded file listing."""
+
+    files: list[UploadedFileInfo]
+    count: int
 
 
 class UploadLimits(BaseModel):
@@ -71,65 +93,28 @@ def _make_file_sandbox_writable(file_path: os.PathLike[str] | str) -> None:
         logger.warning("Skipping sandbox chmod for symlinked upload path: %s", file_path)
         return
 
-    writable_mode = stat.S_IMODE(file_stat.st_mode) | stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH
+    writable_mode = stat.S_IMODE(file_stat.st_mode) | stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH | stat.S_IRGRP | stat.S_IROTH
     chmod_kwargs = {"follow_symlinks": False} if os.chmod in os.supports_follow_symlinks else {}
     os.chmod(file_path, writable_mode, **chmod_kwargs)
 
 
-def _auto_extract_zip(
-    zip_path: Path,
-    uploads_dir: Path,
-    sandbox_uploads_virtual_root: str,
-    sync_to_sandbox: bool,
-    sandbox_sync_targets: list[tuple[Path, str]],
-) -> dict[str, str] | None:
-    """Extract a zip archive next to itself so agents can read individual files.
+def _make_file_sandbox_readable(file_path: os.PathLike[str] | str) -> None:
+    """Ensure uploaded files are readable by the sandbox process.
 
-    Returns a dict of extra file_info keys to merge into the upload record, or
-    None when extraction is skipped / fails non-fatally.
+    For Docker sandboxes (AIO), the gateway writes files as root with 0o600
+    permissions, then bind-mounts the host directory into the container. The
+    sandbox process inside the container runs as a non-root user and cannot
+    read those files without group/other read bits. This function adds
+    ``S_IRGRP | S_IROTH`` so the sandbox can read the uploaded content.
     """
-    extract_dir = uploads_dir / zip_path.stem
-    try:
-        extract_dir.mkdir(parents=True, exist_ok=True)
-        _make_file_sandbox_writable(extract_dir)
+    file_stat = os.lstat(file_path)
+    if stat.S_ISLNK(file_stat.st_mode):
+        logger.warning("Skipping sandbox chmod for symlinked upload path: %s", file_path)
+        return
 
-        with zipfile.ZipFile(zip_path, "r") as zf:
-            # Security: reject entries with absolute paths or path traversal
-            for member in zf.infolist():
-                member_path = Path(member.filename)
-                if member_path.is_absolute() or ".." in member_path.parts:
-                    logger.warning(
-                        "Skipping unsafe zip entry %r in %s", member.filename, zip_path.name
-                    )
-                    continue
-                extracted = extract_dir / member_path
-                if member.is_dir():
-                    extracted.mkdir(parents=True, exist_ok=True)
-                    _make_file_sandbox_writable(extracted)
-                else:
-                    extracted.parent.mkdir(parents=True, exist_ok=True)
-                    extracted.write_bytes(zf.read(member.filename))
-                    _make_file_sandbox_writable(extracted)
-                    if sync_to_sandbox:
-                        rel = extracted.relative_to(uploads_dir)
-                        virtual = f"{sandbox_uploads_virtual_root}/{rel}"
-                        sandbox_sync_targets.append((extracted, virtual))
-
-        extracted_count = sum(1 for _ in extract_dir.rglob("*") if _.is_file())
-        logger.info(
-            "Auto-extracted %s → %s (%d files)", zip_path.name, extract_dir, extracted_count
-        )
-        return {
-            "extracted_dir": str(extract_dir),
-            "extracted_files": str(extracted_count),
-        }
-
-    except zipfile.BadZipFile:
-        logger.warning("Uploaded file %s is not a valid zip archive; skipping extraction", zip_path.name)
-        return None
-    except Exception:
-        logger.warning("Failed to auto-extract %s; skipping extraction", zip_path.name, exc_info=True)
-        return None
+    readable_mode = stat.S_IMODE(file_stat.st_mode) | stat.S_IRGRP | stat.S_IROTH
+    chmod_kwargs = {"follow_symlinks": False} if os.chmod in os.supports_follow_symlinks else {}
+    os.chmod(file_path, readable_mode, **chmod_kwargs)
 
 
 def _uses_thread_data_mounts(sandbox_provider: SandboxProvider) -> bool:
@@ -287,7 +272,6 @@ async def upload_files(
                 total_size=total_size,
             )
             written_paths.append(file_path)
-            _make_file_sandbox_writable(file_path)
 
             virtual_path = upload_virtual_path(safe_filename)
 
@@ -296,7 +280,7 @@ async def upload_files(
 
             file_info = {
                 "filename": safe_filename,
-                "size": str(file_size),
+                "size": file_size,
                 "path": str(sandbox_uploads / safe_filename),
                 "virtual_path": virtual_path,
                 "artifact_url": upload_artifact_url(thread_id, safe_filename),
@@ -306,25 +290,11 @@ async def upload_files(
 
             logger.info(f"Saved file: {safe_filename} ({file_size} bytes) to {file_info['path']}")
 
-            # Auto-extract zip archives so agents can read individual files
-            file_path_obj = Path(file_path)
-            if file_path_obj.suffix.lower() == ".zip":
-                zip_extra = _auto_extract_zip(
-                    zip_path=file_path_obj,
-                    uploads_dir=Path(uploads_dir),
-                    sandbox_uploads_virtual_root=str(sandbox_uploads),
-                    sync_to_sandbox=sync_to_sandbox,
-                    sandbox_sync_targets=sandbox_sync_targets,
-                )
-                if zip_extra:
-                    file_info.update(zip_extra)
-
-            file_ext = file_path_obj.suffix.lower()
+            file_ext = file_path.suffix.lower()
             if auto_convert_documents and file_ext in CONVERTIBLE_EXTENSIONS:
                 md_path = await convert_file_to_markdown(file_path)
                 if md_path:
                     written_paths.append(md_path)
-                    _make_file_sandbox_writable(md_path)
                     md_virtual_path = upload_virtual_path(md_path.name)
 
                     if sync_to_sandbox:
@@ -349,9 +319,20 @@ async def upload_files(
             _cleanup_uploaded_paths(written_paths)
             raise HTTPException(status_code=500, detail=f"Failed to upload {file.filename}: {str(e)}")
 
+    # Uploaded files are created with 0o600 permissions (owner read/write only).
+    # In Docker sandbox deployments the gateway writes as root but the sandbox
+    # process runs as a non-root user (typically UID 1000).  Without group/other
+    # read bits the sandbox cannot access the files — whether the uploads
+    # directory is bind-mounted into the container or synced via
+    # sandbox.update_file.  Always add group/other read bits so every sandbox
+    # configuration can read the uploaded content.
+    for file_path in written_paths:
+        _make_file_sandbox_readable(file_path)
+
     if sync_to_sandbox:
         for file_path, virtual_path in sandbox_sync_targets:
-            sandbox.update_file(virtual_path, Path(file_path).read_bytes())
+            _make_file_sandbox_writable(file_path)
+            sandbox.update_file(virtual_path, file_path.read_bytes())
 
     message = f"Successfully uploaded {len(uploaded_files)} file(s)"
     if skipped_files:
@@ -376,9 +357,9 @@ async def get_upload_limits(
     return _get_upload_limits(config)
 
 
-@router.get("/list", response_model=dict)
+@router.get("/list", response_model=UploadListResponse)
 @require_permission("threads", "read", owner_check=True)
-async def list_uploaded_files(thread_id: str, request: Request) -> dict:
+async def list_uploaded_files(thread_id: str, request: Request) -> UploadListResponse:
     """List all files in a thread's uploads directory."""
     try:
         uploads_dir = get_uploads_dir(thread_id)
@@ -392,7 +373,7 @@ async def list_uploaded_files(thread_id: str, request: Request) -> dict:
     for f in result["files"]:
         f["path"] = str(sandbox_uploads / f["filename"])
 
-    return result
+    return UploadListResponse(**result)
 
 
 @router.delete("/{filename}")

@@ -17,7 +17,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
-from langgraph.checkpoint.base import empty_checkpoint
+from langgraph.checkpoint.base import empty_checkpoint, uuid6
 from pydantic import BaseModel, Field, field_validator
 
 from app.gateway.authz import require_permission
@@ -89,6 +89,28 @@ class ThreadSearchRequest(BaseModel):
     limit: int = Field(default=100, ge=1, le=1000, description="Maximum results")
     offset: int = Field(default=0, ge=0, description="Pagination offset")
     status: str | None = Field(default=None, description="Filter by thread status")
+
+    @field_validator("metadata")
+    @classmethod
+    def _validate_metadata_filters(cls, v: dict[str, Any]) -> dict[str, Any]:
+        """Reject filter entries the SQL backend cannot compile.
+
+        Enforces consistent behaviour across SQL and memory backends.
+        See ``deerflow.persistence.json_compat`` for the shared validators.
+        """
+        if not v:
+            return v
+        from deerflow.persistence.json_compat import validate_metadata_filter_key, validate_metadata_filter_value
+
+        bad_entries: list[str] = []
+        for key, value in v.items():
+            if not validate_metadata_filter_key(key):
+                bad_entries.append(f"{key!r} (unsafe key)")
+            elif not validate_metadata_filter_value(value):
+                bad_entries.append(f"{key!r} (unsupported value type {type(value).__name__})")
+        if bad_entries:
+            raise ValueError(f"Invalid metadata filter entries: {', '.join(bad_entries)}")
+        return v
 
 
 class ThreadStateResponse(BaseModel):
@@ -294,14 +316,18 @@ async def search_threads(body: ThreadSearchRequest, request: Request) -> list[Th
     (SQL-backed for sqlite/postgres, Store-backed for memory mode).
     """
     from app.gateway.deps import get_thread_store
+    from deerflow.persistence.thread_meta import InvalidMetadataFilterError
 
     repo = get_thread_store(request)
-    rows = await repo.search(
-        metadata=body.metadata or None,
-        status=body.status,
-        limit=body.limit,
-        offset=body.offset,
-    )
+    try:
+        rows = await repo.search(
+            metadata=body.metadata or None,
+            status=body.status,
+            limit=body.limit,
+            offset=body.offset,
+        )
+    except InvalidMetadataFilterError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return [
         ThreadResponse(
             thread_id=r["thread_id"],
@@ -510,9 +536,21 @@ async def update_thread_state(thread_id: str, body: ThreadStateUpdateRequest, re
         metadata["step"] = metadata.get("step", 0) + 1
         metadata["writes"] = {body.as_node: body.values}
 
+    # Assign a new checkpoint ID so aput performs an INSERT rather than an
+    # in-place REPLACE of the existing row.  Use uuid6 (time-ordered) rather
+    # than uuid4 (random) so the new ID is always lexicographically greater
+    # than the previous one — LangGraph's checkpointers determine the "latest"
+    # checkpoint by max(checkpoint_ids) string order, matching the uuid6 epoch.
+    checkpoint["id"] = str(uuid6())
+
     # aput requires checkpoint_ns in the config — use the same config used for the
-    # read (which always includes checkpoint_ns="").  Do NOT include checkpoint_id
-    # so that aput generates a fresh checkpoint ID for the new snapshot.
+    # read (which always includes checkpoint_ns=""). The fresh checkpoint ID is
+    # assigned above via checkpoint["id"]; keep checkpoint_id out of the config so
+    # the write is keyed by the new checkpoint payload rather than the prior read.
+    # All supported savers (InMemorySaver, AsyncSqliteSaver, AsyncPostgresSaver)
+    # persist and echo back checkpoint["id"] verbatim — none mint their own — so
+    # the new_config below carries the uuid6 we assigned here. (Regression-locked
+    # by test_update_thread_state_inserts_new_checkpoint_each_call.)
     write_config: dict[str, Any] = {
         "configurable": {
             "thread_id": thread_id,
@@ -531,7 +569,7 @@ async def update_thread_state(thread_id: str, body: ThreadStateUpdateRequest, re
 
     # Sync title changes through the ThreadMetaStore abstraction so /threads/search
     # reflects them immediately in both sqlite and memory backends.
-    if body.values and "title" in body.values:
+    if thread_store and body.values and "title" in body.values:
         new_title = body.values["title"]
         if new_title:  # Skip empty strings and None
             try:
