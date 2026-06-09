@@ -1,0 +1,11 @@
+#!/bin/bash
+# DeerFlow Docker Compose wrapper
+# Automatically loads the correct .env file so you don't need --env-file every time
+
+set -e
+
+COMPOSE_DIR="$(cd "$(dirname "$0")" && pwd)"
+COMPOSE_FILE="${COMPOSE_DIR}/docker/docker-compose.yaml"
+ENV_FILE="${COMPOSE_DIR}/.env"
+
+exec docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" "$@"
