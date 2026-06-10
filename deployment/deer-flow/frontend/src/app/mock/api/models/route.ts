@@ -29,6 +29,20 @@ export function GET() {
         display_name: "Gemini 3 Pro",
         supports_thinking: true,
       },
+      {
+        id: "openrouter:deepseek/deepseek-v4-pro",
+        name: "openrouter:deepseek/deepseek-v4-pro",
+        model: "openrouter:deepseek/deepseek-v4-pro",
+        display_name: "DeepSeek V4 Pro (OpenRouter)",
+        supports_thinking: true,
+      },
+      {
+        id: "openrouter:deepseek/deepseek-v4-flash",
+        name: "openrouter:deepseek/deepseek-v4-flash",
+        model: "openrouter:deepseek/deepseek-v4-flash",
+        display_name: "DeepSeek V4 Flash (OpenRouter)",
+        supports_thinking: true,
+      },
     ],
   });
 }

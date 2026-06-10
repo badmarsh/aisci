@@ -966,6 +966,24 @@ function SuggestionList() {
           onClick={() => handleSuggestionClick(suggestion.prompt)}
         />
       ))}
+      <Suggestion
+        icon={GraduationCapIcon}
+        suggestion="POSER Poster"
+        onClick={() => {
+          textInput.setInput(
+            "Generate a POSER physics conference poster as a .pptx file. " +
+            "Use the ppt_init_project tool to create a new project named 'poser_poster', " +
+            "then design SVG slides (16:9 format, academic poster style) based on the latest " +
+            "POSER pipeline analysis report and fit results from /mnt/host/aisci/research/robert/. " +
+            "Write each slide using ppt_write_svg, run ppt_finalize_svg, then ppt_export_pptx. " +
+            "Return the final .pptx file path."
+          );
+          setTimeout(() => {
+            const form = document.querySelector("form");
+            if (form) form.requestSubmit();
+          }, 50);
+        }}
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Suggestion icon={PlusIcon} suggestion={t.common.create} />
@@ -1000,11 +1018,18 @@ function AddAttachmentsButton({ className }: { className?: string }) {
   return (
     <Tooltip content={t.inputBox.addAttachments}>
       <PromptInputButton
-        className={cn("px-2!", className)}
-        onClick={() => attachments.openFileDialog()}
+        className={className}
+        onClick={(e) => {
+          e.preventDefault();
+          attachments.openFileDialog();
+        }}
+        type="button"
       >
-        <PaperclipIcon className="size-3" />
+        <PaperclipIcon className="size-4" />
+        <span className="sr-only">{t.inputBox.addAttachments}</span>
       </PromptInputButton>
     </Tooltip>
   );
 }
+
+

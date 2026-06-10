@@ -1,0 +1,20 @@
+{
+  "name": "data-preprocessing-pipeline",
+  "description": "Pipeline for standardizing and cleaning raw experimental datasets.",
+  "inputs": {
+    "raw_data_path": "Absolute path to the raw CSV file."
+  },
+  "steps": [
+    {
+      "name": "cleaning",
+      "agent_name": "data-cleaner",
+      "tool_scope": ["read_file", "data"],
+      "prompt": "Run the data preprocessing pipeline on {{raw_data_path}}.",
+      "mode": "sequential",
+      "output_var": "cleaning_status"
+    }
+  ],
+  "implementation": {
+    "primary_skill": "deployment/deer-flow/skills/custom/data-preprocessing-pipeline/SKILL.md"
+  }
+}

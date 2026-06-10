@@ -33,6 +33,13 @@ const PROVIDER_MODELS: Record<string, Model[]> = {
     { id: 'deepseek-v4-pro', displayName: 'DeepSeek V4 Pro' },
     { id: 'deepseek-v4-flash', displayName: 'DeepSeek V4 Flash' },
   ],
+  openrouter: [
+    { id: 'openrouter:google/gemini-2.5-flash-preview', displayName: 'Gemini 2.5 Flash (OpenRouter)' },
+    { id: 'openrouter:openai/gpt-5-mini', displayName: 'GPT-5 Mini (OpenRouter)' },
+    { id: 'openrouter:anthropic/claude-sonnet-4', displayName: 'Claude Sonnet 4 (OpenRouter)' },
+    { id: 'openrouter:deepseek/deepseek-v4-pro', displayName: 'DeepSeek V4 Pro (OpenRouter)' },
+    { id: 'openrouter:deepseek/deepseek-v4-flash', displayName: 'DeepSeek V4 Flash (OpenRouter)' },
+  ],
 };
 
 export const PROVIDERS: Provider[] = PROVIDER_DEFS.map((provider) => ({

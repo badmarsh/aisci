@@ -1,0 +1,21 @@
+{
+  "name": "report-proofreading-pipeline",
+  "description": "Pipeline for reviewing scientific documents for style and citations.",
+  "inputs": {
+    "document_path": "Absolute path to the document.",
+    "bib_path": "Absolute path to the .bib file."
+  },
+  "steps": [
+    {
+      "name": "proofreading",
+      "agent_name": "report-proofreader",
+      "tool_scope": ["read_file", "proofread"],
+      "prompt": "Validate citations and check grammar in {{document_path}} against {{bib_path}}.",
+      "mode": "sequential",
+      "output_var": "proofread_status"
+    }
+  ],
+  "implementation": {
+    "primary_skill": "deployment/deer-flow/skills/custom/report-proofreading/SKILL.md"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "latex-poster-pipeline",
+  "description": "End-to-end LaTeX poster generation pipeline: ingest content, draft template, compile, and finalize export.",
+  "inputs": {
+    "analysis_report_path": "Absolute path to the markdown analysis report.",
+    "figures_dir": "Directory containing the required figures.",
+    "run_label": "Optional run label (e.g., YYYY-MM-DD-poster)"
+  },
+  "hard_constraints": [
+    "Do not proceed past ingestion if analysis_report.md or figures_dir is missing.",
+    "Always run latex_compile at least twice to ensure references resolve correctly.",
+    "If a LaTeX compilation throws a Fatal Error, attempt fix twice, then halt if unresolvable."
+  ],
+  "steps": [
+    {
+      "name": "ingestion",
+      "agent_name": "knowledge-manager",
+      "tool_scope": ["read_file", "bash"],
+      "prompt": "Execute Stage 1 (latex-ingest). Verify {{analysis_report_path}} and {{figures_dir}}.",
+      "mode": "sequential",
+      "output_var": "ingest_status"
+    },
+    {
+      "name": "drafting",
+      "agent_name": "figure-table-builder",
+      "tool_scope": ["read_file", "latex", "bash"],
+      "prompt": "Execute Stage 2 (latex-draft). Map markdown content from {{analysis_report_path}} and figures into the Beamer .tex template.",
+      "mode": "sequential",
+      "output_var": "draft_status"
+    },
+    {
+      "name": "compilation",
+      "agent_name": "figure-table-builder",
+      "tool_scope": ["read_file", "latex", "bash"],
+      "prompt": "Execute Stage 3 (latex-compile). Compile the drafted .tex file, run it twice, and fix minor LaTeX errors if any.",
+      "mode": "sequential",
+      "output_var": "compile_status"
+    },
+    {
+      "name": "finalization",
+      "agent_name": "knowledge-manager",
+      "tool_scope": ["read_file", "latex", "bash"],
+      "prompt": "Execute Stage 4 (latex-finalize). Export the final PDF and write success status.",
+      "mode": "sequential",
+      "output_var": "finalize_status"
+    }
+  ],
+  "implementation": {
+    "primary_skill": "deployment/deer-flow/skills/custom/latex-poster-pipeline/SKILL.md",
+    "default_output_root": "research/robert/runs/YYYY-MM-DD-poster"
+  }
+}

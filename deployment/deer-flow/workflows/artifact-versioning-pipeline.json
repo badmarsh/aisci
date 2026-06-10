@@ -1,0 +1,21 @@
+{
+  "name": "artifact-versioning-pipeline",
+  "description": "Pipeline for automating git operations for generated reports.",
+  "inputs": {
+    "repo_path": "Absolute path to the git repository.",
+    "branch_name": "Name of the target branch."
+  },
+  "steps": [
+    {
+      "name": "versioning",
+      "agent_name": "repo-maintainer",
+      "tool_scope": ["read_file", "git"],
+      "prompt": "Commit artifacts to {{branch_name}} and open a PR in {{repo_path}}.",
+      "mode": "sequential",
+      "output_var": "git_status"
+    }
+  ],
+  "implementation": {
+    "primary_skill": "deployment/deer-flow/skills/custom/artifact-versioning/SKILL.md"
+  }
+}

@@ -125,3 +125,22 @@ def firecrawl_extract_tool(urls: list[str], prompt: str) -> str:
         return json.dumps(result, indent=2)
     except Exception as e:
         return f"Error: {str(e)}"
+
+@tool("web_search", parse_docstring=True)
+def web_search_tool(query: str) -> str:
+    """Search the web using Firecrawl.
+
+    Args:
+        query: The query to search for.
+    """
+    return firecrawl_search_tool.invoke({"query": query})
+
+@tool("web_fetch", parse_docstring=True)
+def web_fetch_tool(url: str) -> str:
+    """Fetch the contents of a web page at a given URL using Firecrawl.
+
+    Args:
+        url: The URL to fetch the contents of.
+    """
+    return firecrawl_scrape_tool.invoke({"url": url})
+

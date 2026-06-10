@@ -57,10 +57,10 @@ export function MessageGroup({
 }) {
   const { t } = useI18n();
   const [showAbove, setShowAbove] = useState(
-    env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true",
+    env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true" || isLoading,
   );
   const [showLastThinking, setShowLastThinking] = useState(
-    env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true",
+    env.NEXT_PUBLIC_STATIC_WEBSITE_ONLY === "true" || isLoading,
   );
   const steps = useMemo(() => convertToSteps(messages), [messages]);
   const debugStepByMessageId = useMemo(

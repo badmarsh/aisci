@@ -31,7 +31,7 @@ class TestWebSearchTool:
         ]
         mock_get_app_config.return_value.get_tool_config.assert_called_with("web_search")
         mock_firecrawl_cls.assert_called_once_with(api_key="firecrawl-search-key")
-        mock_firecrawl_cls.return_value.search.assert_called_once_with("test query", limit=7)
+        mock_firecrawl_cls.return_value.search.assert_called_once_with("test query", params={"limit": 7})
 
 
 class TestWebFetchTool:
@@ -51,7 +51,7 @@ class TestWebFetchTool:
         mock_scrape_result = MagicMock()
         mock_scrape_result.markdown = "Fetched markdown"
         mock_scrape_result.metadata = MagicMock(title="Fetched Page")
-        mock_firecrawl_cls.return_value.scrape.return_value = mock_scrape_result
+        mock_firecrawl_cls.return_value.scrape_url.return_value = mock_scrape_result
 
         from deerflow.community.firecrawl.tools import web_fetch_tool
 
@@ -60,7 +60,8 @@ class TestWebFetchTool:
         assert result == "# Fetched Page\n\nFetched markdown"
         mock_get_app_config.return_value.get_tool_config.assert_any_call("web_fetch")
         mock_firecrawl_cls.assert_called_once_with(api_key="firecrawl-fetch-key")
-        mock_firecrawl_cls.return_value.scrape.assert_called_once_with(
+        mock_firecrawl_cls.return_value.scrape_url.assert_called_once_with(
             "https://example.com",
-            formats=["markdown"],
+            params={"formats": ["markdown"]},
         )
+
