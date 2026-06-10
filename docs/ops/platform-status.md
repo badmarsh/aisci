@@ -61,5 +61,12 @@ Keys still present in `deployment/onyx/.env` (tracked file). These are dev/perso
 | **Multica Server version mismatch / missing Squads support (AIS-95)** — The self-hosted Multica server ran a local development build lacking the Squads feature, causing 404 errors when newer CLI versions requested squads endpoints. | High | ✅ Fixed 2026-06-04 | Migrated server to official stable images (`ghcr.io/multica-ai/...`), explicitly enabled `MULTICA_SQUADS_ENABLED=true` in `docker-compose.selfhost.yml` and `.env`, and verified squads CLI commands operate successfully. |
 | **MinIO Security Vulnerability (AIS-68)** — Default minioadmin credentials in fallback and no port isolation, exposing MinIO directly on onyx_default. | High | ✅ Fixed 2026-06-04 | Generated random credentials in `.env`, removed fallback from compose/template, isolated on `onyx_storage` network. |
 
+## Audit Findings & Fixes (2026-06-10)
+
+| Finding | Severity | Status | Fix Applied |
+|---|---|---|---|
+| **AIO Sandbox `browser` SIGABRT on WSL2 (orphaned container)** — `vibrant_shirley` sandbox container had `SecurityOpt: null` (spawned before `LocalContainerBackend` added `--security-opt seccomp=unconfined`). Chrome caught `EPERM` on `CLONE_NEWUSER` and SIGABRT'd on every start, making the healthcheck (`nc -z localhost 9222`) fail with FailingStreak 73. All other DeerFlow services were healthy. | High | ✅ Fixed 2026-06-10 | Stopped stale container (`docker stop vibrant_shirley`); added `BROWSER_EXTRA_ARGS: '--no-sandbox'` to `deployment/deer-flow/config.yaml` `sandbox.environment`; restarted gateway. New containers from `LocalContainerBackend` already include `--security-opt seccomp=unconfined`. Runbook added to `docs/ops/troubleshooting.md`. |
+
+
 
 
