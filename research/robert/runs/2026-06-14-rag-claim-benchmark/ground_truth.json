@@ -1,0 +1,27 @@
+[
+  {
+    "id": "C-01",
+    "classification": "Supported",
+    "rationale": "Evidence ledger confirms U.p contraction is invariant."
+  },
+  {
+    "id": "C-02",
+    "classification": "Contradicted",
+    "rationale": "Evidence ledger confirms manuscript uses Juttner/Boltzmann."
+  },
+  {
+    "id": "C-03",
+    "classification": "Supported",
+    "rationale": "Ledger indicates three-component fit is over-parameterized at high multiplicity."
+  },
+  {
+    "id": "C-04",
+    "classification": "Supported",
+    "rationale": "BE denominator modifies low-pT behavior vs Boltzmann exponential."
+  },
+  {
+    "id": "C-05",
+    "classification": "Nuanced",
+    "rationale": "Tsallis-Pareto requires specific Jacobian for thermodynamic consistency."
+  }
+]

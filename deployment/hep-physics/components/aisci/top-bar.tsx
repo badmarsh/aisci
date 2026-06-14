@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ThemeToggle } from "@/components/theme-toggle"
 import type { Role } from "@/app/page"
 
 const ROLES: { id: Role; label: string; initials: string; icon: typeof UserRound }[] = [
@@ -34,16 +35,18 @@ export function TopBar({ role, onRoleChange }: TopBarProps) {
 
       {/* Role switcher */}
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 gap-2 text-xs font-mono text-foreground/80 hover:text-foreground px-2"
-          >
-            <current.icon className="w-3.5 h-3.5 shrink-0" />
-            <span>{current.label}</span>
-            <ChevronDown className="w-3 h-3 text-muted-foreground" />
-          </Button>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-2 text-xs font-mono text-foreground/80 hover:text-foreground px-2"
+            />
+          }
+        >
+          <current.icon className="w-3.5 h-3.5 shrink-0" />
+          <span>{current.label}</span>
+          <ChevronDown className="w-3 h-3 text-muted-foreground" />
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
@@ -102,6 +105,9 @@ export function TopBar({ role, onRoleChange }: TopBarProps) {
 
       {/* Spacer */}
       <div className="flex-1" />
+
+      {/* Theme toggle */}
+      <ThemeToggle />
 
       {/* Session avatar */}
       <Avatar className="w-7 h-7 cursor-pointer">

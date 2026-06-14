@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Celery tasks for migrating documents from Vespa to OpenSearch."""
 
 import time

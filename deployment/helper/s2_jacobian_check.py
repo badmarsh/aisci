@@ -1,3 +1,4 @@
+from __future__ import annotations
 import requests, time, os, json
 
 # Read API key from env or .env file

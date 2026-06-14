@@ -3,8 +3,63 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* AISCI Console — dark-first scientific instrument theme */
+/* AISCI Console — light theme */
 :root {
+  --background:          oklch(0.980 0.002 248);
+  --foreground:          oklch(0.145 0.008 248);
+  --card:                oklch(0.990 0.002 248);
+  --card-foreground:     oklch(0.145 0.008 248);
+  --popover:             oklch(0.990 0.002 248);
+  --popover-foreground:  oklch(0.145 0.008 248);
+  --primary:             oklch(0.145 0.008 248);
+  --primary-foreground:  oklch(0.980 0.002 248);
+  --secondary:           oklch(0.950 0.004 248);
+  --secondary-foreground:oklch(0.145 0.008 248);
+  --muted:               oklch(0.950 0.004 248);
+  --muted-foreground:    oklch(0.448 0.014 245);
+  --accent:              oklch(0.950 0.004 248);
+  --accent-foreground:   oklch(0.145 0.008 248);
+  --destructive:         oklch(0.570 0.190 27);
+  --destructive-foreground: oklch(0.980 0.002 248);
+  --border:              oklch(0.900 0.006 248);
+  --input:               oklch(0.900 0.006 248);
+  --ring:                oklch(0.450 0.012 248);
+  --radius:              0.375rem;
+
+  /* Recharts chart palette */
+  --chart-1:             oklch(0.580 0.120 240);
+  --chart-2:             oklch(0.605 0.140 152);
+  --chart-3:             oklch(0.730 0.165 78);
+  --chart-4:             oklch(0.570 0.190 27);
+  --chart-5:             oklch(0.650 0.100 215);
+
+  /* Sidebar rail */
+  --sidebar:             oklch(0.970 0.004 248);
+  --sidebar-foreground:  oklch(0.145 0.008 248);
+  --sidebar-primary:     oklch(0.145 0.008 248);
+  --sidebar-primary-foreground: oklch(0.980 0.002 248);
+  --sidebar-accent:      oklch(0.930 0.006 248);
+  --sidebar-accent-foreground: oklch(0.145 0.008 248);
+  --sidebar-border:      oklch(0.900 0.006 248);
+  --sidebar-ring:        oklch(0.450 0.012 248);
+
+  /* Status colour tokens */
+  --status-open:         oklch(0.590 0.110 240);
+  --status-open-bg:      oklch(0.590 0.110 240 / 0.13);
+  --status-sanity:       oklch(0.640 0.100 213);
+  --status-sanity-bg:    oklch(0.640 0.100 213 / 0.13);
+  --status-supported:    oklch(0.610 0.140 152);
+  --status-supported-bg: oklch(0.610 0.140 152 / 0.13);
+  --status-refuted:      oklch(0.570 0.190 27);
+  --status-refuted-bg:   oklch(0.570 0.190 27 / 0.13);
+
+  /* Accent — subdued amber (attention / actionable) */
+  --amber:               oklch(0.730 0.165 78);
+  --amber-bg:            oklch(0.730 0.165 78 / 0.13);
+}
+
+/* AISCI Console — dark-first scientific instrument theme */
+.dark {
   --background:          oklch(0.108 0.007 248);
   --foreground:          oklch(0.910 0.007 240);
   --card:                oklch(0.145 0.008 248);

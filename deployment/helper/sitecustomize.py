@@ -1,3 +1,4 @@
+from __future__ import annotations
 """Runtime compatibility shims for Python services started with this helper path.
 
 Currently used by the Onyx model-server containers. Transformers 5 stores Qwen2

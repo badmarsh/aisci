@@ -1,3 +1,4 @@
+from __future__ import annotations
 import requests, json
 
 # Probe Scite and Consensus via the nginx MCP proxy

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 Fix script:
 1. Delete index_attempt rows for bad cc_pairs (blocks connector deletion)

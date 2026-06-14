@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """Probe ins1735345 table descriptions to find per-bin multiplicity pT spectra."""
 import requests
 import json

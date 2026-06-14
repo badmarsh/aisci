@@ -17,7 +17,6 @@ import warnings
 import re
 import subprocess
 from dataclasses import dataclass
-from itertools import product
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
@@ -332,6 +331,21 @@ def blast_wave_component_scalar(
     n_value: float,
     mass_gev: float,
 ) -> float:
+    """
+    Boltzmann-Gibbs Blast-Wave (BGBW) model integrand over transverse radius.
+
+    Implements the standard hydrodynamic BGBW model (e.g. Schnedermann, Sollfrank, Heinz 1993):
+      dN/(pT dpT) ~ norm * integral_{0}^{1} r dr * mT * I_0(pT*sinh(rho)/T) * K_1(mT*cosh(rho)/T)
+    where rho = arctanh(beta_r) is the transverse flow rapidity, and the transverse velocity 
+    profile is given by beta_r = beta_s * r^n.
+
+    Assumptions:
+    - Assumes a cylindrically symmetric expanding thermal source.
+    - Uses the Boltzmann approximation rather than full Bose-Einstein/Fermi-Dirac.
+    - Integrates analytically over the azimuthal angle to produce the modified Bessel functions I_0, K_1.
+    - Integrates numerically over the fractional radius r in [0, 1].
+    - Limits beta_r to strictly < 1 to prevent divergence in arctanh.
+    """
     mt = math.sqrt(mass_gev * mass_gev + pt * pt)
 
     def integrand(radius_fraction: float) -> float:

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 DeerFlow E2E authenticated smoke test.
 Uses cookie-based auth (access_token cookie) as DeerFlow requires.

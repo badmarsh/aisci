@@ -1,4 +1,7 @@
-import requests, time, os, json
+from __future__ import annotations
+import requests
+import time
+import os
 
 # Read API key from env or .env file
 key = os.environ.get('SEMANTICSCHOLAR_API_KEY', '')

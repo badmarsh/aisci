@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 restore_v4_docsets.py  (v2 — uses exact DB values from inspect run 2026-06-04)
 ==============================================================================

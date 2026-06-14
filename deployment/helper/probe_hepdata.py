@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 Probe HEPData records to find one that contains per-multiplicity-bin pT spectra
 matching Robert's manuscript bins: 21-30, 31-40, 41-50, 51-60, 61-70, 71-80,

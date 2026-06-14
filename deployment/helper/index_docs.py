@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os, sys, json, requests
 
 BASE_URL = "http://localhost:3000"

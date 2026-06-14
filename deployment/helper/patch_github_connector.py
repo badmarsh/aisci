@@ -1,3 +1,4 @@
+from __future__ import annotations
 import sys
 
 with open("deployment/onyx/github_connector.py.orig", "r") as f:

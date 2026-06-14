@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 
 env_path = "/home/ubuntu/aisci/deployment/onyx/.env"
