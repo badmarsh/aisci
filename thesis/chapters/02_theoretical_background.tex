@@ -1,0 +1,29 @@
+\chapter{Theoretical Background}
+\label{ch:theoretical_background}
+
+\section{Transverse Momentum Spectra in High-Energy Collisions}
+The invariant yield of produced particles is typically expressed as a function of transverse momentum $p_T$ and rapidity $y$. For massless particles or at high $p_T$, the pseudorapidity $\eta$ is often used as a convenient experimental approximation. The invariant cross section is given by:
+\begin{equation}
+E \frac{d^3N}{dp^3} = \frac{d^2N}{2\pi p_T \, dp_T \, dy}
+\end{equation}
+
+\section{The Blast-Wave Model (BGBW)}
+The Boltzmann-Gibbs Blast-Wave (BGBW) model assumes a locally thermalized source expanding with a collective transverse velocity profile. The invariant yield is obtained by integrating the thermal distribution over the expanding freeze-out hyper-surface:
+\begin{equation}
+\frac{d^2N}{dp_T \, dy} \propto p_T m_T \int_0^R r \, dr \, I_0\left(\frac{p_T \sinh\rho}{T_{\text{kin}}}\right) K_1\left(\frac{m_T \cosh\rho}{T_{\text{kin}}}\right)
+\end{equation}
+where $m_T = \sqrt{p_T^2 + m^2}$ is the transverse mass, $T_{\text{kin}}$ is the kinetic freeze-out temperature, $\rho = \tanh^{-1}\beta_T$ is the transverse rapidity, and $\beta_T(r) = \beta_s (r/R)^n$ is the transverse velocity profile. The parameters $I_0$ and $K_1$ are modified Bessel functions.
+
+\section{The Tsallis Distribution}
+The non-extensive Tsallis distribution accounts for temperature fluctuations and hard scattering power-law tails at high $p_T$. The thermodynamically consistent form, ensuring standard thermodynamic relations for pressure and energy density, is formulated as \citep{Cleymans2012}:
+\begin{equation}
+\frac{d^2N}{dp_T \, dy} = gV \frac{p_T m_T}{(2\pi)^2} \left[ 1 + (q-1)\frac{m_T}{T} \right]^{-\frac{q}{q-1}}
+\end{equation}
+where $q$ is the non-extensivity parameter. As $q \to 1$, this form recovers the standard Boltzmann-Gibbs exponential distribution.
+
+\section{The J\"uttner/Boltzmann Approximation}
+For large transverse masses or temperatures where quantum degeneracy is negligible, the full Bose-Einstein or Fermi-Dirac statistics approach the classical relativistic Maxwell-Boltzmann (J\"uttner) distribution. The phase-space density in a fluid cell moving with four-velocity $U^\mu$ is given by:
+\begin{equation}
+f(p) \propto \exp\left(-\frac{p^\mu U_\mu}{T}\right)
+\end{equation}
+For a static system ($U = (1, 0, 0, 0)$), this reduces to $f(p) \propto \exp(-E/T)$. In models proposing multiple moving thermal sources, the argument becomes $p^\mu U_\mu = m_T \cosh(y - Y_{source}) - p_T \cos(\phi) U_T$. Over-parameterization of $U^\mu$ often leads to severe structural instability in numerical fits.
