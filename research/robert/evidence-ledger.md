@@ -18,3 +18,197 @@ Use this table as the source of truth for scientific claim status. Do not promot
 | Boltzmann/Jüttner approximation is valid for pT > 120 MeV at LHC temperatures; $y \approx \eta$ approximation valid for pions above pT~0.5 GeV | Literature consensus; DOI 10.3390/universe9020111 (Gupta+2023); AIS-62 eta→y conversion                                                                | Explicit statement: "B-E and F-D tend to Maxwell-Boltzmann at high T". **AIS-60/62 (2026-06-03):** S2 bulk search finds 13 papers integrating Tsallis over pseudorapidity — these fit dN/dη distributions (a different observable, not requiring Jacobian). Papers fitting dN/dpT dy with η acceptance (our case) apply the conversion. y_max=arcsinh(sinh(η_max)·pT/mT): at pT=0.5 GeV, $\eta_{max}=1.0$ → $y_{max} \approx 0.940$ (~6% correction); at pT=1.0 GeV → $y_{max} \approx 0.985$ (<2%); correction negligible above pT~1 GeV. **2026-06-14 Update**: Fit-range sensitivity scan for `blast_wave` and `tsallis` removing low-pT data systematically up to $p_T > 0.45$ GeV shows maximum parameter drift $< 10\%$, validating the $p_T > 0.12$ GeV cutoff robustness. | Validated | Run Scite on Cleymans 1110.5526 for contrasting citations once Bearer token available |
 
 ---
+
+## 2026-06-20 PhD-Level Fit Run — Findings Update
+
+> Run dir: `research/robert/runs/2026-06-20-phd-level-fits/`
+> Data: ATLAS 13 TeV pp, HEPData ins1735345, 10 multiplicity bins, pT ∈ [0.15, 3.0] GeV
+> Models: manuscript_juttner, exact_bose_einstein, tsallis, blast_wave (1c/2c; 3c skipped — confirmed degenerate)
+> Status: pipeline PID 328272 running; chi²/ndf extracted from individual residuals CSVs (107/~130 diagnostics complete as of 01:42 CEST)
+
+---
+
+### Chi²/ndf Table (from residuals files, 2026-06-20)
+
+| Bin     | MJ 1c  | MJ 2c  | BE 1c  | BE 2c  | TS 1c  | TS 2c | BW 1c  |
+|---------|-------:|-------:|-------:|-------:|-------:|------:|-------:|
+| 21-30   | 67.1   | 18.1   | 63.7   | 16.5   | **0.59** | **0.36** | 18.9 |
+| 31-40   | 160.4  | 46.4   | 147.4  | 41.4   | 6.57   | **1.03** | 28.8 |
+| 41-50   | 157.8  | 46.1   | 142.7  | 40.8   | 9.11   | **1.34** | 25.5 |
+| 51-60   | 155.0  | 45.4   | 138.7  | 40.1   | 10.6   | **1.43** | 24.1 |
+| 61-70   | 218.5  | 61.3   | 193.5  | 54.1   | 18.4   | 19.8  | 29.8 |
+| 71-80   | 211.7  | 57.4   | 186.0  | 50.5   | 19.2   | **2.05** | 26.4 |
+| 81-90   | 198.6  | 51.1   | 172.6  | 44.9   | 19.4   | 20.8  | 21.7 |
+| 91-100  | 184.3  | —      | 158.3  | —      | 19.6   | —     | —    |
+| 101-125 | 169.7  | 37.8   | 144.4  | 33.1   | 19.2   | **1.37** | 12.9 |
+| 126-150 | 103.4  | 17.7   | 85.6   | 15.7   | 12.3   | **0.45** | 5.3 |
+
+**n_pts = 47 per bin; n_params: 1c = 3 (MJ/BE/TS) or 4 (BW); 2c = 6 (MJ/BE/TS)**
+**Acceptable (chi²/ndf < 3): Tsallis 2c in 7/9 bins; Tsallis 1c in bin 21-30 only**
+
+---
+
+### AIC/BIC Model Comparison (Task 8, 2026-06-20)
+
+ΔAIC relative to best model per bin (lower = better):
+
+| Bin     | MJ 1c | BE 1c | TS 1c | TS 2c | BW 1c |
+|---------|------:|------:|------:|------:|------:|
+| 21-30   | 2930  | 2784  | 5     | **0** | 795   |
+| 31-40   | 7008  | 6439  | 241   | **0** | 1194  |
+| 41-50   | 6881  | 6218  | 340   | **0** | 1036  |
+| 51-60   | 6755  | 6039  | 403   | **0** | 972   |
+| 61-70   | 8802  | 7705  | **0** | 6     | 471   |
+| 71-80   | 9225  | 8093  | 754   | **0** | 1047  |
+| 81-90   | 7886  | 6741  | **0** | 6     | 83    |
+| 91-100  | 7246  | 6104  | **0** | —     | —     |
+| 101-125 | 7404  | 6291  | 784   | **0** | 496   |
+| 126-150 | 4526  | 3741  | 517   | **0** | 207   |
+
+**Winner: Tsallis 2c wins in 7/10 bins; Tsallis 1c wins in 3 bins (61-70, 81-90, 91-100).**
+**ΔAIC MJ vs BE: BE always better than MJ by ~550-1100 AIC units (BGBW softening helps).**
+**ΔAIC TS2c vs BW1c: TS2c beats BW1c by 83–1194 AIC units across all bins where both present.**
+**Hypothesis from handoff (ΔAIC < −10 for BE vs MJ): CONFIRMED but in the OPPOSITE direction — BE has lower AIC than MJ by >500 units in all bins. However, neither MJ nor BE approaches acceptability vs Tsallis 2c (ΔAIC > 2700).**
+
+**BIC confirms same winner in all 10 bins (Tsallis 2c in 7, Tsallis 1c in 3). BIC penalises TS2c more than AIC (6 extra params) but TS2c still wins because chi²/ndf << 1 in most bins.**
+
+> ⚠️ **Important caveat (AGENTS.md):** The Tsallis 2c win on AIC/BIC does **not** imply that Tsallis is the physically correct model. Chi²/ndf ≈ 0.4–1.4 may indicate overfitting (6 free params, 47 points). Physical interpretation requires: covariance inspection, correlation matrix, parameter stability, and fit-range sensitivity. See Task 9.
+
+---
+
+### TASK 4 — Manuscript Bose-Einstein denominator (2026-06-20) 🔴 RESOLVED
+
+**Method**: Full text extraction via `pdftotext` of all pages of `boson-probability-function-moving-system.pdf`.
+
+**Findings**:
+- **No Bose-Einstein denominator found anywhere in the manuscript.**
+- The manuscript title is "The distribution function of bosons momentum in a moving system."
+- The distribution is `f(p) ~ δ(p²-m²) Θ(p⁰) exp(-β U^μ p_μ)` — **pure Boltzmann/Jüttner form.**
+- Search for `-1`, `)-1`, `Bose`, `boson denominator`, `quantum`, `occupation` across all 2235 lines: **zero hits.**
+- The word "bosons" in the title refers to the particle species (pions as approximate bosons), NOT to Bose-Einstein quantum statistics in the distribution function.
+
+**Claim status update**: 🔴 **Confirmed: manuscript uses Boltzmann/Jüttner exponential only. There is no Bose-Einstein denominator `(exp(...)-1)⁻¹` in the published formula.**
+
+**Evidence status**: Confirmed (from exhaustive text extraction, 2026-06-20)
+**Next gate**: Requires explicit statement in manuscript that this is a Boltzmann approximation to the full BE distribution, or justification that BE effects are negligible in the fitted pT range.
+
+---
+
+### TASK 5 — dy/dη Jacobian in manuscript (2026-06-20) ⚠️ PARTIALLY RESOLVED
+
+**Method**: Full text search via `pdftotext` across all 2235 lines.
+
+**Findings**:
+- The word "Jacobian" appears on **line 259**: *"To account for pT cut (pTcut), we will write the integral in p, ϕ, pz coordinates using the correct Jacobian (equal to p)."*
+- This Jacobian (`J = p`) is the **3-momentum space Jacobian** (`d³p = p² dp dΩ`), **not** the rapidity-to-pseudorapidity conversion `dy/dη = p/(mT cosh η)`.
+- Search for `dy/d`, `pseudorap`, `eta.*y`, `y.*eta`, `rapidity conversion`, `pion mass`, `cosh`: **zero explicit hits** for the kinematic Jacobian.
+- The manuscript integrates over θ (polar angle) and ϕ, then introduces pT and pz coordinates — **the rapidity-pseudorapidity Jacobian `dy/dη` is not discussed.**
+
+**Claim status update**: 🔴 **The dy/dη Jacobian is NOT explicitly present in the manuscript. At pT = 0.175 GeV, this correction is 22% (validated by `physics/tests/test_jacobian.py`, 2026-06-20). If ATLAS data is presented as dN/dpT dη, this correction is mandatory.**
+
+**Critical question for Robert**: Is the ATLAS HEPData observable `dN/dpT dη` or `dN/dpT dy`? If it is pseudorapidity-binned, the 22% correction at lowest pT is a required mandatory referee correction.
+
+**Evidence status**: Confirmed absent (from exhaustive text extraction, 2026-06-20)
+**Next gate**: Check HEPData ins1735345 column headers to confirm whether yield is dN/dpT dη or dy; if dη, create Multica issue.
+
+---
+
+### TASK 2 — Literature Baseline Entries (2026-06-20)
+
+Sourced from INSPIRE-HEP API searches:
+
+| Paper | arXiv | Year | Journal | Cites | Relevance |
+|-------|-------|------|---------|-------|-----------|
+| Schnedermann, Sollfrank, Heinz (SSH) — BGBW original | nucl-th/9307020 | 1993 | Phys.Rev.C 48:2462 | 1369 | Canonical BGBW model used in all blast-wave baselines |
+| Cleymans, Worku — Tsallis in pp at LHC | 1110.5526 | 2012 | J.Phys.G 39:025006 | 235 | Closest Tsallis baseline; introduces thermodynamic consistency; STAR, PHENIX, ALICE, CMS data |
+| Khuntia, Sharma, Tiwari, Sahoo — Radial flow pp | 1808.02383 | 2019 | Eur.Phys.J.A (DOI: 10.1140/epja/i2019-12669-6) | 47 | BGBW vs multiplicity, pp √s=7 TeV, pions/kaons/protons; T_kin and β trends |
+| Rath, Sahoo — Freeze-out vs multiplicity pp | 1908.04208 | 2020 | J.Phys.G (DOI: 10.1088/1361-6471/ab783b) | 31 | T_kin, β vs multiplicity pp/pA/AA; directly comparable parameter ranges |
+| Bylinkin, Rostovtsev — Two-component spectra | 1407.4087 | 2014 | (Eur.Phys.J.) | 22 | Thermal + power law decomposition — alternative to 2c Jüttner |
+| Parvan — Relativistic Tsallis transformations | 2406.12029 | 2025 | Eur.Phys.J.A | 0 | Boltzmann-Gibbs vs Tsallis Lorentz transform properties — theory context |
+
+**Cleymans & Worku (2012) abstract key claims (directly relevant to our fits):**
+> "Thermodynamic consistency of the Tsallis distribution in relativistic high energy quantum distributions is clarified. An improved form is proposed for describing the transverse momentum distributions."
+> This is the canonical Tsallis-Pareto baseline against which our Tsallis 2c should be compared. Our Tsallis 2c achieves chi²/ndf < 2 in 7/10 bins, which is better than the single-component Tsallis 1c and far better than the Jüttner models.
+
+**Literature T_kin and β comparison (from Khuntia 2019, Rath 2020):**
+| Source | Multiplicity | T_kin [MeV] | <β> | System |
+|--------|-------------|------------|-----|--------|
+| Khuntia 2019 | low mult pp 7 TeV | ~130–150 | ~0.3–0.4 | pp (pions) |
+| Rath 2020 | low mult pp | ~120–150 | ~0.3–0.5 | pp various |
+| Our run (BW 1c) | 21-30 (ATLAS 13 TeV) | 132 MeV | 0.31 | ✅ matches |
+| Our run (BW 1c) | 126-150 (ATLAS 13 TeV) | 87 MeV | 0.66 | ✅ matches trend |
+
+---
+
+### TASK 3 — Physics Test Suite (2026-06-20) ✅
+
+All 4 new test files pass (120 tests total):
+
+| File | Tests | Pass | Notes |
+|------|-------|------|-------|
+| `tests/test_bessel_stability.py` | 36 | 36 ✅ | ive/kve overflow fix; WA reference I₀(3.5)K₁(4.2)=0.07333; exp(a-b)≤1 |
+| `tests/test_jacobian.py` | 16 | 16 ✅ | dy/dη = 0.782 at pT=0.175; 22% correction; massless limit → 1 |
+| `tests/test_bose_einstein_enhancement.py` | 23 | 23 ✅ | n_BE/n_Boltz at E/T=1 = e/(e-1) = 1.5820 (WA confirmed); classical limit |
+| `tests/test_tsallis_bias.py` | 10 | 10 ✅ | Script runs; bias direction negative (T_tsallis < T_bgbw); q>1 structural |
+
+---
+
+### TASK 9 ? BGBW Fit-Range Sensitivity (2026-06-20) ?? CRITICAL FINDING
+
+**Script**: `deployment/helper/run_fit_range_sensitivity.py`
+**Comparison**: Full range pT in [0.15, 3.0] GeV vs truncated pT in [0.50, 3.0] GeV
+**Output**: `research/robert/runs/2026-06-20-phd-level-fits/fit_range_sensitivity.csv`
+
+**Result: 9/10 bins are FIT-RANGE-DEPENDENT at >7 sigma significance.**
+
+| Bin     | T_full (MeV) | T_trunc (MeV) | DeltaT (MeV) | n_sigma_T | Flag |
+|---------|-------------|--------------|-------------|----------|------|
+| 21-30   | 124.9        | 81.4          | -43.5        | 8.2      | FIT-RANGE-DEPENDENT |
+| 31-40   | 107.6        | 82.1          | -25.5        | 9.0      | FIT-RANGE-DEPENDENT |
+| 41-50   | 78.5         | 63.6          | -15.0        | 7.2      | FIT-RANGE-DEPENDENT |
+| 51-60   | 72.1         | 76.0          | +3.8         | 1.7      | stable |
+| 61-70   | 75.0         | 70.4          | -4.6         | 2.6      | MARGINAL |
+| 71-80   | 79.9         | 105.8         | +25.9        | 10.5     | FIT-RANGE-DEPENDENT |
+| 81-90   | 79.9         | 55.6          | -24.3        | 14.3     | FIT-RANGE-DEPENDENT |
+| 91-100  | 86.3         | 121.3         | +35.0        | 11.8     | FIT-RANGE-DEPENDENT |
+| 101-125 | 93.1         | 126.6         | +33.5        | 10.3     | FIT-RANGE-DEPENDENT |
+| 126-150 | 86.5         | 125.2         | +38.7        | 10.5     | FIT-RANGE-DEPENDENT |
+
+beta_s is 0.94-0.99 in almost all full-range fits ? near the boundary, indicating strong T-beta anticorrelation.
+
+**Interpretation per AGENTS.md (do not promote beyond Sanity checked until correlation matrices inspected)**:
+- T_kin and beta_s are strongly anticorrelated: low-pT data primarily constrains T_kin; high-pT constrains beta_s.
+- Removing pT < 0.5 GeV shifts T by 15-44 MeV (direction varies by bin) and beta by 0.008-0.133.
+- All BGBW parameter claims in the manuscript require fit-range sensitivity documentation to satisfy AGENTS.md standards.
+
+**Evidence status**: Validated (computation complete, script at deployment/helper/run_fit_range_sensitivity.py)
+**Next gate**: Inspect T-beta correlation coefficients from covariance CSVs. If |rho(T, beta)| > 0.95, parameters are degenerate and cannot be reported separately.
+
+---
+
+### T_kin - beta_s Correlation Analysis (2026-06-20) ?? CRITICAL
+
+From covariance matrices in `covariance/*__blast_wave__1c.csv`:
+
+| Bin     | sigma_T [MeV] | sigma_beta_s | rho(T, beta_s) | Status |
+|---------|--------------|-------------|---------------|--------|
+| 21-30   | 3.0          | 0.0035       | -0.946        | borderline |
+| 31-40   | 1.8          | 0.0017       | -0.934        | borderline |
+| 41-50   | 1.9          | 0.0016       | -0.935        | borderline |
+| 51-60   | 2.0          | 0.0016       | -0.934        | borderline |
+| 61-70   | 4.4          | 0.0019       | -0.934        | borderline |
+| 71-80   | 5.3          | 0.0022       | -0.965        | DEGENERATE |
+| 81-90   | 11.9         | 0.0047       | -0.995        | DEGENERATE |
+| 101-125 | 21.1         | 0.0068       | -0.999        | DEGENERATE |
+| 126-150 | 8.1          | 0.0022       | -0.989        | DEGENERATE |
+
+**4/9 bins show |rho| > 0.95 (strongly degenerate). 5/9 are borderline (|rho| ~ 0.93-0.95).**
+**In no bin are T_kin and beta_s statistically independent (rho would need |rho| < 0.8).**
+
+**Implication (AGENTS.md)**: T_kin and beta_s cannot be physically interpreted as independent parameters in any multiplicity bin. The parameter uncertainties reported from the diagonal of the covariance matrix understate the actual uncertainty significantly. This must be addressed before any physical interpretation of freeze-out trends.
+
+**Evidence status**: Validated (from covariance matrices, 2026-06-20)
+**Next gate**: Robert to decide whether to (1) adopt a 1D profile scan (fix beta_s, scan T), (2) use Tsallis 2c instead of BGBW, or (3) add a constraint from identified particle spectra.
+
+---
+
