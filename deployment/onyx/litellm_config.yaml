@@ -1,3 +1,13 @@
+# ============================================================
+# STALE REFERENCE COPY — DO NOT EDIT
+# ============================================================
+# The onyx-litellm container mounts:
+#   deployment/onyx/onyx-litellm_config.yaml
+# This file (litellm_config.yaml) is an older reference copy
+# with incorrect hostname aliases (ollama vs onyx-ollama),
+# missing enable_thinking: false, and missing openai/ prefixes.
+# Marked stale 2026-06-19. Edit onyx-litellm_config.yaml instead.
+# ============================================================
 model_list:
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1

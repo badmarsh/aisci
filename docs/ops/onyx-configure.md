@@ -1,10 +1,21 @@
 # Onyx Runtime Configuration Reference
 
-_Reflects deployment state as of 2026-05-30. Last config-drift corrections applied 2026-05-30._
+_Reflects deployment state as of 2026-06-19. Last config-drift corrections applied 2026-06-19 (optimal local RAG stack migration)._
 
 This is the canonical Onyx runtime reference. The short mirror under
 `deployment/onyx/docs/ops/` exists for operators working inside the deployment
 tree; update both when runtime assumptions change.
+
+## Active RAG Stack (as of 2026-06-19)
+
+| Pipeline Stage | Model | Location | Notes |
+|---|---|---|---|
+| **Document parsing** | `onyx-unstructured` | Local (container) | ✅ running |
+| **Embedding** | `Alibaba-NLP/gte-Qwen2-1.5B-instruct` | Local (model-server) | 1536-dim, MTEB ~68, multipass enabled |
+| **Contextual RAG** | `gemma2:27b` | Local (Ollama) | Index-time chunk context generation |
+| **Visual RAG** | `qwen2.5vl:7b` | Local (Ollama) | Image/figure extraction from PDFs |
+| **Reranking** | `BAAI/bge-reranker-v2-m3` | Local (model-server) | Cross-encoder, best multilingual reranker |
+| **Chat / personas** | Cloud via LiteLLM (Qwen/DashScope) | Cloud | User-facing chat always cloud |
 
 ## Active Embedding Model
 
@@ -12,15 +23,44 @@ tree; update both when runtime assumptions change.
 |---|---|
 | Model | `Alibaba-NLP/gte-Qwen2-1.5B-instruct` |
 | Dimensions | 1536 |
-| DB search_settings id | 10 (status: PRESENT) |
-| DB schema | Alembic `14162713706c`; `search_settings.multilingual_expansion` column present for `craft-latest` runtime code |
-| Compatibility shim | `deployment/helper/sitecustomize.py` |
-| `.env` corrected | `DOC_EMBEDDING_DIM=1536` and `EMBEDDING_DIM=1536` (were 1024 — fixed 2026-05-30) |
+| DB search_settings id | 27 (status: PRESENT, reindex in progress) |
+| New OpenSearch index | `danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct` (reindex triggered 2026-06-19) |
+| Previous index | `danswer_chunk_baai_bge_m3` (670 docs, now PAST) |
+| DB schema | Alembic `01c63968ff8f` |
+| Query prefix | `Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ` |
+| Multipass indexing | `true` (higher indexing quality) |
+| Contextual RAG | `true`, model: `gemma2:27b` via Ollama (model_configuration id=784) |
+| `.env` | `DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct`, `EMBEDDING_DIM=1536`, `DOC_EMBEDDING_DIM=1536` |
 
-Do not change the embedding model without a full reindex. The shim in
-`deployment/helper/sitecustomize.py` is required for this model under
-Transformers 5. It is loaded via `PYTHONPATH` in both model-server container
-startup commands.
+Do not change the embedding model without a full reindex plan and evidence-ledger entry.
+
+## Reranking Model
+
+| Setting | Value |
+|---|---|
+| Model | `BAAI/bge-reranker-v2-m3` |
+| Location | Local model-server (onyx-inference, onyx-indexing) |
+| `.env` | `RERANK_MODEL_NAME=BAAI/bge-reranker-v2-m3` |
+| Compose | `RERANK_MODEL_NAME=${RERANK_MODEL_NAME:-BAAI/bge-reranker-v2-m3}` in both model-server env blocks |
+
+## Contextual RAG Configuration
+
+| Setting | Value |
+|---|---|
+| Enabled | `true` (DB: `search_settings.enable_contextual_rag=true`) |
+| Model | `gemma2:27b` via direct Ollama (`http://onyx-ollama:11434`) |
+| LLM provider | `ollama_chat` (llm_provider id=6) |
+| model_configuration id | 784 (`gemma2-27b-contextual`) |
+| Purpose | Generates a short context sentence per chunk at index time (improves retrieval precision) |
+
+## Visual RAG Configuration
+
+| Setting | Value |
+|---|---|
+| Vision model | `qwen-rag-vision` → `qwen2.5vl:7b` via Ollama |
+| DB | `llm_provider id=2, default_vision_model=qwen-rag-vision` |
+| Fixed | 2026-06-19 (was `qwen-vl-vision`, non-existent route) |
+
 
 ## Runtime Decisions
 
@@ -50,19 +90,19 @@ startup commands.
 
 ## LiteLLM RAG Routes
 
-`deployment/onyx/litellm_config.yaml` defines these RAG-focused routes:
+`deployment/onyx/onyx-litellm_config.yaml` defines these RAG-focused routes (this is the **live** file mounted by the container; `litellm_config.yaml` is a stale reference copy — do not edit it):
 
 | Route | Purpose |
 |---|---|
 | `qwen-cloud-fast` | Existing contextual-RAG route used by `search_settings id=10` |
 | `qwen-rag-fast` | Low-cost non-thinking Qwen flash pool for summaries and routine RAG |
 | `qwen-rag-balanced` | Higher-quality Qwen route for harder document processing |
-| `qwen-rag-vision` | Vision-capable Qwen route for image/table/page-section summaries |
-| `qwen-rag-local` | Local Ollama `gemma2:27b` fallback when cloud quota is exhausted |
+| `qwen-rag-vision` | Vision-capable route for image/table/page-section summaries (backed by `qwen2.5vl:7b` on Ollama; set as `default_vision_model` in `llm_provider` id=2 — fixed 2026-06-19) |
+| `qwen-rag-local` | Local Ollama `qwen2.5vl:7b` fallback when cloud quota is exhausted |
+| `gemma2` | Local Ollama `gemma2:27b` — secondary fallback in router chains |
 
-Router fallbacks cool down a failing deployment for 1800s after one failure and
-fall back from `qwen-cloud-fast` through `qwen-rag-fast`,
-`qwen-rag-balanced`, and finally `qwen-rag-local`. Probe route health with:
+Router fallbacks cool down a failing deployment for **30 seconds** after one failure and
+fall back from `qwen-cloud-fast` through `qwen-rag-local` and `gemma2`. Probe route health with:
 
 ```bash
 deployment/helper/litellm_quota_check.py --timeout 90
@@ -90,7 +130,7 @@ Onyx extracts images and tables from PDFs using `unstructured` (YOLOX), then sum
   ```bash
   docker exec onyx-unstructured bash -c "python3 /usr/share/python-wheels/pip-26.0.1-py3-none-any.whl/pip install -q onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/"
   ```
-- **Vision Model Config:** The vision model (`qwen2.5vl:7b` via LiteLLM) must be explicitly configured as the active Multimodal Model in the Onyx Admin UI (Settings > Language Models > Multimodal Model). If unconfigured, the background worker will skip image extraction entirely and emit a `no vision-capable LLM` warning.
+- **Vision Model Config:** The vision model (`qwen2.5vl:7b` via LiteLLM `qwen-rag-vision` route) is configured as `default_vision_model` in `llm_provider` row id=2 in Postgres (fixed 2026-06-19 — was set to non-existent `qwen-vl-vision`). If the background worker emits a `no vision-capable LLM` warning, verify this DB value with: `docker exec onyx-db psql -U postgres -d postgres -c 'SELECT id, name, default_vision_model FROM llm_provider WHERE id=2;'`
 
 ## Secrets And Env Files
 
@@ -142,7 +182,7 @@ DOCKER_BUILDKIT=0 docker build -t onyx-python-webdeps:3.11 \
 cd deployment/onyx
 docker compose config --quiet
 curl -fsS http://127.0.0.1:3000/api/health
-docker exec onyx-cache redis-cli info persistence | grep aof_enabled
+docker exec onyx-redis redis-cli info persistence | grep aof_enabled
 docker ps --format '{{.Names}} {{.Status}}' | grep onyx
 ```
 

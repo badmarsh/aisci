@@ -218,9 +218,11 @@ services:
     environment:
     - LOG_FORMAT=${LOG_FORMAT:-json}
     - NVIDIA_VISIBLE_DEVICES=all
-    - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
-    - EMBEDDING_DIM=1536
+    - DOCUMENT_ENCODER_MODEL=${DOCUMENT_ENCODER_MODEL:-BAAI/bge-m3}
+    - EMBEDDING_DIM=${EMBEDDING_DIM:-1024}
+    - DOC_EMBEDDING_DIM=${DOC_EMBEDDING_DIM:-1024}
     - NORMALIZE_EMBEDDINGS=True
+    - RERANK_MODEL_NAME=${RERANK_MODEL_NAME:-BAAI/bge-reranker-v2-m3}
     logging:
       driver: json-file
       options:
@@ -246,9 +248,11 @@ services:
     - INDEXING_ONLY=True
     - LOG_FORMAT=${LOG_FORMAT:-json}
     - NVIDIA_VISIBLE_DEVICES=all
-    - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
-    - EMBEDDING_DIM=1536
+    - DOCUMENT_ENCODER_MODEL=${DOCUMENT_ENCODER_MODEL:-BAAI/bge-m3}
+    - EMBEDDING_DIM=${EMBEDDING_DIM:-1024}
+    - DOC_EMBEDDING_DIM=${DOC_EMBEDDING_DIM:-1024}
     - NORMALIZE_EMBEDDINGS=True
+    - RERANK_MODEL_NAME=${RERANK_MODEL_NAME:-BAAI/bge-reranker-v2-m3}
     runtime: nvidia
     volumes:
     - indexing_huggingface_model_cache:/app/.cache/huggingface/
