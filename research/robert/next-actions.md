@@ -9,18 +9,46 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 ---
 
-## 🟢 Active — Data Table Available
+## 🟢 Active — Robert's Decision Required
 
-### [B-01] Supply per-multiplicity-bin pT spectrum table
-**Status:** Completed. Data provided in `physics/data/fit_input_ins1735345.csv` and copied to `physics/data/fit_input.csv`.
+### [O-04] Resolve T–β degeneracy in BGBW fits
+**Status:** Active. Data and covariance matrices available in `research/robert/runs/2026-06-20-phd-level-fits/covariance/`.
+**Finding:** All 9 BGBW bins show |ρ(T, β_s)| ∈ [0.93, 0.999]. 4/9 bins are DEGENERATE (|ρ| > 0.95). In no bin are T_kin and β_s statistically independent. Parameters cannot be reported or interpreted separately without addressing this.
+**Options (Robert selects one before physical interpretation):**
+  1. Profile scan: fix β_s to a grid of values, find T_kin minimum per bin — report 68% CL contours instead of single point estimates.
+  2. Switch to Tsallis 2c as primary model (wins AIC/BIC in 7/10 bins, chi²/ndf < 2 in 7/10 bins).
+  3. Add identified particle constraint (π/K/p separate spectra) to break degeneracy.
+**Decision required from Robert before any parameter physical interpretation.**
 
 ---
 
-## 🟢 Active — Can Proceed Now (symbolic layer is unblocked)
+### [O-05] Verify ATLAS HEPData observable: dN/dpT dη vs dN/dpT dy
+**Status:** Active.
+**Finding:** The dy/dη Jacobian `dy/dη = p/(mT cosh η)` is NOT in the manuscript. At pT = 0.175 GeV, the correction is 22% (confirmed by `physics/tests/test_jacobian.py`). If ATLAS HEPData ins1735345 data is pseudorapidity-binned (dη), this correction is a mandatory referee correction.
+**Action:** Check HEPData ins1735345 table headers for the observable label ("rapidity" vs "pseudorapidity"). If dη, create a Multica Issue and add the Jacobian to `physics/src/fitting_pipeline.py`.
+**Where to look:** HEPData record at `https://www.hepdata.net/record/ins1735345?format=json` — check the qualifier name for the y-axis bins.
 
-### [O-03] Execute PhD-Level Fits and Validate Models
-**Status:** Ready to run. `fit_input.csv` is available.
-**Action:** Run `physics/src/fitting_pipeline.py` and `physics/src/tsallis_physics_validation.py`. Validate Jacobians, strict boundary conditions, chi2/ndf, and covariance matrices. Update the evidence ledger with numerical outcomes and determine if parameters are unphysically degenerate.
+---
+
+### [O-06] Investigate Tsallis 2c physical interpretation
+**Status:** Active. Tsallis 2c wins AIC/BIC in 7/10 bins with chi²/ndf < 2.
+**Finding:** Tsallis 2c is the statistical winner but physical interpretation requires parameter stability across multiplicity bins and comparison with Cleymans–Worku 2012 (arXiv:1110.5526) ranges.
+**Action:**
+  1. Extract Tsallis 2c parameter values (T₁, q₁, T₂, q₂, norm₁, norm₂) per bin from `fit_parameters.csv`.
+  2. Check whether T and q components have physically stable, monotonic trends across multiplicity bins.
+  3. Compare with Cleymans–Worku 2012 parameter ranges (T ~ 0.09–0.10 GeV, q ~ 1.1–1.15 in pp collisions).
+  4. Inspect covariance matrices for T–q correlations — Tsallis T and q are known to be anti-correlated.
+**Output:** Update evidence ledger with physical interpretation summary.
+
+---
+
+### [O-07] Confirm BE vs Boltzmann classification in manuscript
+**Status:** Active. Robert's confirmation required.
+**Finding:** Manuscript uses pure Boltzmann/Jüttner exponential `f(p) ~ exp(-β U·p)`. No Bose-Einstein denominator `(exp(...)-1)⁻¹` is present. The word "bosons" in the title refers to the particle species (pions), not quantum statistics.
+**Action:** Robert to confirm:
+  - Is this a deliberate Boltzmann approximation? If yes, add an explicit statement to the manuscript justifying the approximation (e.g., "BE effects are negligible at T >> m_pion, approximation valid to < X%").
+  - If not deliberate, implement exact_bose_einstein as primary model (BE denominator is already coded in `fitting_pipeline.py`).
+**Note:** exact_bose_einstein fits show chi²/ndf 10–50% better than manuscript_juttner but still 50–100× worse than Tsallis 2c. Adding the denominator alone does not resolve the fit quality issue.
 
 ---
 
@@ -28,8 +56,9 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 | Item | Completed | Notes |
 |---|---|---|
+| [O-03] Execute PhD-Level Fits and Validate Models | 2026-06-20 | Run dir: `research/robert/runs/2026-06-20-phd-level-fits/`. All 10 multiplicity bins × 5 models. Chi²/ndf table, AIC/BIC, fit-range sensitivity, T-β correlations computed. Evidence ledger updated. |
 | Phase 4: Document historical run directories | 2026-06-14 | Ran script to document 13 aborted/undocumented placeholder runs in `research/robert/runs/`. |
-| Phase 3: Fit-range sensitivity scan | 2026-06-14 | Executed pT > 0.45 GeV cutoff test; validated parameter drift <10%. Ledger updated. |
+| Phase 3: Fit-range sensitivity scan | 2026-06-14 | Executed pT > 0.45 GeV cutoff test; validated parameter drift < 10%. Ledger updated. |
 | Phase 2: Extract BGBW T_kin and beta vs multiplicity | 2026-06-14 | Validated that T_kin decreases to ~87 MeV and flow velocity increases to 0.66c at high multiplicity, matching literature. Ledger updated. |
 | Phase 1B: Extract chi2/ndf for 1c models | 2026-06-14 | Populated ledger with chi2/ndf for BGBW (1-2) vs Juttner (>50). Confirmed figures match. |
 | Phase 1A: Definitive Jüttner 2c grid scan | 2026-06-14 | Dense initial value grid scan completed. Confirmed model is intrinsically over-parameterized (chi2/ndf > 170 even on success). Ledger updated. |
@@ -45,39 +74,17 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 | Tsallis/Blast-Wave baseline scripts written | 2026-04-27 | `tsallis_physics_validation.py` ready; awaiting data |
 | Execute Tsallis physics validation run | 2026-05-04 | Captured in `research/robert/runs/2026-05-04-tsallis-validation/`. Comparison against Khuntia (2019) and Rath (2020) suggests model refinement needed. |
 | Fitting pipeline infrastructure built | 2026-04-27 | `fitting_pipeline.py` ready; awaiting `fit_input.csv` |
-| chi2/ndf, covariance, AIC/BIC, residuals, pulls implemented | 2026-04-27 | All computed in `fitting_pipeline.py` `fit_one_spec()` and written to `fit_quality.csv` / `parameter_correlations.csv`; **blocked on `fit_input.csv`**, not on implementation |
+| chi2/ndf, covariance, AIC/BIC, residuals, pulls implemented | 2026-04-27 | All computed in `fitting_pipeline.py` `fit_one_spec()` and written to `fit_quality.csv` / `parameter_correlations.csv`. |
+| [B-01] Supply per-multiplicity-bin pT spectrum table | 2026-06-14 | Data provided in `physics/data/fit_input_ins1735345.csv` and copied to `physics/data/fit_input.csv`. |
 
 ---
 
-## 2026-06-20 ? Post PhD-Level Fit Run Updates
+## 🔴 Key Findings Requiring Robert's Attention (2026-06-20)
 
-### [O-03] COMPLETED ? Execute PhD-Level Fits and Validate Models
-**Status:** Completed. Pipeline run dir: `research/robert/runs/2026-06-20-phd-level-fits/`. Chi2/ndf table, AIC/BIC, fit-range sensitivity, T-beta correlations all computed. Evidence ledger updated with full findings.
-
----
-
-## New Active Items (2026-06-20)
-
-### [O-04] Resolve T-beta degeneracy in BGBW fits
-**Status:** Ready (data and covariance matrices available).
-**Finding:** 4/9 bins have |rho(T, beta_s)| > 0.95; all bins are borderline or degenerate. Parameters cannot be independently interpreted.
-**Options:**
-  1. Profile scan: fix beta_s to a grid of values, find T_kin minimum per bin ? report 68% CL contours.
-  2. Switch to Tsallis 2c as primary model (wins AIC/BIC in 7/10 bins).
-  3. Add identified particle constraint (pi/K/p) to break degeneracy.
-**Decision required from Robert before any parameter physical interpretation.**
-
-### [O-05] Verify ATLAS HEPData obs: dN/dpT deta vs dN/dpT dy
-**Status:** Ready.
-**Finding:** The dy/deta Jacobian is NOT in the manuscript. At pT=0.175 GeV, correction is 22%. If data is deta-binned, this is a mandatory referee correction.
-**Action:** Check ins1735345 HEPData table headers for 'rapidity' vs 'pseudorapidity'. If deta, create Multica Issue and add Jacobian to fitting_pipeline.py.
-
-### [O-06] Investigate Tsallis 2c physical interpretation
-**Status:** Ready (Tsallis 2c is AIC/BIC winner in 7/10 bins with chi2/ndf < 2).
-**Action:** Extract Tsallis 2c parameter values (T1, q1, T2, q2, norm1, norm2) per bin from residuals. Check whether T and q components have stable, physically interpretable values across multiplicity bins. Compare with Cleymans-Worku 2012 (arXiv:1110.5526) parameter ranges.
-
-### [O-07] Confirm BE vs Boltzmann classification in manuscript
-**Status:** Ready.
-**Finding:** Manuscript uses pure Boltzmann/Juttner exponential (no (exp-1) denominator). Title says "bosons" referring to particle species, not quantum statistics.
-**Action:** Robert to confirm whether this is intentional (Boltzmann approximation) or needs correction. If intentional, add explicit statement to manuscript text. If not, implement exact_bose_einstein model as primary.
-
+| Item | Finding | Severity |
+|------|---------|----------|
+| T–β degeneracy | 4/9 BGBW bins \|ρ\| > 0.95 — parameters NOT independently interpretable | **Critical** |
+| Fit-range dependence | 9/10 BGBW bins shift T by 15–44 MeV when pT < 0.5 GeV is excluded | **Critical** |
+| Jacobian missing | dy/dη = 0.782 at pT = 0.175 GeV (22% correction) — not in manuscript | **High** |
+| Tsallis 2c wins | ΔAIC(MJ vs TS2c) > 2700 everywhere — needs physical interpretation decision | **High** |
+| BE denominator absent | Manuscript uses pure Boltzmann despite title saying "bosons" — needs explicit statement | **Medium** |

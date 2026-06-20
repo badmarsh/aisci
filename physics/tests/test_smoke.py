@@ -114,6 +114,8 @@ def test_smoke_pipeline(mock_get, mock_hepdata_responses, tmp_path):
     args_pipeline.run_dir = tmp_path
     args_pipeline.pdf_path = Path("dummy.pdf")
     args_pipeline.mass_gev = 0.13957
+    args_pipeline.models = ["manuscript_juttner"]
+    args_pipeline.max_components = 1
 
     # Since fitting all models takes time and minuit fits might fail on simulated data,
     # we can limit to 1c models or mock fit_one_spec to run fast.
@@ -121,8 +123,8 @@ def test_smoke_pipeline(mock_get, mock_hepdata_responses, tmp_path):
     # Let's override build_fit_specs to return only the 1-component manuscript_juttner model.
     original_build_fit_specs = fitting_pipeline.build_fit_specs
     
-    def mock_build_fit_specs(eta_max, mass_gev):
-        specs = original_build_fit_specs(eta_max, mass_gev)
+    def mock_build_fit_specs(eta_max, mass_gev, models=None, max_components=3):
+        specs = original_build_fit_specs(eta_max, mass_gev, models=models, max_components=max_components)
         # return only 1c models to run fast in smoke test
         return [s for s in specs if s.component_count == 1 and s.model_name == "manuscript_juttner"]
 

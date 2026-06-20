@@ -63,7 +63,8 @@ def test_fitting_pipeline_imports(physics_root):
     """src/fitting_pipeline.py should import without error"""
     file_path = physics_root / "src" / "fitting_pipeline.py"
     try:
-        module = import_module_from_path("fitting_pipeline", file_path)
+        # Use a distinct module name to avoid clobbering sys.modules["fitting_pipeline"].
+        module = import_module_from_path("_fitting_pipeline_smoke_", file_path)
         assert module is not None
     except Exception as e:
         pytest.fail(f"fitting_pipeline.py failed to import: {e}")
@@ -73,7 +74,9 @@ def test_data_loader_imports(physics_root):
     """src/data_loader.py should import without error"""
     file_path = physics_root / "src" / "data_loader.py"
     try:
-        module = import_module_from_path("data_loader", file_path)
+        # Use a distinct module name to avoid clobbering sys.modules["data_loader"],
+        # which would break patch("data_loader.parse_args") isolation in test_smoke.py.
+        module = import_module_from_path("_data_loader_smoke_", file_path)
         assert module is not None
     except Exception as e:
         pytest.fail(f"data_loader.py failed to import: {e}")
