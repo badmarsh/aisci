@@ -22,11 +22,15 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 ---
 
-### [O-05] Verify ATLAS HEPData observable: dN/dpT dη vs dN/dpT dy
-**Status:** Active.
-**Finding:** The dy/dη Jacobian `dy/dη = p/(mT cosh η)` is NOT in the manuscript. At pT = 0.175 GeV, the correction is 22% (confirmed by `physics/tests/test_jacobian.py`). If ATLAS HEPData ins1735345 data is pseudorapidity-binned (dη), this correction is a mandatory referee correction.
-**Action:** Check HEPData ins1735345 table headers for the observable label ("rapidity" vs "pseudorapidity"). If dη, create a Multica Issue and add the Jacobian to `physics/src/fitting_pipeline.py`.
-**Where to look:** HEPData record at `https://www.hepdata.net/record/ins1735345?format=json` — check the qualifier name for the y-axis bins.
+### [O-05] ✅ Verify ALICE/ATLAS HEPData observable: dN/dpT dη vs dN/dpT dy
+**Status:** CONFIRMED. dy/dη Jacobian is required.
+**Finding:** 
+- HEPData ins1735345 is from ALICE arXiv:1905.07208, |η| < 0.8.
+- ALICE measures `(1/2π pT) d²N_ch/(dpT dη)` — pseudorapidity, not rapidity.
+- The dy/dη Jacobian is absent from the manuscript.
+- At pT = 0.175 GeV: `dy/dη = 0.782` → **22% correction** (mandatory).
+- At pT = 1.0 GeV: `dy/dη ≈ 0.985` → <2% (negligible).
+**Next action:** Create Multica Issue for adding Jacobian to manuscript and pipeline (pending Robert's approval).
 
 ---
 

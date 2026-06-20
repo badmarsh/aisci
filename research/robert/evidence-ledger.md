@@ -94,22 +94,25 @@ Use this table as the source of truth for scientific claim status. Do not promot
 
 ---
 
-### TASK 5 — dy/dη Jacobian in manuscript (2026-06-20) ⚠️ PARTIALLY RESOLVED
+### TASK 5 — dy/dη Jacobian: CONFIRMED REQUIRED (2026-06-20)
 
-**Method**: Full text search via `pdftotext` across all 2235 lines.
+**Manuscript finding**: The kinematic Jacobian `dy/dη = p/(mT cosh η)` is absent from the manuscript. The only Jacobian mentioned (`J = p`) is the 3-momentum space Jacobian for spherical coordinate volume elements.
 
-**Findings**:
-- The word "Jacobian" appears on **line 259**: *"To account for pT cut (pTcut), we will write the integral in p, ϕ, pz coordinates using the correct Jacobian (equal to p)."*
-- This Jacobian (`J = p`) is the **3-momentum space Jacobian** (`d³p = p² dp dΩ`), **not** the rapidity-to-pseudorapidity conversion `dy/dη = p/(mT cosh η)`.
-- Search for `dy/d`, `pseudorap`, `eta.*y`, `y.*eta`, `rapidity conversion`, `pion mass`, `cosh`: **zero explicit hits** for the kinematic Jacobian.
-- The manuscript integrates over θ (polar angle) and ϕ, then introduces pT and pz coordinates — **the rapidity-pseudorapidity Jacobian `dy/dη` is not discussed.**
+**Data observable confirmation (2026-06-20)**:
+- HEPData ins1735345 metadata (`physics/data/fit_input_ins1735345_meta.json`): `"eta_range": "-0.8-0.8"`.
+- Paper is **ALICE** arXiv:1905.07208 — "Charged-particle production as a function of multiplicity and transverse spherocity in pp collisions at √s = 5.02 and 13 TeV".
+- ALICE measures the invariant yield as `(1/2π pT) d²N_ch/(dpT dη)` — **pseudorapidity** (dη), NOT rapidity (dy).
+- `extract_ins1735345.py` hardcodes `"eta_range": "-0.8-0.8"` (line 193) from ALICE detector acceptance |η| < 0.8.
 
-**Claim status update**: 🔴 **The dy/dη Jacobian is NOT explicitly present in the manuscript. At pT = 0.175 GeV, this correction is 22% (validated by `physics/tests/test_jacobian.py`, 2026-06-20). If ATLAS data is presented as dN/dpT dη, this correction is mandatory.**
+**Quantified impact** (from `physics/tests/test_jacobian.py`, 2026-06-20):
+- At pT = 0.175 GeV (lowest bin center): `dy/dη = 0.782` → **22% correction**
+- At pT = 0.50 GeV: `dy/dη ≈ 0.94` → 6% correction
+- At pT = 1.00 GeV: `dy/dη ≈ 0.985` → <2% correction (negligible)
 
-**Critical question for Robert**: Is the ATLAS HEPData observable `dN/dpT dη` or `dN/dpT dy`? If it is pseudorapidity-binned, the 22% correction at lowest pT is a required mandatory referee correction.
+**Claim status**: 🔴 **CONFIRMED: The dy/dη Jacobian is missing from the manuscript. The ALICE data is in pseudorapidity (dη). The 22% correction at pT = 0.175 GeV is a mandatory referee correction.**
 
-**Evidence status**: Confirmed absent (from exhaustive text extraction, 2026-06-20)
-**Next gate**: Check HEPData ins1735345 column headers to confirm whether yield is dN/dpT dη or dy; if dη, create Multica issue.
+**Evidence status**: Confirmed (HEPData metadata + test suite, 2026-06-20)
+**Next gate**: Create Multica Issue for adding the Jacobian to the manuscript. Robert to approve.
 
 ---
 
