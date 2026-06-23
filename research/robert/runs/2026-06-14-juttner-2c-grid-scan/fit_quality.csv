@@ -1,0 +1,11 @@
+group_label,success,chi2_ndf,gate_passed,gate_failures
+101-125,True,172.5804831378307,False,failed
+126-150,False,8.642265664982602,False,failed
+21-30,False,3.5195989053125922,False,failed
+31-40,False,10.361599324220785,False,failed
+41-50,False,10.270982786839195,False,failed
+51-60,False,9.952424480843419,False,failed
+61-70,False,14.923331768482061,False,failed
+71-80,False,14.506058239002616,False,failed
+81-90,False,14.164956191622068,False,failed
+91-100,False,13.481893148992935,False,failed

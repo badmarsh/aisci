@@ -1,53 +1,0 @@
-Stopping all services...
-Cleaning up sandbox containers with prefix: deer-flow-sandbox
-Checking Docker containers... [0;32mnone found[0m
-Apple Container not found, skipping...
-[0;32m✓ Container cleanup complete[0m
-✓ All services stopped
-OK config.yaml is already up to date (version 16).
-Syncing dependencies...
-✓ Dependencies synced
-
-==========================================
-  Starting DeerFlow
-==========================================
-
-  Mode: DEV (Gateway runtime, hot-reload enabled)
-
-  Services:
-    Gateway     → localhost:8001  (REST API + agent runtime)
-    Frontend    → localhost:3000  (Next.js)
-    Nginx       → localhost:2026  (reverse proxy)
-
-Starting Gateway...
-sh: 1: cannot create ../logs/gateway.log: Permission denied
-  Waiting for Gateway on port 8001... 0s  Waiting for Gateway on port 8001... 1s  Waiting for Gateway on port 8001... 2s  Waiting for Gateway on port 8001... 3s  Waiting for Gateway on port 8001... 4s  Waiting for Gateway on port 8001... 5s  Waiting for Gateway on port 8001... 6s  Waiting for Gateway on port 8001... 7s  Waiting for Gateway on port 8001... 8s  Waiting for Gateway on port 8001... 9s  Waiting for Gateway on port 8001... 10s  Waiting for Gateway on port 8001... 11s  Waiting for Gateway on port 8001... 12s  Waiting for Gateway on port 8001... 13s  Waiting for Gateway on port 8001... 14s  Waiting for Gateway on port 8001... 15s  Waiting for Gateway on port 8001... 16s  Waiting for Gateway on port 8001... 17s  Waiting for Gateway on port 8001... 18s  Waiting for Gateway on port 8001... 19s  Waiting for Gateway on port 8001... 20s  Waiting for Gateway on port 8001... 21s  Waiting for Gateway on port 8001... 22s  Waiting for Gateway on port 8001... 23s  Waiting for Gateway on port 8001... 24s  Waiting for Gateway on port 8001... 25s  Waiting for Gateway on port 8001... 26s  Waiting for Gateway on port 8001... 27s  Waiting for Gateway on port 8001... 28s  Waiting for Gateway on port 8001... 29s
-✗ Gateway failed to start on port 8001 after 30s
-✗ Gateway failed to start.
-INFO:     192.168.200.3:41878 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     192.168.200.3:41880 - "GET /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/token-usage HTTP/1.1" 200 OK
-INFO:     192.168.200.3:41888 - "GET /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/runs?limit=10&offset=0 HTTP/1.1" 200 OK
-INFO:     192.168.200.3:41910 - "POST /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/history HTTP/1.1" 200 OK
-INFO:     192.168.200.3:41896 - "POST /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/history HTTP/1.1" 200 OK
-INFO:     192.168.200.2:46686 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.200.3:43840 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     192.168.200.3:43854 - "GET /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/runs?limit=10&offset=0 HTTP/1.1" 200 OK
-INFO:     192.168.200.3:43870 - "POST /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/history HTTP/1.1" 200 OK
-INFO:     192.168.200.3:43876 - "POST /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/history HTTP/1.1" 200 OK
-INFO:     192.168.200.3:43892 - "GET /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/token-usage HTTP/1.1" 200 OK
-INFO:     192.168.200.3:43908 - "POST /api/threads/search HTTP/1.1" 200 OK
-INFO:     192.168.200.3:58942 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.200.2:58742 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
-INFO:     192.168.200.3:58946 - "GET /api/models HTTP/1.1" 200 OK
-INFO:     192.168.200.3:58956 - "GET /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/runs?limit=10&offset=0 HTTP/1.1" 200 OK
-INFO:     192.168.200.3:58950 - "POST /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/history HTTP/1.1" 200 OK
-INFO:     192.168.200.3:58978 - "POST /api/threads/search HTTP/1.1" 200 OK
-INFO:     192.168.200.3:58962 - "GET /api/threads/05a18c9b-4aa0-4009-a1e8-93610dc65a73/token-usage HTTP/1.1" 200 OK
-INFO:     192.168.200.3:56484 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
-
-Stopping all services...
-Cleaning up sandbox containers with prefix: deer-flow-sandbox
-Checking Docker containers... [0;32mnone found[0m
-Apple Container not found, skipping...
-[0;32m✓ Container cleanup complete[0m
-✓ All services stopped

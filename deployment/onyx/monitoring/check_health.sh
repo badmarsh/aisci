@@ -6,7 +6,12 @@
 set -euo pipefail
 
 COMPOSE_DIR="$(cd "$(dirname "$0")/../.." && pwd)/onyx"
-EXPECTED_ALEMBIC_HEAD="ea418a384b9d"
+# Dynamically fetch the alembic head from the running API container when possible,
+# falling back to the last known hard-coded value if the container is not reachable.
+EXPECTED_ALEMBIC_HEAD=$(docker exec onyx-api-server python3 -c \
+    "from alembic.script import ScriptDirectory; from alembic.config import Config; \
+c=Config('/app/alembic.ini'); s=ScriptDirectory.from_config(c); print(s.get_current_head())" \
+    2>/dev/null || echo "01c63968ff8f")
 FAILURES=0
 
 red()   { printf '\033[0;31m%s\033[0m\n' "$*"; }

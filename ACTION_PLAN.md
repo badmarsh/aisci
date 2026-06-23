@@ -21,6 +21,7 @@ This file is a milestone tracker only. The operational source of truth for tasks
 | MCP research-tool auth | Done | Multica Issues (closed) |
 | DeerFlow de-vendoring | Pending verification and structural migration decision | Multica Issues |
 | Science validation readiness | In progress | See `research/robert/next-actions.md`, `research/robert/fit-plan.md`, and `research/robert/evidence-ledger.md` |
+| Literature expansion (50+ sources) | Done | See `literature/references.bib` and `literature/scripts/fetch_citations.py` |
 
 ## Decision Status
 

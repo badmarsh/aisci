@@ -17,7 +17,7 @@ api_url = f"{base_url}/api/chat/send-message"
 # Get session/auth info - we'll need to check how auth works
 session = requests.Session()
 
-def test_query(query, query_num):
+def run_query(query, query_num):
     print(f"\n{'='*80}")
     print(f"Testing Query {query_num}: {query}")
     print('='*80)
@@ -51,4 +51,4 @@ def test_query(query, query_num):
 
 if __name__ == "__main__":
     for i, query in enumerate(queries, 1):
-        test_query(query, i)
+        run_query(query, i)

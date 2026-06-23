@@ -33,7 +33,7 @@ import requests
 @pytest.fixture(scope="session")
 def onyx_url():
     """Onyx RAG API endpoint"""
-    return os.getenv("ONYX_URL", "http://localhost:8095")
+    return os.getenv("ONYX_URL", "http://localhost:3000/api")
 
 @pytest.fixture(scope="session")
 def deerflow_url():

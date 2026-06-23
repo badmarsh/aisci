@@ -33,16 +33,35 @@ This document records the actual local deployment shape. For current operational
 | `deployment/onyx/nginx_configs/mcp_proxy.conf.template` | Live MCP proxy template | Mounted by the `mcp_proxy` service; secret-free and env-driven |
 | `deployment/onyx/nginx_mcp_proxy.conf` | Standalone reference copy | Not mounted by current compose; keep only as a documented manual/static example |
 | `mcp_config.yaml` | Repo-local MCP client reference | Not auto-loaded by Onyx compose; documents a project-level client-facing MCP layout and should stay secret-free |
-| `deployment/deer-flow/` | Vendored DeerFlow checkout plus local project overlays | Live gateway joins both `deer-flow` and `onyx_default`; MCP routes use `http://onyx-mcp-proxy:80/...` inside Docker |
+| `deployment/deer-flow/` | Historical backup and patch reference only — DeerFlow source is NOT in the aisci repo | The live DeerFlow checkout is at `C:\users\marek\deer-flow` (Windows-native). `deployment/deer-flow/` may contain legacy custom overlays and should not be treated as the live compose root. |
 | `deployment/deerflow-custom-backup/2026-05-04-aio-redeploy/` | Pre-redeploy custom overlay backup | Contains local custom skills, Onyx tool package, agent prompt, workflows, playbooks, and pre-change config snapshots; no `.env`, logs, DB, cache, or checkpoint files |
+
+## DeerFlow — Canonical Path (Windows-Native)
+
+DeerFlow is maintained as a Windows-native checkout at `C:\users\marek\deer-flow`, **not** inside the `aisci` repo. All `docker compose` commands for DeerFlow must be run from that path (or from WSL as `/mnt/c/users/marek/deer-flow`).
+
+```bash
+# Start DeerFlow (gateway, frontend, nginx) from WSL:
+cd /mnt/c/users/marek/deer-flow
+docker compose -f docker/docker-compose-dev.yaml up -d gateway nginx frontend
+
+# Check logs:
+docker logs deer-flow-gateway
+
+# DeerFlow UI:
+# http://localhost:2026
+```
+
+The gateway container attaches to the `onyx_default` network for internal Onyx MCP proxy access.
+MCP routes in `extensions_config.json` (in the DeerFlow checkout) use `http://onyx-mcp-proxy:80/...`.
 
 ## Production Components (DeerFlow Extras)
 
-To enable asynchronous task queues, observability, and vector search in DeerFlow, use the extras stack:
+To enable asynchronous task queues, observability, and vector search in DeerFlow, run from the Windows-native checkout:
 
 ```bash
-cd deployment/deer-flow
-docker compose -f docker-compose.yml -f docker-compose.extras.yml up -d
+cd /mnt/c/users/marek/deer-flow
+docker compose -f docker/docker-compose-dev.yaml -f docker/docker-compose-extras.yaml up -d
 ```
 
 | Service | Host URL | Purpose |
@@ -57,8 +76,8 @@ docker compose -f docker-compose.yml -f docker-compose.extras.yml up -d
 docker ps
 docker exec onyx-ollama ollama list
 docker logs -f deer-flow-gateway
-cd deployment/deer-flow && make setup-sandbox
-cd deployment/deer-flow && make up
+# DeerFlow compose (from WSL):
+cd /mnt/c/users/marek/deer-flow && docker compose -f docker/docker-compose-dev.yaml ps
 ```
 
 ## Pre-Reindex Checklist
@@ -79,9 +98,10 @@ bash deployment/onyx/monitoring/check_health.sh
 All three must exit 0 before triggering a reindex. Run the same three commands after the reindex completes to confirm parity is restored.
 
 **Critical invariants to verify before reindexing:**
-- `DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct` in `.env`
-- `DOC_EMBEDDING_DIM=1536` in `.env`
-- DB `search_settings` model and dim match the above
+- `DOCUMENT_ENCODER_MODEL=BAAI/bge-m3` in `.env`
+- `EMBEDDING_DIM=1024` and `DOC_EMBEDDING_DIM=1024` in `.env`
+- DB `search_settings` model and dim match the above (id=26, PRESENT, 1024-dim)
+- Active OpenSearch index: `danswer_chunk_baai_bge_m3`
 - `enable_opensearch_retrieval=true` in the cutover output
 
 ## Onyx–DeerFlow Bridge
@@ -96,14 +116,11 @@ All three must exit 0 before triggering a reindex. Run the same three commands a
 
 ## Maintenance Notes
 
-- `deployment/onyx/.env` is tracked as a secret-free defaults file. Live keys
-  belong in ignored `.env.local` files or private operator config.
+- `deployment/onyx/.env` is tracked as a defaults file. Live API keys belong in ignored `.env.local` files or private operator config. The tracked `.env` intentionally includes the embedding model setting so agents can detect model drift.
 - Secret-bearing notes belong in `docs/ops/private/`.
 - `mcp_config.yaml` is documentation/reference until a specific client is wired to consume it.
-- For OpenSearch migration status and cutover checks, use `docs/ops/onyx-rag-optimization-2026-04-27.md` and `deployment/helper/onyx_opensearch_cutover.py --json`.
-- For a clean DeerFlow rebuild, preserve `deployment/deerflow-custom-backup/2026-05-04-aio-redeploy/`, reclone or reset the upstream checkout, then restore only selected overlays instead of copying runtime state, logs, SQLite files, or `.env` files. Then run `bash deployment/deer-flow/apply_local_patches.sh` to verify required patches are in place.
-- For the Onyx MCP submodule, use the reachable fork in `.gitmodules`
-  (`badmarsh/onyx-mcp-server`). The configured compose command requires the
-  local SSE support added after upstream `v1.2.2`.
+- For OpenSearch migration status and cutover checks, use `deployment/helper/onyx_opensearch_cutover.py --json`.
+- For a clean DeerFlow rebuild, restore from `deployment/deerflow-custom-backup/2026-05-04-aio-redeploy/` or clone fresh at `C:\users\marek\deer-flow`. The live checkout is Windows-native; do not attempt to manage it from within the aisci repo.
+- For the Onyx MCP submodule, use the reachable fork in `.gitmodules` (`badmarsh/onyx-mcp-server`). The configured compose command requires the local SSE support added after upstream `v1.2.2`.
 - For a full system architecture diagram, see `docs/ops/architecture-overview.md`.
 - For DeerFlow end-to-end smoke tests, see `docs/ops/deerflow-smoke-tests.md`.

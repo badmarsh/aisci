@@ -28,7 +28,7 @@ services:
       - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     command: "/bin/sh -c \"python /app/deployment/patch_mcp_tool.py && if [ \\\"${ENABLE_CRAFT:-false}\\\
       \" = \\\"true\\\" ] || [ \\\"${ENABLE_CRAFT:-false}\\\" = \\\"True\\\" ]; then\n\
-      \  /app/scripts/setup_craft_templates.sh;\nfi && alembic upgrade head && echo\
+      \  if [ -f /app/scripts/setup_craft_templates.sh ]; then /app/scripts/setup_craft_templates.sh; fi;\nfi && alembic upgrade head && echo\
       \ \\\"Starting Onyx Api Server\\\" && uvicorn onyx.main:app --factory --host\
       \ 0.0.0.0 --port 8080 --workers $${ONYX_API_WORKERS:-1}\"\n"
     env_file:
@@ -218,9 +218,11 @@ services:
     environment:
     - LOG_FORMAT=${LOG_FORMAT:-json}
     - NVIDIA_VISIBLE_DEVICES=all
-    - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
-    - EMBEDDING_DIM=1536
+    - DOCUMENT_ENCODER_MODEL=${DOCUMENT_ENCODER_MODEL:-BAAI/bge-m3}
+    - EMBEDDING_DIM=${EMBEDDING_DIM:-1024}
+    - DOC_EMBEDDING_DIM=${DOC_EMBEDDING_DIM:-1024}
     - NORMALIZE_EMBEDDINGS=True
+    - RERANK_MODEL_NAME=${RERANK_MODEL_NAME:-BAAI/bge-reranker-v2-m3}
     logging:
       driver: json-file
       options:
@@ -246,9 +248,11 @@ services:
     - INDEXING_ONLY=True
     - LOG_FORMAT=${LOG_FORMAT:-json}
     - NVIDIA_VISIBLE_DEVICES=all
-    - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
-    - EMBEDDING_DIM=1536
+    - DOCUMENT_ENCODER_MODEL=${DOCUMENT_ENCODER_MODEL:-BAAI/bge-m3}
+    - EMBEDDING_DIM=${EMBEDDING_DIM:-1024}
+    - DOC_EMBEDDING_DIM=${DOC_EMBEDDING_DIM:-1024}
     - NORMALIZE_EMBEDDINGS=True
+    - RERANK_MODEL_NAME=${RERANK_MODEL_NAME:-BAAI/bge-reranker-v2-m3}
     runtime: nvidia
     volumes:
     - indexing_huggingface_model_cache:/app/.cache/huggingface/

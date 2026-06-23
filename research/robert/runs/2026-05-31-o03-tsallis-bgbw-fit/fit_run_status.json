@@ -1,0 +1,22 @@
+{
+  "component_counts": [
+    1,
+    2,
+    3
+  ],
+  "eta_max": 0.8,
+  "fit_ready": true,
+  "gate_failed": 77,
+  "gate_passed": 13,
+  "mass_gev": 0.13957,
+  "models": [
+    "blast_wave",
+    "tsallis",
+    "manuscript_juttner"
+  ],
+  "note": "Blast-wave baseline complete.",
+  "pass_rate_pct": 14.4,
+  "pipeline_status": "completed_bgbw_run",
+  "pt_gate_high_gev": 5.0,
+  "pt_gate_low_gev": 0.12
+}

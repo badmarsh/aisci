@@ -1,3 +1,4 @@
+from __future__ import annotations
 import requests, time, os, json
 
 key = os.environ.get('ASTA_API_KEY', '')

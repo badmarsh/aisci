@@ -1,3 +1,4 @@
+from __future__ import annotations
 with open("/tmp/index_settings.js", "r", encoding="utf-8") as f:
     content = f.read()
 

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import asyncio
 from onyx.db.engine import get_session_context_manager
 from onyx.db.workspace_settings import update_workspace_settings, get_workspace_settings

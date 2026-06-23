@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 with open("deployment/helper/openapi.json", "r") as f:
     data = json.load(f)

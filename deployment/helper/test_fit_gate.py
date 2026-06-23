@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """Smoke-test assert_fit_gate and generate_fit_dashboard imports and basic logic."""
 import sys
 sys.path.insert(0, "/home/ubuntu/aisci")

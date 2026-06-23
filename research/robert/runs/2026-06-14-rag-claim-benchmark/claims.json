@@ -1,0 +1,22 @@
+[
+  {
+    "id": "C-01",
+    "claim": "The main exponential form used in the manuscript is Lorentz-covariant."
+  },
+  {
+    "id": "C-02",
+    "claim": "The manuscript uses a full Bose-Einstein distribution, not only a Boltzmann/Juttner approximation."
+  },
+  {
+    "id": "C-03",
+    "claim": "High-multiplicity bins are poorly constrained by a 3-component fit."
+  },
+  {
+    "id": "C-04",
+    "claim": "A true Bose-Einstein fit yields significantly different freeze-out temperatures than the Juttner approximation at low pT."
+  },
+  {
+    "id": "C-05",
+    "claim": "Tsallis distribution provides a thermodynamically consistent baseline for non-extensive transverse momentum spectra."
+  }
+]

@@ -1,0 +1,39 @@
+\documentclass[12pt, a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{geometry}
+\usepackage{setspace}
+
+\geometry{a4paper, margin=1in}
+\onehalfspacing
+
+\title{An AI-Augmented Framework for Validating Phenomenological Models of Particle Spectra}
+\author{Candidate Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This thesis presents an autonomous, multi-agent AI framework designed to rigorously validate phenomenological physics models and literature claims. The framework is applied to evaluate a proposed 3-component model for transverse momentum ($p_T$) spectra of bosons produced in high-energy collisions. We definitively prove the intrinsic over-parameterization of the 2-component J\"uttner model for high-multiplicity $p_T$ spectra, contrasting its failure to converge against robust Blast-Wave (BGBW) and Tsallis baselines. Our framework seamlessly integrates Retrieval-Augmented Generation (RAG) and Model Context Protocol (MCP) toolchains, bridging the gap between symbolic validation, numerical fitting, and literature consensus.
+\end{abstract}
+
+\tableofcontents
+
+\include{chapters/01_introduction}
+\include{chapters/02_theoretical_background}
+\include{chapters/03_literature_review}
+\include{chapters/04_ai_methodology}
+\include{chapters/05_results_and_validation}
+\include{chapters/06_conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

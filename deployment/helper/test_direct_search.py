@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """Test direct search API to isolate RAG retrieval issue."""
 
 import requests
