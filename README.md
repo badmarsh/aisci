@@ -11,11 +11,11 @@
 Phase 1 sanity checks are complete. Baseline literature (Tsallis, Blast-Wave) is indexed.
 The fitting pipeline is blocked until Robert provides per-bin $p_T$ source tables matching
 the manuscript multiplicity bins.
-⚠️ RAG Status: In Progress — The Onyx corpus has structural gaps: questions grounded
-in docs/ content (Q3, Q5 of the evaluation set) return no hits because the docs/
+⚠️ RAG Status: In Progress — The Onyx corpus has structural gaps: questions grounded
+in docs/ content (Q3, Q5 of the evaluation set) return no hits because the docs/
 connector is not indexed. Literature PDFs (Khuntia 2019, Rath 2020) were re-uploaded
-2026-05-30. See docs/ops/rag-evaluation-set.md and
-docs/ops/platform-backlog.md for current status.
+2026-05-30. See docs/ops/rag-evaluation-set.md and
+docs/ops/platform-backlog.md for current status.
 
 - **Claim Tracker:** [`research/robert/evidence-ledger.md`](research/robert/evidence-ledger.md)
 - **Active Task Queue:** [`research/robert/next-actions.md`](research/robert/next-actions.md)
