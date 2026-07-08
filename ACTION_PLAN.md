@@ -17,7 +17,7 @@ This file is a milestone tracker only. The operational source of truth is [docs/
 |---|---|---|
 | Infrastructure stabilization | In progress | See `docs/ops/platform-backlog.md` for Onyx, DeerFlow, Docker, MCP, and deployment tasks |
 | Retrieval-stack completion | Alibaba/OpenSearch parity green; retrieval eval next | See `docs/ops/platform-backlog.md` and `docs/ops/onyx-rag-optimization-2026-04-27.md` |
-| MCP research-tool auth | Pending OAuth client flow and smoke tests | See `docs/ops/platform-backlog.md` |
+| MCP research-tool auth | Done | See `docs/ops/platform-backlog.md` |
 | DeerFlow de-vendoring | Pending verification and structural migration decision | See `docs/ops/platform-backlog.md` |
 | Science validation readiness | In progress | See `research/robert/next-actions.md`, `research/robert/fit-plan.md`, and `research/robert/evidence-ledger.md` |
 

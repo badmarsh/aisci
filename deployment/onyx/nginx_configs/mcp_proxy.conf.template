@@ -62,4 +62,25 @@ server {
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
     }
+    
+    # Route for local Onyx MCP server (SSE transport)
+    location /onyx/ {
+        proxy_pass http://onyx-mcp-server:3001/;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_set_header Connection "";
+        proxy_http_version 1.1;
+        proxy_read_timeout 300s;
+    }
+
+    # Compatibility route for Onyx MCP SSE sessions created by older server
+    # images that advertise /messages instead of /onyx/messages.
+    location /messages {
+        proxy_pass http://onyx-mcp-server:3001/messages;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_set_header Connection "";
+        proxy_http_version 1.1;
+        proxy_read_timeout 300s;
+    }
 }

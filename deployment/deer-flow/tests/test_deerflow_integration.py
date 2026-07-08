@@ -207,5 +207,20 @@ def test_spreadsheet_reader_tool_registered(config):
     assert "spreadsheet_reader" in tool_names or "read_spreadsheet" in tool_names
 
 
+def test_codex_cli_endpoint_registered(config):
+    """Codex CLI authenticated endpoint should be registered as a model.
+
+    The endpoint must use the OpenAI-compatible ChatOpenAI client and read its
+    api_key / base_url from environment variables (no committed secrets).
+    """
+    models = {m["name"]: m for m in config.get("models", [])}
+    assert "codex-cli" in models, "codex-cli model entry missing"
+
+    codex = models["codex-cli"]
+    assert codex["use"] == "langchain_openai:ChatOpenAI"
+    assert codex["api_key"].startswith("$"), "api_key must come from env var"
+    assert codex["base_url"].startswith("$"), "base_url must come from env var"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

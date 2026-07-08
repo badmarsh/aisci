@@ -60,6 +60,10 @@ scripts/
 logs/
 docker/
 skills/
+.deer-flow/
+backend/.deer-flow/
+backend/.langgraph_api/
+backend/.pytest_cache/
 frontend/.next
 frontend/node_modules
 backend/.venv

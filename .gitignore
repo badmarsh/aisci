@@ -11,6 +11,8 @@ venv/
 physics/physics_env/
 
 # Environment files with secrets
+**/.env
+!**/.env.example
 deployment/onyx/.env
 deployment/deer-flow/.env
 
@@ -34,6 +36,9 @@ logs/
 .vscode/
 .idea/
 *.swp
+*~
+*.bak
+*.tmp
 
 # Local agent/tool settings
 .codex
@@ -50,6 +55,7 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 .env
+.env.local
 
 # Raw data artifacts (re-downloadable)
 arxiv_results.xml
@@ -64,3 +70,18 @@ literature/*.pdf
 
 # Ignore untracked nested repo files
 deployment/deer-flow/
+deployment/multica/
+
+# Session cookies — never commit
+cookies.txt
+
+# Test files at root
+/test_*.py
+
+# Build artifacts
+.next/
+*.pyc
+
+# DeerFlow user data
+.deer-flow/users/
+docs/platform/multica/

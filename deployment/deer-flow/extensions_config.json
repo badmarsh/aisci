@@ -9,7 +9,8 @@
         "@modelcontextprotocol/server-filesystem",
         "/app",
         "/app/backend/.deer-flow",
-        "/app/skills"
+        "/app/skills",
+        "/home/ubuntu/aisci"
       ],
       "env": {},
       "url": null,

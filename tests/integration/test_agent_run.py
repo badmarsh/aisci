@@ -1,17 +1,14 @@
 import sys
 import os
-from pathlib import Path
 from dotenv import load_dotenv
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(os.path.join(os.path.dirname(__file__), 'deployment/deer-flow/.env'))
 
-load_dotenv(REPO_ROOT / 'deployment/deer-flow/.env')
-
-sys.path.insert(0, str(REPO_ROOT / 'deployment/deer-flow/backend'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'deployment/deer-flow/backend'))
 from packages.harness.deerflow.client import DeerFlowClient
 
 def main():
-    config_path = str(REPO_ROOT / 'deployment/deer-flow/config.yaml')
+    config_path = os.path.join(os.path.dirname(__file__), 'deployment/deer-flow/config.yaml')
     client = DeerFlowClient(config_path=config_path)
     
     try:

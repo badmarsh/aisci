@@ -1,15 +1,13 @@
 import sys
 import os
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-
-sys.path.insert(0, str(REPO_ROOT / 'deployment/deer-flow/backend'))
+# Add the backend to the path so we can import packages.harness.deerflow.client
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'deployment/deer-flow/backend'))
 
 from packages.harness.deerflow.client import DeerFlowClient
 
 def main():
-    config_path = str(REPO_ROOT / 'deployment/deer-flow/config.yaml')
+    config_path = os.path.join(os.path.dirname(__file__), 'deployment/deer-flow/config.yaml')
     client = DeerFlowClient(config_path=config_path)
     
     # Try to bypass authentication or see if it works without token locally?

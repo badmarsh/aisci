@@ -34,6 +34,7 @@ ENV_SPEC: list[EnvVar] = [
     EnvVar("NVIDIA_API_KEY",    "info",  "NVIDIA NIM provider",                       "llm"),
     EnvVar("DASHSCOPE_API_KEY", "info",  "Alibaba DashScope (Qwen models)",           "llm"),
     EnvVar("ONYX_API_KEY",      "info",  "AiSci Onyx LiteLLM proxy",                 "llm"),
+    EnvVar("CODEX_API_KEY",     "info",  "Codex CLI authenticated endpoint",          "llm"),
     EnvVar("VECTOR_STORE_BACKEND", "info", "chroma | qdrant | disabled",              "memory"),
     EnvVar("CHROMA_HOST",       "info",  "Chroma host (if backend=chroma)",           "memory"),
     EnvVar("QDRANT_URL",        "info",  "Qdrant URL (if backend=qdrant)",            "memory"),

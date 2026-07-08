@@ -1,146 +1,74 @@
 model_list:
-  # ── Local Ollama models (openai-compat endpoint, avoids aiohttp SSL bug) ──
-  - litellm_params:
-      api_base: http://ollama:11434/v1
-      api_key: ollama
-      model: openai/gemma2:27b
-    model_name: gemma2
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: qwen3.5-omni-flash
+    timeout: 120
+  model_name: qwen-cloud-fast
 
-  - litellm_params:
-      api_base: http://ollama:11434/v1
-      api_key: ollama
-      model: openai/qwen2.5:32b
-    model_name: qwen2.5
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: qwen3.5-omni-flash
+    timeout: 120
+  model_name: qwen-rag-fast
 
-  - litellm_params:
-      api_base: http://ollama:11434/v1
-      api_key: ollama
-      model: openai/qwen2.5vl:7b
-    model_name: qwen2.5vl
+- litellm_params:
+    api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    api_key: os.environ/DASHSCOPE_API_KEY
+    model: qwen3.5-omni-plus
+    timeout: 180
+  model_name: qwen-rag-balanced
 
-  - litellm_params:
-      api_base: http://ollama:11434/v1
-      api_key: ollama
-      model: openai/nomic-embed-text:latest
-      model_type: embedding
-    model_name: local-embedding-optical
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: gemma2:27b
+  model_name: gemma2
 
-  - litellm_params:
-      api_base: http://nemotron_embed_vl:8000/v1
-      api_key: nim-local
-      model: openai/nvidia/llama-nemotron-embed-vl-1b-v2
-      model_type: embedding
-    model_name: nemotron-embed-vl
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: qwen2.5vl:7b
+    timeout: 600
+  model_name: qwen-rag-local
 
-    # ── Contextual RAG: qwen-cloud-fast ──────────────────────────────────────
-    # Two standard Qwen cloud chat entries share the same alias → LiteLLM load-balances
-    # with latency-based routing and auto-retries on failure.
-    # Keep realtime-capable variants on a separate alias so normal chat/completions
-    # traffic does not get routed through a model intended for realtime workflows.
-    #
-    # Weight priority: qwen-omni-turbo > qwen3.5-omni-plus
-    # Offline emergency: local gemma2:27b (weight 1)
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: mistral-small:22b
+    timeout: 600
+  model_name: qwen-rag-quality
 
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/qwen3-omni-flash-2025-09-15
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      drop_params: true
-      weight: 10
-    model_name: qwen-cloud-fast
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: qwen2.5vl:7b
+    timeout: 600
+  model_name: qwen-rag-vision
 
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/qwen3-omni-flash-2025-09-15
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      drop_params: true
-    model_name: qwen3-omni-flash-2025-09-15
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: qwen2.5vl:7b
+  model_name: qwen2.5vl
 
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/qwen2.5-omni-7b
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      drop_params: true
-    model_name: qwen2.5-omni-7b
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: qwen2.5-omni:7b
+  model_name: qwen2.5-omni-7b
 
-  - litellm_params:
-      # Offline emergency fallback — no cloud dependency
-      api_base: http://ollama:11434/v1
-      api_key: ollama
-      model: openai/gemma2:27b
-      weight: 1
-    model_name: qwen-cloud-fast
-
-    # ── Cloud reranker ────────────────────────────────────────────────────────
-    # qwen3-rerank: 1M quota. Can be used as alternative to local bge-reranker.
-    # Not yet wired into Onyx (Onyx calls its own model server for reranking).
-    # Kept here for future use via direct LiteLLM rerank endpoint.
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: dashscope/qwen3-rerank
-    model_name: qwen-rerank
-
-    # ── Visual RAG (image understanding) ─────────────────────────────────────
-    # All image models: 100-req trial quota each — for user queries only.
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/qwen3-vl-235b-a22b-thinking
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      drop_params: true
-    model_name: qwen-vision
-
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/qwen-vl-max-latest
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      drop_params: true
-    model_name: qwen-vision
-
-    # ── Image Generation (Fixes broken generate_image tool on Assistant) ───────
-    # These are Text-to-Image models (not image understanding).
-    # Onyx will route 'generate_image' requests here.
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: dashscope/qwen-image-max-2025-12-30
-    model_name: qwen-image-gen
-
-    # ── Embeddings ────────────────────────────────────────────────────────────
-    # Vision-aware embeddings: 1M quota each
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: dashscope/tongyi-embedding-vision-flash
-      model_type: embedding
-    model_name: qwen-embed-vision-fast
-
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: dashscope/tongyi-embedding-vision-plus
-      model_type: embedding
-    model_name: qwen-embed-vision
-
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/text-embedding-v4
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      model_type: embedding
-      encoding_format: float
-      drop_params: true
-    model_name: qwen-embed-text
-
-  - litellm_params:
-      api_key: os.environ/QWEN_API_KEY
-      model: openai/text-embedding-v4
-      api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
-      model_type: embedding
-      encoding_format: float
-      drop_params: true
-    model_name: text-embedding-v4
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: nomic-embed-text:latest
+    model_type: embedding
+  model_name: local-embedding-optical
 
 router_settings:
+  allowed_fails: 10
+  cooldown_time: 0
+  enable_pre_call_checks: false
   routing_strategy: latency-based-routing
-  num_retries: 3
-  timeout: 300 # raised from 120 — local 27B/32B Ollama models need ~180-300s per chunk
-  retry_after: 10 # raised from 5 — gives backend time to recover between retries
-  fallbacks:
-    - qwen3-omni-flash-2025-09-15:
-        - qwen2.5-omni-7b
+  timeout: 1200
