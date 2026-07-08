@@ -7,14 +7,9 @@ def generate_tsallis(pt, mass, t_kin, q, norm):
     return norm * pt * mt * (1 + (q - 1) * mt / t_kin) ** (-q / (q - 1))
 
 def main():
-    os.makedirs('physics/data', exist_ok=True)
+    out_dir = 'physics/data/synthetic_pt_tables'
+    os.makedirs(out_dir, exist_ok=True)
     mass_pion = 0.13957  # GeV/c^2
-    
-    # 10 multiplicity bins
-    bins = [
-        "0-5", "5-10", "10-20", "20-30", "30-40", 
-        "40-50", "50-70", "70-90", "90-110", "110-150"
-    ]
     
     # Base parameters for Tsallis to generate realistic looking data
     base_t_kin = 0.120 # 120 MeV
@@ -23,11 +18,11 @@ def main():
     
     pt_points = np.linspace(0.5, 20.0, 50)
     
-    for i, b in enumerate(bins):
+    for i in range(1, 11):
         # Vary parameters slightly with multiplicity
         t_kin = base_t_kin - 0.003 * i
         q = base_q - 0.005 * i
-        norm = base_norm * (1.5 ** (9 - i))
+        norm = base_norm * (1.5 ** (10 - i))
         
         yield_vals = generate_tsallis(pt_points, mass_pion, t_kin, q, norm)
         
@@ -48,7 +43,7 @@ def main():
             'sys_err': sys_err
         })
         
-        filename = f'physics/data/pt_spectrum_mult_{b}.csv'
+        filename = os.path.join(out_dir, f'mult_class_{i}.csv')
         df.to_csv(filename, index=False)
         print(f"Generated {filename}")
 
