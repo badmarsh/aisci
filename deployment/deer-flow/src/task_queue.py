@@ -53,7 +53,15 @@ async def run_research_task(
 
 class WorkerSettings:
     functions = [run_research_task]
-    redis_settings_from_dsn = REDIS_URL
+    # BUGFIX: ARQ expects `redis_settings`, not `redis_settings_from_dsn`.
+    # The previous attribute name was ignored, so the worker connected to the
+    # default localhost:6379 regardless of REDIS_URL, and workers configured
+    # for hosted Redis silently failed to start.
+    try:
+        import arq as _arq  # type: ignore
+        redis_settings = _arq.connections.RedisSettings.from_dsn(REDIS_URL)
+    except Exception:  # arq not installed at import time
+        redis_settings = None
     max_jobs = ARQ_MAX_JOBS
     job_timeout = ARQ_JOB_TIMEOUT
     keep_result = 86400  # 24 h
@@ -69,21 +77,28 @@ async def enqueue_research(
     """Enqueue a research job. Returns job_id, or None if queue disabled."""
     if not TASK_QUEUE_ENABLED:
         return None
+    import logging
+    logger = logging.getLogger(__name__)
     try:
         import arq  # type: ignore
         redis = await arq.create_pool(
             arq.connections.RedisSettings.from_dsn(REDIS_URL)
         )
-        job = await redis.enqueue_job(
-            "run_research_task",
-            run_id=run_id,
-            query=query,
-            config=config or {},
-        )
-        await redis.close()
+        try:
+            job = await redis.enqueue_job(
+                "run_research_task",
+                run_id=run_id,
+                query=query,
+                config=config or {},
+            )
+        finally:
+            await redis.close()
         return job.job_id if job else None
-    except Exception:
-        return None
+    except Exception as exc:
+        # BUGFIX: previously returned None on any failure, indistinguishable
+        # from `TASK_QUEUE_ENABLED=false`. Log it so ops can see queue outages.
+        logger.exception("enqueue_research failed for run_id=%s: %s", run_id, exc)
+        raise
 
 
 async def get_job_status(job_id: str) -> dict[str, Any]:
