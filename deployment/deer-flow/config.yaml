@@ -1,0 +1,389 @@
+config_version: 8
+log_level: info
+token_usage:
+  enabled: true
+agents:
+- name: physics-validation-director
+  type: lead
+  capacity: 100
+- name: literature-scout
+  type: specialist
+  capacity: 80
+- name: formula-checker
+  type: specialist
+  capacity: 80
+- name: fit-analyst
+  type: specialist
+  capacity: 80
+- name: referee-writer
+  type: specialist
+  capacity: 80
+- name: figure-table-builder
+  type: specialist
+  capacity: 60
+- name: evidence-ledger
+  type: operations
+  capacity: 80
+- name: coder
+  type: operations
+  capacity: 100
+- name: data-analyst
+  type: operations
+  capacity: 100
+- name: knowledge-manager
+  type: operations
+  capacity: 100
+- name: research-coordinator
+  type: assistant
+  capacity: 100
+agents_api:
+  enabled: true
+langgraph:
+  recursion_limit: 100
+  thinking_enabled: true
+  subagent_enabled: true
+  context_management:
+    max_turns: 50
+    summary_threshold: 5
+  memory:
+    type: persistent
+    storage: ./memory
+    max_entries: 10000
+models:
+- name: gemini-2.5-flash
+  display_name: Gemini 2.5 Flash
+  use: langchain_openai:ChatOpenAI
+  model: google/gemini-2.5-flash
+  api_key: $OPENROUTER_API_KEY
+  base_url: $OPENROUTER_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: true
+- name: qwen3.5-omni-plus-2026-03-15
+  display_name: Qwen 3.5 Omni Plus (2026-03-15)
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.5-omni-plus-2026-03-15
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 30720
+  supports_thinking: true
+  supports_vision: true
+- name: qwen3.5-omni-plus
+  display_name: Qwen 3.5 Omni Plus
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.5-omni-plus
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: true
+- name: qwen3.5-omni-flash
+  # NOTE: This actually routes to gemini-2.5-flash via OpenRouter — rename if confusing
+  display_name: Qwen 3.5 Omni Flash (via Gemini/OpenRouter)
+  use: langchain_openai:ChatOpenAI
+  model: google/gemini-2.5-flash
+  api_key: $OPENROUTER_API_KEY
+  base_url: $OPENROUTER_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: true
+- name: qwen3.5-122b-a10b
+  display_name: Qwen 3.5 122B A10B
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.5-122b-a10b
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: true
+- name: qwen3.5-plus
+  display_name: Qwen 3.5 Plus
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.5-plus
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: true
+- name: qwen-plus
+  display_name: Qwen Plus
+  use: langchain_openai:ChatOpenAI
+  model: qwen-plus
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: true
+- name: qwen-max
+  display_name: Qwen Max
+  use: langchain_openai:ChatOpenAI
+  model: qwen-max
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: true
+- name: qwen3.6-max-preview
+  display_name: Qwen 3.6 Max Preview
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.6-max-preview
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: true
+- name: qwen3-coder-30b-a3b-instruct
+  display_name: Qwen 3 Coder 30B A3B Instruct
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-coder-30b-a3b-instruct
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+- name: qwen3-coder-flash
+  display_name: Qwen 3 Coder Flash
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-coder-flash
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: false
+- name: qwen3-235b-a22b-instruct-2507
+  display_name: Qwen3-235B-A22B
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-235b-a22b-instruct-2507
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: false
+  supports_vision: true
+- name: qwen3-vl-plus
+  display_name: Qwen 3 VL Plus
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-vl-plus
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: true
+- name: qwen3-vl-flash
+  display_name: Qwen 3 VL Flash
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-vl-flash
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: true
+- name: qwen-vl-ocr
+  display_name: Qwen VL OCR
+  use: langchain_openai:ChatOpenAI
+  model: qwen-vl-ocr
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: true
+- name: qwen3-0.6b
+  display_name: Qwen 3 0.6B
+  use: langchain_openai:ChatOpenAI
+  model: qwen3-0.6b
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 4096
+  supports_thinking: false
+  supports_vision: false
+- name: qwen3.6-flash
+  display_name: Qwen 3.6 Flash
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.6-flash
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: false
+- name: qwen3.5-flash
+  display_name: Qwen 3.5 Flash
+  use: langchain_openai:ChatOpenAI
+  model: qwen3.5-flash
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: false
+- name: qwen-turbo
+  display_name: Qwen Turbo
+  use: langchain_openai:ChatOpenAI
+  model: qwen-turbo
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: false
+- name: qwen-mt-plus
+  display_name: Qwen MT Plus
+  use: langchain_openai:ChatOpenAI
+  model: qwen-mt-plus
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 8192
+  supports_thinking: false
+  supports_vision: false
+- name: qvq-max
+  display_name: QvQ Max
+  use: langchain_openai:ChatOpenAI
+  model: qvq-max
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: true
+- name: qwq-plus
+  display_name: QwQ Plus
+  use: langchain_openai:ChatOpenAI
+  model: qwq-plus
+  api_key: $DASHSCOPE_API_KEY
+  base_url: $DASHSCOPE_API_BASE
+  max_tokens: 16384
+  supports_thinking: true
+  supports_vision: false
+# gemini-2.5-flash is defined at the top of models and used by subagents/summarization — no duplicate needed here
+tool_groups:
+- name: web
+- name: file:read
+- name: file:write
+- name: bash
+- name: knowledge
+tools:
+- name: web_search
+  use: deerflow.community.firecrawl.tools:firecrawl_search_tool
+  group: web
+  max_results: 5
+- name: web_fetch
+  use: deerflow.community.exa.tools:web_fetch_tool
+  group: web
+- name: image_search
+  group: web
+  use: deerflow.community.image_search.tools:image_search_tool
+  max_results: 5
+- name: ls
+  group: file:read
+  use: deerflow.sandbox.tools:ls_tool
+- name: read_file
+  group: file:read
+  use: deerflow.sandbox.tools:read_file_tool
+- name: glob
+  group: file:read
+  use: deerflow.sandbox.tools:glob_tool
+  max_results: 200
+- name: grep
+  group: file:read
+  use: deerflow.sandbox.tools:grep_tool
+  max_results: 100
+- name: onyx_search
+  group: knowledge
+  use: deerflow.community.onyx.tools:onyx_search_tool
+  num_hits: 5
+- name: write_file
+  use: deerflow.sandbox.tools:write_file_tool
+  group: file:write
+- name: str_replace
+  use: deerflow.sandbox.tools:str_replace_tool
+  group: file:write
+- name: bash
+  use: deerflow.sandbox.tools:bash_tool
+  group: bash
+tool_search:
+  enabled: true
+loop_detection:
+  enabled: true
+  warn_threshold: 3
+  hard_limit: 5
+  window_size: 20
+  max_tracked_threads: 100
+  tool_freq_warn: 30
+  tool_freq_hard_limit: 50
+uploads:
+  max_files: 10
+  max_file_size: 52428800
+  max_total_size: 104857600
+  auto_convert_documents: false
+  pdf_converter: auto
+sandbox:
+  use: deerflow.sandbox.local:LocalSandboxProvider
+  image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+  port: 39120
+  replicas: 2
+  container_prefix: deer-flow-aio-sandbox
+  idle_timeout: 1800
+  allow_host_bash: true
+  bash_output_max_chars: 20000
+  read_file_output_max_chars: 50000
+  ls_output_max_chars: 20000
+  mounts:
+  - host_path: /home/ubuntu/aisci
+    container_path: /mnt/host/aisci
+    read_only: false
+  environment:
+    PYTHONUNBUFFERED: '1'
+subagents:
+  timeout_seconds: 900
+  max_turns: 120
+  agents:
+    general-purpose:
+      model: gemini-2.5-flash
+      timeout_seconds: 1800
+      max_turns: 160
+    bash:
+      model: gemini-2.5-flash
+      timeout_seconds: 300
+      max_turns: 80
+skills:
+  container_path: /mnt/skills
+skill_evolution:
+  enabled: true
+  moderation_model_name: gemini-2.5-flash
+title:
+  enabled: true
+  max_words: 6
+  max_chars: 60
+  model_name: gemini-2.5-flash
+summarization:
+  enabled: true
+  model_name: gemini-2.5-flash
+  trigger:
+  - type: tokens
+    value: 10240
+  - type: messages
+    value: 30
+  keep:
+    type: messages
+    value: 8
+  trim_tokens_to_summarize: 8192
+  summary_prompt: null
+  preserve_recent_skill_count: 3
+  preserve_recent_skill_tokens: 12000
+  preserve_recent_skill_tokens_per_skill: 3000
+  skill_file_read_tool_names:
+  - read_file
+  - read
+  - view
+  - cat
+memory:
+  enabled: true
+  storage_path: memory.json
+  debounce_seconds: 30
+  model_name: gemini-2.5-flash
+  max_facts: 100
+  fact_confidence_threshold: 0.7
+  injection_enabled: true
+  max_injection_tokens: 2000
+database:
+  backend: sqlite
+  sqlite_dir: .deer-flow/data
+run_events:
+  backend: db
+  max_trace_content: 10240
+  track_token_usage: true

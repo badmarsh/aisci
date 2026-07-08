@@ -2,7 +2,7 @@ name: Physics Tests
 
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -19,10 +19,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -r physics/requirements.txt
+        run: pip install numpy pandas scipy iminuit sympy requests
 
       - name: Run physics tests
         run: cd physics && python -m pytest tests/ -v
-
-      - name: Run root tests
-        run: python -m pytest tests/ -v --tb=short

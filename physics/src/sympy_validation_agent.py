@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 """
 SymPy validation scaffold for physics analysis.
 
@@ -18,7 +17,8 @@ This agent can:
 import sympy as sp
 from sympy.parsing.latex import parse_latex
 from sympy.parsing.sympy_parser import parse_expr
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union, Tuple
+import re
 
 
 class SymPyPhysicsValidator:

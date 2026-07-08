@@ -1,4 +1,3 @@
-from __future__ import annotations
 """Runtime compatibility shims for Python services started with this helper path.
 
 Currently used by the Onyx model-server containers. Transformers 5 stores Qwen2
@@ -19,16 +18,8 @@ if Qwen2Config is not None and not hasattr(Qwen2Config, "rope_theta"):
         if isinstance(rope_parameters, dict):
             return rope_parameters.get("rope_theta", 1000000.0)
         return getattr(rope_parameters, "rope_theta", 1000000.0)
-    
-    def _set_rope_theta(self, value):
-        # Store in rope_parameters dict if it exists
-        rope_parameters = getattr(self, "rope_parameters", None)
-        if rope_parameters is None:
-            object.__setattr__(self, "rope_parameters", {"rope_theta": value})
-        elif isinstance(rope_parameters, dict):
-            rope_parameters["rope_theta"] = value
 
-    Qwen2Config.rope_theta = property(_get_rope_theta, _set_rope_theta)
+    Qwen2Config.rope_theta = property(_get_rope_theta)
 
 
 if Qwen2Config is not None and not getattr(Qwen2Config, "_onyx_embedding_patch", False):

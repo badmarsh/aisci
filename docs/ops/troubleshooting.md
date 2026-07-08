@@ -159,52 +159,6 @@ _make_file_sandbox_writable(str(file_path))   # ← must NOT be inside `if sync_
    ```
 3. Ensure the vision model is configured in the UI, otherwise `unstructured_to_result` will refuse to send images for summarization.
 
-### AIO Sandbox `browser` process crashes with SIGABRT (WSL2 / seccomp)
-
-**Symptom:** `vibrant_shirley` (or any `deer-flow-aio-sandbox-*` container) shows `unhealthy` with a large `FailingStreak`. `supervisorctl status` inside the container shows `browser FATAL — Exited too quickly`. The `nc -z localhost 9222` healthcheck fails because Chrome's remote-debugging port never opens.
-
-**Root cause:** Chrome/Chromium requires `CLONE_NEWUSER` (user namespace sandbox) for its renderer process. On WSL2 (kernel 6.6.x-microsoft), the default Docker seccomp filter blocks the `clone()` variants Chrome needs. Chrome catches `EPERM` and sends itself SIGABRT. The `LocalContainerBackend` code in `local_backend.py` already injects `--security-opt seccomp=unconfined` for containers it *spawns fresh*, but an **orphaned container** started under an older code path will not have this flag.
-
-**Diagnosis:**
-```bash
-# Confirm the container is unhealthy with large FailingStreak
-docker inspect <sandbox-container> --format '{{json .State.Health}}' | python3 -m json.tool
-
-# Confirm browser is FATAL
-docker exec <sandbox-container> supervisorctl status
-
-# Confirm seccomp option is missing
-docker inspect <sandbox-container> --format '{{json .HostConfig.SecurityOpt}}'
-# Returns: null  ← this is the problem
-
-# Confirm Chrome debug port is closed
-docker exec <sandbox-container> nc -z localhost 9222; echo $?
-# Returns: 1  ← port closed because browser never started
-```
-
-**Fix:**
-
-1. Stop the stale orphaned container:
-   ```bash
-   docker stop <sandbox-container-name>
-   ```
-   The next sandbox acquisition will spawn a fresh container with `--security-opt seccomp=unconfined`.
-
-2. Add `BROWSER_EXTRA_ARGS: '--no-sandbox'` to `config.yaml` under `sandbox.environment` as belt-and-suspenders for any future orphaned containers:
-   ```yaml
-   sandbox:
-     environment:
-       PYTHONUNBUFFERED: '1'
-       BROWSER_EXTRA_ARGS: '--no-sandbox'
-   ```
-   Then restart the gateway: `docker compose -f docker/docker-compose-dev.yaml restart gateway`
-
-**Why `--no-sandbox` is sufficient:** This flag disables Chrome's renderer process user-namespace sandbox (the part that needs `CLONE_NEWUSER`). It is safe in this context because the entire AIO sandbox container is itself an isolated environment.
-
-**Verified fix date:** 2026-06-10. Container stopped, `config.yaml` patched, gateway restarted.
-
----
-
 ## Regression Gates
 
 Run these checks after any container recreate, volume reset, or config change:

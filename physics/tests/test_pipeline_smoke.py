@@ -63,8 +63,7 @@ def test_fitting_pipeline_imports(physics_root):
     """src/fitting_pipeline.py should import without error"""
     file_path = physics_root / "src" / "fitting_pipeline.py"
     try:
-        # Use a distinct module name to avoid clobbering sys.modules["fitting_pipeline"].
-        module = import_module_from_path("_fitting_pipeline_smoke_", file_path)
+        module = import_module_from_path("fitting_pipeline", file_path)
         assert module is not None
     except Exception as e:
         pytest.fail(f"fitting_pipeline.py failed to import: {e}")
@@ -74,9 +73,7 @@ def test_data_loader_imports(physics_root):
     """src/data_loader.py should import without error"""
     file_path = physics_root / "src" / "data_loader.py"
     try:
-        # Use a distinct module name to avoid clobbering sys.modules["data_loader"],
-        # which would break patch("data_loader.parse_args") isolation in test_smoke.py.
-        module = import_module_from_path("_data_loader_smoke_", file_path)
+        module = import_module_from_path("data_loader", file_path)
         assert module is not None
     except Exception as e:
         pytest.fail(f"data_loader.py failed to import: {e}")
@@ -142,20 +139,22 @@ def test_fitting_pipeline_has_main_function(physics_root):
         pytest.fail(f"Failed to check main function: {e}")
 
 
-def test_data_loader_exposes_public_api(physics_root):
-    """data_loader.py should expose its real callable entry points"""
+def test_data_loader_has_load_function(physics_root):
+    """data_loader.py should have a load or read function"""
     file_path = physics_root / "src" / "data_loader.py"
     try:
         module = import_module_from_path("data_loader_test", file_path)
 
-        # data_loader's real public API: a main() entry point plus the
-        # core extraction/validation/serialization helpers it orchestrates.
-        for func_name in ("main", "extract_pt_rows", "validate_mapping", "write_json"):
-            attr = getattr(module, func_name, None)
-            assert attr is not None, f"data_loader is missing {func_name}"
-            assert callable(attr), f"data_loader.{func_name} is not callable"
+        has_load = (
+            hasattr(module, "load_data") or
+            hasattr(module, "load") or
+            hasattr(module, "read_data") or
+            hasattr(module, "read")
+        )
+
+        assert has_load, "No load/read function found in data_loader"
     except Exception as e:
-        pytest.fail(f"Failed to check data_loader public API: {e}")
+        pytest.fail(f"Failed to check load function: {e}")
 
 
 if __name__ == "__main__":

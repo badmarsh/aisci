@@ -20,7 +20,7 @@ Read first:
 - agent-skills/git-worktree-guard/SKILL.md
 - agent-skills/aisci-ops-auditor/SKILL.md
 - agent-skills/secret-config-auditor/SKILL.md if touching env/config
-- docs/ops/platform-status.md
+- docs/ops/platform-backlog.md
 - docs/ops/onyx-configure.md
 - docs/ops/mcp-endpoints.md
 - docs/ops/deployment-reference.md
@@ -65,7 +65,7 @@ Next highest-value work:
    does not retry every 30 minutes, does not hit heartbeat timeout, and does not
    produce repeated DashScope 429s.
 3. Start issue #6 by migrating only active open backlog rows to GitHub Issues,
-   then shrink `docs/ops/platform-status.md` instead of adding new reports.
+   then shrink `docs/ops/platform-backlog.md` instead of adding new reports.
 4. Fix the `onyx-mcp-server` full Jest failures around `send-chat-message`
    nock expectations, then remove the need for `--no-verify` pushes.
 5. Rebuild `onyx-python-webdeps:3.11` reproducibly once Docker buildx and PyPI
@@ -88,71 +88,103 @@ Before closing:
 
 ---
 
-## Prompt B — Science Workflow: Post-PhD-Fit Analysis & Decisions
+## Prompt B — Science Workflow: Data Collection → Model Training → Documentation
 
-Use this prompt to continue the AiSci physics research workflow in a fresh local agent session. The PhD-level fits have completed. This session pushes toward physical interpretation and manuscript decisions.
+Use this prompt to execute the AiSci physics research workflow in a fresh local agent session.
 
 ```text
-You are continuing the AiSci physics research workflow as a PhD-level High Energy Physicist.
+You are continuing the AiSci physics research and documentation workflow.
 Repo: /home/ubuntu/aisci, GitHub: badmarsh/aisci.
 
 Read first (in this order):
 - AGENTS.md
+- agent-skills/git-worktree-guard/SKILL.md
 - research/robert/next-actions.md       ← canonical science task queue
 - research/robert/evidence-ledger.md    ← canonical claim-status file
-- research/robert/science-questions.md  ← core physics questions
 - physics/README.md
+- docs/ops/critical-components.md
 
-Current state (as of 2026-06-20):
-- PhD-level fits COMPLETED. Run dir: research/robert/runs/2026-06-20-phd-level-fits/
-- Data: ATLAS 13 TeV pp, HEPData ins1735345, 10 multiplicity bins, pT ∈ [0.15, 3.0] GeV
-- Models run: manuscript_juttner, exact_bose_einstein, tsallis (1c, 2c), blast_wave (1c)
-- Test suite: 305/307 pass (1 pre-existing antlr4 skip, 1 pre-existing antlr4 test failure)
-- Virtual environment: physics/physics_env
+Current state as of 2026-05-17:
+- Physics scripts are ready but blocked on data:
+  - `physics/src/fitting_pipeline.py`        ready; awaiting `physics/data/fit_input.csv`
+  - `physics/src/tsallis_physics_validation.py`  ready; awaiting data
+  - `physics/src/boson_paper_analysis.py`    green (all symbolic sections pass)
+  - `physics/src/sympy_validation_agent.py`  ready
+  - `physics/src/data_loader.py`             ready
+- Virtual environment: `physics/physics_env` — use it for all script runs.
+  It already has matplotlib 3.10.9 installed.
+- Tests in `physics/tests/` — run with `cd physics && pytest` using `physics_env`.
+- Science task queue item [B-01] is the primary blocker: Robert must supply the
+  per-multiplicity-bin pT spectrum table (bins 21-30 through 126-150) before
+  fitting can run. HEPData record `ins1419652` provides only inclusive spectra.
+- Science task [O-02] is open and does not require data: Robert to confirm
+  whether U2 ≈ 0.011 ± 0.847 is a known instability at high multiplicity.
+- Science task [O-03] (train and validate fitting pipeline) is defined and
+  ready to execute the moment `physics/data/fit_input.csv` exists.
 
-Key findings requiring Robert's decisions before further analysis:
-1. [O-04] T-β degeneracy: |ρ(T, β_s)| = 0.93–0.999 in ALL BGBW bins (4/9 degenerate, 5/9 borderline).
-   No bin allows independent physical interpretation of T_kin and β_s.
-2. [O-05] Jacobian missing: dy/dη = 0.782 at pT=0.175 GeV (22% correction). If ATLAS data is dN/dpT dη,
-   this is a mandatory referee correction. HEPData ins1735345 header check required.
-3. [O-06] Tsallis 2c wins AIC/BIC in 7/10 bins (chi²/ndf < 2). Physical interpretation needed.
-4. [O-07] Manuscript uses Boltzmann exponential, not Bose-Einstein denominator. Title says "bosons"
-   = particle species, not quantum statistics. Robert must confirm if this is intentional.
+Step 1 — Data Collection and Preprocessing:
+  If Robert has provided a data table, save it as `physics/data/fit_input.csv`
+  following the format spec in `research/robert/archive/data-onboarding.md`.
+  Run `physics/src/data_loader.py` to verify integrity. Clean, normalize, and
+  check for missing bins or inconsistent uncertainties. Log outcome to
+  `research/robert/runs/YYYY-MM-DD-data-load/README.md`.
 
-Chi²/ndf summary (from runs/2026-06-20-phd-level-fits/fit_quality.csv):
-- Tsallis 2c: chi²/ndf ∈ [0.36, 2.05] — acceptable in 7/10 bins
-- Tsallis 1c: chi²/ndf ∈ [0.59, 19.6] — acceptable in 1/10 bins (21-30 only)
-- blast_wave 1c: chi²/ndf ∈ [5.3, 29.8] — 0/10 acceptable
-- manuscript_juttner 1c: chi²/ndf ∈ [67, 218] — 0/10 acceptable
-- exact_bose_einstein 1c: chi²/ndf ∈ [64, 194] — 0/10 acceptable
+Step 2 — Model Training and Validation [O-03]:
+  Once `fit_input.csv` exists:
+  1. Activate `physics/physics_env` and run `physics/src/fitting_pipeline.py`.
+  2. Profile execution: time each fitting loop and scipy optimization call;
+     save the profile report to `physics/reports/fitting_profile.txt`.
+  3. Run `physics/src/tsallis_physics_validation.py` — verify T, q, n converge
+     within physical bounds; log chi2/ndf anomalies.
+  4. Run `physics/src/sympy_validation_agent.py` — confirm symbolic derivations
+     match numerical outputs within floating-point tolerance.
+  5. Cross-validate `boson_paper_analysis.py` outputs against reference values
+     in `research/robert/evidence-ledger.md`. Flag deviations beyond tolerance.
+  6. Extend `physics/tests/test_fitting_pipeline.py` with:
+     - Edge-case tests: out-of-bounds parameters, empty dataset inputs.
+     - Regression tests: assert chi2/ndf, T, U, n per bin are reproducible.
+  7. Save all artifacts (chi2/ndf, covariance, residuals, plots) to
+     `research/robert/runs/YYYY-MM-DD-fitting-pipeline-validation/`.
+  Do NOT promote any fit result beyond `Sanity checked` in the evidence ledger
+  until chi2/ndf, covariance, correlations, residuals, fit-range sensitivity,
+  and baseline comparisons are all recorded.
 
-Your tasks this session:
-1. [O-05 — can be done now] Check HEPData ins1735345 table headers/qualifiers to determine if the
-   observable is dN/dpT dη or dN/dpT dy. Run:
-   curl -s "https://www.hepdata.net/record/ins1735345?format=json" | python3 -c "import sys,json; d=json.load(sys.stdin); [print(t['name'], t.get('qualifiers',{})) for t in d.get('data_tables',[])]"
-   If the qualifier key is "ETARAP" → pseudorapidity → Jacobian required. Create a Multica Issue.
+Step 3 — Simulation and Analysis:
+  Run a full end-to-end pipeline:
+    data_loader → fitting_pipeline → tsallis_physics_validation → boson_paper_analysis
+  Capture all stdout/stderr, timing metrics, and output plots.
+  Compare against the prior run in `research/robert/runs/2026-05-04-tsallis-validation/`
+  to detect regressions. Save to `research/robert/runs/YYYY-MM-DD-full-run/`.
 
-2. [O-06 — do now] Extract Tsallis 2c parameters from fit_parameters.csv for all bins where
-   tsallis 2c succeeded (7 bins). Check: (a) are T₁, T₂ physically stable across multiplicity?
-   (b) are q₁, q₂ in expected range 1.0–1.2? (c) what is |ρ(T,q)| from parameter_correlations.csv?
-   Compare with Cleymans-Worku 2012 (arXiv:1110.5526) which finds T ~ 0.09–0.10 GeV, q ~ 1.1.
-
-3. [O-04 + O-07] Summarize the T-β degeneracy and the BE vs Boltzmann finding for Robert clearly,
-   so Robert can make an informed decision. Do NOT make the decision yourself.
-
-4. Update evidence-ledger.md and next-actions.md with your findings.
-   Do NOT create a new markdown report — write only the minimum necessary evidence updates.
+Step 4 — Documentation and Reporting:
+  After a successful pipeline run:
+  1. Generate a Python-based run report: use `python-executor` to produce a
+     Markdown summary of inputs, outputs, chi2/ndf table, parameter table,
+     residual plots, and any flagged anomalies. Save to
+     `research/robert/runs/YYYY-MM-DD-full-run/report.md`.
+  2. Update `research/robert/evidence-ledger.md` — add evidence links and
+     update status for any claims that now have run support. Merge with existing
+     rows; do not duplicate.
+  3. Update `research/robert/next-actions.md` — mark [O-03] completed, add any
+     new follow-up tasks that the run reveals.
+  4. Do NOT create a new standalone report markdown by default. Prefer updating
+     `evidence-ledger.md` and `next-actions.md` with the smallest useful note,
+     per AGENTS.md follow-through rules.
 
 Hard constraints:
-- Treat all numerical results critically. Chi²/ndf alone is not sufficient; check covariance.
-- Be explicit about Bose-Einstein vs Boltzmann/Juttner wording.
-- Never write physics conclusions in docs/ops/ (keep them in research/robert/).
-- Do not add new Multica Issues for O-04 or O-07 until Robert has made the decision.
-- Only add a Multica Issue for O-05 if the check confirms the data is dN/dpT dη.
+- All script outputs are "Sanity checks" only until evidence-ledger support exists.
+- Do not infer causality from fit behavior alone.
+- Keep Bose-Einstein vs Boltzmann/Juttner wording explicit.
+- Do not interpret fit parameters physically until chi2/ndf, covariance,
+  correlations, residuals, fit-range sensitivity, and baseline comparisons exist.
+- Keep platform details (Onyx, DeerFlow, Docker) out of science files.
+- Put temporary helper scripts in `deployment/helper/`, not in `physics/src/`.
+- Do not create empty placeholder run files.
+- Preserve unrelated user changes in the working tree.
 
 Before closing:
-- Run cd physics && pytest and ensure tests pass (expect 1 antlr4 test failure = pre-existing).
-- Run git status -sb and commit only the changes you produced.
-- Summarize the physics outcomes clearly to the user.
-- Update this Prompt B with the new current state.
+- Run `cd physics && pytest` and confirm all tests pass.
+- Run `git status -sb` — commit only intentional changes.
+- Report what was run, what was changed, what was pushed, and any remaining
+  blockers or open questions for Robert.
 ```

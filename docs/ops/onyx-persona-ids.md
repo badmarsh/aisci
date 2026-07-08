@@ -1,62 +1,99 @@
-# Onyx Persona IDs
+# Onyx Persona and Document Set Registry
 
-> **Authoritative** persona/doc-set map.  
-> Last updated: 2026-06-04 by `restore_v4_docsets.py`.  
-> Re-run after any persona import, Onyx upgrade, or `POST /api/persona` change.
+_Last verified against live API: 2026-05-30_
 
----
-
-## Active Personas
-
-| ID | Name | Public | Doc Sets | Notes |
-|----|------|--------|----------|-------|
-| 2 | **physics-validator** | ✅ Yes | Robert Corpus · HEP Phenomenology References · Robert Boson Draft | Restored 2026-06-04 |
-| 5 | **evidence-auditor** | ❌ No | Robert Corpus · Scite Citations | |
-| 6 | **referee-prep** | ❌ No | Robert Corpus · Scite Citations | |
-| 3 | **arxiv-intake** | ❌ No | arXiv Auto — Quarantine | |
-| 1 | **Scientific Researcher** | ❌ No | Chemistry | Has Scite + Consensus MCP |
-| 0 | **Assistant** | ✅ Yes | none | |
-
-> ⚠️ **physics-validator** does NOT have Scite/Consensus MCP.  
-> Use **Scientific Researcher** (id=1) for external MCP literature queries.
+> This file is the **authoritative** persona/docset map. Keep it in sync with the live Onyx instance.
+> Update it after any persona import, Onyx upgrade, or `POST /api/persona` change.
+> The older persona IDs (7, 8) referenced in `onyx-rag-optimization-2026-04-27.md` are **aspirational
+> targets that were lost during the v4.0.0-beta.0 transition (2026-05-20)**. They must be recreated.
 
 ---
 
-## Active Document Sets
+## Active Personas (Live — 2026-05-30)
 
-| DS ID | Name | Public | CC Pair | Contents |
-|-------|------|--------|---------|----------|
-| 2 | **Robert Corpus** | ❌ Private | CC pair 6 + 1 | Baseline literature + Ingestion API |
-| 7 | **HEP Phenomenology References** | ❌ Private | CC pair 4 | Khuntia 2019 · Rath 2020 |
-| 8 | **Robert Boson Draft** | ❌ Private | CC pair 10 | Pre-publication manuscript PDF |
-| 3 | **arXiv Auto — Quarantine** | ❌ Private | CC pair 1 | arxiv-intake triage queue |
-| 4 | **Scite Citations** | ✅ Public | CC pair 1 | Live citation snippets label |
+| ID | Name | Public | Doc Sets | Tools | Model Config | Health |
+|----|------|--------|----------|-------|-------------|--------|
+| 0 | **Assistant** | ✅ Yes | none | generate_image, web_search, open_url, read_file, python | id=126 | ✅ OK |
+| 1 | Scientific Researcher | ❌ No | Chemistry | internal_search, open_url, search, search_literature, search_patents, search_clinical_trials, get_clinical_trial, search_grants, get_grant, get_510k_summary, search_device510k, … | none | ⚠️ No model cfg |
+| 2 | **physics-validator** | ✅ Yes | Robert Corpus | _(none)_ | none | ❌ BROKEN — no model, no tools |
+| 3 | **arxiv-intake** | ❌ No | arXiv Auto — Quarantine | _(none)_ | none | ⚠️ No model cfg |
 
----
+### ⚠️ Critical Gaps (personas from v4 transition that are missing)
 
-## physics-validator Guardrails (id=2)
+The following personas existed in the pre-v4 deployment and are referenced in
+`docs/ops/onyx-rag-optimization-2026-04-27.md`. They were **wiped during the v4.0.0-beta.0
+upgrade on 2026-05-20** and need to be recreated. See GitHub Issue **#F-persona-rebuild**.
 
-**Has:** Robert Corpus (DS 2) · HEP Phenomenology References (DS 7) · Robert Boson Draft (DS 8)  
-**Tools:** `internal_search`, `read_file`  
-**Model:** `qwen-omni-flash`  
-**Must NOT have:** Scite/Consensus MCP → route those to Scientific Researcher (id=1)
-
----
-
-## Connector / Credential Map
-
-| Connector ID | Name | CC Pair ID | Credential ID |
-|---|---|---|---|
-| 0 | Ingestion API | 1 | 0 (DefaultCCPair) |
-| 3 | Literature PDFs | 4 | 1 (PDF) |
-| 4 | AiSci-System-Docs | 6 | 0 |
-| 14 | Manuscript-File-Connector | 10 | 1 |
+| Target ID (old) | Name | Why Needed |
+|---|---|---|
+| 7 | Physics Validation Mode | HEP workflow with source-routing guardrails, Scite/Consensus/HEP tools, claim-tier enforcement |
+| 3 (new target) | Science Deep-Dive Mode | Literature scout, same HEP tools, role distinct from Physics Validation Mode |
+| 8 | AiSci Wiki Agent | Needs `read_file` (id=9) so it can verify `evidence-ledger.md` before writing wiki output |
 
 ---
 
-## Verification
+## Active Document Sets (Live — 2026-05-30)
 
-```bash
-python3 deployment/helper/inspect_connectors.py
-python3 deployment/helper/run_rag_tests.py --persona-id 2 --label post-v4-restore
-```
+| DS ID | Name | Public | Connectors | Notes |
+|-------|------|--------|------------|-------|
+| 1 | Chemistry | ❌ Private | — | Used by Scientific Researcher only |
+| 2 | **Robert Corpus** | ⚠️ **PUBLIC** | — | **Should be Private** — contains pre-publication HEP research |
+| 3 | arXiv Auto — Quarantine | ❌ Private | — | Used by arxiv-intake persona |
+| 4 | Scite Citations | ✅ Public | — | Acceptable if Scite content is not sensitive |
+
+### ⚠️ Missing Document Sets
+
+| Name | Was DS ID | Status | Action |
+|------|-----------|--------|--------|
+| HEP Phenomenology References | 6 (old) | **Deleted** during v4 transition | Recreate and add Tsallis/Blast-Wave baselines |
+| Robert Boson Draft | — (old) | **Deleted** | Recreate if manuscript PDF is current |
+
+---
+
+## Assistant Persona Guardrails (id=0)
+
+**Keep:** `generate_image`, `web_search`, `open_url`, `read_file`, `python`
+
+**Must NOT have:**
+- `internal_search` unless anchored to an explicit document set
+- HEP MCP tools (`hep_arxiv`, `hep_inspire`, `hepdata`) without grounding doc sets
+
+---
+
+## Physics Validator Persona Guardrails (id=2 — needs rebuilding)
+
+**Should have:**
+- **Doc sets:** Robert Corpus, HEP Phenomenology References, Robert Boson Draft
+- **Tools:** `internal_search`, `read_file`, `code_interpreter`, Scite MCP, Consensus MCP, `hep_arxiv` (id=28), `hep_inspire` (id=29), `hepdata` (id=30)
+- **Model config:** Must assign a working LLM (currently NULL → all chats 404)
+- **Prompt guardrails:** Source-routing block (canon files via `read_file`, RAG only for literature grounding), Bose-Einstein/Boltzmann-Jüttner wording, chi²/ndf gate, baseline gate
+
+---
+
+## Tool ID Reference (last confirmed 2026-05-30)
+
+| Tool ID | Name | In-Code ID |
+|---------|------|-----------|
+| 2 | generate_image | ImageGenerationTool |
+| 3 | web_search | WebSearchTool |
+| 6 | python / Code Interpreter | PythonTool |
+| 7 | open_url | OpenURLTool |
+| 9 | read_file | FileReaderTool |
+| 28 | hep_arxiv | (MCP custom) |
+| 29 | hep_inspire | (MCP custom) |
+| 30 | hepdata | (MCP custom) |
+
+---
+
+## RAG Evaluation Status (2026-05-30)
+
+| Question | Target Persona | Status | Notes |
+|----------|---------------|--------|-------|
+| Q1 — Blast-Wave parameters | physics-validator (id=2) | ❌ FAIL — HTTP 404 | Persona has no model config |
+| Q2 — Tsallis-Pareto vs BJ | physics-validator (id=2) | ❌ FAIL — HTTP 404 | Same — no model |
+| Q3 — OpenSearch parity command | physics-validator (id=2) | ❌ FAIL — HTTP 404 | Same — no model |
+| Q4 — Visual table extraction | physics-validator (id=2) | ⏭️ Skipped | Vision model also misconfigured |
+| Q5 — RAG-vs-Canon boundary | physics-validator (id=2) | ❌ FAIL — HTTP 404 | Same — no model |
+
+**All RAG eval questions fail because `physics-validator` has no model configuration.**
+Assign a model and re-run the eval set once the persona is rebuilt.

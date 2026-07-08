@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 """
 Prototype physics validation helpers for ATLAS-like pT spectra.
 

@@ -1,0 +1,1025 @@
+# Configuration for the DeerFlow application
+#
+# Guidelines:
+# - Copy this file to `config.yaml` and customize it for your environment
+# - The default path of this configuration file is `config.yaml` in the project root.
+#   You can set `DEER_FLOW_PROJECT_ROOT` to define that root explicitly, or use
+#   `DEER_FLOW_CONFIG_PATH` to point at a specific config file.
+# - Runtime state defaults to `.deer-flow` under the project root. Override it
+#   with `DEER_FLOW_HOME` when you need a different writable data directory.
+# - Environment variables are available for all field values. Example: `api_key: $OPENAI_API_KEY`
+# - The `use` path is a string that looks like "package_name.sub_package_name.module_name:class_name/variable_name".
+
+# ============================================================================
+# Config Version (used to detect outdated config files)
+# ============================================================================
+# Bump this number when the config schema changes.
+# Run `make config-upgrade` to merge new fields into your local config.yaml.
+config_version: 9
+
+# ============================================================================
+# Logging
+# ============================================================================
+log_level: info
+
+# ============================================================================
+# Token Usage
+# ============================================================================
+token_usage:
+  enabled: true
+
+# ============================================================================
+# Agents
+# ============================================================================
+agents:
+  - name: physics-validation-director
+    type: lead
+    capacity: 100
+  - name: literature-scout
+    type: specialist
+    capacity: 80
+  - name: formula-checker
+    type: specialist
+    capacity: 80
+  - name: fit-analyst
+    type: specialist
+    capacity: 80
+  - name: referee-writer
+    type: specialist
+    capacity: 80
+  - name: figure-table-builder
+    type: specialist
+    capacity: 60
+  - name: evidence-ledger
+    type: operations
+    capacity: 80
+  - name: coder
+    type: operations
+    capacity: 100
+  - name: data-analyst
+    type: operations
+    capacity: 100
+  - name: knowledge-manager
+    type: operations
+    capacity: 100
+  - name: research-coordinator
+    type: assistant
+    capacity: 100
+  - name: fact-checker
+    type: specialist
+    capacity: 80
+  - name: report-exporter
+    type: operations
+    capacity: 60
+  - name: academic-scout
+    type: specialist
+    capacity: 80
+  - name: vision-analyst
+    type: specialist
+    capacity: 60
+
+# ============================================================================
+# Agents API
+# ============================================================================
+agents_api:
+  enabled: true
+
+# ============================================================================
+# LangGraph
+# ============================================================================
+langgraph:
+  recursion_limit: 150
+  thinking_enabled: true
+  subagent_enabled: true
+  planner:
+    strategy: tree_of_thoughts
+    tot_branches: 3
+    tot_depth: 4
+    tot_evaluation_model: null
+  context_management:
+    max_turns: 50
+    summary_threshold: 5
+  memory:
+    type: persistent
+    storage: ./memory
+    max_entries: 10000
+
+# ============================================================================
+# Deep Thinking
+# ============================================================================
+# When enabled, the coordinator runs an extended chain-of-thought reasoning
+# block before producing the research plan. Controlled per-session via the
+# UI lightbulb toggle or the API field `deep_think: true`.
+deep_think:
+  enabled: true
+  model_name: null
+  budget_tokens: 8192
+
+# ============================================================================
+# Swarm / Parallel Sub-task Execution
+# ============================================================================
+# Decomposes complex research queries into parallel async subtasks executed
+# by independent researcher instances, then merges results.
+swarm:
+  enabled: true
+  max_parallel_tasks: 4
+  timeout_seconds: 600
+  merge_strategy: ranked
+
+# ============================================================================
+# Models Configuration
+# ============================================================================
+models:
+  # --- OpenRouter ---
+  - name: gemini-2-5-flash
+    display_name: Gemini 2.5 Flash (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: google/gemini-2.5-flash
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_vision: true
+
+  - name: claude-4-7-opus
+    display_name: Claude 4.7 Opus (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: anthropic/claude-4.7-opus
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_thinking: true
+    supports_vision: true
+
+  - name: gemini-2-5-pro
+    display_name: Gemini 2.5 Pro (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: google/gemini-2.5-pro
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_thinking: true
+    supports_vision: true
+
+  - name: gemma-4-31b-it
+    display_name: Gemma 4 31B IT (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: google/gemma-4-31b-it
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_vision: true
+
+  - name: gpt-4o
+    display_name: GPT-4o (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: openai/gpt-4o
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_vision: true
+
+  - name: deepseek-v3-2
+    display_name: DeepSeek V3.2 (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: deepseek/deepseek-v3.2
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    supports_thinking: true
+    when_thinking_enabled:
+      extra_body:
+        enable_thinking: true
+
+  - name: llama-3-3-70b-instruct
+    display_name: Llama 3.3 70B Instruct (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: meta-llama/llama-3.3-70b-instruct
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+
+  - name: glm-5-1
+    display_name: GLM 5.1 (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: z-ai/glm-5.1
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+
+  - name: minimax-m2-7
+    display_name: MiniMax M2.7 (OpenRouter)
+    use: langchain_openai:ChatOpenAI
+    model: minimax/minimax-m2.7
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+    temperature: 1.0
+
+  - name: uncensored-llm
+    display_name: Hermes 3 70B (Uncensored)
+    use: langchain_openai:ChatOpenAI
+    model: nousresearch/hermes-3-llama-3.1-70b
+    api_key: $OPENROUTER_API_KEY
+    base_url: $OPENROUTER_API_BASE
+    max_tokens: 8192
+
+  # --- NVIDIA NIM ---
+  - name: nvidia-nemotron-3-super
+    display_name: Nemotron 3 Super 120B (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: nvidia/nemotron-3-super-120b-a12b
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-ising-calibration
+    display_name: Ising Calibration 35B (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: nvidia/ising-calibration-1-35b-a3b
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-llama-3-1-405b
+    display_name: Llama 3.1 405B Instruct (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: meta/llama-3.1-405b-instruct
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-llama-3-3-70b
+    display_name: Llama 3.3 70B Instruct (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: meta/llama-3.3-70b-instruct
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-kimi-k2-5
+    display_name: Kimi K2.5 (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: moonshotai/kimi-k2.5
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+    supports_thinking: true
+    supports_vision: true
+
+  - name: nvidia-glm-5-1
+    display_name: GLM 5.1 (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: z-ai/glm-5.1
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-glm5
+    display_name: GLM 5 (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: z-ai/glm5
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+    supports_thinking: true
+
+  - name: nvidia-glm4-7
+    display_name: GLM 4.7 (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: z-ai/glm4.7
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-qwen3-5-122b
+    display_name: Qwen 3.5 122B (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: qwen/qwen3.5-122b-a10b
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-qwen3-next-80b
+    display_name: Qwen 3 Next 80B Instruct (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: qwen/qwen3-next-80b-a3b-instruct
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+
+  - name: nvidia-qwen3-next-thinking
+    display_name: Qwen 3 Next 80B Thinking (NVIDIA)
+    use: langchain_openai:ChatOpenAI
+    model: qwen/qwen3-next-80b-a3b-thinking
+    api_key: $NVIDIA_API_KEY
+    base_url: $NVIDIA_API_BASE
+    max_tokens: 4096
+    supports_thinking: true
+
+  # --- DashScope ---
+  - name: qwen3-235b-a22b-thinking-2507
+    display_name: Qwen 3 235B A22B Thinking 2507 (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3-235b-a22b-thinking-2507
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+    supports_thinking: true
+
+  - name: qwen3-5-plus-2026-04-20
+    display_name: Qwen 3.5 Plus 2026-04-20 (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3.5-plus-2026-04-20
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+
+  - name: qwen3-vl-235b-a22b-thinking
+    display_name: Qwen 3 VL 235B A22B Thinking (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3-vl-235b-a22b-thinking
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+    supports_vision: true
+    supports_thinking: true
+
+  - name: qwen3-5-plus-2026-02-15
+    display_name: Qwen 3.5 Plus 2026-02-15 (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3.5-plus-2026-02-15
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+
+  - name: deepseek-v3-2-dashscope
+    display_name: DeepSeek V3.2 (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: deepseek-v3.2
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 8192
+    supports_thinking: true
+    when_thinking_enabled:
+      extra_body:
+        enable_thinking: true
+
+  - name: wan2-7-i2v
+    display_name: Wan 2.7 Image-to-Video (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: wan2.7-i2v
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 4096
+
+  - name: wan2-7-t2v
+    display_name: Wan 2.7 Text-to-Video (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: wan2.7-t2v
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 4096
+
+  - name: wan2-7-image
+    display_name: Wan 2.7 Image (DashScope)
+    use: langchain_openai:ChatOpenAI
+    model: wan2.7-image
+    api_key: $DASHSCOPE_API_KEY
+    base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+    max_tokens: 4096
+
+  # --- Qwen (DashScope direct) ---
+  - name: qwen3-coder-plus-2025-07-22
+    display_name: Qwen 3 Coder Plus
+    use: langchain_openai:ChatOpenAI
+    model: qwen3-coder-plus-2025-07-22
+    api_key: $QWEN_API_KEY
+    base_url: $QWEN_API_BASE
+    max_tokens: 32768
+
+  # --- Ollama (local) ---
+  - name: qwen3-vl-local
+    display_name: Qwen 3 VL (Ollama)
+    use: langchain_ollama:ChatOllama
+    model: qwen3-vl
+    base_url: http://host.docker.internal:11434
+    num_predict: 8192
+    temperature: 0.7
+    supports_vision: true
+
+  # --- AiSci Onyx LiteLLM aliases ---
+  # These aliases mirror deployment/onyx/litellm_config.yaml and route DeerFlow
+  # through the local LiteLLM proxy instead of scattering provider endpoints.
+  - name: qwen3.5-flash
+    display_name: Qwen 3.5 Flash (Onyx)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3.5-flash
+    api_key: $ONYX_API_KEY
+    base_url: $ONYX_LITELLM_API_BASE
+    max_tokens: 32768
+
+  - name: qwen2.5vl
+    display_name: Qwen 2.5 VL 7B (Onyx/Ollama)
+    use: langchain_openai:ChatOpenAI
+    model: qwen2.5vl
+    api_key: $ONYX_API_KEY
+    base_url: $ONYX_LITELLM_API_BASE
+    max_tokens: 8192
+    supports_vision: true
+
+  - name: qwen-vl-max
+    display_name: Qwen VL Max (Onyx)
+    use: langchain_openai:ChatOpenAI
+    model: qwen-vl-max
+    api_key: $ONYX_API_KEY
+    base_url: $ONYX_LITELLM_API_BASE
+    max_tokens: 32768
+    supports_vision: true
+
+  - name: qwen3-vl-235b
+    display_name: Qwen 3 VL 235B (Onyx)
+    use: langchain_openai:ChatOpenAI
+    model: qwen3-vl-235b
+    api_key: $ONYX_API_KEY
+    base_url: $ONYX_LITELLM_API_BASE
+    max_tokens: 32768
+    supports_vision: true
+
+  - name: deepseek-r1-14b-local
+    display_name: DeepSeek R1 14B (Ollama)
+    use: langchain_ollama:ChatOllama
+    model: deepseek-r1:14b
+    base_url: http://host.docker.internal:11434
+    num_predict: 8192
+    temperature: 0.7
+    reasoning: true
+    supports_thinking: true
+
+  - name: gemma3-27b-local
+    display_name: Gemma 3 27B (Ollama)
+    use: langchain_ollama:ChatOllama
+    model: gemma3:27b
+    base_url: http://host.docker.internal:11434
+    num_predict: 8192
+    temperature: 0.7
+
+# ============================================================================
+# Tool Groups Configuration
+# ============================================================================
+tool_groups:
+  - name: web
+  - name: web:academic
+  - name: file:read
+  - name: file:write
+  - name: bash
+  - name: knowledge
+  - name: memory
+  - name: export
+
+# ============================================================================
+# Tools Configuration
+# ============================================================================
+tools:
+  - name: web_search
+    group: web
+    use: deerflow.community.ddg_search.tools:web_search_tool
+    max_results: 5
+
+  - name: tavily_search
+    group: web
+    use: deerflow.community.tavily.tools:tavily_search_tool
+    api_key: $TAVILY_API_KEY
+    max_results: 5
+    search_depth: advanced
+
+  - name: brave_search
+    group: web
+    use: deerflow.community.brave_search.tools:brave_search_tool
+    api_key: $BRAVE_API_KEY
+    max_results: 5
+
+  - name: exa_search
+    group: web
+    use: deerflow.community.exa.tools:exa_search_tool
+    api_key: $EXA_API_KEY
+    max_results: 5
+    use_autoprompt: true
+    type: neural
+
+  - name: serper_search
+    group: web
+    use: deerflow.community.serper.tools:serper_search_tool
+    api_key: $SERPER_API_KEY
+    max_results: 5
+
+  - name: parallel_web_search
+    group: web
+    use: deerflow.community.multi_search.tools:parallel_search_tool
+    engines:
+      - tavily
+      - brave_search
+      - ddg
+    max_results_per_engine: 3
+    dedup_threshold: 0.85
+
+  - name: web_fetch
+    group: web
+    use: deerflow.community.jina_ai.tools:web_fetch_tool
+    timeout: 10
+
+  - name: firecrawl_fetch
+    group: web
+    use: deerflow.community.firecrawl.tools:firecrawl_fetch_tool
+    api_key: $FIRECRAWL_API_KEY
+    formats:
+      - markdown
+      - links
+    timeout: 20
+
+  - name: image_search
+    group: web
+    use: deerflow.community.image_search.tools:image_search_tool
+    max_results: 5
+
+  # --- Academic search ---
+  - name: arxiv_search
+    group: web:academic
+    use: deerflow.community.arxiv.tools:arxiv_search_tool
+    max_results: 10
+    sort_by: relevance
+
+  - name: semantic_scholar_search
+    group: web:academic
+    use: deerflow.community.semantic_scholar.tools:semantic_scholar_search_tool
+    max_results: 10
+    fields:
+      - title
+      - abstract
+      - authors
+      - year
+      - citationCount
+      - externalIds
+
+  - name: ls
+    group: file:read
+    use: deerflow.sandbox.tools:ls_tool
+
+  - name: read_file
+    group: file:read
+    use: deerflow.sandbox.tools:read_file_tool
+
+  - name: glob
+    group: file:read
+    use: deerflow.sandbox.tools:glob_tool
+    max_results: 200
+
+  - name: grep
+    group: file:read
+    use: deerflow.sandbox.tools:grep_tool
+    max_results: 100
+
+  - name: pdf_reader
+    group: file:read
+    use: deerflow.community.pdf.tools:pdf_reader_tool
+    extract_images: false
+    max_pages: 100
+
+  - name: spreadsheet_reader
+    group: file:read
+    use: deerflow.community.spreadsheet.tools:spreadsheet_reader_tool
+    max_rows: 5000
+
+  - name: write_file
+    group: file:write
+    use: deerflow.sandbox.tools:write_file_tool
+
+  - name: str_replace
+    group: file:write
+    use: deerflow.sandbox.tools:str_replace_tool
+
+  - name: bash
+    group: bash
+    use: deerflow.sandbox.tools:bash_tool
+
+  - name: onyx_search
+    group: knowledge
+    use: deerflow.community.onyx.tools:onyx_search_tool
+    num_hits: 5
+
+  - name: vector_search
+    group: knowledge
+    use: deerflow.community.qdrant.tools:qdrant_search_tool
+    url: ${QDRANT_URL:-http://localhost:6333}
+    api_key: $QDRANT_API_KEY
+    collection: deerflow-research
+    top_k: 8
+    score_threshold: 0.6
+
+  - name: vector_upsert
+    group: knowledge
+    use: deerflow.community.qdrant.tools:qdrant_upsert_tool
+    url: ${QDRANT_URL:-http://localhost:6333}
+    api_key: $QDRANT_API_KEY
+    collection: deerflow-research
+    auto_embed: true
+    embedding_model: sentence-transformers/all-MiniLM-L6-v2
+
+  # --- Memory ---
+  - name: session_memory_read
+    group: memory
+    use: deerflow.community.mem0.tools:mem0_read_tool
+    api_key: $MEM0_API_KEY
+    top_k: 5
+
+  - name: session_memory_write
+    group: memory
+    use: deerflow.community.mem0.tools:mem0_write_tool
+    api_key: $MEM0_API_KEY
+
+  # --- Export ---
+  - name: export_pdf
+    group: export
+    use: deerflow.community.export.tools:export_pdf_tool
+    engine: playwright
+    output_dir: .deer-flow/exports
+
+  - name: export_docx
+    group: export
+    use: deerflow.community.export.tools:export_docx_tool
+    output_dir: .deer-flow/exports
+
+  - name: export_notion
+    group: export
+    use: deerflow.community.export.tools:export_notion_tool
+    api_key: $NOTION_API_KEY
+    parent_page_id: null
+
+  - name: citation_manager
+    group: export
+    use: deerflow.community.citations.tools:citation_manager_tool
+    default_style: apa
+
+  - name: mermaid_diagram
+    group: export
+    use: deerflow.community.mermaid.tools:mermaid_diagram_tool
+    theme: default
+
+# ============================================================================
+# Tool Search Configuration
+# ============================================================================
+tool_search:
+  enabled: true
+
+# ============================================================================
+# Fact-Checking
+# ============================================================================
+# Post-processing agent that cross-checks key claims in the final report
+# against a second search pass before output is delivered to the user.
+fact_checking:
+  enabled: true
+  model_name: null
+  max_claims_to_check: 10
+  search_engine: tavily
+
+# ============================================================================
+# Uploads
+# ============================================================================
+uploads:
+  max_files: 20
+  max_file_size: 104857600
+  max_total_size: 524288000
+  auto_convert_documents: true
+  pdf_converter: auto
+  supported_extensions:
+    - .pdf
+    - .docx
+    - .txt
+    - .md
+    - .csv
+    - .xlsx
+    - .xls
+    - .json
+    - .png
+    - .jpg
+    - .jpeg
+    - .webp
+
+# ============================================================================
+# Loop Detection Configuration
+# ============================================================================
+# Detect and interrupt repeated identical tool-call loops.
+# Frequency thresholds are safety limits for repeated use of the same tool type.
+
+loop_detection:
+  enabled: true
+  warn_threshold: 3
+  hard_limit: 5
+  window_size: 20
+  max_tracked_threads: 100
+  tool_freq_warn: 30
+  tool_freq_hard_limit: 50
+  # Per-tool overrides for tool_freq_warn / tool_freq_hard_limit. Values can be
+  # higher or lower than the global defaults. Commonly used to raise thresholds
+  # for high-frequency tools like bash in batch workflows (e.g. RNA-seq pipelines)
+  # without weakening protection on every other tool.
+  # tool_freq_overrides:
+  #   bash:
+  #     warn: 150
+  #     hard_limit: 300
+
+# ============================================================================
+# Sandbox Configuration
+# ============================================================================
+sandbox:
+  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+  port: 39120
+  replicas: 2
+  container_prefix: deer-flow-aio-sandbox
+  idle_timeout: 1800
+  # E2B cloud sandbox fallback (used when local AIO sandbox is unavailable)
+  e2b_fallback:
+    enabled: false
+    api_key: $E2B_API_KEY
+    template: python3
+  allow_host_bash: false
+  bash_output_max_chars: 20000
+  read_file_output_max_chars: 50000
+  ls_output_max_chars: 20000
+  mounts:
+    - host_path: /home/ubuntu/aisci
+      container_path: /mnt/host/aisci
+      read_only: false
+  environment:
+    PYTHONUNBUFFERED: "1"
+
+# ============================================================================
+# Subagents Configuration
+# ============================================================================
+subagents:
+  timeout_seconds: 900
+  max_turns: 120
+  agents:
+    general-purpose:
+      timeout_seconds: 1800
+      max_turns: 160
+    bash:
+      timeout_seconds: 300
+      max_turns: 80
+    academic-scout:
+      timeout_seconds: 600
+      max_turns: 60
+    fact-checker:
+      timeout_seconds: 300
+      max_turns: 40
+
+# ============================================================================
+# Skills Configuration
+# ============================================================================
+skills:
+  container_path: /mnt/skills
+
+# ============================================================================
+# Skill Self-Evolution
+# ============================================================================
+skill_evolution:
+  enabled: true
+  moderation_model_name: null
+
+# ============================================================================
+# Title Generation
+# ============================================================================
+title:
+  enabled: true
+  max_words: 6
+  max_chars: 60
+  model_name: null
+
+# ============================================================================
+# Summarization
+# ============================================================================
+# NOTE: trim_tokens_to_summarize, summary_prompt, and preserve_* keys must be
+# siblings of keep:, NOT nested inside it. Indenting them under keep: causes
+# them to be silently ignored by the config parser.
+summarization:
+  enabled: true
+  model_name: null
+  trigger:
+    - type: tokens
+      value: 15564
+    - type: messages
+      value: 50
+  keep:
+    type: messages
+    value: 10
+  trim_tokens_to_summarize: 15564
+  summary_prompt: null
+  preserve_recent_skill_count: 5
+  preserve_recent_skill_tokens: 25000
+  preserve_recent_skill_tokens_per_skill: 5000
+  skill_file_read_tool_names:
+    - read_file
+    - read
+    - view
+    - cat
+
+# ============================================================================
+# Memory
+# ============================================================================
+memory:
+  enabled: true
+  storage_path: memory.json
+  debounce_seconds: 30
+  model_name: null
+  max_facts: 200
+  fact_confidence_threshold: 0.7
+  injection_enabled: true
+  max_injection_tokens: 2000
+
+# ============================================================================
+# Vector Memory (Qdrant-backed cross-session research recall)
+# ============================================================================
+vector_memory:
+  enabled: false
+  backend: qdrant
+  url: ${QDRANT_URL:-http://localhost:6333}
+  api_key: $QDRANT_API_KEY
+  collection: deerflow-research
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  auto_index_reports: true
+  auto_index_tool_results: false
+  top_k: 8
+  score_threshold: 0.6
+
+# ============================================================================
+# Async Task Queue
+# ============================================================================
+# Background worker queue so long research tasks survive browser disconnects.
+# When enabled, research jobs are enqueued in Redis and processed by ARQ workers.
+task_queue:
+  enabled: false
+  backend: arq
+  redis_url: ${REDIS_URL:-redis://localhost:6379/0}
+  max_jobs: 20
+  job_timeout: 3600
+  result_ttl: 86400
+  retry_on_failure: true
+  max_retries: 3
+
+# ============================================================================
+# SSE Resilience
+# ============================================================================
+# Reconnect buffer backed by Redis so clients can resume streaming after
+# network drops without losing intermediate research events.
+sse:
+  reconnect_buffer:
+    enabled: false
+    backend: redis
+    redis_url: ${REDIS_URL:-redis://localhost:6379/0}
+    buffer_ttl: 300
+
+# ============================================================================
+# TTS / Podcast
+# ============================================================================
+podcast:
+  enabled: true
+  provider: auto
+  providers:
+    elevenlabs:
+      api_key: $ELEVENLABS_API_KEY
+      voice_host: pNInz6obpgDQGcFmaJgB
+      voice_guest: EXAVITQu4vr4xnSDxMaL
+    openai_tts:
+      api_key: $OPENAI_TTS_API_KEY
+      voice_host: alloy
+      voice_guest: nova
+    volcengine:
+      api_key: $VOLCENGINE_API_KEY
+    coqui:
+      enabled: false
+      model: tts_models/multilingual/multi-dataset/xtts_v2
+  format: multi-voice
+
+# ============================================================================
+# Report Export
+# ============================================================================
+report_export:
+  formats:
+    - markdown
+    - pdf
+    - docx
+    - json
+  versioning:
+    enabled: true
+    max_versions: 10
+    storage: .deer-flow/report-versions
+  citation_style: apa
+  auto_generate_diagrams: true
+  include_confidence_scores: true
+
+# ============================================================================
+# Observability / Metrics
+# ============================================================================
+metrics:
+  prometheus:
+    enabled: false
+    port: 9090
+    path: /metrics
+  track:
+    - research_duration_seconds
+    - tool_call_count
+    - llm_token_usage
+    - error_rate
+    - search_results_quality
+
+# ============================================================================
+# Security
+# ============================================================================
+security:
+  secret_scanning:
+    enabled: true
+    block_on_detection: true
+  input_guardrails:
+    enabled: false
+    provider: nemo
+  output_guardrails:
+    enabled: false
+
+# ============================================================================
+# Rate Limit Handling
+# ============================================================================
+rate_limiting:
+  retry_strategy: exponential_backoff
+  max_retries: 5
+  base_delay_seconds: 1.0
+  max_delay_seconds: 60.0
+  jitter: true
+
+# ============================================================================
+# Database
+
+# ============================================================================
+# Unified storage backend for LangGraph checkpointer and DeerFlow application
+# data (runs, threads metadata, feedback, etc.).
+#
+# backend: memory  -- No persistence, data lost on restart
+# backend: sqlite  -- Single-node deployment, files in sqlite_dir
+# backend: postgres -- Production multi-node deployment
+#
+# If this section is omitted or empty in config.yaml, DeerFlow uses:
+#   backend: sqlite
+#   sqlite_dir: .deer-flow/data
+#
+# SQLite mode uses a single deerflow.db file with WAL journal mode
+# for both checkpointer and application data.
+#
+# Postgres mode: put your connection URL in .env as DATABASE_URL,
+# then reference it here with $DATABASE_URL.
+#
+# Install the driver — Issue #2754 fix lands `UV_EXTRAS` in every code path:
+#   Local      `make dev` auto-detects from `database.backend: postgres` below
+#              and passes `--extra postgres` to `uv sync` on every restart, so
+#              the extra is no longer wiped. To opt in explicitly (or layer
+#              extras like `postgres,ollama`), set in project-root .env:
+#                  UV_EXTRAS=postgres
+#   Docker dev `make docker-start` reads `UV_EXTRAS` from project-root .env via
+#              `env_file`. Set:
+#                  UV_EXTRAS=postgres
+#              Multiple extras (`postgres,ollama`) supported here too — see
+#              docker/dev-entrypoint.sh.
+#   Docker img build-arg `UV_EXTRAS=postgres docker compose build` — single
+#              extra only at build time (backend/Dockerfile passes the value
+#              as one token to `--extra`).
+#
+# First-time bootstrap (before `make dev`):
+#   cd backend && uv sync --all-packages --extra postgres
+#   (--all-packages propagates the extra into workspace members — see PR #2584)
+#
+# NOTE: When both `checkpointer` and `database` are configured,
+# `checkpointer` takes precedence for LangGraph state persistence.
+# If you use `database`, you can remove the `checkpointer` section.
+# DO NOT add a legacy `checkpointer:` block alongside `database:`. When both are
+# present, LangGraph state goes into a separate checkpoints.db while run/thread
+# app data goes into sqlite_dir — two files that drift out of sync.
+# database:
+#   backend: sqlite
+#   sqlite_dir: .deer-flow/data
+#
+# database:
+#   backend: postgres
+#   postgres_url: $DATABASE_URL
+database:
+  backend: sqlite
+  sqlite_dir: .deer-flow/data
+
+# ============================================================================
+# Run Events
+# ============================================================================
+# IMPORTANT: Use backend: db (not memory).
+# With backend: memory, GET /runs/{run_id} returns HTTP 404 because run state
+# is never written to persistent storage. The db backend writes run events into
+# the same SQLite file as the database section above.
+run_events:
+  backend: db
+  max_trace_content: 10240
+  track_token_usage: true

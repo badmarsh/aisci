@@ -13,10 +13,10 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import warnings
 import re
 import subprocess
 from dataclasses import dataclass
+from itertools import product
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
@@ -184,24 +184,12 @@ def manuscript_component_scalar(
     eta_max: float,
     mass_gev: float,
 ) -> float:
-    """Juttner/Boltzmann integrand integrated over pseudorapidity acceptance.
-
-    Implements dN/(2pi pT dpT dy) ~ norm*pT * integral(deta cosh(eta)*mT*exp(-p^u U_u/T))
-    where the covariant contraction is p^u U_u = gamma*mT*cosh(eta) - U*pT*sinh(eta).
-
-    Variable naming note:
-    - U     = gamma*beta (longitudinal four-velocity magnitude, Juttner parametrisation)
-    - gamma = sqrt(1 + U^2) = cosh(Y), where Y = arcsinh(U) is the longitudinal
-      rapidity of the source element.  This is NOT the conventional Lorentz factor
-      1/sqrt(1-beta^2) w.r.t. a transverse velocity.
-    - Chemical potential mu = 0 is assumed throughout (valid for LHC pions).
-    """
     mt = math.sqrt(mass_gev * mass_gev + pt * pt)
-    gamma = math.sqrt(1.0 + U * U)  # = cosh(Y); see docstring
+    gamma = math.sqrt(1.0 + U * U)
 
     def integrand(eta: float) -> float:
         exponent = (gamma * mt * math.cosh(eta) - U * pt * math.sinh(eta)) / temperature
-        return math.cosh(eta) * mt * safe_exp(-exponent)
+        return math.cosh(eta) * safe_exp(-exponent)
 
     return norm * pt * eta_integral(integrand, -eta_max, eta_max)
 
@@ -214,44 +202,17 @@ def bose_component_scalar(
     eta_max: float,
     mass_gev: float,
 ) -> float:
-    """Quantum Bose-Einstein integrand over pseudorapidity acceptance.
-
-    Implements dN/(2pi pT dpT dy) ~ norm*pT * integral(deta cosh(eta)*mT / (exp(p^u U_u/T) - 1)).
-
-    Denominator guard: when safe_exp(exponent) <= 1 (i.e. p^u U_u <= 0,
-    an unphysical parameter regime), the integrand returns 0.0 rather than
-    a negative or divergent value.  This silently truncates the distribution
-    in that kinematic cell.  Parameter bounds (T > 0, U >= 0) are necessary
-    but not sufficient to prevent this; the best-fit exponent should be
-    verified to be > 0 across the full pT range in post-fit diagnostics.
-    Ref: Landau & Lifshitz Statistical Physics section 54.
-
-    Variable naming: gamma = sqrt(1 + U^2) = cosh(Y); see manuscript_component_scalar.
-    Chemical potential mu = 0 assumed.
-    """
     mt = math.sqrt(mass_gev * mass_gev + pt * pt)
-    gamma = math.sqrt(1.0 + U * U)  # = cosh(Y); see docstring
-
-    _underflow_count: list[int] = [0]  # mutable cell for closure counter
+    gamma = math.sqrt(1.0 + U * U)
 
     def integrand(eta: float) -> float:
         exponent = (gamma * mt * math.cosh(eta) - U * pt * math.sinh(eta)) / temperature
         denominator = safe_exp(exponent) - 1.0
         if denominator <= 0.0:
-            # Unphysical regime: p^u U_u <= 0. Count silently; warn once per call.
-            _underflow_count[0] += 1
             return 0.0
-        return math.cosh(eta) * mt / denominator
+        return math.cosh(eta) / denominator
 
-    result = norm * pt * eta_integral(integrand, -eta_max, eta_max)
-    if _underflow_count[0] > 0:
-        warnings.warn(
-            f"bose_component_scalar: {_underflow_count[0]} integration points had"
-            f" denominator <= 0 (pT={pt:.3f} GeV, T={temperature:.3f}, U={U:.3f})."
-            " Check parameter bounds — best-fit exponent must be > 0 across full pT range.",
-            stacklevel=3,
-        )
-    return result
+    return norm * pt * eta_integral(integrand, -eta_max, eta_max)
 
 
 def tsallis_component_scalar(
@@ -262,26 +223,6 @@ def tsallis_component_scalar(
     eta_max: float,
     mass_gev: float,
 ) -> float:
-    """Tsallis distribution integrated over rapidity acceptance (via eta integration with Jacobian).
-
-    Implements dN/(2pi pT dpT dy) ~ norm*pT * integral over eta of:
-      (dy/deta) * cosh(eta) * mT * [1+(q-1)*mT*cosh(eta)/T]^{-q/(q-1)}
-
-    where dy/deta = p/E = sqrt(pT^2*cosh^2(eta) + m^2*sinh^2(eta)) / (mT*cosh(eta))
-    is the rapidity-pseudorapidity Jacobian (Kolb & Heinz nucl-th/0305084, Appendix A).
-    This Jacobian is required because Cleymans & Worku arXiv:1110.5526 eq.(1) is defined
-    in rapidity y: dN/dpT dy = norm*pT * mT*cosh(y) * [1+(q-1)*mT*cosh(y)/T]^{-q/(q-1)}
-    and integrating over eta instead of y without the Jacobian overestimates the
-    phase-space integral by 15-20% at pT~0.13 GeV (pion mass threshold).
-
-    NOTE: The eta_max passed here should already be the rapidity acceptance y_max,
-    converted from the detector eta_max in run_fits (AIS-62). The Jacobian is kept
-    here as a second-layer correction for any direct callers that pass raw eta_max.
-
-    Assumptions:
-    - Chemical potential mu = 0 (valid for LHC light hadrons at mid-rapidity).
-    - norm absorbs gV/(2pi)^2; see arXiv:1501.07127 Table 1 for expected order.
-    """
     mt = math.sqrt(mass_gev * mass_gev + pt * pt)
 
     def integrand(eta: float) -> float:
@@ -289,38 +230,9 @@ def tsallis_component_scalar(
         argument = 1.0 + (q - 1.0) * energy_like / temperature
         if argument <= 0.0:
             return 0.0
-        # dy/deta Jacobian: p_total / (mT * cosh(eta))
-        # p_total = sqrt(pT^2*cosh^2(eta) + m^2*sinh^2(eta))
-        p_total = math.sqrt(pt * pt * math.cosh(eta) ** 2 + mass_gev ** 2 * math.sinh(eta) ** 2)
-        jacobian = p_total / (mt * math.cosh(eta))  # = dy/deta = p/E, dimensionless
-        return jacobian * math.cosh(eta) * mt * argument ** (-q / (q - 1.0))
+        return math.cosh(eta) * mt * argument ** (-q / (q - 1.0))
 
     return norm * pt * eta_integral(integrand, -eta_max, eta_max)
-
-
-def static_tsallis_limit(
-    pt: float,
-    norm: float,
-    temperature: float,
-    q: float,
-    mass_gev: float,
-) -> float:
-    """Static mid-rapidity Tsallis formula (y=0, no eta integral).
-
-    Implements the form used in most heavy-ion literature at y=0:
-      dN/(2pi pT dpT dy)|_y=0 = norm * pT * mT * [1 + (q-1)*mT/T]^{-q/(q-1)}
-
-    This matches arXiv:1501.07127 eq. (1) exactly (with mu=0).
-    Use this function as a crosscheck against literature fit values;
-    tsallis_component_scalar integrates over eta in [-etamax, etamax]
-    and gives a different (larger) result. The two forms agree in the
-    limit etamax -> 0 (verified by the unit test below).
-    """
-    mt = math.sqrt(mass_gev * mass_gev + pt * pt)
-    argument = 1.0 + (q - 1.0) * mt / temperature
-    if argument <= 0.0:
-        return 0.0
-    return norm * pt * mt * argument ** (-q / (q - 1.0))
 
 
 def blast_wave_component_scalar(
@@ -331,21 +243,6 @@ def blast_wave_component_scalar(
     n_value: float,
     mass_gev: float,
 ) -> float:
-    """
-    Boltzmann-Gibbs Blast-Wave (BGBW) model integrand over transverse radius.
-
-    Implements the standard hydrodynamic BGBW model (e.g. Schnedermann, Sollfrank, Heinz 1993):
-      dN/(pT dpT) ~ norm * integral_{0}^{1} r dr * mT * I_0(pT*sinh(rho)/T) * K_1(mT*cosh(rho)/T)
-    where rho = arctanh(beta_r) is the transverse flow rapidity, and the transverse velocity 
-    profile is given by beta_r = beta_s * r^n.
-
-    Assumptions:
-    - Assumes a cylindrically symmetric expanding thermal source.
-    - Uses the Boltzmann approximation rather than full Bose-Einstein/Fermi-Dirac.
-    - Integrates analytically over the azimuthal angle to produce the modified Bessel functions I_0, K_1.
-    - Integrates numerically over the fractional radius r in [0, 1].
-    - Limits beta_r to strictly < 1 to prevent divergence in arctanh.
-    """
     mt = math.sqrt(mass_gev * mass_gev + pt * pt)
 
     def integrand(radius_fraction: float) -> float:
@@ -427,9 +324,7 @@ def manuscript_fit_spec(component_count: int, eta_max: float, mass_gev: float) -
         for name in ("norm", "temperature", "U")
     ]
     parameter_bounds = {
-        # AIS-61: 1e-12 lower bound prevents degenerate norm=0 solution (component collapse).
-        # Was 0.0, which allowed Minuit to zero-out a component trivially.
-        name: (1e-12, None) if name.startswith("norm_") else DEFAULT_MANUSCRIPT_BOUNDS["temperature"]
+        name: (0.0, None) if name.startswith("norm_") else DEFAULT_MANUSCRIPT_BOUNDS["temperature"]
         if name.startswith("temperature_")
         else DEFAULT_MANUSCRIPT_BOUNDS["U"]
         for name in parameter_names
@@ -461,8 +356,7 @@ def bose_fit_spec(component_count: int, eta_max: float, mass_gev: float) -> FitS
         for name in ("norm", "temperature", "U")
     ]
     parameter_bounds = {
-        # AIS-61: 1e-12 lower bound prevents degenerate norm=0 solution.
-        name: (1e-12, None) if name.startswith("norm_") else DEFAULT_MANUSCRIPT_BOUNDS["temperature"]
+        name: (0.0, None) if name.startswith("norm_") else DEFAULT_MANUSCRIPT_BOUNDS["temperature"]
         if name.startswith("temperature_")
         else DEFAULT_MANUSCRIPT_BOUNDS["U"]
         for name in parameter_names
@@ -492,8 +386,7 @@ def tsallis_fit_spec(component_count: int, eta_max: float, mass_gev: float) -> F
         for name in ("norm", "temperature", "q")
     ]
     parameter_bounds = {
-        # AIS-61: 1e-12 lower bound prevents degenerate norm=0 solution.
-        name: (1e-12, None) if name.startswith("norm_") else DEFAULT_TSALLIS_BOUNDS["temperature"]
+        name: (0.0, None) if name.startswith("norm_") else DEFAULT_TSALLIS_BOUNDS["temperature"]
         if name.startswith("temperature_")
         else DEFAULT_TSALLIS_BOUNDS["q"]
         for name in parameter_names
@@ -525,7 +418,7 @@ def blast_wave_fit_spec(component_count: int, mass_gev: float) -> FitSpec:
     parameter_bounds: dict[str, tuple[float | None, float | None]] = {}
     for name in parameter_names:
         if name.startswith("norm_"):
-            parameter_bounds[name] = (1e-12, None)  # AIS-61: was (0.0, None)
+            parameter_bounds[name] = (0.0, None)
         elif name.startswith("temperature_"):
             parameter_bounds[name] = DEFAULT_BLAST_WAVE_BOUNDS["temperature"]
         elif name.startswith("beta_s_"):
@@ -630,20 +523,14 @@ def fit_one_spec(
             chi2_ndf = chi2 / ndf if ndf > 0 else None
 
             # FIX 2: flag unconstrained parameters including those converged to zero.
-            # Also flag when err is None — Minuit failed to estimate the uncertainty,
-            # which means the parameter is unconstrained / the fit is degenerate.
             fit_quality_flag = "ok"
             if chi2_ndf is not None and chi2_ndf > 5:
                 fit_quality_flag = "poor"
             for k in spec.parameter_names:
                 err = parameter_errors.get(k)
                 val = parameter_values.get(k)
-                if err is None:
-                    # Minuit could not estimate the error: degenerate fit
-                    fit_quality_flag = "poor"
-                    break
-                if val is not None:
-                    if val == 0.0 or err / abs(val) > 1:
+                if err is not None and val is not None:
+                    if val == 0.0 or (val != 0.0 and err / abs(val) > 1):
                         fit_quality_flag = "poor"
                         break
 
@@ -704,53 +591,24 @@ def plot_fit_diagnostics(
     pulls: np.ndarray,
     title: str,
 ) -> None:
-    """4-panel diagnostic figure: data+fit, residuals, pulls vs pT, pull histogram."""
     if plt is None:
         raise RuntimeError("matplotlib is not installed")
 
-    from scipy.stats import norm as _sp_norm
-
-    figure, axes = plt.subplots(4, 1, figsize=(8, 13))
-
-    # Panel 0: data + fit
+    figure, axes = plt.subplots(3, 1, figsize=(8, 10), sharex=True)
     axes[0].errorbar(x_values, y_values, yerr=y_errors, fmt="o", label="data")
     axes[0].plot(x_values, predictions, label="fit")
     axes[0].set_ylabel("yield")
     axes[0].legend()
     axes[0].set_title(title)
 
-    # Panel 1: residuals
     axes[1].axhline(0.0, color="black", linewidth=0.8)
     axes[1].plot(x_values, residuals, marker="o")
     axes[1].set_ylabel("residual")
-    axes[1].set_xlabel("pT [GeV]")
 
-    # Panel 2: pulls vs pT with sigma bands
     axes[2].axhline(0.0, color="black", linewidth=0.8)
-    axes[2].axhspan(-1.0, 1.0, alpha=0.12, color="green", label=u"\u00b11\u03c3")
-    axes[2].axhspan(-2.0, 2.0, alpha=0.06, color="gold", label=u"\u00b12\u03c3")
-    axes[2].scatter(x_values, pulls, s=18, zorder=3)
+    axes[2].plot(x_values, pulls, marker="o")
     axes[2].set_ylabel("pull")
     axes[2].set_xlabel("pT [GeV]")
-    axes[2].legend(fontsize=7)
-
-    # Panel 3: 1-D pull histogram + N(0,1) overlay
-    if len(pulls) > 1:
-        mu_p  = float(np.mean(pulls))
-        sig_p = float(np.std(pulls, ddof=1))
-        n_bins = max(5, int(np.ceil(np.sqrt(len(pulls)))))
-        _, edges, _ = axes[3].hist(
-            pulls, bins=n_bins, density=True, alpha=0.65, color="steelblue",
-            edgecolor="white", label="pulls"
-        )
-        x_lin = np.linspace(edges[0] - 0.5, edges[-1] + 0.5, 200)
-        axes[3].plot(x_lin, _sp_norm.pdf(x_lin, 0, 1), "k-", lw=1.6, label=r"$\mathcal{N}(0,1)$")
-        axes[3].plot(x_lin, _sp_norm.pdf(x_lin, mu_p, max(sig_p, 1e-6)), "r--", lw=1.3,
-                     label=rf"fit $\mathcal{{N}}$({mu_p:.2f},{sig_p:.2f})")
-        axes[3].set_title(f"Pull histogram  \u03bc={mu_p:.2f}  \u03c3={sig_p:.2f}")
-    axes[3].legend(fontsize=7)
-    axes[3].set_xlabel("pull")
-    axes[3].set_ylabel("density")
 
     figure.tight_layout()
     figure.savefig(output_path)
@@ -772,22 +630,7 @@ def run_fits(run_dir: Path, fit_input: pd.DataFrame, mass_gev: float) -> dict[st
             f"(e.g. '-2.5-2.5' or '0-2.5'); got tokens {eta_bounds}."
         )
     eta_max = max(abs(eta_bounds[0]), abs(eta_bounds[1]))
-
-    # AIS-62: Convert detector pseudorapidity acceptance eta_max to an effective
-    # rapidity acceptance y_max for the median pT of the dataset.
-    # All three model integrands (Jüttner, Bose-Einstein, Tsallis) are defined
-    # in rapidity space — Cleymans & Worku arXiv:1110.5526 eq.(1) is explicitly
-    # dN/dpT dy. For finite-mass pions at the ALICE acceptance |eta|<1, the
-    # rapidity acceptance |y_max| < |eta_max| by ~5-10% at pT~0.5 GeV.
-    # Relationship: sinh(y_max) = sinh(eta_max) * pT / mT
-    #               => y_max = arcsinh(sinh(eta_max) * pT / sqrt(pT^2 + m^2))
-    # Evaluated at the median pT of all data to get a single representative y_max.
-    _pt_values = fit_input["pt_center_gev"].dropna().to_numpy(dtype=float)
-    _pt_median = float(np.median(_pt_values)) if len(_pt_values) > 0 else 1.0
-    _mt_median = math.sqrt(mass_gev**2 + _pt_median**2)
-    # sinh(y_max) = sinh(eta_max) * pT/mT (Kolb & Heinz nucl-th/0305084 Appendix A)
-    y_max = math.asinh(math.sinh(eta_max) * _pt_median / _mt_median)
-    fit_specs = build_fit_specs(eta_max=y_max, mass_gev=mass_gev)
+    fit_specs = build_fit_specs(eta_max=eta_max, mass_gev=mass_gev)
 
     group_columns = infer_group_columns(fit_input)
     grouped = [(("all_data",), fit_input)] if not group_columns else fit_input.groupby(group_columns, dropna=False)
@@ -976,10 +819,7 @@ def main() -> int:
     write_json(args.run_dir / "model_catalog.json", model_catalog)
 
     mapping_validation = load_mapping_validation(args.run_dir)
-    # Also accept the column-bin path: fit_input.csv written directly by data_loader
-    _fit_input_exists = (args.run_dir / "fit_input.csv").exists()
-    _fit_ready = mapping_validation.get("fit_ready", False) or _fit_input_exists
-    if not _fit_ready:
+    if not mapping_validation.get("fit_ready", False):
         blocked_status = {
             "fit_ready": False,
             "pipeline_status": "blocked_before_fit",

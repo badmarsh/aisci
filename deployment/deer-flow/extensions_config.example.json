@@ -1,0 +1,199 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/app",
+        "/app/backend/.deer-flow",
+        "/app/skills"
+      ],
+      "env": {},
+      "description": "Provides filesystem access inside the DeerFlow runtime container"
+    },
+    "github": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_TOKEN": "$GITHUB_TOKEN"
+      },
+      "description": "GitHub MCP server — research repos, issues, PRs and code directly"
+    },
+    "brave-search": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "$BRAVE_API_KEY"
+      },
+      "description": "Brave Search API — parallel web search engine (complements Tavily)"
+    },
+    "puppeteer": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ],
+      "env": {},
+      "description": "Browser automation with Puppeteer for JS-heavy sites and screenshots"
+    },
+    "playwright": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp"
+      ],
+      "env": {},
+      "description": "Full browser automation via Playwright — preferred over Puppeteer for complex interactions"
+    },
+    "sqlite": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sqlite",
+        "/app/backend/.deer-flow/checkpoints.db"
+      ],
+      "env": {},
+      "description": "SQLite database access for internal LangGraph checkpoints"
+    },
+    "wikipedia": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-server-wikipedia"
+      ],
+      "env": {},
+      "description": "Wikipedia MCP — structured article fetch with disambiguation and section targeting"
+    },
+    "arxiv": {
+      "enabled": true,
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "x",
+        "mcp-server-arxiv"
+      ],
+      "env": {},
+      "description": "arXiv MCP — paper lookup, metadata, abstracts, and citation graph traversal"
+    },
+    "notion": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@notionhq/notion-mcp-server"
+      ],
+      "env": {
+        "OPENAPI_MCP_HEADERS": "{\"Authorization\": \"Bearer $NOTION_API_KEY\", \"Notion-Version\": \"2022-06-28\"}"
+      },
+      "description": "Notion MCP — pull pages as research context and push completed reports back"
+    },
+    "linear": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "linear-mcp-server"
+      ],
+      "env": {
+        "LINEAR_API_KEY": "$LINEAR_API_KEY"
+      },
+      "description": "Linear MCP — pull issue context and project state for technical research"
+    },
+    "obsidian": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "mcp-obsidian",
+        "--vault",
+        "/mnt/host/obsidian-vault"
+      ],
+      "env": {},
+      "description": "Obsidian vault MCP — read and write notes as research context and output target"
+    },
+    "exa": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "exa-mcp-server"
+      ],
+      "env": {
+        "EXA_API_KEY": "$EXA_API_KEY"
+      },
+      "description": "Exa AI neural search MCP — high-quality results for niche and technical topics"
+    },
+    "scite": {
+      "enabled": true,
+      "type": "http",
+      "url": "http://onyx-mcp-proxy:80/scite/",
+      "headers": {},
+      "description": "Scite API for literature citation contexts and exact manuscript claim verification"
+    },
+    "consensus": {
+      "enabled": true,
+      "type": "http",
+      "url": "http://onyx-mcp-proxy:80/consensus/",
+      "headers": {},
+      "description": "Consensus API for academic search and claim grounding"
+    },
+    "onyx": {
+      "enabled": true,
+      "type": "sse",
+      "url": "http://onyx-mcp-proxy:80/onyx/sse",
+      "headers": {},
+      "description": "Local Onyx MCP bridge for source-grounded search and chat against the AiSci knowledge base"
+    },
+    "serena": {
+      "enabled": false,
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network",
+        "host",
+        "-v",
+        "/home/ubuntu/aisci:/workspaces/aisci",
+        "ghcr.io/oraios/serena:latest",
+        "serena",
+        "start-mcp-server",
+        "--context=ide",
+        "--project=/workspaces/aisci",
+        "--enable-web-dashboard=false",
+        "--open-web-dashboard=false"
+      ],
+      "env": {},
+      "description": "Serena semantic code navigation and editing MCP server for the AiSci workspace"
+    }
+  },
+  "skills": {
+    "multi-language": {
+      "enabled": false
+    }
+  }
+}

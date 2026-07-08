@@ -1,89 +1,70 @@
-# DeerFlow docker image cache
-docker/.cache/
-# oh-my-claudecode state
-.omc/
-# OS generated files
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+physics/physics_env/
+
+# Environment files with secrets
+deployment/onyx/.env
+deployment/deer-flow/.env
+
+# Local cloud/service-account credentials
+deployment/onyx/*.json
+!deployment/onyx/*.example.json
+docs/ops/private/
+
+# MCP Proxy Secrets
+deployment/onyx/proxy_*_secret.conf
+deployment/onyx/openapi.json
+
+# Docker volumes & runtime data
+*.log
+*.pid
+
+# Runtime log directories (supervisord, celery, onyx, apt, etc.)
+logs/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Local agent/tool settings
+.codex
+.qwen/
+
+# OS
 .DS_Store
-*.local
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Python cache
+# Large data / generated
+generated_files/
 __pycache__/
-*.pyc
-*.pyo
 
-# Virtual environments
-.venv
-venv/
-
-# Environment variables
+# Jupyter
+.ipynb_checkpoints/
 .env
+.env.local
 
-# Configuration files
-config.yaml
-mcp_config.json
-extensions_config.json
+# Raw data artifacts (re-downloadable)
+arxiv_results.xml
 
-# IDE
-.idea/
-.vscode/
+# Large source PDFs at repo root (store in research/robert/ or external storage)
+/*.pdf
+.aider*
 
-# Coverage report
-coverage.xml
-coverage/
-.deer-flow/
-.claude/
-skills/custom/*
-logs/
-log/
-debug.log
+# Literature PDFs
+literature/*.pdf
+!research/robert/manuscript/boson-probability-function-moving-system.pdf
 
-# Local git hooks (keep only on this machine, do not push)
-.githooks/
+# Ignore untracked nested repo files
+deployment/deer-flow/
 
-# pnpm
-.pnpm-store
-sandbox_image_cache.tar
-
-# ignore the legacy `web` folder
-web/
-
-# Deployment artifacts
-backend/Dockerfile.langgraph
-config.yaml.bak
-.playwright-mcp
-/frontend/test-results/
-/frontend/playwright-report/
-.gstack/
-.worktrees
-
-# Onyx debug/diagnostic scripts and data dumps (ephemeral)
-deployment/onyx/app_code/
-deployment/onyx/api_db_dump.txt
-deployment/onyx/db_dump.sql
-deployment/onyx/llm_provider_dump*.txt
-deployment/onyx/model_configurations_output.txt
-deployment/onyx/fallback_matches.txt
-deployment/onyx/provider_output.json
-deployment/onyx/test_llm*.json
-deployment/onyx/*.json
-deployment/onyx/euteko-*.json
-
-# Research scratch directory
-research/robert/scratch/
-
-# Screenshots (ephemeral)
-deployment/helper/screenshot*.png
-deployment/helper/*.png
-
-# Issue text stubs (ephemeral helper output)
-deployment/helper/issue_*.txt
-deployment/helper/commit_msg.txt
-deployment/helper/fix.patch
-
-# Build artifacts
-deployment/hep-physics/tsconfig.tsbuildinfo
+# Session cookies — never commit
+cookies.txt
