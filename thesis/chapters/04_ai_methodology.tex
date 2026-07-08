@@ -6,14 +6,57 @@ The core methodological contribution of this thesis is the design and deployment
 \section{System Architecture and Orchestration}
 The framework is orchestrated using the DeerFlow platform, which coordinates multi-agent reasoning. Agents are equipped with specific toolchains via the Model Context Protocol (MCP), allowing them to interface with both local execution environments and remote scientific databases. This enables a seamless transition from literature retrieval to symbolic mathematics and numerical fitting.
 
+\begin{figure}[h]
+\centering
+% \includegraphics[width=0.9\textwidth]{figures/architecture_diagram.pdf}
+\vspace{5cm} % Placeholder space
+\caption{Multi-agent validation pipeline architecture. The diagram illustrates the interplay between the DeerFlow orchestration layer, the Onyx RAG system, symbolic mathematical evaluators, and the numerical fitting pipeline.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{DeerFlow Orchestration Layer}
+The DeerFlow orchestration layer manages the decomposition of complex validation tasks into actionable steps executed by specialized AI agents. Unlike monolithic LLM approaches, DeerFlow utilizes a ReAct-based (Reasoning and Acting) paradigm where multiple agents collaborate. The primary agents include:
+\begin{itemize}
+    \item \textbf{Literature Research Agent:} Interfaces with external APIs (arXiv, Semantic Scholar, Scite) to aggregate consensus on theoretical claims.
+    \item \textbf{Symbolic Math Agent:} Utilizes the SymPy library to analytically verify equations parsed from draft manuscripts.
+    \item \textbf{Numerical Analyst Agent:} Constructs and executes fitting scripts (using \texttt{iminuit}) to evaluate model performance against experimental data.
+\end{itemize}
+The Model Context Protocol (MCP) serves as the universal interface, standardizing how agents invoke tools such as API requests, local script execution, and file manipulation.
+
 \section{Retrieval-Augmented Generation for Scientific Validation}
 A central component of our methodology is an Onyx-backed Retrieval-Augmented Generation (RAG) system. This system interfaces directly with academic APIs, including Semantic Scholar, arXiv, and Scite. By automating citation network analysis, the framework can evaluate the consensus around specific physical assumptions (e.g., the validity of the $\eta \to y$ Jacobian transformation at high $p_T$). This ensures that the baseline formulas used in our validation are historically and statistically grounded.
 
-\section{Automated Symbolic and Numerical Pipeline}
-The computational validation is split into two layers:
-\begin{enumerate}
-    \item \textbf{Symbolic Validation:} The framework parses draft manuscript equations and uses \texttt{SymPy} to symbolically verify Lorentz covariance, integration limits, and thermodynamic consistency (e.g., recovering the Cooper-Frye static limit as flow velocity $U \to 0$).
-    \item \textbf{Numerical Fitting:} After symbolic verification, the equations are compiled into a numerical pipeline (\texttt{fitting\_pipeline.py}) utilizing the \texttt{iminuit} optimizer. The pipeline is designed to enforce rigorous statistical checks, including the computation of the covariance matrix, parameter correlations, residuals, and $\chi^2/ndf$. 
-\end{enumerate}
+\subsection{Onyx RAG System Design}
+To construct the local RAG corpus, we aggregated a curated set of foundational phenomenological papers in PDF format. The chunking strategy employs paragraph-level segmentation (approximately 200-300 tokens per chunk) with a 50-token overlap to preserve contextual continuity, particularly around embedded equations. We utilize a dense embedding model optimized for scientific text to encode these chunks into a vector store.
 
+The retrieval evaluation methodology relies on a set of standardized questions (the evaluation set) designed to test the system's ability to locate specific physical constants, equation references, and methodological justifications. During our evaluation, identified limitations emerged: specifically, Questions 3 and 5, which query content from the \texttt{docs/} directory connector, returned no hits. This gap highlights the necessity for ongoing maintenance of internal connectors and frames a specific area for future system improvement.
+
+\section{Automated Symbolic Validation via SymPy}
+Before any numerical fitting occurs, the framework enforces a symbolic validation phase. The \texttt{sympy\_validation\_agent.py} parses proposed mathematical formulas and executes analytical checks. The following pseudocode illustrates this protocol:
+
+\begin{verbatim}
+Algorithm: Symbolic Pre-screening Protocol
+Input: Proposed Equation E(pT, y, m, U)
+1: Initialize SymPy symbols {pT, y, m, U_mu}
+2: CHECK Lorentz Covariance:
+     Evaluate U \cdot p = E_T cosh(y - Y) - p_T cos(phi) U_T
+     If evaluation fails Lorentz scalar rules: REJECT
+3: CHECK Static Limit Recovery:
+     Set U_T -> 0, Y -> 0
+     Evaluate E(pT, y, m, U=0)
+     If result != Cooper-Frye static spectrum: REJECT
+4: CHECK Integration Limits:
+     Evaluate \int E(pT, y) dy from -infty to infty
+     If integral diverges or violates physical boundary: REJECT
+5: Return ACCEPT if all checks pass
+\end{verbatim}
+
+\section{Statistical Rigor Protocol}
+After symbolic verification, the equations are compiled into a numerical pipeline (\texttt{fitting\_pipeline.py}) utilizing the \texttt{iminuit} optimizer. The numerical evaluation is governed by a strict acceptance protocol designed to identify over-parameterization and local minima:
+\begin{enumerate}
+    \item \textbf{Estimated Distance to Minimum (EDM):} Convergence is only accepted if $\text{EDM} < 0.002$, indicating that the optimizer has genuinely located a minimum.
+    \item \textbf{Covariance Matrix Validity:} \texttt{iminuit} must return a positive-definite covariance matrix (Hesse matrix inverted successfully).
+    \item \textbf{Parameter Correlation Threshold:} For all parameter pairs $(i, j)$, the correlation coefficient must satisfy $|\rho_{ij}| < 0.9$. Values exceeding this threshold trigger an automatic rejection due to structural over-parameterization.
+    \item \textbf{Goodness of Fit:} The reduced chi-square must fall within a reasonable physical range, typically $\chi^2/\text{ndf} \in [0.5, 3.0]$. Values $\ll 1$ indicate over-fitting (fitting to noise), while values $\gg 3$ indicate a poor model description.
+\end{enumerate}
 This dual-layer approach prevents unphysical models (e.g., those suffering from intrinsic over-parameterization) from being accepted based on superficially reasonable visual fits.

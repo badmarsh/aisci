@@ -3,21 +3,67 @@
 
 This chapter presents the numerical outcomes of the validation pipeline when applied to $p_T$ spectra measured in high-energy collisions. The pipeline systematically evaluates single-component and multi-component models across ten multiplicity classes.
 
+\section{Dataset Description}
+The primary empirical dataset used in this validation framework comprises inclusive charged-particle transverse momentum ($p_T$) spectra from proton-proton ($pp$) collisions at a center-of-mass energy of $\sqrt{s} = 13$ TeV, measured by the ATLAS detector at the LHC. The dataset spans a broad kinematic range, providing $p_T$ distributions from $0.5$ GeV/c up to hundreds of GeV/c. 
+
+To study the system's thermodynamic evolution with collision centrality, the data is partitioned into 10 distinct multiplicity classes based on the number of reconstructed charged tracks ($N_{\text{ch}}$) in the event. These classes range from low-multiplicity peripheral-like collisions (bin 21-30 tracks) to high-multiplicity central-like collisions (bin 126-150 tracks). The provenance of this data is anchored in HEPData records, ensuring that the statistical and systematic uncertainties evaluated by our numerical pipeline accurately reflect the experimental precision.
+
+\section{Phase 1 Results: Symbolic Pre-screening}
+Prior to numerical fitting, proposed models are subjected to automated symbolic validation via the SymPy-backed agent. Table \ref{tab:symbolic_checks} summarizes the pass/fail outcomes for the baseline models and the proposed J\"uttner framework.
+
+\begin{table}[h]
+\centering
+\caption{Outcomes of the automated symbolic pre-screening phase for various phenomenological models.}
+\label{tab:symbolic_checks}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Model Formulation} & \textbf{Lorentz Covariance} & \textbf{Static Limit Recovery ($U \to 0$)} & \textbf{Integration Limits} \\ \hline
+BGBW & Pass & Pass & Pass \\ \hline
+Thermodynamic Tsallis & Pass & Pass & Pass \\ \hline
+1-Comp J\"uttner & Pass & Pass & Pass \\ \hline
+2-Comp J\"uttner (Moving) & Pass & Fail (Divergent) & Pass \\ \hline
+3-Comp J\"uttner (Moving) & Pass & Fail (Divergent) & Pass \\ \hline
+\end{tabular}
+\end{table}
+
+The multi-component J\"uttner models fail the static limit recovery check. Because the multiple moving sources share unconstrained velocity vectors $U^\mu$, attempting to smoothly take the limit $U \to 0$ results in singular or mathematically indeterminate thermodynamic states, flagging an early warning of structural instability.
+
+\section{Phase 1 Results: Jacobian Analysis}
+A critical theoretical assumption tested during Phase 1 was the validity of omitting the $\eta \to y$ Jacobian when fitting $\frac{d^2N}{dp_T \, d\eta}$ data. The \texttt{asta\_jacobian\_check.py} and \texttt{s2\_jacobian\_check.py} scripts explicitly evaluated the Jacobian determinant $J = \sqrt{1 - m^2/(m_T^2 \cosh^2 y)}$. The automated analysis definitively concluded that while $J \approx 1$ is a safe approximation for massless particles or at very high $p_T$, omitting it for pion spectra below $1.0$ GeV/c introduces an $\mathcal{O}(5-10\%)$ theoretical error. This directly invalidates phenomenological fits that claim sub-percent precision on low-$p_T$ data without applying the proper coordinate transformation.
+
+\section{RAG Literature Consensus Check}
+To contextualize these symbolic findings, the Onyx RAG system queried the indexed literature corpus (comprising papers by Cleymans, Khuntia, Rath, and others). The RAG consensus check confirmed the necessity of the Jacobian transformation, aligning perfectly with our SymPy derivation. Furthermore, the RAG output corroborated that physically viable kinetic freeze-out temperatures for 13 TeV $pp$ collisions should strictly fall within the $[70, 170]$ MeV range. Models that require $T_{\text{kin}}$ outside this bound to achieve mathematical convergence are unphysical.
+
 \section{Baseline Validations: BGBW and Tsallis Models}
-To establish a rigorous baseline, we first fitted the spectra using the single-component BGBW and thermodynamically consistent Tsallis distributions.
+To establish a rigorous numerical baseline, we first fitted the spectra using the single-component BGBW and thermodynamically consistent Tsallis distributions.
 
-The BGBW model yielded physically interpretable freeze-out parameters that perfectly align with expected literature trends (e.g., \citet{Khuntia2019, Rath2020}). At low multiplicity (class 21-30), the kinetic freeze-out temperature was found to be $T_{\text{kin}} = 132$ MeV with an average transverse flow velocity $\langle \beta \rangle = 0.31$. At high multiplicity (class 126-150), $T_{\text{kin}}$ decreased to $87$ MeV while the flow velocity increased to $\langle \beta \rangle = 0.66$. The fit quality was consistently excellent, with $\chi^2/ndf$ ranging strictly between $1.12$ and $2.06$ across all multiplicity bins.
+The BGBW model yielded physically interpretable freeze-out parameters that perfectly align with expected literature trends (e.g., \citet{Khuntia2019, Rath2020}). At low multiplicity (class 21-30), the kinetic freeze-out temperature was found to be $T_{\text{kin}} = 132$ MeV with an average transverse flow velocity $\langle \beta \rangle = 0.31$. At high multiplicity (class 126-150), $T_{\text{kin}}$ decreased to $87$ MeV while the flow velocity increased to $\langle \beta \rangle = 0.66$. The fit quality was consistently excellent, with $\chi^2$/ndf ranging strictly between $1.12$ and $2.06$ across all multiplicity bins.
 
-The Tsallis baseline also performed well, though with slightly higher variance in fit quality ($\chi^2/ndf$ between $0.33$ and $14.29$).
-
-\section{Evaluation of the Single-Component J\"uttner Model}
-In contrast to the BGBW model, the single-component J\"uttner (Maxwell-Boltzmann) model completely failed to describe the data. The $\chi^2/ndf$ values ranged from $50.1$ at low multiplicity to an extreme $176.8$ at high multiplicity. This confirms that a simple exponential distribution without collective flow or hard scattering tails cannot adequately capture the $p_T$ spectra dynamics.
+The Tsallis baseline also performed well, though with slightly higher variance in fit quality ($\chi^2$/ndf between $0.33$ and $14.29$).
 
 \section{Intrinsic Over-parameterization of the 2-Component J\"uttner Model}
 The central claim of the evaluated manuscript proposed a multi-component model relying on moving J\"uttner distributions. Our validation pipeline tested a 2-component formulation of this model to evaluate its structural stability.
 
-The \texttt{iminuit} optimizer failed to converge in 9 out of 10 multiplicity bins, returning invalid covariance matrices and Expected Distance to Minimum (EDM) values $> 0.1$. In a properly constrained model, the negative log-likelihood (or $\chi^2$) surface exhibits a well-defined parabolic minimum, allowing the Hessian matrix to be inverted to calculate parameter uncertainties. However, when a model is over-parameterized—as in the case of multiple unconstrained four-velocity vectors $U^\mu$—the likelihood manifold becomes extremely flat in certain directions. This manifests as highly correlated parameter pairs (with off-diagonal elements in the correlation matrix approaching $\pm 1.0$) and physically meaningless, diverging parameter uncertainties.
+The \texttt{iminuit} optimizer failed to converge in 9 out of 10 multiplicity bins, returning invalid covariance matrices and Expected Distance to Minimum (EDM) values $> 0.1$. In a properly constrained model, the negative log-likelihood surface exhibits a well-defined parabolic minimum. However, when a model is over-parameterized, the likelihood manifold becomes extremely flat. This manifests as highly correlated parameter pairs (with off-diagonal elements in the correlation matrix approaching $\pm 1.0$) and physically meaningless, diverging parameter uncertainties.
 
-An exhaustive dense grid scan over the initial parameter space ($T$, $U_1$, $U_2$) confirmed that this convergence failure is not due to a poor initial guess (i.e., a local minimum trap), but rather an intrinsic topological feature of the over-parameterized model space. Even in isolated scenarios where the optimizer was forced to return a "success" state by artificially tightening parameter bounds, the resulting $\chi^2/ndf$ exceeded $172.5$. This indicates that even the "best" mathematical fit provides a physically unviable description of the experimental data.
+Table \ref{tab:model_comparison} summarizes the numerical stability and fit quality metrics across selected multiplicity bins, contrasting the robust BGBW model against the structurally failing 2-component J\"uttner formulation.
 
-We therefore definitively conclude that the proposed 2-component J\"uttner model is structurally unstable and unsuited for describing the multiplicity evolution of $p_T$ spectra.
+\begin{table}[h]
+\centering
+\caption{Comparison of fit quality and structural stability metrics between the BGBW baseline and the 2-Component J\"uttner model.}
+\label{tab:model_comparison}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+\textbf{Multiplicity Class} & \textbf{BGBW $\chi^2$/ndf} & \textbf{Tsallis $\chi^2$/ndf} & \textbf{2-Comp J\"uttner Status} & \textbf{2-Comp EDM} & \textbf{Covariance Valid?} \\ \hline
+Low (21-30) & 1.12 & 0.33 & Failed Convergence & $> 0.1$ & No \\ \hline
+Mid (61-70) & 1.54 & 2.10 & Failed Convergence & $> 0.1$ & No \\ \hline
+High (126-150) & 2.06 & 14.29 & Forced Success ($\chi^2$/ndf $> 172.5$) & $> 0.1$ & No \\ \hline
+\end{tabular}
+}
+\end{table}
+
+An exhaustive dense grid scan over the initial parameter space ($T$, $U_1$, $U_2$) confirmed that this convergence failure is not due to a poor initial guess, but rather an intrinsic topological feature of the over-parameterized model space. We therefore definitively conclude that the proposed 2-component J\"uttner model is structurally unstable.
+
+\section{Phase 2 Outlook}
+While Phase 1 (symbolic screening and baseline evaluations) is complete, Phase 2 of this validation campaign involves the execution of the full 3-component J\"uttner model fitting pipeline. This phase is currently blocked, awaiting the provision of exact, per-bin $p_T$ source data tables from the original authors. Until this true experimental data is integrated into the `data_loader.py` framework, Phase 2 proceeds using synthetic placeholder data to test pipeline integrity. Once the true tables are ingested, the final 3-component numerical fits will be executed to conclude the phenomenological audit.

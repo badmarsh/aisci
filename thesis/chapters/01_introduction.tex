@@ -8,3 +8,31 @@ Historically, phenomenological models such as the Boltzmann-Gibbs Blast-Wave (BG
 This thesis investigates one such proposal: a three-component model aiming to describe the full $p_T$ spectrum using multiple moving J\"uttner (relativistic Maxwell-Boltzmann) distributions. Evaluating the validity of such highly parameterized models requires moving beyond simple visual fits to rigorous statistical and physical verification.
 
 To this end, we introduce a novel methodological contribution: an autonomous, multi-agent artificial intelligence framework designed to systematically validate phenomenological physics models against both experimental data and literature consensus. By applying this AI-augmented framework to the proposed J\"uttner model, we execute an end-to-end validation pipeline to definitively assess its statistical rigor, physical justification, and structural stability against established literature baselines.
+
+\section{Motivation: The Reproducibility Crisis in HEP Phenomenology}
+In recent years, High-Energy Physics (HEP) phenomenology has faced a growing challenge regarding the reproducibility and structural stability of proposed models. As the precision of experimental data from collaborations like ATLAS and ALICE at the Large Hadron Collider (LHC) increases, theoretical and phenomenological models have grown increasingly complex to capture fine structural details across broad kinematic ranges. This complexity often manifests as a proliferation of free parameters in multi-component fitting functions. While such models can achieve superficially excellent fits to data (e.g., low $\chi^2$/ndf values), they frequently suffer from over-parameterization, leading to mathematically degenerate parameter spaces, physically meaningless best-fit values, and a lack of predictive power. The manual validation of these models—checking for thermodynamic consistency, Lorentz covariance, and statistical identifiability—is labor-intensive and prone to human oversight. Consequently, there is a pressing need for automated, rigorous, and reproducible validation frameworks capable of auditing phenomenological claims before they propagate through the literature.
+
+\section{Research Objectives}
+This thesis aims to address the challenges of model validation in HEP through the development and application of an AI-driven methodology. The specific research objectives are:
+\begin{enumerate}
+    \item To design and implement an autonomous, multi-agent AI validation architecture that integrates symbolic computation, numerical optimization, and literature retrieval.
+    \item To rigorously validate established baseline models, including the Boltzmann-Gibbs Blast-Wave (BGBW) and Tsallis distributions, against ATLAS 13 TeV $p_T$ spectrum data.
+    \item To systematically test the proposed multi-component J\"uttner model for structural stability, explicitly diagnosing mathematical degeneracies and over-parameterization artifacts.
+    \item To establish an automated, reproducible peer-review methodology capable of screening phenomenological proposals for mathematical consistency and statistical rigor.
+\end{enumerate}
+
+\section{Scope and Limitations}
+The scope of this thesis is constrained to the validation of phenomenological models describing inclusive charged-particle transverse momentum spectra in high-energy collisions. While the AI orchestration framework (DeerFlow) and the Retrieval-Augmented Generation system (Onyx) are designed to be generalizable, the applied case study focuses specifically on the proposed J\"uttner model and established baselines. 
+
+It is important to note a key limitation regarding the numerical fitting phase of this research. While the Phase 1 symbolic validation and baseline comparisons are fully realized, the execution of Phase 2—the final, high-precision numerical fitting of the 3-component model—is pending the provision of exact, per-bin $p_T$ source data tables by the original authors (Robert). Consequently, the Phase 2 data fitting is declared an open research item within this thesis, and the framework's capabilities are demonstrated using substitute synthetic and baseline datasets where necessary.
+
+\section{Thesis Structure}
+The remainder of this thesis is structured as follows:
+\begin{itemize}
+    \item \textbf{Chapter 2 (Theoretical Background)} details the statistical mechanics of heavy-ion collisions, the mathematics of over-parameterization, and critical kinematic transformations such as the $\eta \to y$ Jacobian.
+    \item \textbf{Chapter 3 (Literature Review)} surveys existing $p_T$ spectrum models, discusses the application of AI methods in scientific validation, and reviews model selection criteria.
+    \item \textbf{Chapter 3b (Experimental Setup)} outlines the ATLAS detector, the 13 TeV dataset, multiplicity classification, and the data ingestion pipeline used for analysis.
+    \item \textbf{Chapter 4 (AI Methodology)} presents the architecture of the multi-agent validation framework, detailing the DeerFlow orchestration layer, the Onyx RAG system, and the automated symbolic validation protocols.
+    \item \textbf{Chapter 5 (Results and Validation)} presents the outcomes of the validation pipeline, including symbolic pre-screening, Jacobian analysis, RAG consensus checks, and a comprehensive diagnosis of over-parameterization in the multi-component model.
+    \item \textbf{Chapter 6 (Conclusion)} summarizes the thesis contributions, discusses implications for automated peer review, and outlines avenues for future research.
+\end{itemize}
