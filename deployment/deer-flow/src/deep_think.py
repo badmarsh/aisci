@@ -54,15 +54,32 @@ async def maybe_deep_think(
         response = await llm.ainvoke(messages)
         thinking = response.content if hasattr(response, "content") else str(response)
         return f"<deep_think>\n{thinking}\n</deep_think>"
-    except Exception:
+    except Exception as exc:
+        # BUGFIX: was silently swallowing every LLM failure with no signal;
+        # planner ran without deep-think and nobody knew why. Log and degrade.
+        import logging
+        logging.getLogger(__name__).warning(
+            "deep_think failed (%s: %s); continuing without it",
+            type(exc).__name__, exc,
+        )
         return ""
 
 
 def deep_think_sync(query: str, llm: Any, force: bool = False) -> str:
     """Synchronous variant for non-async call sites."""
     import asyncio
-    loop = asyncio.new_event_loop()
+    # BUGFIX: the previous implementation created a NEW event loop and called
+    # run_until_complete on it. When invoked from inside an already-running
+    # loop (very common in FastAPI/LangGraph code) that raises
+    # "RuntimeError: This event loop is already running" and blows up the
+    # request. Detect a running loop and offload to a worker thread instead.
     try:
-        return loop.run_until_complete(maybe_deep_think(query, llm, force=force))
-    finally:
-        loop.close()
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(maybe_deep_think(query, llm, force=force))
+    # Already inside an event loop — cannot nest run_until_complete.
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(
+            lambda: asyncio.run(maybe_deep_think(query, llm, force=force))
+        ).result()
