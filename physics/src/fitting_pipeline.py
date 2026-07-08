@@ -12,7 +12,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import math
+import os
 import re
 import subprocess
 from dataclasses import dataclass
@@ -32,6 +34,8 @@ try:
 except ImportError:  # pragma: no cover - optional dependency
     plt = None
 
+logger = logging.getLogger(__name__)
+
 
 DEFAULT_MASS_GEV = 0.13957
 DEFAULT_MANUSCRIPT_BOUNDS = {
@@ -47,6 +51,18 @@ DEFAULT_BLAST_WAVE_BOUNDS = {
     "beta_s": (0.0, 0.99),
     "n": (0.1, 4.0),
 }
+
+REQUIRED_FIT_INPUT_COLUMNS = (
+    "eta_range",
+    "pt_center_gev",
+    "yield_value",
+    "total_error",
+)
+
+
+class FitInputError(ValueError):
+    """Raised when fit_input.csv is present but malformed / unusable."""
+
 
 
 @dataclass(frozen=True)
@@ -156,7 +172,27 @@ def load_fit_input(run_dir: Path) -> pd.DataFrame:
     path = run_dir / "fit_input.csv"
     if not path.exists():
         raise FileNotFoundError(f"Missing fit input: {path}")
-    return pd.read_csv(path)
+    try:
+        df = pd.read_csv(path)
+    except (pd.errors.ParserError, pd.errors.EmptyDataError, UnicodeDecodeError) as exc:
+        raise FitInputError(f"fit_input.csv at {path} is not a readable CSV: {exc}") from exc
+
+    missing = [c for c in REQUIRED_FIT_INPUT_COLUMNS if c not in df.columns]
+    if missing:
+        raise FitInputError(
+            f"fit_input.csv is missing required columns {missing}. "
+            f"Present: {list(df.columns)}"
+        )
+    if df.empty:
+        raise FitInputError(f"fit_input.csv at {path} contains no rows")
+    for col in ("pt_center_gev", "yield_value", "total_error"):
+        if not np.issubdtype(df[col].dtype, np.number):
+            raise FitInputError(f"Column '{col}' must be numeric; got dtype {df[col].dtype}")
+        if not np.isfinite(df[col].to_numpy(dtype=float)).all():
+            raise FitInputError(f"Column '{col}' contains NaN or infinite values")
+    if (df["total_error"].to_numpy(dtype=float) <= 0).any():
+        raise FitInputError("Column 'total_error' must be strictly positive for LeastSquares")
+    return df
 
 
 def safe_exp(value: float) -> float:
@@ -490,10 +526,11 @@ def fit_one_spec(
         try:
             minuit.migrad()
             minuit.hesse()
-        except Exception as exc:  # pragma: no cover - diagnostic path
+        except (RuntimeError, ValueError, FloatingPointError) as exc:
             candidate = {
                 "seed_index": seed_index,
                 "success": False,
+                "error_type": type(exc).__name__,
                 "error": str(exc),
             }
         else:
@@ -864,7 +901,20 @@ def main() -> int:
         print(json.dumps(blocked_status, indent=2, sort_keys=True))
         return 0
 
-    fit_input = load_fit_input(args.run_dir)
+    try:
+        fit_input = load_fit_input(args.run_dir)
+    except (FileNotFoundError, FitInputError) as exc:
+        bad_status = {
+            "fit_ready": False,
+            "pipeline_status": "blocked_bad_input",
+            "formula_classification": formula_confirmation.classification,
+            "error_type": type(exc).__name__,
+            "error": str(exc),
+        }
+        write_json(args.run_dir / "fit_run_status.json", bad_status)
+        logger.error("Fit aborted before running: %s", exc)
+        print(json.dumps(bad_status, indent=2, sort_keys=True))
+        return 2
     fit_summary = run_fits(args.run_dir, fit_input, args.mass_gev)
     final_status = {
         "fit_ready": True,
@@ -878,4 +928,13 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
+    try:
+        raise SystemExit(main())
+    except SystemExit:
+        raise
+    except Exception as exc:  # last-chance safety net
+        logger.exception("fitting pipeline crashed")
+        import sys as _sys
+        _sys.stderr.write(f"fitting_pipeline crashed: {type(exc).__name__}: {exc}\n")
+        raise SystemExit(1)
