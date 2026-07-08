@@ -1,0 +1,32 @@
+\chapter{Experimental Setup and Data Ingestion}
+\label{ch:experimental_setup}
+
+This chapter details the experimental origins of the dataset utilised in this thesis and the automated pipeline developed to ingest, structure, and prepare this data for phenomenological fitting. While this framework is designed to be detector-agnostic, the primary case study focuses on high-precision data collected at the Large Hadron Collider (LHC).
+
+\section{The ATLAS Detector at the LHC}
+The ATLAS (A Toroidal LHC ApparatuS) detector is one of the two general-purpose detectors situated at the LHC at CERN. Designed to observe phenomena that involve highly massive particles which were not observable using earlier lower-energy accelerators, it provides comprehensive coverage of the solid angle around the collision point. 
+
+For the measurement of inclusive charged-particle transverse momentum ($p_T$) spectra, the Inner Detector (ID) is of paramount importance. The ID operates within a 2 Tesla axial magnetic field provided by a superconducting solenoid. It is composed of a high-resolution silicon pixel detector, a silicon microstrip tracker (SCT), and a transition radiation tracker (TRT). This configuration allows for precise tracking and momentum measurement of charged particles within a pseudorapidity range of $|\eta| < 2.5$. The transverse momentum is determined from the curvature of the charged particle tracks in the magnetic field.
+
+\section{Data Selection: 13 TeV Proton-Proton Collisions}
+The validation framework evaluates a specific, high-precision dataset: inclusive charged-particle $p_T$ spectra from proton-proton ($pp$) collisions at a center-of-mass energy of $\sqrt{s} = 13$ TeV. The dataset is particularly notable for its extensive kinematic reach and detailed multiplicity classification.
+
+The data is partitioned into ten distinct multiplicity classes based on the number of reconstructed charged tracks ($N_{\text{ch}}$). These classes, ranging from low multiplicity ($21 \leq N_{\text{ch}} < 30$) to high multiplicity ($126 \leq N_{\text{ch}} < 150$), allow phenomenologists to study the evolution of thermodynamic parameters (such as the kinetic freeze-out temperature and radial flow velocity) as a function of the system size and energy density. The systematic and statistical uncertainties are combined in quadrature for the $\chi^2$ minimization routines employed in our pipeline.
+
+\section{The Data Ingestion Pipeline}
+A core requirement of an autonomous AI validation framework is the reliable ingestion of external data. To this end, a robust, version-controlled data pipeline was engineered.
+
+\subsection{HEPData Integration}
+The primary source of truth for the experimental data is the High Energy Physics Data repository (HEPData). The framework utilizes a script (\texttt{fetch\_hepdata.py}) to query the HEPData API using specific dataset identifiers (e.g., \texttt{ins1629853} for the ATLAS 13 TeV data). The data is downloaded in a structured format, typically YAML or CSV, directly from the archival records, ensuring that the AI agents operate on immutable, peer-reviewed data points.
+
+\subsection{Data Structuring and Pre-processing}
+Once fetched, the \texttt{data\_loader.py} module parses the raw HEPData files into a standardised \texttt{pandas.DataFrame} structure. This uniform data structure is crucial for the \texttt{iminuit} optimizer, which requires vectorized inputs for efficient likelihood calculations. 
+
+The pipeline performs several automated pre-processing steps:
+\begin{itemize}
+    \item \textbf{Kinematic Cuts:} Restricting the fit range to physical regions of interest (e.g., $p_T < 2.5$ GeV/c for pure thermal bulk analysis, or expanding to $p_T > 10$ GeV/c when testing hard-scattering power-law components).
+    \item \textbf{Coordinate Transformations:} Applying necessary Jacobian transformations (e.g., $\eta \to y$) if the raw data is provided in pseudorapidity but the theoretical model is formulated in rapidity. As demonstrated in Chapter \ref{ch:results_and_validation}, omitting this step introduces significant theoretical errors.
+    \item \textbf{Placeholder Injection:} For Phase 2 of this thesis—evaluating the 3-component model—exact per-bin data tables were pending. The pipeline automatically falls back to a synthetic data generation module (\texttt{generate\_synthetic\_data.py}) to scaffold the validation architecture, ensuring the AI orchestrator can construct and test the computational graph without blocking on external dependencies.
+\end{itemize}
+
+This automated ingestion pipeline ensures that the transition from raw experimental observation to numerical model fitting is mathematically rigorous, reproducible, and entirely transparent to the auditing AI agents.
