@@ -18,9 +18,48 @@
 
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+        
+        \Huge
+        \textbf{An Autonomous Multi-Agent AI Framework for Phenomenological Model Validation in High-Energy Physics}
+        
+        \vspace{1.5cm}
+        
+        \Large
+        \textbf{Candidate Name}
+        
+        \vspace{2.5cm}
+        
+        \normalsize
+        A thesis submitted in partial fulfillment of the requirements \\
+        for the degree of Doctor of Philosophy
+        
+        \vspace{2.5cm}
+        
+        \textbf{Department of Computer Science / Department of Physics}\\
+        \textbf{University Name}\\
+        \today
+        
+    \end{center}
+\end{titlepage}
 
-\begin{abstract}
+\chapter*{Declaration of Originality}
+\addcontentsline{toc}{chapter}{Declaration of Originality}
+I hereby declare that this thesis and the work presented in it are entirely my own. Where I have consulted the work of others, this is always clearly stated.
+
+\vspace{2cm}
+\noindent\rule{5cm}{0.4pt}\\
+Candidate Name \\
+\today
+
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+I would like to express my sincere gratitude to my advisors, colleagues, and the open-source software community for their invaluable support. Special thanks to the developers of SymPy, iminuit, and the DeerFlow orchestration framework.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
 We present an autonomous, multi-agent AI framework for referee-standard validation
 of phenomenological models of particle transverse momentum ($p_T$) spectra. The
 framework integrates SymPy symbolic verification, iminuit numerical optimisation,
@@ -40,9 +79,12 @@ T--$\beta$ degeneracy ($|\rho| \in [0.93, 0.999]$ for all BGBW fits) and 9/10-bi
 fit-range sensitivity, findings that would be inaccessible to manual curve-fitting.
 The AI methodology constitutes a reproducible peer-review tool for HEP phenomenology;
 all scripts, data, and run artifacts are version-controlled and one-command reproducible.
-\end{abstract}
 
 \tableofcontents
+\listoffigures
+\listoftables
+\addcontentsline{toc}{chapter}{List of Figures}
+\addcontentsline{toc}{chapter}{List of Tables}
 
 \include{chapters/01_introduction}
 \include{chapters/02_theoretical_background}
