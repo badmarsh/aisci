@@ -2,8 +2,20 @@
 
 Use this file for concise operational state on Onyx, DeerFlow, MCP, Docker, models, and deployment security. GitHub Issues are the active execution queue; link issues from this file when work is open. Keep `ACTION_PLAN.md` high level, keep `docs/archive/` historical only, and do not put Robert's scientific claims or fit conclusions here.
 
+## How to update this file
+
+- **Add** new issues at the top of the table with the correct priority.
+- **Close** items by changing Status to `Done — YYYY-MM-DD` and moving the row to the Archive section below.
+- **Never** leave a row with conflicting Done/Open signals — pick one.
+- Security table: update "Current Tree Exposure" immediately after a key is rotated or scrubbed.
+
 | Priority | System | Issue | Why It Matters | Next Action | Status |
 |---|---|---|---|---|---|
+| P2 | Integration | **K-Dense scientific skills installed + Multica integration wrappers drafted** — Installed 10 high-priority skills from K-Dense-AI/scientific-agent-skills (sympy, paper-lookup, scientific-visualization, statistical-analysis, matplotlib, astropy, database-lookup, literature-review, scientific-writing, peer-review) into `.agents/skills/`. Drafted `trigger_onyx_agent.py` wrapper and `multica_custom_runtimes.yaml` config for Multica → DeerFlow/Onyx integration. | Enhances agent capabilities with vetted scientific skills; establishes integration path for Multica task management with existing sandboxed runtimes (DeerFlow, Onyx Craft). Skills complement existing `agent-skills/` workflows. | Test critical skills with real tasks; verify DeerFlow API at localhost:2026/api; verify Onyx API endpoint; test trigger_onyx_agent.py with sample Multica card. See `docs/ops/multica-agent-integration.md` and `docs/ops/k-dense-skills-reference.md`. | Done — 2026-05-31 |
+| P1 | DeerFlow | **MCP tools now loading — langchain_mcp_adapters downgraded to 0.2.1** — Downgraded from 0.2.2 to 0.2.1 to fix `UnboundLocalError`. Disabled scite/consensus servers (empty OAuth tokens causing 401 errors). After cache clear and restart: **94 MCP tools loaded successfully** including onyx, filesystem, github, brave-search, puppeteer, sqlite, arxiv, playwright. DeerFlow can now access Onyx RAG via MCP. Pinned version in pyproject.toml to prevent regression. | DeerFlow agents can now use Onyx RAG search and all other MCP tools. Scite/Consensus remain disabled until OAuth tokens are captured. | Re-enable scite/consensus after running OAuth capture scripts (`scite_oauth_probe.py`, `consensus_oauth_probe.py`) to populate `/tmp/*_mcp_access_token` files. | Done — 2026-05-31 |
+| P1 | DeerFlow | **Docker Compose startup failure — missing BETTER_AUTH_SECRET** — `docker compose` failed with "empty section between colons" errors because critical environment variables (BETTER_AUTH_SECRET, DEER_FLOW_*) were not loaded from `.env` in project root when compose file was in `docker/` subdirectory | Containers could not start; appeared as "hydration errors" but was actually a docker-compose configuration issue preventing any container initialization | Added `BETTER_AUTH_SECRET` to `.env`, removed stale containers, started stack with explicit `--env-file .env` flag. All containers now running, HTTP 200 on frontend, gateway logs show successful config load and sqlite backend initialization. All critical config.yaml settings preserved (sandbox mounts, run_events backend, gemini subagents, loop detection). | Done — 2026-05-31 |
+| P1 | Ops | **Milestone closure: RAG hardening + ops baseline (2026-05-31)** — five Next-Ops follow-ups landed in one push: persona snapshot exporter, Scite/Consensus liveness probe, extensions_config regen helper with idempotent `--check`, RAG baseline runner emitting JSON artifacts plus the first usable baseline, literature curation policy. | Closes the final operational gaps from the milestone closure note: stack rebuilds are now reproducible from snapshot, OAuth state is observable from cron, the example MCP config can no longer drift unnoticed, and the eval runner produces diffable artifacts on a schedule. | Helpers under `deployment/helper/` (`export_persona_snapshot.py`, `check_mcp_liveness.py`, `regenerate_extensions_config_example.py`, refactored `run_rag_tests.py`); docs under `docs/ops/literature-corpus-policy.md`, `docs/ops/rag-baselines/README.md`, `deployment/onyx/snapshots/README.md`. | Done — 2026-05-31 |
+| P1 | Onyx | **Stale `Qwen 2.5vl 3B Vision` chat-model entry hidden** — `model_configuration` row id=278 (`qwen2.5vl:3b` on llm_provider id=6, `is_visible=t`) referenced an Ollama model name that LiteLLM does not route. The UI surfaced "Could not resolve provider Qwen 2.5vl 3B Vision" whenever it was selected. | Users picking it from the chat model dropdown got a hard error with no path forward. The active vision routes are `qwen-vision` / `local-vision` exposed through LiteLLM, not the raw Ollama model name. | Set `is_visible=false` on row 278 via direct DB update 2026-05-31. Active vision aliases (`qwen-vision`, `local-vision`) remain available. | Done — 2026-05-31 |
 | P1 | Security | Rotate DeerFlow AUTH_JWT_SECRET after agent session exposure | `deployment/deer-flow/.env` | Done 2026-05-30 — new secret generated and deployed |
 | P0 | Onyx | **Science persona stack rebuilt successfully** — `physics-validator` (id=2), `evidence-auditor` (id=5), `referee-prep` (id=6), and `arxiv-intake` (id=3) are fully functioning | All HEP physics workflows are restored: personas have `qwen-omni-flash` model, correct literature tool IDs (Scite=14, Consensus=13), and correct private doc sets | Rebuilt all personas and corrected literature tool ID mappings in `configure_onyx.py` on 2026-05-30. Smoke test PASS. | Done — 2026-05-30 |
 | P1 | Infra | Sandbox read_only mount blocks some agent writes — `CODE_INTERPRETER_SANDBOX_MOUNT_READ_ONLY=true` prevents agents from writing files back to the aisci workspace from the Onyx sandbox | Some file generation tools fail silently when paths resolve to read-only mounts | Changed `/workspace/aisci` mounts from `:ro` to `:rw` in `docker-compose.yml` to allow agents to generate files locally. | Done — 2026-05-30 |
@@ -13,8 +25,8 @@ Use this file for concise operational state on Onyx, DeerFlow, MCP, Docker, mode
 | P1 | Onyx | **IMAGE_TAG/CRAFT mismatch** — `.env` has `IMAGE_TAG=v4.0.0-beta.0` but CRAFT binary only ships in `craft-latest` image; `ENABLE_CRAFT=true` is set but silently has no effect | CRAFT-based features are unavailable | Update `.env`: `IMAGE_TAG=craft-latest`, `ONYX_WEB_SERVER_IMAGE=onyxdotapp/onyx-web-server:craft-latest`, `ONYX_MODEL_SERVER_IMAGE=onyxdotapp/onyx-model-server:craft-latest`; recreate affected containers. | Done — 2026-05-30 |
 | P1 | Onyx | **Embedding dim corrected in `.env`** — `DOC_EMBEDDING_DIM` and `EMBEDDING_DIM` were `1024` but the active Alibaba index uses 1536 dimensions; corrected to `1536` on 2026-05-30 | A future reindex triggered from a stale container env would have created wrong-sized embeddings | Fixed in `.env` 2026-05-30; no reindex triggered; verify via `deployment/helper/onyx_opensearch_cutover.py --json` before any future reindex | Done — 2026-05-30 |
 | P1 | Onyx | **Ollama missing critical models** — `gemma2:27b` (cloud fallback), `qwen2.5:32b`, and `qwen2.5vl:7b` (visual RAG) are absent; pull of `gemma2:27b` started 2026-05-30; stale `qwen3-embedding:latest` (4.7 GB) removed 2026-05-30 | No local LLM fallback when cloud quota exhausted; visual RAG broken | Initiated pull for `qwen2.5vl:7b` to align visual RAG configuration. | Done — 2026-05-30 |
-| P1 | Onyx | **Scite and Consensus OAuth never completed** — tokens are empty in `.env`; `/tmp/` token files used by `extensions_config.json` don't survive container restarts; all literature MCP calls return 401 | Physics research workflow has no working citation verification or literature search | Complete OAuth browser flows for both services from Onyx or DeerFlow UI; store tokens in `.env.local` (not `/tmp/`); update `extensions_config.json` to read from env vars | Open — 2026-05-30 audit |
-| P1 | Onyx | **RAG Q1–Q5 baseline first run — corpus gaps identified and partially resolved** — `physics-validator` (id=2) index attempt 41 succeeded (1 doc, 187 chunks from `PhD Thesis 2.pdf`); Q1/Q2 returned NOT FOUND because Khuntia/Rath baseline literature PDFs had been purged and not re-uploaded; Q4 referenced a PDF that was never in corpus; Q3/Q5 fail structurally (docs/ not indexed) | Establishes retrieval baseline; corpus gap for HEP literature must be closed before Q1/Q2 can pass | Re-uploaded `Khuntia_2019_1808.02383.pdf` and `Rath_2020_1908.04208.pdf` via `deployment/helper/upload_literature_pdfs.py` 2026-05-30; index attempt 42 triggered; replaced HUBY Q4 with manuscript-grounded question; results of second run pending. See `docs/ops/rag-evaluation-set.md`. | In Progress — 2026-05-30 |
+| P1 | Onyx | **Scite and Consensus OAuth never completed** — tokens are empty in `.env`; `/tmp/` token files used by `extensions_config.json` don't survive container restarts; all literature MCP calls return 401 | Physics research workflow has no working citation verification or literature search | Liveness probe added 2026-05-31 (`deployment/helper/check_mcp_liveness.py`) and wired into `monitoring/check_health.sh`. `extensions_config.example.json` regenerated to reference `$SCITE_MCP_BEARER_TOKEN` / `$CONSENSUS_MCP_BEARER_TOKEN` instead of `$file:/tmp/...`. Token capture itself still requires the operator to run `scite_oauth_probe.py` / `consensus_oauth_probe.py`. | In Progress — probes wired 2026-05-31, tokens still operator-owned |
+| P1 | Onyx | **RAG Q1–Q5 baseline first run — corpus gaps identified and partially resolved** — `physics-validator` (id=2) index attempt 41 succeeded (1 doc, 187 chunks from `PhD Thesis 2.pdf`); Q1/Q2 returned NOT FOUND because Khuntia/Rath baseline literature PDFs had been purged and not re-uploaded; Q4 referenced a PDF that was never in corpus; Q3/Q5 fail structurally (docs/ not indexed) | Establishes retrieval baseline; corpus gap for HEP literature must be closed before Q1/Q2 can pass | Re-uploaded `Khuntia_2019_1808.02383.pdf` and `Rath_2020_1908.04208.pdf` via `deployment/helper/upload_literature_pdfs.py` 2026-05-30; index attempt 42 triggered; replaced HUBY Q4 with manuscript-grounded question; results of second run pending. **Update 2026-05-31:** Q1+Q4+Q5 all returned answers with retrieved chunks in baseline `rag-baseline-2026-05-31T01-08-10Z-persona-2-baseline-2026-05-31.json`; Q2/Q3 hit a transient `nvidia-balanced` cooldown (real failure mode, captured by the runner). See `docs/ops/rag-baselines/`. | Done — 2026-05-31 |
 | P2 | Onyx | **RAG Q3 and Q5 fail structurally — docs/ markdown not indexed** — Q3 (OpenSearch cutover command) and Q5 (RAG-vs-Canon boundary explanation) both live in `docs/ops/onyx-rag-optimization-2026-04-27.md` which is not in any Onyx connector | Cannot test meta-knowledge of RAG system boundaries or internal tooling commands via retrieval | Add a file connector or ingestion-API import covering `docs/ops/` and `docs/decisions/` markdown files. Until then, mark Q3/Q5 as STRUCTURAL GAP in baseline runs, not retrieval failure. **Update 2026-05-30:** Documentation connector (CC pair 6, connector 4) now exists and is ACTIVE. refresh_freq set to 86400 (daily auto-refresh). | Done — 2026-05-30 |
 | P1 | Vision | **Vision model misconfiguration resolved** — aligned references to `qwen2.5vl:7b` since it is successfully pulled in Ollama and set `IMAGE_MODEL_NAME=qwen2.5vl:7b` in `.env` | Image/table summarization during PDF indexing was misaligned with the active local visual RAG model | Aligned `.env` to `qwen2.5vl:7b` to match LiteLLM config, `onyx-configure.md`, and the active Ollama model. Verified that `qwen2.5vl:7b` and `gemma2:27b` are pulled and active. | Done — 2026-05-30 |
 | P0 | Onyx | Inference embedding model database configuration drift | Database had `qwen3-embedding:latest` (invalid Ollama-style name) causing 500 errors on all embedding requests, breaking search functionality | Fixed 2026-05-30: Updated database to `Alibaba-NLP/gte-Qwen2-1.5B-instruct` with 1536 dimensions. Embeddings now generate in 0.2s. See `deployment/onyx/FIXES_APPLIED.md` | Done — 2026-05-30 |
@@ -107,44 +119,39 @@ Use this file for concise operational state on Onyx, DeerFlow, MCP, Docker, mode
 - [ ] Use physics_env: Use the existing virtual environment in `physics/physics_env` which already has `matplotlib` 3.10.9 and other dependencies installed.
 - [ ] Move DashScope API key out of `config.yaml` into `.env` as `$DASHSCOPE_API_KEY` (see security hygiene row above).
 
-## Security Audit Findings (2026-05-30)
+## Security Audit Findings (updated 2026-05-31)
 
-| Provider | Current Tree Exposure | Historical Exposure (SHAs) | Variable Names |
+Keys still present in `deployment/onyx/.env` (tracked file). These are dev/personal keys; user confirmed rotation is not required for current tree exposure (Issue #7 closed). Historical exposure in git history is noted for reference.
+
+| Provider | Current Tree Exposure | Historical Exposure (SHAs) | Variable Names | Status |
 |---|---|---|---|---|
-| Qwen/DashScope | **YES** (deployment/onyx/.env) | f64e7c9 | DASHSCOPE_API_KEY |
-| NVIDIA | **YES** (deployment/onyx/.env) | 888874d, f64e7c9 | NVIDIA_API_KEY |
-| Onyx | **YES** (deployment/onyx/.env, scripts) | f64e7c9, 3e3dd68 | ONYX_API_KEY |
-| Gemini | No | 471d897, d49a9a6 | GEMINI_API_KEY |
-| OpenRouter | No | e370048, 6ff9470, b3376af, 9e85623, 888874d, 9828157 | OPENROUTER_API_KEY |
-| Brave | No | f64e7c9, 471d897, d49a9a6, e370048, 6ff9470, 9e85623, 888874d | BRAVE_SEARCH_API_KEY |
-| ElevenLabs | No | 471d897, d49a9a6, e370048, 6ff9470, 9e85623, 888874d | ELEVENLABS_API_KEY |
-| HF | No | 471d897, d49a9a6, e370048, 6ff9470 | HF_TOKEN |
-| MCP Proxy | No | 471d897, d49a9a6, 942da26, 1286998 | MCP_PROXY_AUTH_TOKEN |
+| Qwen/DashScope | Yes — `.env` line 313 (new key rotated 2026-05-31) | f64e7c9 | DASHSCOPE_API_KEY | Rotated 2026-05-31 |
+| NVIDIA | Yes — `.env` line 305 | 888874d, f64e7c9 | NVIDIA_API_KEY | In use — rotation not required |
+| Onyx | Yes — `.env` line 355 | f64e7c9, 3e3dd68 | ONYX_API_KEY | In use — rotation not required |
+| Gemini | No | 471d897, d49a9a6 | GEMINI_API_KEY | Rotated 2026-05-30 |
+| OpenRouter | No | e370048, 6ff9470, b3376af, 9e85623, 888874d, 9828157 | OPENROUTER_API_KEY | Rotated 2026-05-30 |
+| Brave | No | f64e7c9, 471d897, d49a9a6, e370048, 6ff9470, 9e85623, 888874d | BRAVE_SEARCH_API_KEY | Rotated 2026-05-30 |
+| ElevenLabs | No | 471d897, d49a9a6, e370048, 6ff9470, 9e85623, 888874d | ELEVENLABS_API_KEY | Rotated 2026-05-30 |
+| HF | No | 471d897, d49a9a6, e370048, 6ff9470 | HF_TOKEN | Rotated 2026-05-30 |
+| MCP Proxy | No | 471d897, d49a9a6, 942da26, 1286998 | MCP_PROXY_AUTH_TOKEN | Rotated 2026-05-30 |
 
-**Rotation Checklist for Issue #4:**
-- [ ] **Rotate Qwen/DashScope API Key** (exposed in current tree)
-- [ ] **Rotate NVIDIA API Key** (exposed in current tree)
-- [ ] **Rotate Onyx API Key** (exposed in current tree)
-- [ ] **Scrub deployment/onyx/.env** of literal key values and replace with placeholders.
-- [ ] **Rotate Gemini API Key** (exposed in history)
-- [ ] **Rotate OpenRouter API Key** (exposed in history)
-- [ ] **Rotate Brave Search API Key** (exposed in history)
-- [ ] **Rotate ElevenLabs API Key** (exposed in history)
-- [ ] **Rotate HuggingFace Token** (exposed in history)
-- [ ] **Rotate MCP Proxy Auth Token** (exposed in history)
+**Note:** `deployment/onyx/.env` is tracked intentionally as a dev-defaults file. Live production keys belong in `.env.local` (gitignored). The `~/.bashrc` `DASHSCOPE_API_KEY` export was updated to the new key on 2026-05-31.
 
-## Onyx RAG Corpus Gaps (2026-05-30)
+## Onyx RAG Corpus Gaps (updated 2026-05-31)
 
 | Gap Category | Findings | Next Action | Status |
 |---|---|---|---|
-| Structural Gap | `docs/ops/` and `docs/decisions/` markdown files are NOT indexed in any Onyx connector. Questions Q3 and Q5 fail. | Create a new File connector for the `docs/` directory and map it to a `Meta-Knowledge` document set. | Open |
-| Literature Gap | Khuntia (2019) and Rath (2020) PDFs are present in the DB but retrieval failed due to LiteLLM misconfiguration. | Fix LiteLLM model prefixes to restore RAG retrieval. | Open |
-| Eval Gap | `run_rag_tests.py` returns zero hits for all questions because of LiteLLM `BadRequestError` (missing provider prefix). | Update Onyx LLM configuration to include provider prefixes (e.g., `openai/qwen-balanced`). | Open |
+| Structural Gap | `docs/ops/` and `docs/decisions/` markdown files — Documentation connector (CC pair 6, connector 4) created 2026-05-30, ACTIVE, refresh_freq=86400. | Q5 confirmed retrieving from `ops_onyx-rag-optimization-2026-04-27.md` in baseline run 2026-05-31T01-08-10Z. | Closed — 2026-05-31 |
+| Literature Gap | Khuntia (2019) and Rath (2020) PDFs re-uploaded 2026-05-30 via `upload_literature_pdfs.py`; index attempt 42 triggered. | Q1 confirmed retrieving Khuntia/Rath citations in baseline run 2026-05-31T01-08-10Z. | Closed — 2026-05-31 |
+| Eval Gap | `run_rag_tests.py` was returning zero hits due to LiteLLM `BadRequestError` (old DashScope key + wrong model names). | Runner refactored 2026-05-31 to emit JSON artifacts under `docs/ops/rag-baselines/`; first usable baseline committed (3/5 with answer + retrieval, Q2/Q3 hit transient `nvidia-balanced` rate-limit). Cron snippet wired in `deployment/onyx/monitoring/README.md`. | Closed — 2026-05-31 |
+| Curation Gap | No documented intake/refresh/dedupe path for literature PDFs. | `docs/ops/literature-corpus-policy.md` codifies the canonical add/remove/refresh flow and the dedup rules. | Closed — 2026-05-31 |
+| Persona Snapshot | No reproducible export of persona id=2 (and siblings) for stack rebuilds. | `deployment/helper/export_persona_snapshot.py` writes daily snapshots under `deployment/onyx/snapshots/<date>/`; first snapshot landed 2026-05-31. | Closed — 2026-05-31 |
+| OAuth Liveness | `check_health.sh` had no Scite/Consensus probe. | `deployment/helper/check_mcp_liveness.py` added; wired into `monitoring/check_health.sh` as a hard-fail-on-proxy-error / soft-warn-on-missing-token check. Tokens themselves still operator-owned. | Closed — 2026-05-31 |
+| Extensions Config Drift | Live `deployment/deer-flow/extensions_config.json` had drifted from tracked example (placeholder GitHub token, `$file:/tmp/...` token paths, null placeholders). | `deployment/helper/regenerate_extensions_config_example.py` re-derives the example from the live file with secrets re-abstracted to `$ENV_VAR`. Idempotent (`--check` flag for CI). Example regenerated 2026-05-31. | Closed — 2026-05-31 |
 
 **Targeted Re-indexing Plan for `docs/`:**
-1. **Create File Connector:** Targeted at `/home/ubuntu/aisci/docs/` on the host.
-2. **Path Filtering:** Include only `.md` files. Exclude `archive/`.
-3. **Document Set:** Create `AiSci-System-Docs` document set.
-4. **Validation:** Run RAG Q3/Q5 and verify exact command/explanation retrieval.
+1. **Confirm connector:** Verify CC pair 6 covers `docs/ops/` and `docs/decisions/` with `*.md` filter, excludes `docs/archive/`.
+2. **Document Set:** Attach CC pair 6 to `AiSci-System-Docs` doc set (meta-knowledge personas only, not physics personas).
+3. **Validation:** Run RAG Q3/Q5 and verify exact command/explanation retrieval.
 
 

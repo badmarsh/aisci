@@ -10,10 +10,22 @@ Run from repo root:
 import os, sys, json, requests
 
 BASE_URL = "http://localhost:3000"
-API_KEY = (
-    os.environ.get("ONYX_API_KEY")
-    or "on_hLxHEO432IFLuDN3psKyxgLH3g35yvvZqOx21yP1Iw__GrPullG5YR0h4ZfJpkTZAvPPqhQ28mXd8cHYNWzThjWOCPGBaYO6vnC8G13FcNf3FAt-PDveEyj6slAKrWLZaBeTu-9inqY-Ty-sc0C5MBMSPPD2_z6DG-n8QCn9tjdmabNNFESJhQ9IH0CeoQZ9VycfU3-HyPUL8YO71LIrRFqs1DWh5vAH6tJsTpq6ybdZFY026gSkRsoRFAX3VJTA"
-)
+
+
+def load_api_key() -> str:
+    key = os.environ.get("ONYX_API_KEY", "").strip()
+    if key:
+        return key
+    env_path = os.path.join(os.path.dirname(__file__), "..", "onyx", ".env")
+    if os.path.exists(env_path):
+        with open(env_path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("ONYX_API_KEY="):
+                    return line.split("=", 1)[1].strip().strip('"').strip("'")
+    raise SystemExit("ONYX_API_KEY not in env and not in deployment/onyx/.env")
+
+
+API_KEY = load_api_key()
 HEADERS_AUTH = {"Authorization": f"Bearer {API_KEY}"}
 
 CONNECTOR_ID = 3
