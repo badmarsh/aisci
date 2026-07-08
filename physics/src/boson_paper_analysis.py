@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 Phase 1: Boson Paper Analysis — Robert's "Boson Probability Function for the Moving System"
 ATLAS 13 TeV data, pT and eta cuts.
@@ -19,11 +20,9 @@ full Bose-Einstein model.
 
 import sympy as sp
 from sympy import (
-    symbols, sqrt, exp, sinh, cosh, pi, integrate, oo, simplify,
-    Rational, limit, oo, Abs, log, tanh, atanh, Eq, solve, diff, cos, sin
+    symbols, sqrt, exp, integrate, oo, oo
 )
 import numpy as np
-from scipy.optimize import curve_fit
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -319,7 +318,12 @@ pT_vals = np.linspace(0.1, 10.0, 1000)  # GeV/c
 def boson_distribution(pT_arr, T_param, U_param, eta_max_val=2.5):
     """
     Compute the pT distribution for given T, U by numerically integrating over η.
-    Uses the massless approximation: E ≈ pT·cosh(η)
+
+    Phenomenological Assumptions:
+    - Uses the massless approximation: E ≈ pT·cosh(η), valid for ultra-relativistic particles (pT >> m).
+    - Ignores the Jacobian dy/dη. When pT < 1.0 GeV/c (e.g. pions), the difference between
+      rapidity y and pseudorapidity η introduces a non-negligible Jacobian correction.
+    - Represents a Jüttner-like Boltzmann distribution rather than a full Bose-Einstein form.
     """
     Y_param = np.arcsinh(U_param)
     eta_grid = np.linspace(-eta_max_val, eta_max_val, 200)
