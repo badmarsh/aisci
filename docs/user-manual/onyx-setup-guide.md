@@ -26,7 +26,7 @@ manuscript draft Robert provides directly.
   split mid-line
 - Metadata tag on every upload: `source: robert-corpus`
 - Index target: `onyx-opensearch-1` (not Vespa — see P1 migration note in
-  `docs/ops/platform-status.md`)
+  `docs/ops/platform-backlog.md`)
 
 **What to upload at session start:**
 - `research/robert/manuscript/` — the current paper draft (PDF)

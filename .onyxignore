@@ -43,7 +43,7 @@ __pycache__/
 docs/ops/troubleshooting.md
 docs/ops/onyx-configure.md
 docs/ops/onyx-rag-optimization-*.md
-docs/ops/platform-status.md
+docs/ops/platform-backlog.md
 docs/ops/secrets-and-deployment-notes*.md
 
 # ── Ephemeral session / task-tracking files ──────────────────────────

@@ -19,16 +19,16 @@ services:
     - default
   onyx-api:
     container_name: onyx-api-server
-    image: onyx-backend-custom:${IMAGE_TAG:-craft-latest}
+    image: onyx-backend-custom:v4.0.3
     build:
       context: .
       dockerfile: Dockerfile.backend
       args:
-      - IMAGE_TAG=${IMAGE_TAG:-craft-latest}
+      - IMAGE_TAG=v4.0.3
       - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     command: "/bin/sh -c \"python /app/deployment/patch_mcp_tool.py && if [ \\\"${ENABLE_CRAFT:-false}\\\
       \" = \\\"true\\\" ] || [ \\\"${ENABLE_CRAFT:-false}\\\" = \\\"True\\\" ]; then\n\
-      \  if [ -f /app/scripts/setup_craft_templates.sh ]; then /app/scripts/setup_craft_templates.sh; fi;\nfi && alembic upgrade head && echo\
+      \  /app/scripts/setup_craft_templates.sh;\nfi && alembic upgrade head && echo\
       \ \\\"Starting Onyx Api Server\\\" && uvicorn onyx.main:app --factory --host\
       \ 0.0.0.0 --port 8080 --workers $${ONYX_API_WORKERS:-1}\"\n"
     env_file:
@@ -59,12 +59,9 @@ services:
     environment:
     - AUTH_TYPE=${AUTH_TYPE:-basic}
     - FILE_STORE_BACKEND=${FILE_STORE_BACKEND:-s3}
-    - LOG_FORMAT=${LOG_FORMAT:-json}
     - LOG_LEVEL=ERROR
     - C_FORCE_ROOT=true
     - POSTGRES_HOST=onyx-db
-    - POSTGRES_USER=${POSTGRES_USER:-postgres}
-    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
     - OPENSEARCH_HOST=onyx-opensearch
     - OPENSEARCH_USE_SSL=false
     - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
@@ -74,8 +71,8 @@ services:
     - INDEXING_MODEL_SERVER_HOST=onyx-indexing
     - CODE_INTERPRETER_BASE_URL=http://onyx-code-interpreter:8000
     - S3_ENDPOINT_URL=http://onyx-minio:9000
-    - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID}
-    - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY}
+    - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID:-minioadmin}
+    - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY:-minioadmin}
     - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     - OUTPUTS_TEMPLATE_PATH=/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/outputs
     - VENV_TEMPLATE_PATH=/app/onyx/server/features/build/sandbox/kubernetes/docker/templates/venv
@@ -97,15 +94,14 @@ services:
     - /home/ubuntu/aisci:/workspace/aisci
     networks:
     - default
-    - onyx_storage
   onyx-background:
     container_name: onyx-background
-    image: onyx-backend-custom:${IMAGE_TAG:-craft-latest}
+    image: onyx-backend-custom:v4.0.3
     build:
       context: .
       dockerfile: Dockerfile.backend
       args:
-      - IMAGE_TAG=${IMAGE_TAG:-craft-latest}
+      - IMAGE_TAG=v4.0.3
       - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
     command: "/bin/sh -c \"python /app/deployment/patch_mcp_tool.py && if [ -f /etc/ssl/certs/custom-ca.crt\
       \ ]; then\n  update-ca-certificates;\nfi && rm -f /app/celerybeat-schedule*\
@@ -137,14 +133,11 @@ services:
     restart: unless-stopped
     environment:
     - FILE_STORE_BACKEND=${FILE_STORE_BACKEND:-s3}
-    - LOG_FORMAT=${LOG_FORMAT:-json}
     - LOG_LEVEL=INFO
     - C_FORCE_ROOT=true
     - CELERY_WORKER_DOCPROCESSING_CONCURRENCY=2
     - CELERY_WORKER_DOCFETCHING_CONCURRENCY=2
     - POSTGRES_HOST=onyx-db
-    - POSTGRES_USER=${POSTGRES_USER:-postgres}
-    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
     - OPENSEARCH_HOST=onyx-opensearch
     - OPENSEARCH_USE_SSL=false
     - ENABLE_OPENSEARCH_INDEXING_FOR_ONYX=${OPENSEARCH_FOR_ONYX_ENABLED:-true}
@@ -153,8 +146,8 @@ services:
     - MODEL_SERVER_HOST=onyx-inference
     - INDEXING_MODEL_SERVER_HOST=onyx-indexing
     - S3_ENDPOINT_URL=http://onyx-minio:9000
-    - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID}
-    - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY}
+    - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID:-minioadmin}
+    - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY:-minioadmin}
     - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
     - DISCORD_BOT_INVOKE_CHAR=${DISCORD_BOT_INVOKE_CHAR:-!}
     - API_SERVER_PROTOCOL=http
@@ -180,7 +173,6 @@ services:
         max-file: '6'
     networks:
     - default
-    - onyx_storage
   onyx-web:
     container_name: onyx-web-server
     image: onyxdotapp/onyx-web-server:${IMAGE_TAG:-v4.0.3}
@@ -216,13 +208,10 @@ services:
     - /home/ubuntu/aisci:/workspace/aisci
     runtime: nvidia
     environment:
-    - LOG_FORMAT=${LOG_FORMAT:-json}
     - NVIDIA_VISIBLE_DEVICES=all
-    - DOCUMENT_ENCODER_MODEL=${DOCUMENT_ENCODER_MODEL:-BAAI/bge-m3}
-    - EMBEDDING_DIM=${EMBEDDING_DIM:-1024}
-    - DOC_EMBEDDING_DIM=${DOC_EMBEDDING_DIM:-1024}
+    - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
+    - EMBEDDING_DIM=1536
     - NORMALIZE_EMBEDDINGS=True
-    - RERANK_MODEL_NAME=${RERANK_MODEL_NAME:-BAAI/bge-reranker-v2-m3}
     logging:
       driver: json-file
       options:
@@ -246,13 +235,10 @@ services:
     restart: unless-stopped
     environment:
     - INDEXING_ONLY=True
-    - LOG_FORMAT=${LOG_FORMAT:-json}
     - NVIDIA_VISIBLE_DEVICES=all
-    - DOCUMENT_ENCODER_MODEL=${DOCUMENT_ENCODER_MODEL:-BAAI/bge-m3}
-    - EMBEDDING_DIM=${EMBEDDING_DIM:-1024}
-    - DOC_EMBEDDING_DIM=${DOC_EMBEDDING_DIM:-1024}
+    - DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct
+    - EMBEDDING_DIM=1536
     - NORMALIZE_EMBEDDINGS=True
-    - RERANK_MODEL_NAME=${RERANK_MODEL_NAME:-BAAI/bge-reranker-v2-m3}
     runtime: nvidia
     volumes:
     - indexing_huggingface_model_cache:/app/.cache/huggingface/
@@ -292,12 +278,7 @@ services:
     - OPENSEARCH_INITIAL_ADMIN_PASSWORD=StrongPassword123!
     - discovery.type=single-node
     - bootstrap.memory_lock=true
-    # AIS-64: Set OPENSEARCH_HEAP in .env to 50% of host RAM (max 32g).
-    # Default 4g is conservative; increase for better k-NN performance.
-    - OPENSEARCH_JAVA_OPTS=-Xms${OPENSEARCH_HEAP:-4g} -Xmx${OPENSEARCH_HEAP:-4g}
-    # AIS-64: Explicit k-NN plugin configuration
-    - node.attr.knn_enabled=true
-    - knn.memory.circuit_breaker.limit=60%
+    - OPENSEARCH_JAVA_OPTS=-Xms4g -Xmx4g
     restart: unless-stopped
     env_file:
     - path: .env
@@ -368,14 +349,14 @@ services:
     - path: .env.local
       required: false
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
       MINIO_DEFAULT_BUCKETS: ${S3_FILE_STORE_BUCKET_NAME:-onyx-file-store-bucket}
     volumes:
     - minio_data:/data
     command: server /data --console-address ":9001"
     networks:
-    - onyx_storage
+    - default
   onyx-code-interpreter:
     container_name: onyx-code-interpreter
     image: onyxdotapp/code-interpreter:latest
@@ -497,16 +478,11 @@ services:
     - path: .env.local
       required: false
     restart: unless-stopped
-    depends_on:
-    - onyx-mcp-server
     networks:
     - default
 networks:
   default:
     name: onyx_default
-  onyx_storage:
-    name: onyx_storage
-    internal: true
 volumes:
   db_volume: null
   minio_data: null

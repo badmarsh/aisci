@@ -2,90 +2,85 @@ model_list:
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/DASHSCOPE_API_KEY
-    model: openai/qwen3.5-omni-flash
+    model: openai/qwen3.5-plus-2026-02-15
     timeout: 120
-    extra_body:
-      enable_thinking: false
   model_name: qwen-cloud-fast
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/DASHSCOPE_API_KEY
-    model: openai/qwen3.5-omni-flash
+    model: openai/qwen3.5-plus-2026-02-15
     timeout: 120
-    extra_body:
-      enable_thinking: false
   model_name: qwen-rag-fast
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/DASHSCOPE_API_KEY
-    model: openai/qwen3.5-omni-plus
-    timeout: 180
-    extra_body:
-      enable_thinking: false
+    model: openai/qwen3.5-plus-2026-02-15
+    timeout: 120
   model_name: qwen-rag-balanced
 
 - litellm_params:
-    api_base: http://onyx-ollama:11434/v1
+    api_base: http://ollama:11434/v1
     api_key: none
     model: openai/gemma2:27b
   model_name: gemma2
 
 - litellm_params:
-    api_base: http://onyx-ollama:11434/v1
+    api_base: http://ollama:11434/v1
     api_key: none
     model: openai/qwen2.5vl:7b
     timeout: 600
   model_name: qwen-rag-local
 
-# qwen-rag-quality removed 2026-06-19: mistral-small:22b not installed in onyx-ollama
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/mistral-small:22b
+    timeout: 600
+  model_name: qwen-rag-quality
 
 - litellm_params:
-    api_base: http://onyx-ollama:11434/v1
+    api_base: http://ollama:11434/v1
     api_key: none
     model: openai/qwen2.5vl:7b
     timeout: 600
   model_name: qwen-rag-vision
 
 - litellm_params:
-    api_base: http://onyx-ollama:11434/v1
+    api_base: http://ollama:11434/v1
     api_key: none
     model: openai/qwen2.5vl:7b
   model_name: qwen2.5vl
 
-# qwen2.5-omni-7b removed 2026-06-19: qwen2.5-omni:7b not installed in onyx-ollama
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/qwen2.5-omni:7b
+  model_name: qwen2.5-omni-7b
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/DASHSCOPE_API_KEY
-    model: openai/qwen3.5-omni-flash
-    extra_body:
-      enable_thinking: false
+    model: openai/qwen3.5-plus-2026-02-15
   model_name: qwen-omni-flash
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/DASHSCOPE_API_KEY
-    model: openai/qwen3.5-omni-plus
-    extra_body:
-      enable_thinking: false
+    model: openai/qwen3.5-plus-2026-02-15
   model_name: qwen-max
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/DASHSCOPE_API_KEY
-    model: openai/qwen3.5-omni-plus
-    extra_body:
-      enable_thinking: false
+    model: openai/qwen3.5-plus-2026-02-15
   model_name: dashscope/qwen-plus-2025-04-28
 
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
     api_key: os.environ/DASHSCOPE_API_KEY
-    model: openai/qwen3.5-omni-plus
-    extra_body:
-      enable_thinking: false
+    model: openai/qwen3.5-plus-2026-02-15
   model_name: dashscope/glm-5.1
 
 - litellm_params:
@@ -100,34 +95,32 @@ model_list:
     model: openai/qwen/qwen-2.5-coder-32b-instruct
   model_name: openrouter-qwen-coder-32b
 
-# llama-3.1-8b removed 2026-06-19: llama3.1:8b not installed in onyx-ollama
-# local-embedding-optical removed 2026-06-19: nomic-embed-text:latest not installed in onyx-ollama
-# qwen-embedder removed 2026-06-19: nomic-embed-text:latest not installed in onyx-ollama
-# Image-generation removed 2026-06-19: DashScope wan2.7-image blocked (account payment issue)
-# Video-generation removed 2026-06-19: DashScope wan2.7-t2v unsupported in OpenAI compat mode
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/llama3.1:8b
+  model_name: llama-3.1-8b
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/nomic-embed-text:latest
+    model_type: embedding
+  model_name: local-embedding-optical
+
+- litellm_params:
+    api_base: http://ollama:11434/v1
+    api_key: none
+    model: openai/nomic-embed-text:latest
+    model_type: embedding
+  model_name: qwen-embedder
 
 router_settings:
   allowed_fails: 10
-  cooldown_time: 30   # AIS-67: was 0; give failed cloud models 30s before retry
-  enable_pre_call_checks: true
+  cooldown_time: 0
+  enable_pre_call_checks: false
   routing_strategy: latency-based-routing
   timeout: 1200
   num_retries: 3
   retry_after: 5
-  # AIS-67: General fallback chain — triggered on RateLimitError, APIConnectionError,
-  # ServiceUnavailableError, and any other non-context-window error.
-  # Without this key, 429s from DashScope propagate directly to the user.
-  fallbacks:
-    - qwen-cloud-fast: [qwen-rag-local, gemma2]
-    - qwen-rag-fast: [qwen-rag-local, gemma2]
-    - qwen-rag-balanced: [gemma2, qwen-rag-local]
-    - qwen-max: [qwen-rag-balanced, qwen-rag-local, gemma2]
-    - qwen-omni-flash: [qwen-rag-local, gemma2]
-  context_window_fallbacks:
-    - qwen-rag-fast: [qwen-rag-balanced, gemma2]
-    - qwen-rag-balanced: [gemma2]
-    - qwen-cloud-fast: [qwen-rag-local, gemma2]
-    - qwen-max: [qwen-rag-balanced, gemma2]
-  content_policy_fallbacks:
-    - qwen-cloud-fast: [qwen-rag-local]
-    - qwen-max: [qwen-rag-local]
+

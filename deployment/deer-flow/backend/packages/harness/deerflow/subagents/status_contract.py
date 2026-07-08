@@ -58,7 +58,12 @@ _PREFIX_TO_STATUS: tuple[tuple[str, SubagentStatusValue], ...] = (
     ("Task timed out", "timed_out"),
     ("Task cancelled by user", "cancelled"),
     ("Task failed.", "failed"),
-    ("Error", "failed"),
+    # BUGFIX: the docstring above says this catches "the bare ``Error:`` prefix",
+    # but the tuple was ("Error", "failed"). Without the colon, any successful
+    # task whose result text begins with the word "Error" (e.g. "Error handling
+    # in this codebase is ...") was misclassified as `failed` and hid the real
+    # result from the frontend card. Restore the documented contract.
+    ("Error:", "failed"),
 )
 
 

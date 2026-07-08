@@ -1,14 +1,12 @@
 from pathlib import Path
-import sys
 
-python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
 
 MCP_TOOL_PATH = Path("/app/onyx/tools/tool_implementations/mcp/mcp_tool.py")
 LITELLM_FACTORY_PATH = Path(
-    f"/usr/local/lib/python{python_version}/site-packages/litellm/litellm_core_utils/prompt_templates/factory.py"
+    "/usr/local/lib/python3.11/site-packages/litellm/litellm_core_utils/prompt_templates/factory.py"
 )
 LITELLM_OPENAI_PATH = Path(
-    f"/usr/local/lib/python{python_version}/site-packages/litellm/llms/openai/openai.py"
+    "/usr/local/lib/python3.11/site-packages/litellm/llms/openai/openai.py"
 )
 MULTI_LLM_PATH = Path("/app/onyx/llm/multi_llm.py")
 OPENSEARCH_INDEX_PATH = Path(
@@ -233,74 +231,6 @@ def patch_opensearch_search_source_hydration() -> None:
     print("patch_opensearch_search_source_hydration: no longer needed in v4.0.3+")
 
 
-def patch_missing_file_store_handling() -> None:
-    path = Path("/app/onyx/connectors/file/connector.py")
-    if not path.exists():
-        return
-    text = path.read_text()
-    if "Failed to read file %s from file store: %s" in text:
-        return
-
-    old = 'file_io = file_store.read_file(file_id=file_id, mode="b")'
-    new = '''try:
-                file_io = file_store.read_file(file_id=file_id, mode="b")
-            except Exception as e:
-                logger.error("Failed to read file %s from file store: %s", file_id, e)
-                continue'''
-
-    if old in text:
-        text = text.replace(old, new, 1)
-        path.write_text(text)
-
-
-def patch_local_file_connector_disk_fallback() -> None:
-    path = Path("/app/onyx/connectors/file/connector.py")
-    if not path.exists():
-        return
-    text = path.read_text()
-    
-    target = "        for file_id in self.file_locations:\n"
-    if "file_id.startswith(" in text:
-        # We need to remove the previous injection to re-apply
-        start_idx = text.find(target)
-        if start_idx != -1:
-            end_idx = text.find("            file_store = get_default_file_store()", start_idx)
-            if end_idx != -1:
-                text = text[:start_idx] + text[end_idx:]
-    
-    injection = """        for file_id in self.file_locations:
-            if str(file_id).startswith("/workspace/") and os.path.exists(file_id):
-                file_name = os.path.basename(file_id)
-                from io import BytesIO
-                try:
-                    with open(file_id, "rb") as f:
-                        file_io = BytesIO(f.read())
-                    
-                    metadata = zip_metadata.get(
-                        file_name, {}
-                    ) or zip_metadata.get(os.path.basename(file_name), {})
-
-                    new_docs = _process_file(
-                        file_id=file_id,
-                        file_name=file_name,
-                        file=file_io,
-                        metadata=metadata,
-                        pdf_pass=self.pdf_pass,
-                        file_type=None,
-                    )
-                    documents.extend(new_docs)
-                    if len(documents) >= self.batch_size:
-                        yield documents
-                        documents = []
-                except Exception as e:
-                    logger.error("Failed to read from disk %s: %s", file_id, e)
-                continue\n"""
-    
-    if target in text:
-        text = text.replace(target, injection, 1)
-        path.write_text(text)
-
-
 if __name__ == "__main__":
     patch_mcp_tool_names()
     patch_vertex_gemini_tool_results()
@@ -308,5 +238,3 @@ if __name__ == "__main__":
     patch_onyx_empty_tool_kwargs()
     patch_opensearch_missing_update_logging()
     patch_opensearch_search_source_hydration()
-    patch_missing_file_store_handling()
-    patch_local_file_connector_disk_fallback()

@@ -30,7 +30,7 @@ At decision time, the Onyx stack was healthy with Unstructured. The active DB/in
 - nomic-embed-text 768-dim embeddings: configured baseline at the time;
   later superseded operationally by the Alibaba/OpenSearch rebuild noted below
 - Retrieval evaluation set (20-30 questions): not yet built —
-  open item in `Multica Issues`
+  open item in `docs/ops/platform-backlog.md`
 - Consequence: no RAG tuning should proceed until both items above
   are resolved; `onyx-rag-eval-manager` enforces this gate.
 

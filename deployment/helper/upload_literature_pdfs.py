@@ -1,4 +1,3 @@
-from __future__ import annotations
 """
 Upload Khuntia 2019 and Rath 2020 baseline literature PDFs to the
 existing Onyx file connector (connector_id=3, cc_pair_id=4) using the

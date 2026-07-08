@@ -17,9 +17,26 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import time
 from pathlib import Path
 from typing import Any
+
+
+# BUGFIX: run_id and version_id were interpolated directly into filesystem
+# paths and glob patterns. A run_id like "../../etc/passwd" or one containing
+# glob metacharacters ("*", "?", "[") could either escape the storage
+# directory (load/save) or match unintended files (list_versions/_prune).
+_ID_RE = re.compile(r"[^A-Za-z0-9._-]")
+
+
+def _safe_id(value: str, *, field: str) -> str:
+    if not value or not isinstance(value, str):
+        raise ValueError(f"{field} must be a non-empty string")
+    cleaned = _ID_RE.sub("_", value)
+    if not cleaned or cleaned in ("", ".", ".."):
+        raise ValueError(f"{field} is not a safe identifier: {value!r}")
+    return cleaned
 
 
 class ReportVersionStore:
@@ -38,6 +55,7 @@ class ReportVersionStore:
         metadata: dict[str, Any] | None = None,
     ) -> str:
         """Persist a version and return its version_id."""
+        run_id = _safe_id(run_id, field="run_id")
         ts = int(time.time())
         content_hash = hashlib.sha256(report_text.encode()).hexdigest()[:12]
         version_id = f"{run_id}__{ts}__{content_hash}"
@@ -56,6 +74,7 @@ class ReportVersionStore:
 
     def list_versions(self, run_id: str) -> list[dict[str, Any]]:
         """Return version records newest-first (report text excluded)."""
+        run_id = _safe_id(run_id, field="run_id")
         records = []
         for p in self.dir.glob(f"{run_id}__*.json"):
             try:
@@ -67,7 +86,12 @@ class ReportVersionStore:
 
     def load(self, version_id: str) -> str:
         """Return the report text for a given version_id."""
+        version_id = _safe_id(version_id, field="version_id")
         path = self.dir / f"{version_id}.json"
+        # Belt-and-suspenders: ensure we never escape the storage directory.
+        resolved = path.resolve()
+        if self.dir.resolve() not in resolved.parents:
+            raise ValueError(f"Refusing to load outside storage dir: {version_id}")
         if not path.exists():
             raise FileNotFoundError(f"Version not found: {version_id}")
         data = json.loads(path.read_text(encoding="utf-8"))

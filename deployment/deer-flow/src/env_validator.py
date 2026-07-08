@@ -34,6 +34,7 @@ ENV_SPEC: list[EnvVar] = [
     EnvVar("NVIDIA_API_KEY",    "info",  "NVIDIA NIM provider",                       "llm"),
     EnvVar("DASHSCOPE_API_KEY", "info",  "Alibaba DashScope (Qwen models)",           "llm"),
     EnvVar("ONYX_API_KEY",      "info",  "AiSci Onyx LiteLLM proxy",                 "llm"),
+    EnvVar("CODEX_API_KEY",     "info",  "Codex CLI authenticated endpoint",          "llm"),
     EnvVar("VECTOR_STORE_BACKEND", "info", "chroma | qdrant | disabled",              "memory"),
     EnvVar("CHROMA_HOST",       "info",  "Chroma host (if backend=chroma)",           "memory"),
     EnvVar("QDRANT_URL",        "info",  "Qdrant URL (if backend=qdrant)",            "memory"),
@@ -72,6 +73,13 @@ def validate_env(exit_on_required: bool = True) -> bool:
                 print(f"  {color}{mark}{RESET}  {v.name:<32} {v.description}")
                 if v.level == "required":
                     errors.append(v.name)
+
+    # BUGFIX: TASK_QUEUE_ENABLED=true with no REDIS_URL used to pass validation
+    # then fail deep inside enqueue_research at runtime with an opaque error.
+    # Escalate the cross-dependency at startup.
+    if os.getenv("TASK_QUEUE_ENABLED", "").lower() == "true" and not os.getenv("REDIS_URL"):
+        print(f"\n{RED}ERROR: TASK_QUEUE_ENABLED=true requires REDIS_URL to be set.{RESET}")
+        errors.append("REDIS_URL")
 
     if errors:
         print(f"\n{RED}ERROR: Missing required vars: {', '.join(errors)}{RESET}")

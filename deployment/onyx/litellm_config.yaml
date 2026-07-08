@@ -1,13 +1,3 @@
-# ============================================================
-# STALE REFERENCE COPY — DO NOT EDIT
-# ============================================================
-# The onyx-litellm container mounts:
-#   deployment/onyx/onyx-litellm_config.yaml
-# This file (litellm_config.yaml) is an older reference copy
-# with incorrect hostname aliases (ollama vs onyx-ollama),
-# missing enable_thinking: false, and missing openai/ prefixes.
-# Marked stale 2026-06-19. Edit onyx-litellm_config.yaml instead.
-# ============================================================
 model_list:
 - litellm_params:
     api_base: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
@@ -79,12 +69,6 @@ model_list:
 router_settings:
   allowed_fails: 10
   cooldown_time: 0
-  enable_pre_call_checks: true
+  enable_pre_call_checks: false
   routing_strategy: latency-based-routing
   timeout: 1200
-  context_window_fallbacks:
-    - qwen-rag-fast: [qwen-rag-balanced, gemma2]
-    - qwen-rag-balanced: [gemma2]
-    - qwen-cloud-fast: [qwen-rag-local, gemma2]
-  content_policy_fallbacks:
-    - qwen-cloud-fast: [qwen-rag-local]

@@ -2,7 +2,7 @@
 
 This file records completed platform and infrastructure work. Science progress is tracked separately in `research/robert/evidence-ledger.md`.
 
-For open and in-progress tasks see `docs/ops/Multica Issues`.
+For open and in-progress tasks see `docs/ops/platform-backlog.md`.
 
 ---
 

@@ -15,7 +15,7 @@ queries = [
     "What is the command to run the OpenSearch parity regression check?"
 ]
 
-def run_query(question, query_num):
+def test_query(question, query_num):
     print(f"\n{'='*80}")
     print(f"Query {query_num}: {question}")
     print('='*80)
@@ -106,7 +106,7 @@ def run_query(question, query_num):
 if __name__ == "__main__":
     session_ids = []
     for i, query in enumerate(queries, 1):
-        sid = run_query(query, i)
+        sid = test_query(query, i)
         if sid:
             session_ids.append(sid)
 

@@ -99,7 +99,7 @@ def run_from_host(args: argparse.Namespace) -> dict[str, Any]:
         "compose",
         "exec",
         "-T",
-        "onyx-api",
+        "api_server",
         "python",
         DEFAULT_CONTAINER_PATH,
         "--inside-container",

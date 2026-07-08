@@ -18,6 +18,10 @@ import os
 import tempfile
 from typing import Any
 
+# BUGFIX: cap remote PDF downloads so a hostile or misconfigured URL cannot
+# stream unbounded bytes into memory / disk.
+MAX_PDF_BYTES = int(os.getenv("PDF_MAX_BYTES", str(50 * 1024 * 1024)))  # 50 MiB
+
 
 def extract_pdf(path: str, max_pages: int = 50) -> dict[str, Any]:
     """Extract text from a local PDF file."""
@@ -62,18 +66,26 @@ async def extract_pdf_from_url(
     """Download a PDF from url and extract its text asynchronously."""
     import httpx
     async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
-        resp = await client.get(url)
-        resp.raise_for_status()
-        content = resp.content
+        # BUGFIX: stream + size check instead of buffering the whole body.
+        async with client.stream("GET", url) as resp:
+            resp.raise_for_status()
+            content = bytearray()
+            async for chunk in resp.aiter_bytes():
+                content.extend(chunk)
+                if len(content) > MAX_PDF_BYTES:
+                    raise ValueError(
+                        f"PDF exceeds MAX_PDF_BYTES={MAX_PDF_BYTES} at {url}"
+                    )
+            content = bytes(content)
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
         f.write(content)
         tmp_path = f.name
 
     try:
-        result = await asyncio.get_event_loop().run_in_executor(
-            None, extract_pdf, tmp_path, max_pages
-        )
+        # BUGFIX: asyncio.get_event_loop() is deprecated in 3.10+ and raises
+        # DeprecationWarning / RuntimeError under 3.12+. Use asyncio.to_thread.
+        result = await asyncio.to_thread(extract_pdf, tmp_path, max_pages)
         result["source_url"] = url
         return result
     finally:

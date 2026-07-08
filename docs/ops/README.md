@@ -12,7 +12,7 @@ the durable current-state reference; link issues from them when work is open.
 
 | Topic | Canonical file |
 |---|---|
-| Open work / operational state | Multica Issues (`multica issue list`) |
+| Open work / operational state | [`platform-backlog.md`](platform-backlog.md) |
 | Deployment shape, services, repo layout | [`deployment-reference.md`](deployment-reference.md) |
 | Onyx runtime config (embeddings, LiteLLM, Craft, MCP) | [`onyx-configure.md`](onyx-configure.md) |
 | Onyx personas & document sets (live registry) | [`onyx-persona-ids.md`](onyx-persona-ids.md) |
@@ -25,7 +25,8 @@ delete the stale copy in the other file.
 ## All Files by Purpose
 
 ### Platform state & deployment
-- [`platform-status.md`](platform-status.md) — concise operational state (security, corpus gaps); active tasks in Multica Issues
+- [`platform-backlog.md`](platform-backlog.md) — prioritized operational
+  backlog and audit log. Source of truth for what is open vs done.
 - [`deployment-reference.md`](deployment-reference.md) — live services, host
   URLs, actual repository layout, operational commands, maintenance notes.
 - [`critical-components.md`](critical-components.md) — operational component map
