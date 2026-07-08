@@ -9,8 +9,7 @@
         "@modelcontextprotocol/server-filesystem",
         "/app",
         "/app/backend/.deer-flow",
-        "/app/skills",
-        "/home/ubuntu/aisci"
+        "/app/skills"
       ],
       "env": {},
       "url": null,
@@ -82,7 +81,7 @@
       "description": "SQLite database access for internal LangGraph checkpoints"
     },
     "scite": {
-      "enabled": false,
+      "enabled": true,
       "type": "http",
       "command": null,
       "args": [],
@@ -95,7 +94,7 @@
       "description": "Scite API for literature citation contexts and exact manuscript claim verification"
     },
     "consensus": {
-      "enabled": false,
+      "enabled": true,
       "type": "http",
       "command": null,
       "args": [],

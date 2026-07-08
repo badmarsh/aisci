@@ -31,34 +31,15 @@ if resp.status_code != 200 or resp.json().get("role") != "admin":
     sys.exit(1)
 print("Auth OK")
 
-# We resolve tools dynamically based on DB to be extremely robust
-try:
-    import subprocess
-    db_tools_out = subprocess.check_output([
-        "docker", "exec", "-i", "onyx-db", "psql", "-U", "postgres", "-d", "postgres", "-c", 
-        "SELECT id, name FROM tool;"
-    ]).decode('utf-8')
-    db_tools = {}
-    for line in db_tools_out.splitlines():
-        parts = [p.strip() for p in line.split('|')]
-        if len(parts) >= 2 and parts[0].isdigit():
-            db_tools[parts[1]] = int(parts[0])
-    
-    internal_search_id = db_tools.get("internal_search", 1)
-    read_file_id = db_tools.get("read_file", 9)
-    scite_tool_id = db_tools.get("search_literature", 14)
-    consensus_tool_id = db_tools.get("search", 13)
-    print(f"Dynamically resolved tool IDs from DB:")
-    print(f"  internal_search: {internal_search_id}")
-    print(f"  read_file: {read_file_id}")
-    print(f"  scite (search_literature): {scite_tool_id}")
-    print(f"  consensus (search): {consensus_tool_id}")
-except Exception as e:
-    print(f"Warning: Failed to dynamically resolve tool IDs: {e}. Falling back to default mappings.")
-    internal_search_id = 1
-    read_file_id = 9
-    scite_tool_id = 14
-    consensus_tool_id = 13
+# We map tools directly based on descriptions
+scite_tool_id = 11
+consensus_tool_id = 12
+hep_arxiv_tool_id = 28
+hep_inspire_tool_id = 29
+hepdata_tool_id = 30
+
+print(f"Scite Tool ID: {scite_tool_id}")
+print(f"Consensus Tool ID: {consensus_tool_id}")
 
 print("\nSTEP 2 - Document Sets")
 resp = requests.get(f"{BASE_URL}/api/manage/document-set", headers=HEADERS)
@@ -264,8 +245,7 @@ persona_configs = {
         "description": "Retrieval-only corpus checker. Finds and quotes exact passages. Never reasons or derives \u2014 only retrieves and cites.",
         "system_prompt": prompts["physics-validator"],
         "document_set_ids": [doc_set_ids.get("Robert Corpus")],
-        "tool_ids": [internal_search_id],
-        "num_chunks": 10,
+        "tool_ids": [],
         "llm_model_version_override": None,
         "is_public": True,
         "display_priority": 1,
@@ -280,8 +260,7 @@ persona_configs = {
         "description": "Consistency checker. Audits a pasted list of ledger claims against the corpus and Scite citations. Returns CONFIRMED / WEAKENED / MISSING per claim.",
         "system_prompt": prompts["evidence-auditor"],
         "document_set_ids": [ds_id for ds_id in [doc_set_ids.get("Robert Corpus"), doc_set_ids.get("Scite Citations")] if ds_id is not None],
-        "tool_ids": [internal_search_id, scite_tool_id, consensus_tool_id],
-        "num_chunks": 10,
+        "tool_ids": [tid for tid in [scite_tool_id, consensus_tool_id] if tid is not None],
         "llm_model_version_override": "qwen2.5:32b",
         "is_public": True,
         "display_priority": 2,
@@ -296,8 +275,7 @@ persona_configs = {
         "description": "Drafts referee-report prose from pre-verified CONFIRMED ledger claims only. Blocks any unconfirmed claim with an explicit placeholder.",
         "system_prompt": prompts["referee-prep"],
         "document_set_ids": [ds_id for ds_id in [doc_set_ids.get("Robert Corpus"), doc_set_ids.get("Scite Citations")] if ds_id is not None],
-        "tool_ids": [tid for tid in [internal_search_id, scite_tool_id, consensus_tool_id] if tid is not None],
-        "num_chunks": 5,
+        "tool_ids": [tid for tid in [scite_tool_id, consensus_tool_id] if tid is not None],
         "llm_model_version_override": None,
         "is_public": True,
         "display_priority": 3,
@@ -313,7 +291,6 @@ persona_configs = {
         "system_prompt": prompts["arxiv-intake"],
         "document_set_ids": [doc_set_ids.get("arXiv Auto \u2014 Quarantine")] if doc_set_ids.get("arXiv Auto \u2014 Quarantine") else [],
         "tool_ids": [],
-        "num_chunks": 10,
         "llm_model_version_override": None,
         "is_public": False,
         "display_priority": 4,
@@ -345,7 +322,7 @@ for name, config in persona_configs.items():
         "is_public": config["is_public"],
         "display_priority": config["display_priority"],
         "starter_messages": config["starter_messages"],
-        "num_chunks": config["num_chunks"],
+        "num_chunks": 0,
         "llm_relevance_filter": False,
         "datetime_aware": False
     }

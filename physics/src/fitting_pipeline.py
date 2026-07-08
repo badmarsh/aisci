@@ -591,53 +591,24 @@ def plot_fit_diagnostics(
     pulls: np.ndarray,
     title: str,
 ) -> None:
-    """4-panel diagnostic figure: data+fit, residuals, pulls vs pT, pull histogram."""
     if plt is None:
         raise RuntimeError("matplotlib is not installed")
 
-    from scipy.stats import norm as _sp_norm
-
-    figure, axes = plt.subplots(4, 1, figsize=(8, 13))
-
-    # Panel 0: data + fit
+    figure, axes = plt.subplots(3, 1, figsize=(8, 10), sharex=True)
     axes[0].errorbar(x_values, y_values, yerr=y_errors, fmt="o", label="data")
     axes[0].plot(x_values, predictions, label="fit")
     axes[0].set_ylabel("yield")
     axes[0].legend()
     axes[0].set_title(title)
 
-    # Panel 1: residuals
     axes[1].axhline(0.0, color="black", linewidth=0.8)
     axes[1].plot(x_values, residuals, marker="o")
     axes[1].set_ylabel("residual")
-    axes[1].set_xlabel("pT [GeV]")
 
-    # Panel 2: pulls vs pT with sigma bands
     axes[2].axhline(0.0, color="black", linewidth=0.8)
-    axes[2].axhspan(-1.0, 1.0, alpha=0.12, color="green", label=u"\u00b11\u03c3")
-    axes[2].axhspan(-2.0, 2.0, alpha=0.06, color="gold", label=u"\u00b12\u03c3")
-    axes[2].scatter(x_values, pulls, s=18, zorder=3)
+    axes[2].plot(x_values, pulls, marker="o")
     axes[2].set_ylabel("pull")
     axes[2].set_xlabel("pT [GeV]")
-    axes[2].legend(fontsize=7)
-
-    # Panel 3: 1-D pull histogram + N(0,1) overlay
-    if len(pulls) > 1:
-        mu_p  = float(np.mean(pulls))
-        sig_p = float(np.std(pulls, ddof=1))
-        n_bins = max(5, int(np.ceil(np.sqrt(len(pulls)))))
-        _, edges, _ = axes[3].hist(
-            pulls, bins=n_bins, density=True, alpha=0.65, color="steelblue",
-            edgecolor="white", label="pulls"
-        )
-        x_lin = np.linspace(edges[0] - 0.5, edges[-1] + 0.5, 200)
-        axes[3].plot(x_lin, _sp_norm.pdf(x_lin, 0, 1), "k-", lw=1.6, label=r"$\mathcal{N}(0,1)$")
-        axes[3].plot(x_lin, _sp_norm.pdf(x_lin, mu_p, max(sig_p, 1e-6)), "r--", lw=1.3,
-                     label=rf"fit $\mathcal{{N}}$({mu_p:.2f},{sig_p:.2f})")
-        axes[3].set_title(f"Pull histogram  \u03bc={mu_p:.2f}  \u03c3={sig_p:.2f}")
-    axes[3].legend(fontsize=7)
-    axes[3].set_xlabel("pull")
-    axes[3].set_ylabel("density")
 
     figure.tight_layout()
     figure.savefig(output_path)
@@ -848,10 +819,7 @@ def main() -> int:
     write_json(args.run_dir / "model_catalog.json", model_catalog)
 
     mapping_validation = load_mapping_validation(args.run_dir)
-    # Also accept the column-bin path: fit_input.csv written directly by data_loader
-    _fit_input_exists = (args.run_dir / "fit_input.csv").exists()
-    _fit_ready = mapping_validation.get("fit_ready", False) or _fit_input_exists
-    if not _fit_ready:
+    if not mapping_validation.get("fit_ready", False):
         blocked_status = {
             "fit_ready": False,
             "pipeline_status": "blocked_before_fit",

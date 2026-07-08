@@ -61,39 +61,6 @@ cd deployment/deer-flow && make setup-sandbox
 cd deployment/deer-flow && make up
 ```
 
-## Pre-Reindex Checklist
-
-Run this before **any** reindex, backend image rebuild, or embedding model change:
-
-```bash
-# 1. Full preflight gate (parity + embedding alignment + search probe)
-bash deployment/onyx/preflight_check.sh
-
-# 2. OpenSearch parity detail (standalone)
-python3 deployment/helper/onyx_opensearch_cutover.py --json
-
-# 3. Runtime health (alembic, index failures, Redis, LiteLLM)
-bash deployment/onyx/monitoring/check_health.sh
-```
-
-All three must exit 0 before triggering a reindex. Run the same three commands after the reindex completes to confirm parity is restored.
-
-**Critical invariants to verify before reindexing:**
-- `DOCUMENT_ENCODER_MODEL=Alibaba-NLP/gte-Qwen2-1.5B-instruct` in `.env`
-- `DOC_EMBEDDING_DIM=1536` in `.env`
-- DB `search_settings` model and dim match the above
-- `enable_opensearch_retrieval=true` in the cutover output
-
-## Onyx–DeerFlow Bridge
-
-| Component | Internal URL | Host URL |
-|---|---|---|
-| `onyx-mcp-proxy` | `http://onyx-mcp-proxy:80` (on `onyx_default`) | `http://127.0.0.1:8095` |
-| `onyx-api-server` | `http://onyx-api-server:8080` (on `onyx_default`) | — |
-| `deer-flow-gateway` | — | `http://127.0.0.1:8001` |
-
-`deer-flow-gateway` is attached to both `deer-flow-dev_deer-flow-dev` and `onyx_default`. MCP routes in `extensions_config.json` use `http://onyx-mcp-proxy:80/...`. Renaming any container or network requires updating both `extensions_config.json` and `config.yaml`.
-
 ## Maintenance Notes
 
 - `deployment/onyx/.env` is tracked as a secret-free defaults file. Live keys
@@ -101,9 +68,7 @@ All three must exit 0 before triggering a reindex. Run the same three commands a
 - Secret-bearing notes belong in `docs/ops/private/`.
 - `mcp_config.yaml` is documentation/reference until a specific client is wired to consume it.
 - For OpenSearch migration status and cutover checks, use `docs/ops/onyx-rag-optimization-2026-04-27.md` and `deployment/helper/onyx_opensearch_cutover.py --json`.
-- For a clean DeerFlow rebuild, preserve `deployment/deerflow-custom-backup/2026-05-04-aio-redeploy/`, reclone or reset the upstream checkout, then restore only selected overlays instead of copying runtime state, logs, SQLite files, or `.env` files. Then run `bash deployment/deer-flow/apply_local_patches.sh` to verify required patches are in place.
+- For a clean DeerFlow rebuild, preserve `deployment/deerflow-custom-backup/2026-05-04-aio-redeploy/`, reclone or reset the upstream checkout, then restore only selected overlays instead of copying runtime state, logs, SQLite files, or `.env` files.
 - For the Onyx MCP submodule, use the reachable fork in `.gitmodules`
   (`badmarsh/onyx-mcp-server`). The configured compose command requires the
   local SSE support added after upstream `v1.2.2`.
-- For a full system architecture diagram, see `docs/ops/architecture-overview.md`.
-- For DeerFlow end-to-end smoke tests, see `docs/ops/deerflow-smoke-tests.md`.
