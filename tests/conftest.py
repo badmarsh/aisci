@@ -28,7 +28,10 @@ def pytest_configure(config):
 
 # Fixtures
 import pytest
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 
 @pytest.fixture(scope="session")
 def onyx_url():
@@ -48,6 +51,8 @@ def multica_url():
 @pytest.fixture
 def onyx_client(onyx_url):
     """HTTP client for Onyx API"""
+    if requests is None:
+        pytest.skip("requests library is not installed")
     session = requests.Session()
     session.headers.update({"Content-Type": "application/json"})
     return session
@@ -55,6 +60,8 @@ def onyx_client(onyx_url):
 @pytest.fixture
 def deerflow_client(deerflow_url):
     """HTTP client for DeerFlow API"""
+    if requests is None:
+        pytest.skip("requests library is not installed")
     session = requests.Session()
     session.headers.update({"Content-Type": "application/json"})
     return session

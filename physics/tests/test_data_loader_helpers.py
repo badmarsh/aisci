@@ -167,9 +167,18 @@ class TestClassifyTable:
         headers = [{"name": "X"}, {"name": "DNEV/DN(P=3)"}, {"name": "N(P=3)"}]
         assert classify_table(headers) == "other"
 
-    def test_pt_spectrum_needs_both_signatures(self):
-        # Only PT(P=3) without DPT(P=3) does not classify as pt_spectrum.
+    def test_pt_spectrum_multi_column_layout(self):
+        # PT(P=3) as first header with additional columns (the real HEPData
+        # multi-column multiplicity-bin layout) classifies as pt_spectrum even
+        # without a DPT(P=3) column. This path was added when multi-column
+        # support was introduced in data_loader.classify_table (lines 147-148).
         headers = [{"name": "PT(P=3)"}, {"name": "YIELD"}]
+        assert classify_table(headers) == "pt_spectrum"
+
+    def test_pt_spectrum_single_column_no_dpt_is_other(self):
+        # A single-column table with only PT(P=3) and no second column is "other"
+        # because there are no dependent-variable columns to extract yields from.
+        headers = [{"name": "PT(P=3)"}]
         assert classify_table(headers) == "other"
 
     def test_missing_name_key_defaults_to_empty(self):
