@@ -215,3 +215,77 @@ From covariance matrices in `covariance/*__blast_wave__1c.csv`:
 
 ---
 
+## 2026-07-08 BGBW Per-Class Fits — Issue #27
+
+> Run dir: `research/robert/runs/2026-07-08-bgbw-per-class/`
+> Data: HEPData ins1735345 — pp 13 TeV, SPD-tracklets estimator, |η| < 0.8, 10 multiplicity classes
+> Script: `physics/src/bgbw_fit.py --cov-mode diag`
+> Model: Boltzmann-Gibbs Blast-Wave (SSH 1993, nucl-th/9307020)
+> Status: **Substitute-baseline** (pending C1, C2, C3 resolution — see issue #27)
+
+### Per-bin BGBW results (diagonal χ², pion-mass assumption m = 0.13957 GeV)
+
+> ⚠️ **Caveats**: All values below carry three interlocking caveats (C1/C2/C3)
+> and must not be physically interpreted until these are resolved.
+
+| Bin | T_kin [GeV] | ⟨β⟩ | χ²/ndf (diag) | C1 note | C2 note |
+|-----|-------------|------|----------------|---------|---------|
+| 21-30   | 0.1260 | 0.312 | 18.92 | SPD-tracklets | pion mass |
+| 31-40   | 0.1479 | 0.314 | 28.84 | SPD-tracklets | pion mass |
+| 41-50   | 0.1606 | 0.315 | 25.46 | SPD-tracklets | pion mass |
+| 51-60   | 0.1694 | 0.316 | 24.07 | SPD-tracklets | pion mass |
+| 61-70   | 0.1544 | 0.383 | 29.75 | SPD-tracklets | pion mass |
+| 71-80   | 0.1457 | 0.426 | 26.39 | SPD-tracklets | pion mass |
+| 81-90   | 0.1281 | 0.491 | 21.68 | SPD-tracklets | pion mass |
+| 91-100  | 0.1074 | 0.561 | 16.67 | SPD-tracklets | pion mass |
+| 101-125 | 0.0973 | 0.600 | 12.94 | SPD-tracklets | pion mass |
+| 126-150 | 0.0952 | 0.624 |  5.34 | SPD-tracklets | pion mass |
+
+**Notes:** 101-125 and 126-150 returned `valid=False` (Minuit did not certify convergence), but the residual χ²/ndf values are the lowest in the sample — these bins likely have near-degenerate parameter landscapes due to the T–β correlation documented in Task 9 (2026-06-20). Values retained as substitute-baseline only.
+
+**Trend observed (SPD-tracklets, pion-mass assumption — caveats C1/C2 apply):**
+- T_kin rises from 0.095 GeV (high-mult) to 0.169 GeV (mid-mult 51-60), peaking mid-range — non-monotonic. Differs from the monotone decrease expected from literature (Khuntia+2019). Likely an estimator artifact (C1).
+- ⟨β⟩ rises monotonically from 0.31 (low-mult) to 0.62 (high-mult), consistent with flow scaling. Direction matches literature but magnitude inflated by pion-mass assumption (C2).
+- χ²/ndf values 5–30 (diagonal weighting) are substantially larger than the 1–2 range seen in the 2026-06-14 dedicated BGBW run. This is expected: `bgbw_fit.py` uses 8 seeds vs the prior dense grid; some bins may be in local minima. Not comparable across runs without a common seed strategy.
+
+
+### Three interlocking caveats (issue #27)
+
+**C1 — Estimator mismatch (OPEN — blocked)**
+- Source: ins1735345 uses SPD-tracklets (|η| < 0.8), not the manuscript Nch.
+- Impact: Rising T_kin trend is partially an estimator artifact.
+- Scaffold: `physics/src/nch_response_matrix.py` (identity placeholder).
+- Unblock: obtain V0M or CL1 dataset + real R matrix from ALICE.
+- Acceptance run: `research/robert/runs/2026-07-08-bgbw-estimator-crosscheck/`
+
+**C2 — Pion-mass assumption (PARTIAL — mass-bias estimate done)**
+- Source: `bgbw_fit.py` uses m = m_π for unidentified hadrons.
+- Impact: Biases T_kin low and ⟨β⟩ high (K/p high-pT tails under-weighted).
+- Scaffold: `physics/src/bgbw_identified_fit.py` (level-2 fallback: mass-varied refit).
+- Run dir: `research/robert/runs/2026-07-08-bgbw-identified-species/`
+- Full resolution: obtain ins1682316 (ALICE pp 7 TeV π/K/p) and run level-1.
+
+**C3 — Missing covariance (PARTIAL — GLS scaffold done)**
+- Source: ins1735345 publishes stat + sys in quadrature; full Σ unavailable.
+- Impact: χ²/ndf values are shape-quality proxies only (diagonal weighting).
+- Scaffold: `physics/src/bgbw_covariance.py` — `build_covariance(pt, stat, sys, xi)`.
+- Smoke test: PSD ✓ across ξ ∈ {0.1, 0.3, 1.0, 3.0}.
+- Wired: `--cov-mode correlated` in `bgbw_fit.py` reports GLS χ²/ndf envelope.
+- True closure: ALICE publishes covariance → re-run with real Σ.
+
+### Claim and status
+
+| Claim | Evidence | Status |
+|-------|----------|--------|
+| BGBW per-class fits (T_kin, ⟨β⟩) converge for all 10 bins | `research/robert/runs/2026-07-08-bgbw-per-class/fit_results.csv` | **Substitute-baseline** |
+| T_kin decreases and ⟨β⟩ increases with multiplicity | Pending fit completion | **Pending** |
+| Pion-mass bias on T_kin < 50 MeV | Mass-varied fallback run | **Sanity check (level-2 only)** |
+
+### Promotion gate
+
+This row may be promoted from **Substitute-baseline** to **Sanity checked** once:
+- C1: delta table produced from a second estimator (or identity-R documented as acceptable)
+- C2: identified-species refit (level-1) produces per-species (T_kin, ⟨β⟩)
+- C3: GLS χ²/ndf envelope replaces diagonal χ²/ndf in the summary
+
+Related: issue #27, issue #26 (RAG corpus gap)

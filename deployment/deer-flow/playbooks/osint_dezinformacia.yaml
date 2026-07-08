@@ -1,0 +1,235 @@
+# --------------------------------------------------------------
+# OpenFang Playbook: Continuous OSINT + Action Loop
+# --------------------------------------------------------------
+name: osint_dezinformacia_monitor
+description: >
+  Monitors a set of URLs / APIs for false or misleading statements,
+  auto‑replies with fact‑checked corrections and notifies the operator.
+
+settings:
+  timezone: Europe/Bratislava
+  log_level: INFO
+  memory_keys:
+    raw_store: osint_raw
+    norm_store: osint_norm
+    graph_store: osint_graph
+    metrics: osint_metrics
+
+sources:
+  - name: "TwitterFeed"
+    type: api
+    endpoint: "https://api.twitter.com/2/tweets/search/recent"
+    params:
+      query: "from:some_user -is:retweet"
+      max_results: 20
+    auth: twitter_bearer_token
+  - name: "TechBlogRSS"
+    type: rss
+    url: "https://example.com/feed.xml"
+  - name: "RedditSub"
+    type: web_fetch
+    url: "https://www.reddit.com/r/example/new.json"
+    headers:
+      User-Agent: "OpenFangBot/1.0"
+
+schedule:
+  ingest:
+    cron: "*/10 * * * *"
+  maintain:
+    cron: "0 3 * * SUN"
+
+steps:
+  - id: ingest
+    trigger: schedule.ingest
+    action:
+      type: parallel
+      branches:
+        - skill: web_fetch
+          params:
+            url: "{{source.url}}"
+            method: GET
+            headers: "{{source.headers}}"
+        - skill: web_search
+          params:
+            query: "{{source.params.query}}"
+            max_results: 5
+    on_success:
+      - skill: memory_store
+        params:
+          key: "{{settings.memory_keys.raw_store}}"
+          value: "{{result}}"
+
+  - id: normalize
+    trigger: on_memory_update:{{settings.memory_keys.raw_store}}
+    action:
+      type: shell_scripting
+      script: |
+        import json, re, sys
+        data = json.loads(sys.stdin.read())
+        cleaned = []
+        for item in data:
+            txt = re.sub(r'<[^>]+>', ' ', item.get('content',''))
+            txt = re.sub(r'\s+', ' ', txt).strip().lower()
+            cleaned.append({
+                "source": item.get("source"),
+                "author": item.get("author"),
+                "timestamp": item.get("timestamp"),
+                "text": txt
+            })
+        print(json.dumps(cleaned))
+    input: "{{memory[settings.memory_keys.raw_store]}}"
+    on_success:
+      - skill: memory_store
+        params:
+          key: "{{settings.memory_keys.norm_store}}"
+          value: "{{result}}"
+
+  - id: detect
+    trigger: on_memory_update:{{settings.memory_keys.norm_store}}
+    action:
+      type: parallel
+      branches:
+        - skill: regex_expert
+          params:
+            pattern: "(zakazuje|nepravda|klam|faloš|picovinu)"
+            text: "{{item.text}}"
+          loop_over: "{{memory[settings.memory_keys.norm_store]}}"
+        - skill: python_expert
+          params:
+            script: |
+              from transformers import pipeline
+              clf = pipeline("text-classification", model="dezinformacia/bert")
+              def classify(txt):
+                  return clf(txt)[0]["label"]
+              results = [{"id": i, "label": classify(rec["text"])} for i,rec in enumerate({{input}})]
+              print(json.dumps(results))
+          input: "{{memory[settings.memory_keys.norm_store]}}"
+        - skill: api_tester
+          params:
+            method: GET
+            url: "https://factchecktools.googleapis.com/v1alpha1/claims:search"
+            headers:
+              Authorization: "Bearer {{secrets.google_factcheck_token}}"
+            query:
+              query: "{{item.text}}"
+          loop_over: "{{memory[settings.memory_keys.norm_store]}}"
+    on_success:
+      - skill: knowledge_add_entity
+        params:
+          entity_type: "statement"
+          name: "{{item.text}}"
+          properties:
+            source: "{{item.source}}"
+            author: "{{item.author}}"
+            timestamp: "{{item.timestamp}}"
+            regex_match: "{{branch[0].match}}"
+            ml_label: "{{branch[1].label}}"
+            factcheck_score: "{{branch[2].score}}"
+      - skill: memory_store
+        params:
+          key: "{{settings.memory_keys.graph_store}}"
+          value: "{{knowledge_graph}}"
+
+  - id: enrich
+    trigger: on_memory_update:{{settings.memory_keys.graph_store}}
+    action:
+      type: python_expert
+      script: |
+        import json, requests
+        graph = json.loads(open("/tmp/graph.json").read())
+        enriched = []
+        for node in graph:
+            claim = node["name"]
+            r = requests.get("https://www.wikidata.org/w/api.php",
+                             params={"action":"wbsearchentities","search":claim,
+                                     "language":"en","format":"json"})
+            wd = r.json()["search"][:3]
+            node["wikidata"] = [e["title"] for e in wd]
+            enriched.append(node)
+        print(json.dumps(enriched))
+    input: "{{memory[settings.memory_keys.graph_store]}}"
+    on_success:
+      - skill: memory_store
+        params:
+          key: "{{settings.memory_keys.graph_store}}"
+          value: "{{result}}"
+
+  - id: reply
+    trigger: on_memory_update:{{settings.memory_keys.graph_store}}
+    action:
+      type: parallel
+      branches:
+        - skill: prompt_engineer
+          params:
+            template: |
+              You are a polite fact‑checker. The user wrote:
+              "{{node.name}}"
+              The statement is classified as "{{node.ml_label}}". Provide a concise correction with at most two sources (use the URLs from Wikidata or fact‑check API). End with a friendly note.
+            variables:
+              node: "{{item}}"
+          loop_over: "{{memory[settings.memory_keys.graph_store]}}"
+        - skill: agent_browser
+          params:
+            url: "https://twitter.com/intent/tweet"
+            method: POST
+            form:
+              status: "{{branch[0].output}}"
+            wait_for: "div[data-testid='tweet']"
+          loop_over: "{{branch[0].outputs}}"
+        - skill: slack_tools
+          params:
+            webhook_url: "{{secrets.slack_webhook}}"
+            text: |
+              *Dezinformácia detekovaná*  
+              • Autor: {{item.author}}  
+              • Text: {{item.name}}  
+              • Oprava: {{branch[0].output}}
+          loop_over: "{{memory[settings.memory_keys.graph_store]}}"
+    on_success:
+      - skill: event_publish
+        params:
+          event_type: "dezinformacia_handled"
+          payload:
+            statement: "{{item.name}}"
+            author: "{{item.author}}"
+            reply: "{{branch[0].output}}"
+
+  - id: log_metrics
+    trigger: on_event:dezinformacia_handled
+    action:
+      type: python_expert
+      script: |
+        import json, os
+        path = "/var/openfang/metrics/osint.json"
+        metrics = json.load(open(path)) if os.path.exists(path) else {"total":0,"false":0,"corrected":0}
+        metrics["total"] += 1
+        metrics["false"] += 1
+        metrics["corrected"] += 1
+        open(path,"w").write(json.dumps(metrics))
+        print(json.dumps(metrics))
+    on_success:
+      - skill: memory_store
+        params:
+          key: "{{settings.memory_keys.metrics}}"
+          value: "{{result}}"
+
+  - id: maintain
+    trigger: schedule.maintain
+    action:
+      type: parallel
+      branches:
+        - skill: shell_scripting
+          script: |
+            #!/usr/bin/env bash
+            cd /opt/openfang/wordlists
+            git pull origin main
+        - skill: shell_scripting
+          script: |
+            # Update ML model
+            cd /opt/openfang/models/dezinformacia
+            ./download_latest.sh
+    on_success:
+      - skill: event_publish
+        params:
+          event_type: "maintenance_done"
+          payload: {"time": "{{now}}"}

@@ -1,0 +1,40 @@
+{
+  "name": "osint-dezinformacia-monitor",
+  "description": "Continuous OSINT monitor that ingests feeds, normalizes text, detects misinformation via regex/ML, enriches with Wikidata, and prepares fact-checked replies.",
+  "steps": [
+    {
+      "name": "ingest-feeds",
+      "agent_name": "collector",
+      "prompt": "Ingest recent data from the following OSINT sources: {{input}}. Use web_fetch and web_search to gather content, authors, and timestamps.",
+      "mode": "sequential",
+      "output_var": "raw_data"
+    },
+    {
+      "name": "normalize-content",
+      "agent_name": "analyst",
+      "prompt": "Normalize the raw data: {{raw_data}}. Remove HTML tags, clean whitespace, and convert text to lowercase for standardized analysis.",
+      "mode": "sequential",
+      "output_var": "normalized_data"
+    },
+    {
+      "name": "detect-misinformation",
+      "agent_name": "analyst",
+      "prompt": "Analyze {{normalized_data}} for misinformation. Use regex patterns for known keywords and cross-reference with the Google Fact Check API. Flag suspicious statements.",
+      "mode": "sequential",
+      "output_var": "flagged_statements"
+    },
+    {
+      "name": "enrich-with-context",
+      "agent_name": "researcher",
+      "prompt": "For each flagged statement in {{flagged_statements}}, search Wikidata and authoritative news archives to add context and verified entity information.",
+      "mode": "sequential",
+      "output_var": "enriched_graph"
+    },
+    {
+      "name": "prepare-responses",
+      "agent_name": "researcher",
+      "prompt": "Based on the enriched context: {{enriched_graph}}, draft polite but factual corrections. Prepare these as alerts for Slack and drafts for social media platforms.",
+      "mode": "sequential"
+    }
+  ]
+}

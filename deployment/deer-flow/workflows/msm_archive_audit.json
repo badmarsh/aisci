@@ -1,0 +1,33 @@
+{
+  "name": "msm-archive-audit",
+  "description": "Audits mainstream media archives by comparing historical predictions and narratives with actual historical outcomes.",
+  "steps": [
+    {
+      "name": "archive-search",
+      "agent_name": "researcher",
+      "prompt": "Search mainstream media archives (NYT, WSJ, BBC, etc.) for predictions and core narratives regarding {{input}} from the specific historical period requested.",
+      "mode": "sequential",
+      "output_var": "historical_narratives"
+    },
+    {
+      "name": "outcome-verification",
+      "agent_name": "researcher",
+      "prompt": "Gather factual data and historical records on what actually transpired regarding the topic: {{input}}. Use primary historical sources and statistical data.",
+      "mode": "sequential",
+      "output_var": "actual_outcomes"
+    },
+    {
+      "name": "gap-analysis",
+      "agent_name": "analyst",
+      "prompt": "Compare the historical narratives: {{historical_narratives}} with the actual outcomes: {{actual_outcomes}}. Identify specific instances of accurate foresight, failed predictions, or systemic bias in the original reporting.",
+      "mode": "sequential",
+      "output_var": "audit_findings"
+    },
+    {
+      "name": "accountability-report",
+      "agent_name": "researcher",
+      "prompt": "Synthesize the findings into an 'Accountability Audit'. Score the media outlets on their predictive accuracy and narrative integrity for this specific topic.",
+      "mode": "sequential"
+    }
+  ]
+}

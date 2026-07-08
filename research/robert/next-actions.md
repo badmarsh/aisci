@@ -22,6 +22,36 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 ---
 
+### [O-08] Issue #27 — C1: Obtain cross-estimator dataset and response matrix
+**Status:** BLOCKED — awaiting ALICE internal data or published V0M/CL1 dataset.
+**Context:** ins1735345 uses SPD-tracklets (|η| < 0.8) estimator. The manuscript uses a different Nch definition. The T_kin rising trend (partially an estimator artifact) cannot be de-coupled from physics without a cross-estimator comparison.
+**Scaffold done:**
+- `physics/src/nch_response_matrix.py` — identity placeholder + Moore–Penrose unfolder.
+- `research/robert/runs/2026-07-08-bgbw-estimator-crosscheck/README.md` — unblock path documented.
+**Actions (Robert or ALICE collaboration):**
+1. Obtain V0M %-class or CL1 estimator dataset for pp 13 TeV (HEPData or ALICE open data).
+2. Generate response matrix R (ALICE MC: PYTHIA8 + GEANT4 → SPD tracklets vs Nch).
+3. Save R to `physics/data/response_matrix/R_spd_to_nch.npy`.
+4. Run: `python physics/src/bgbw_fit.py --run-dir research/robert/runs/YYYY-MM-DD-bgbw-estimator-crosscheck --data-path <v0m_csv>`
+5. Populate delta table in `evidence-ledger.md`.
+**Acceptance:** delta table T_kin, ⟨β⟩ per bin for SPD-tracklets vs second estimator recorded.
+
+---
+
+### [O-09] Issue #27 — C3: Run GLS covariance-aware BGBW fit
+**Status:** Scaffold done. Wire in after per-class diagonal fit is stable.
+**Context:** χ²/ndf from diagonal weighting treats correlated systematics as independent. GLS envelope (ξ ∈ {0.1, 0.3, 1.0, 3.0}) brackets the true covariance.
+**Action:**
+```bash
+python physics/src/bgbw_fit.py \
+  --run-dir research/robert/runs/YYYY-MM-DD-bgbw-gls \
+  --cov-mode correlated --xi 1.0
+```
+Update `evidence-ledger.md` with `gls_chi2_ndf_envelope` per bin once run completes.
+**Acceptance:** `ledger_table.md` χ²/ndf column re-derived under GLS.
+
+---
+
 ### [O-05] ✅ Verify ALICE/ATLAS HEPData observable: dN/dpT dη vs dN/dpT dy
 **Status:** CONFIRMED. dy/dη Jacobian is required.
 **Finding:** 
