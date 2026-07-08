@@ -74,6 +74,13 @@ def validate_env(exit_on_required: bool = True) -> bool:
                 if v.level == "required":
                     errors.append(v.name)
 
+    # BUGFIX: TASK_QUEUE_ENABLED=true with no REDIS_URL used to pass validation
+    # then fail deep inside enqueue_research at runtime with an opaque error.
+    # Escalate the cross-dependency at startup.
+    if os.getenv("TASK_QUEUE_ENABLED", "").lower() == "true" and not os.getenv("REDIS_URL"):
+        print(f"\n{RED}ERROR: TASK_QUEUE_ENABLED=true requires REDIS_URL to be set.{RESET}")
+        errors.append("REDIS_URL")
+
     if errors:
         print(f"\n{RED}ERROR: Missing required vars: {', '.join(errors)}{RESET}")
         print(f"{RED}Copy .env.example to .env and fill in the missing values.{RESET}\n")
