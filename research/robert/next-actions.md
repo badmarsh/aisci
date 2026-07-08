@@ -1,7 +1,7 @@
 # Robert — Science Next Actions
 
 This is the canonical task queue for Robert's physics workflow.
-Platform-blocked items (waiting on Ollama, Scite key, etc.) are noted separately; their resolution is tracked in Multica Issues.
+Platform-blocked items (waiting on Ollama, Scite key, etc.) are noted separately; their resolution is tracked in `docs/ops/platform-backlog.md`.
 
 Science tasks become active only after acceptance by Robert. Do not add, remove, or reword items without Robert's approval.
 

@@ -3,70 +3,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Multica light theme — warm cream surface, dark sepia ink.
- * Matches the platform sidebar's neutrals so the HEP Physics console
- * feels native when mounted inside Multica's left menu.
- */
+/* AISCI Console — dark-first scientific instrument theme */
 :root {
-  --background:          oklch(0.985 0.008 80);
-  --foreground:          oklch(0.260 0.025 60);
-  --card:                oklch(0.995 0.006 80);
-  --card-foreground:     oklch(0.260 0.025 60);
-  --popover:             oklch(0.995 0.006 80);
-  --popover-foreground:  oklch(0.260 0.025 60);
-  --primary:             oklch(0.300 0.030 60);
-  --primary-foreground:  oklch(0.985 0.008 80);
-  --secondary:           oklch(0.955 0.010 80);
-  --secondary-foreground:oklch(0.260 0.025 60);
-  --muted:               oklch(0.955 0.010 80);
-  --muted-foreground:    oklch(0.520 0.020 65);
-  --accent:              oklch(0.940 0.012 80);
-  --accent-foreground:   oklch(0.260 0.025 60);
-  --destructive:         oklch(0.570 0.190 27);
-  --destructive-foreground: oklch(0.985 0.008 80);
-  --border:              oklch(0.910 0.010 80);
-  --input:               oklch(0.910 0.010 80);
-  --ring:                oklch(0.700 0.020 75);
-  --radius:              0.5rem;
-
-  /* Recharts chart palette — kept readable on cream */
-  --chart-1:             oklch(0.520 0.140 240);
-  --chart-2:             oklch(0.545 0.130 152);
-  --chart-3:             oklch(0.640 0.150 78);
-  --chart-4:             oklch(0.560 0.180 27);
-  --chart-5:             oklch(0.595 0.110 215);
-
-  /* Sidebar rail — same warm cream, slightly cooler border */
-  --sidebar:             oklch(0.978 0.010 80);
-  --sidebar-foreground:  oklch(0.260 0.025 60);
-  --sidebar-primary:     oklch(0.300 0.030 60);
-  --sidebar-primary-foreground: oklch(0.985 0.008 80);
-  --sidebar-accent:      oklch(0.935 0.014 80);
-  --sidebar-accent-foreground: oklch(0.260 0.025 60);
-  --sidebar-border:      oklch(0.910 0.010 80);
-  --sidebar-ring:        oklch(0.700 0.020 75);
-
-  /* Status colour tokens — desaturated for cream surface */
-  --status-open:         oklch(0.510 0.140 240);
-  --status-open-bg:      oklch(0.510 0.140 240 / 0.10);
-  --status-sanity:       oklch(0.560 0.110 213);
-  --status-sanity-bg:    oklch(0.560 0.110 213 / 0.10);
-  --status-supported:    oklch(0.520 0.130 152);
-  --status-supported-bg: oklch(0.520 0.130 152 / 0.10);
-  --status-refuted:      oklch(0.560 0.180 27);
-  --status-refuted-bg:   oklch(0.560 0.180 27 / 0.10);
-
-  /* Accent — warm amber, the only saturated note */
-  --amber:               oklch(0.640 0.150 78);
-  --amber-bg:            oklch(0.640 0.150 78 / 0.12);
-}
-
-/*
- * AISCI dark — deep charcoal scientific instrument theme.
- * Activated by adding `dark` class to <html>.
- */
-.dark {
   --background:          oklch(0.108 0.007 248);
   --foreground:          oklch(0.910 0.007 240);
   --card:                oklch(0.145 0.008 248);
@@ -86,13 +24,16 @@
   --border:              oklch(0.220 0.009 248);
   --input:               oklch(0.220 0.009 248);
   --ring:                oklch(0.450 0.012 248);
+  --radius:              0.375rem;
 
+  /* Recharts chart palette */
   --chart-1:             oklch(0.580 0.120 240);
   --chart-2:             oklch(0.605 0.140 152);
   --chart-3:             oklch(0.730 0.165 78);
   --chart-4:             oklch(0.570 0.190 27);
   --chart-5:             oklch(0.650 0.100 215);
 
+  /* Sidebar rail */
   --sidebar:             oklch(0.126 0.008 248);
   --sidebar-foreground:  oklch(0.910 0.007 240);
   --sidebar-primary:     oklch(0.910 0.007 240);
@@ -102,6 +43,7 @@
   --sidebar-border:      oklch(0.205 0.009 248);
   --sidebar-ring:        oklch(0.450 0.012 248);
 
+  /* Status colour tokens */
   --status-open:         oklch(0.590 0.110 240);
   --status-open-bg:      oklch(0.590 0.110 240 / 0.13);
   --status-sanity:       oklch(0.640 0.100 213);
@@ -111,6 +53,7 @@
   --status-refuted:      oklch(0.570 0.190 27);
   --status-refuted-bg:   oklch(0.570 0.190 27 / 0.13);
 
+  /* Accent — subdued amber (attention / actionable) */
   --amber:               oklch(0.730 0.165 78);
   --amber-bg:            oklch(0.730 0.165 78 / 0.13);
 }

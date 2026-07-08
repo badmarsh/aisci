@@ -123,7 +123,7 @@ export function SpectraPlotter() {
         >
           <ResponsiveContainer width="100%" height={340}>
             <AreaChart
-              data={[...ds.data]}
+              data={ds.data}
               margin={{ top: 16, right: 20, bottom: 10, left: 16 }}
             >
               <CartesianGrid

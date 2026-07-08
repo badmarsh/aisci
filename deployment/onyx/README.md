@@ -1,6 +1,6 @@
 # Onyx Deployment Directory
 
-This directory is the compose and build root for the local Onyx stack. For current status and open tasks, use Multica Issues (`multica issue list`). For the concrete deployment map, use [docs/ops/deployment-reference.md](../../docs/ops/deployment-reference.md).
+This directory is the compose and build root for the local Onyx stack. For current status and open tasks, use [docs/ops/platform-backlog.md](../../docs/ops/platform-backlog.md). For the concrete deployment map, use [docs/ops/deployment-reference.md](../../docs/ops/deployment-reference.md).
 
 ## What Lives Here
 
@@ -23,4 +23,4 @@ This directory is the compose and build root for the local Onyx stack. For curre
 ## Notes
 
 - `openapi.json` is not a maintained source file in this repository and is intentionally no longer tracked.
-- Historical status notes were retired in favor of Multica Issues and `docs/ops/platform-status.md`.
+- Historical status notes were retired in favor of `docs/ops/platform-backlog.md`.
