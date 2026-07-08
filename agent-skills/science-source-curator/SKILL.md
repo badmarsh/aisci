@@ -39,13 +39,7 @@ Sources include:
 2. Extract only the relevant evidence, with location and uncertainty.
 3. Cross-check against existing ledger entries to avoid duplicates.
 4. Propose updates to `evidence-ledger.md` or `next-actions.md`.
-5. If source ingestion/document-set work is needed, propose a GitHub ops issue
-   and a concise `docs/ops/platform-backlog.md` state update instead.
-
-## Output & Approval Gates
-
-- Request approval before writing to the evidence ledger.
-- Do not create new markdown files without user permission.
+5. If source ingestion/document-set work is needed, propose a platform backlog item instead.
 
 ## MCP Tool: Consensus
 
@@ -58,13 +52,13 @@ responsible for supplying the `Authorization: Bearer <token>` header. The nginx
 `mcp_proxy.conf.template` passes this header upstream via `proxy_pass_header Authorization`
 without injecting or overriding it.
 
-### Token setup
+### Token setup (one-time, ops task)
 
-Complete the Consensus OAuth flow from the MCP-aware client that will make the
-request. Do not extract browser session tokens into repo env files, and do not
-commit bearer tokens. If a non-OAuth client must be used, treat the bearer token
-as ignored local operator config and document only the variable name, never the
-value.
+1. Complete the Consensus OAuth flow at <https://consensus.app>.
+2. Extract the Bearer token from the resulting session (browser DevTools → Network tab,
+   look for `Authorization: Bearer ...` in a request to `consensus.app`).
+3. Add it to your local `.env` file as `CONSENSUS_MCP_BEARER_TOKEN=<token>` (never commit
+   the live value; the template entry is in `deployment/onyx/env.template`).
 
 ### When to use Consensus vs. Scite
 

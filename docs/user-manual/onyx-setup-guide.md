@@ -66,17 +66,16 @@ whether they support or contradict it, and exact quoted snippets from citing pap
 This is the external evidence layer that File Upload and arXiv cannot provide.
 
 **Configuration:**
-- Not a native Onyx connector. Host-local clients use
-  `http://127.0.0.1:8095/scite/`; DeerFlow containers use
-  `http://onyx-mcp-proxy:80/scite/`.
+- Not a native Onyx connector — routed through `onyx-mcp_proxy-1` at
+  `127.0.0.1:8095/scite/`
 - Transport: streamable HTTP (MCP spec 2025-03-26). The legacy SSE endpoint
   (`/mcp/sse`) no longer exists on `api.scite.ai`; see
   `deployment/onyx/nginx_configs/mcp_proxy.conf.template` for the current routing.
 - MCP tool name: `scite_search` (see `docs/ops/mcp-endpoints.md`)
 - Called on-demand from within persona sessions, not as a background sync
-- Auth: OAuth Bearer token supplied by the MCP-capable client at call time.
-  nginx forwards the client `Authorization` header and does not inject a static
-  token.
+- Auth: static API key. Set `SCITE_API_KEY` in `.env` — nginx injects it as
+  `Authorization: Bearer` on every upstream request. Obtain from
+  `https://scite.ai/account/api`
 - Metadata tag on returned snippets: `source: scite-citation`
 
 **What it provides that the other connectors cannot:**
@@ -95,16 +94,15 @@ citation-level signals on specific papers; Consensus gives claim-level signals a
 the broader literature.
 
 **Configuration:**
-- Not a native Onyx connector. Host-local clients use
-  `http://127.0.0.1:8095/consensus/`; DeerFlow containers use
-  `http://onyx-mcp-proxy:80/consensus/`.
+- Not a native Onyx connector — routed through `onyx-mcp_proxy-1` at
+  `127.0.0.1:8095/consensus/`
 - Transport: streamable HTTP, proxied to `https://mcp.consensus.app/mcp/`
 - MCP tool name: `consensus_search` (see `docs/ops/mcp-endpoints.md`)
 - Called on-demand from within persona sessions, not as a background sync
 - Auth: OAuth Bearer token supplied by the MCP client at call time. nginx
-  forwards the client `Authorization` header and does not inject a static token.
-  Obtain a token by completing the Consensus OAuth flow from the MCP-aware
-  client.
+  does NOT inject a static token (unlike Scite). Set `CONSENSUS_MCP_BEARER_TOKEN`
+  in `.env` and pass it as the `Authorization` header from your MCP client config.
+  Obtain by completing the Consensus OAuth flow at `https://consensus.app`.
 - No metadata tagging — Consensus results are live queries, not indexed chunks
 
 **What it provides that Scite cannot:**

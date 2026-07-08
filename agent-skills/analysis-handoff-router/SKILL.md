@@ -19,21 +19,18 @@ Do not automatically write all suggestions into canonical files. Offer the user 
 2. Write selected findings into the exact document or documents where they belong.
 3. Write a concise prompt for a fresh agent/session to implement selected findings later.
 
-## Workflow
+## Target Mapping
 
 Name exact targets when offering persistence:
 
 - Platform, deployment, MCP, Docker, model, security, tooling tasks: `docs/ops/platform-backlog.md`
-- Accepted active platform/security/docs-drift tasks: GitHub Issue plus a link
-  to the canonical file that should change
 - Platform rationale or operational notes: an existing relevant `docs/ops/*.md`
 - Durable architecture or process decisions: `docs/decisions/YYYY-MM-DD-*.md`
 - Science claim status: `research/robert/evidence-ledger.md`
 - Science tasks: `research/robert/next-actions.md`
 - High-level project tracking only: `ACTION_PLAN.md`
 
-Prefer existing files and GitHub Issues. Ask before creating a new dated
-analysis file.
+Prefer existing files. Ask before creating a new dated analysis file.
 
 ## Output & Approval Gates
 

@@ -1,4 +1,4 @@
-ARG IMAGE_TAG=v3.3.2
+ARG IMAGE_TAG=v3.3.0-beta.0
 FROM onyxdotapp/onyx-backend:craft-latest AS craft_source
 
 FROM onyxdotapp/onyx-backend:${IMAGE_TAG}

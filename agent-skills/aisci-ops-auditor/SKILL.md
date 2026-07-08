@@ -24,18 +24,7 @@ Use this for architecture, platform, or operations analysis.
 - Use `secret-config-auditor` for deep secret scanning; do not reproduce secret values inline.
 - Do not recommend destructive operations (container deletion, volume wipes) without explicit user approval.
 - Flag documentation drift between `README.md`, `ACTION_PLAN.md`, `docs/ops/`, and deployment files as a separate finding category.
-- For accepted actionable findings, prefer GitHub Issues/PRs as the execution
-  layer. Keep `docs/ops/` focused on current state, runbooks, and stable
-  decisions rather than detailed session history.
 - Craft must always be enabled (`ENABLE_CRAFT=true` in `deployment/onyx/.env`). If it is disabled, flag it as a High severity issue and enable it.
-- If a deployment uses git submodules or nested repos, verify that the parent
-  gitlink points at a commit reachable from the configured submodule URL before
-  any parent repo push. An unreachable submodule commit is at least High
-  severity for reproducibility.
-- For MCP bridge checks, distinguish host-local routes (`127.0.0.1`) from
-  container-network routes (`http://onyx-mcp-proxy:80/...`). Do not recommend
-  widening host binds to `0.0.0.0` when a shared Docker network solves the
-  container access problem.
 - Severity levels are: `Critical` (data loss / secret exposure risk), `High` (service broken), `Medium` (degraded functionality), `Low` (drift / tech debt).
 
 ## Workflow
@@ -43,12 +32,9 @@ Use this for architecture, platform, or operations analysis.
 1. Read `AGENTS.md` and the canonical ops files listed in **Read First**.
 2. Inspect relevant deployment files under `deployment/onyx/` and `deployment/deer-flow/`.
 3. Cross-reference running container labels and compose files for path and model drift.
-4. Check git submodule URLs and gitlinks for fresh-clone reproducibility if a
-   nested repo is part of the runtime path.
-5. Identify each finding with: severity, evidence file path and line where possible, impact, and suggested next action.
-6. Classify each action as: safe to implement now, needs user approval, or out of scope (refer to `secret-config-auditor`).
-7. Offer three continuations: implement safe actions now, create/update GitHub
-   Issues plus targeted canonical doc edits, or prepare a next-session prompt.
+4. Identify each finding with: severity, evidence file path and line where possible, impact, and suggested next action.
+5. Classify each action as: safe to implement now, needs user approval, or out of scope (refer to `secret-config-auditor`).
+6. Offer three continuations: implement safe actions now, persist findings to `docs/ops/platform-backlog.md`, or prepare a next-session prompt.
 
 ## Output & Approval Gates
 

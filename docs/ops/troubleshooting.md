@@ -1,191 +1,112 @@
-# Troubleshooting
+# Troubleshooting Guide
 
-Operational runbook for diagnosing and resolving known failure modes across Onyx, DeerFlow, MCP, and sandbox services.
+## Common Issues and Solutions
 
----
+### 1. MCP Services Not Responding
+**Issue:** Consensus or Scite MCP tools fail in chat with `Please Reconnect to the server`, or the MCP services return 502/connection errors.
+**Solution:**
+- Check the MCP proxy container status: `docker ps | grep mcp_proxy`
+- Reconnect the affected MCP server from the chat-bar MCP dropdown if the tool error includes `Please Reconnect to the server`
+- Restart the container: `docker restart onyx-mcp_proxy-1`
+- Verify the configuration: `deployment/onyx/nginx_configs/mcp_proxy.conf.template`
 
-## DeerFlow
+### 2. Physics Validation Mode Not Available
+**Issue:** Physics Validation Mode persona doesn't appear in Onyx UI
+**Solution:**
+- Verify the persona was created: Check database or run the creation script again
+- Restart Onyx services: `cd ~/aisci/deployment/onyx && docker compose restart`
 
-### HTTP 404: Run `{run_id}` not found
+### 3. GPU Not Detected
+**Issue:** GPU acceleration not working for document processing
+**Solution:**
+- Check NVIDIA drivers: `nvidia-smi`
+- Verify Docker is configured for GPU access: `docker run --rm --gpus all nvidia/cuda:11.0-base-ubuntu20.04 nvidia-smi`
+- Check Ollama container: `docker exec onyx-ollama-1 nvidia-smi`
 
-**Symptom:** `GET /api/runs/{run_id}` returns `{"detail": "Run <uuid> not found"}` even immediately after the run was created.
+### 4. API Connection Issues
+**Issue:** Cannot connect to Onyx API
+**Solution:**
+- Verify API server is running: `docker ps | grep api_server`
+- Check the API key is correctly set in environment
+- Verify network connectivity between containers
 
-**Root cause:** `run_events.backend: memory` in `config.yaml` — run state is never written to disk. Any restart or new request context loses the run object.
+### 5. Volume Mapping Problems
+**Issue:** Files created by Onyx not appearing in expected locations
+**Solution:**
+- Verify volume configuration in `deployment/onyx/docker-compose.yml`
+- Check permissions on mounted directories
+- Ensure the directories exist on the host system
 
-**Fix — `config.yaml`:**
-```yaml
-# Remove the legacy checkpointer block entirely if present:
-# checkpointer:
-#   type: sqlite
-#   connection_string: checkpoints.db
+### 6. Vespa Feed Blocked (507 Insufficient Storage)
+**Issue:** Vespa feed blocked with 507 NO_SPACE error. Disk exhaustion at 85%.
+**Solution:**
+- In-container edits to `/app/onyx/document_index/vespa/app_config/services.xml.jinja` are temporary and do not survive a recreate.
+- After the backend recreate on `2026-04-28`, `onyx-index-1` again logged `configured limit is 85.0%` and re-blocked feed at `2026-04-28 14:12:34 UTC`.
+- The durable fix is now tracked in `deployment/onyx/Dockerfile.backend`, which patches Vespa's generated template from `<disk>0.85</disk>` to `<disk>0.95</disk>` before `api_server` redeploys the application package.
+- On `2026-04-28`, `api_server` and `background` were rebuilt and recreated from that tracked source, and the live template inside `onyx-api_server-1` now reports `0.95`.
+- Background logs after the recreate show the previously failing `vespa_metadata_sync_task` calls succeeding instead of returning 507 feed-block errors.
+- **Status:** Durably patched in tracked source and deployed on `2026-04-28`. Re-verify after any future backend-image change or stack recreate.
 
-# Ensure database is set:
-database:
-  backend: sqlite
-  sqlite_dir: .deer-flow/data
+### 7. Background Worker Crash Loops (Craft Templates)
+**Issue:** `onyx-api_server-1` and `onyx-background-1` racing to run `setup_craft_templates.sh` concurrently on shared volume, causing `npm install` failures and `ENOTEMPTY` errors.
+**Solution:**
+- Keep Craft enabled with `IMAGE_TAG=craft-latest`, `ENABLE_CRAFT=true`, and matching `ONYX_WEB_SERVER_IMAGE` / `ONYX_MODEL_SERVER_IMAGE` image tags.
+- If the shared Craft volumes race again, recreate `api_server` and `background` after confirming the image/tag pairing above; do not disable Craft as a workaround.
+- **Status:** Correct Craft pairing is applied in the local ignored `.env` as of 2026-05-02.
 
-# Change run_events backend:
-run_events:
-  backend: db        # was: memory
-  max_trace_content: 10240
-  track_token_usage: true
-```
+### 8. OpenSearch Migration Failure
+**Issue:** Chunk migration from Vespa to OpenSearch can fail on paginated Vespa visit data that contains metadata-only records with no `document_id`, which can surface as `KeyError: 'document_id'` or as a candidate-count mismatch.
+**Solution:**
+- Deploy the backend patch that skips metadata-only visit records missing `document_id` in the OpenSearch migration transformer.
+- Deploy the matching Vespa metadata-update patch that removes `?create=true` from document PUTs so metadata refreshes cannot create skeletal docs for missing chunks.
+- Re-run the helper visit check after deploy. The `2026-04-28` validation produced `raw_total=403`, `with_document_id=241`, `missing_document_id=162`, `transformed_total=241`, `skipped_total=162`, and `errored_total=0`.
+- Probe a random missing doc id directly after deploy. The `2026-04-28` validation returned `GET 404 -> PUT 200 -> GET 404`, and Vespa chunk count stayed `464`, confirming that metadata updates no longer materialize new skeletal docs.
+- Use `deployment/helper/onyx_opensearch_cutover.py --json` as the live parity check before any tenant flip. It compares Postgres `document.id` chunk counts against the active OpenSearch `search_settings.index_name` index and reports whether cutover is actually safe.
+- The `2026-04-28` live audit still showed cutover blocked: the active alt index had `65` docs but `37` chunk-count mismatches, the primary OpenSearch index was absent, `opensearch_document_migration_record` still had `0` rows, and `opensearch_tenant_migration_record.enable_opensearch_retrieval` remained `false`.
+- To repair that parity gap, full `REINDEX` runs were queued through Onyx's internal trigger path on `2026-04-28` for connector/credential pairs `(11,0)`, `(13,8)`, `(14,9)`, `(10,6)`, `(4,3)`, `(1,1)`, `(7,5)`, and `(3,2)`.
+- The Vespa 507 feed-block was preventing those rebuilds from progressing until the disk-threshold patch above was deployed. After the recreate, the blocker shifted from Vespa NO_SPACE to waiting for the queued reindex attempts to finish and repopulate OpenSearch.
+- As of `2026-05-02`, the active Alibaba index is `danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct`; use the helper's `active_index_name`, not contextual-RAG status alone, to decide which OpenSearch index is live.
+- OpenSearch 3.4 KNN indexes can fail search requests that return `_source` while still allowing `GET /_doc/{id}`. The tracked `patch_mcp_tool.py` startup patch makes Onyx search request IDs first and hydrate sources by document GET; rebuild/recreate the backend image after changing that patch.
+- **Status:** Transformer patch and OpenSearch search-source hydration patch deployed. The Alibaba/1536 rebuild reached active-index parity on `2026-05-02`: `279` documents, `629` chunks, `0` missing/mismatched/extra documents, and `enable_opensearch_retrieval=true`.
 
-**Why remove `checkpointer:`?** When both `checkpointer:` and `database:` are present, LangGraph state goes into the legacy `checkpoints.db` while run/thread application data goes into `.deer-flow/data/` — two separate SQLite files that drift out of sync, causing cross-referencing failures.
+### 9. Stale Index Attempt Blocks Fresh Runs
+**Issue:** A connector pair can stay stuck in `IN_PROGRESS` with a frozen heartbeat, and background logs show `skipped_active=1` instead of starting a new run.
+**Solution:**
+- Clear the stale attempt through the app code path with `mark_attempt_failed()` rather than raw SQL.
+- On `2026-04-28`, failing attempt `312` this way unblocked connector pair `10` (`Onyx Docs`), and the background worker created new attempt `344`.
+- On `2026-04-28`, the same pattern reappeared during the OpenSearch cutover after `background` was recreated while attempts `374`-`379` were already active. The new worker kept polling those rows but did not own the original docfetching/docprocessing subprocesses, so the attempts had to be failed through `mark_attempt_failed()` before full reruns could be queued again.
+- Treat any failures on the new attempt as a separate issue; they do not mean the stale-attempt blocker has returned.
+- **Status:** Verified on `2026-04-28`.
 
-**After editing:** `docker compose restart deerflow` (or equivalent).
+## Diagnostic Commands
 
----
-
-### `summarization:` config silently ignored / wrong keep count
-
-**Symptom:** Summarization triggers at wrong token counts or `preserve_recent_skill_*` settings have no effect.
-
-**Root cause:** YAML nesting bug — `trim_tokens_to_summarize`, `summary_prompt`, and `preserve_*` keys were accidentally indented inside `keep:` instead of as siblings.
-
-**Broken:**
-```yaml
-summarization:
-  keep:
-    type: messages
-    value: 10
-    trim_tokens_to_summarize: 15564   # ← WRONG: inside keep:
-    summary_prompt: null              # ← WRONG
-    preserve_recent_skill_count: 5   # ← WRONG
-    preserve_recent_skill_tokens: 25000  # ← WRONG
-```
-
-**Fixed:**
-```yaml
-summarization:
-  keep:
-    type: messages
-    value: 10
-  trim_tokens_to_summarize: 15564    # ← sibling of keep:
-  summary_prompt: null
-  preserve_recent_skill_count: 5
-  preserve_recent_skill_tokens: 25000
-  preserve_recent_skill_tokens_per_skill: 5000
-```
-
----
-
-### AIO Sandbox — uploaded or unzipped files not accessible to agents
-
-**Symptom:** Agent running inside the Docker sandbox reports `Permission denied` or `No such file` for files that were uploaded via the DeerFlow gateway or unzipped by a previous bash step.
-
-**Root cause:** When `AioSandboxProvider` uses deterministic persistent mounts, the gateway sets `sync_to_sandbox=False`, which skips `_make_file_sandbox_writable()`. Files are written by the gateway process with the host umask (typically `0o644` or `0o640`), making them unreadable/unwritable by the sandbox container user.
-
-**Live fix** (re-apply after any container rebuild or volume reset):
-
-File: `deployment/deer-flow/backend/app/gateway/routers/uploads.py`
-
-Locate the upload handler and ensure `_make_file_sandbox_writable` is called **unconditionally** (not guarded by `sync_to_sandbox`):
-
-```python
-# Ensure _make_file_sandbox_writable sets both world-readable and world-writable:
-import stat
-
-def _make_file_sandbox_writable(file_path: str) -> None:
-    """Set permissions so sandbox container user can read and write the file."""
-    os.chmod(
-        file_path,
-        stat.S_IRUSR | stat.S_IWUSR |   # owner rw
-        stat.S_IRGRP | stat.S_IWGRP |   # group rw
-        stat.S_IROTH | stat.S_IWOTH     # world rw  ← required for sandbox user
-    )
-
-# In the upload handler, call unconditionally after file is written:
-await file_obj.write(content)
-_make_file_sandbox_writable(str(file_path))   # ← must NOT be inside `if sync_to_sandbox:`
-```
-
-**Note:** `deployment/deer-flow/` is gitignored. This patch must be re-applied manually after any `git checkout`, container rebuild, or vendor sync. Consider un-ignoring `uploads.py` specifically or tracking the patch as a diff under `deployment/deer-flow/patches/`.
-
----
-
-### Model `base_url` pointing at wrong provider
-
-**Symptom:** NVIDIA NIM model returns OpenRouter-style errors, or vice versa.
-
-**Known instance:** `nvidia-qwen3-5-122b` had `base_url: $OPENROUTER_API_BASE` instead of `$NVIDIA_API_BASE`.
-
-**Fix:** Audit `config.yaml` model entries — every `nvidia-*` model must use `$NVIDIA_API_BASE`; every OpenRouter model must use `$OPENROUTER_API_BASE`.
-
----
-
-## Onyx / LiteLLM
-
-### LiteLLM quota exhaustion — contextual RAG indexing stalls
-
-**Symptom:** Celery background workers emit `LLMTimeoutError` or `429 quota exceeded` during contextual-summary indexing; chunk gaps appear in OpenSearch.
-
-**Known instances:**
-- 2026-05-03: `qwen2.5`, `qwen3-omni-flash-2025-09-15`, `qwen3-coder-plus-2025-09-23`, `dashscope-qwen-plus` all hit free-tier quota limits simultaneously.
-- 2026-05-06: `qwen-cloud-fast` returned repeated DashScope `limit_requests` 429s during the Onyx Documentation connector run.
-
-**Fix:**
-1. Check active route status: `deployment/helper/litellm_quota_check.py --timeout 90`.
-2. Keep RAG routes in `deployment/onyx/litellm_config.yaml`: `qwen-rag-fast`, `qwen-rag-balanced`, `qwen-rag-vision`, and local `qwen-rag-local`.
-3. Restart the LiteLLM container after config edits: `docker compose -f deployment/onyx/docker-compose.yml restart litellm`.
-4. If a connector is retrying too often after partial runs, reduce its `refresh_freq` in Postgres rather than repeatedly disabling contextual RAG.
-
-**Prevention:** Check DashScope quota monthly. Keep `gemma2:27b` (Ollama, local) as the final fallback so quota exhaustion on cloud models does not completely block indexing.
-
----
-
-### OpenSearch KNN search returns empty `_source`
-
-**Symptom:** Onyx retrieval returns hits with metadata but empty document text; chunks appear indexed but content is blank.
-
-**Root cause:** OpenSearch 3.4 KNN derived-source search does not populate `_source` inline. The Onyx backend must hydrate `_source` via a secondary document-id lookup.
-
-**Fix:** Keep `deployment/onyx/Dockerfile.backend` building from the patched source that includes `patch_mcp_tool.py`'s OpenSearch source-hydration fix. Do not switch to an upstream Onyx image without re-verifying this patch is present.
-
----
-
-### Index Attempts Hang or Loop Forever (0 Batches Processed)
-
-**Symptom:** The Onyx UI shows a connector indexing attempt indefinitely "In Progress" with 0 batches processed, or repeatedly failing and restarting without processing documents. Background logs may show: `RuntimeError('Index attempt <id> is not running, status IndexingStatus.FAILED')`.
-
-**Root cause:** If the `onyx-background` container is restarted while an attempt is running, Celery loses the memory state but the Postgres `index_attempt` row remains `IN_PROGRESS`. Subsequent worker spawns see a corrupted/orphaned task and fail to resume the Celery chain properly, causing a zombie loop.
-
-**Fix:**
-1. Manually fail the stuck attempt in the DB: `docker exec onyx-db psql -U postgres -d postgres -c "UPDATE index_attempt SET status = 'FAILED' WHERE status = 'IN_PROGRESS';"`
-2. If the connector bypasses Unstructured processing due to cached `document_by_connector_credential_pair` records, force a fresh fetch by clearing the tracking state for that connector ID:
-   ```bash
-   docker exec onyx-db psql -U postgres -d postgres -c "DELETE FROM document_by_connector_credential_pair WHERE connector_id = <id>;"
-   docker exec onyx-db psql -U postgres -d postgres -c "DELETE FROM document WHERE id NOT IN (SELECT id FROM document_by_connector_credential_pair);"
-   ```
-3. Ensure the vision model is configured in the UI, otherwise `unstructured_to_result` will refuse to send images for summarization.
-
-## Regression Gates
-
-Run these checks after any container recreate, volume reset, or config change:
-
+### Check all Onyx containers:
 ```bash
-# 1. OpenSearch parity
-python deployment/helper/onyx_opensearch_cutover.py --json
-# Expect: 0 missing, 0 mismatched, 0 extra; active index = danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct
-
-# 2. Ollama models present
-docker exec onyx-ollama ollama list
-# Expect: gemma2:27b listed
-
-# 3. LiteLLM health
-curl -s http://localhost:4000/health | jq .
-# Expect: all active model providers green
-
-# 4. DeerFlow run persistence
-curl -s -X POST http://localhost:2026/api/chat/stream \
-  -H 'Content-Type: application/json' \
-  -d '{"thread_id":"test-001","messages":[{"role":"user","content":"ping"}]}' \
-  | grep run_id
-# Then verify:
-curl -s http://localhost:2026/api/runs/<run_id_from_above>
-# Expect: 200, not 404
-
-# 5. Sandbox file permissions
-docker exec <deerflow-sandbox-container> stat /path/to/last/upload
-# Expect: permissions include o+r and o+w
+docker ps | grep onyx
 ```
+
+### Check MCP services:
+```bash
+curl -s http://localhost:8095/consensus/health
+curl -s http://localhost:8095/scite/health
+```
+
+### Verify Physics Validation persona:
+```bash
+curl -s -H "Authorization: Bearer $ONYX_API_KEY" http://localhost:3000/api/admin/persona
+```
+
+### Check GPU status:
+```bash
+nvidia-smi
+docker exec onyx-ollama-1 nvidia-smi
+```
+
+## When to Reset
+
+If multiple issues persist:
+1. Stop all Onyx services: `cd ~/aisci/deployment/onyx && docker compose down`
+2. Restart: `cd ~/aisci/deployment/onyx && docker compose up -d`
+3. Re-create or re-sync the Physics Validation persona if the database was reset.
+
+Do not run `docker system prune`, remove volumes, or delete containers as part of routine troubleshooting unless the operator explicitly approves the destructive cleanup for that incident.

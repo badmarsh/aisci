@@ -68,6 +68,7 @@ STANDARD_MAX_TOKENS_KWARG = "max_completion_tokens"
 _VERTEX_ANTHROPIC_MODELS_REJECTING_OUTPUT_CONFIG = (
     "claude-opus-4-5",
     "claude-opus-4-6",
+    "claude-opus-4-7",
 )
 
 # Anthropic models that require the adaptive thinking API (thinking.type.adaptive
@@ -650,9 +651,6 @@ class LitellmLLM(LLM):
                 if tools and tool_choice is not None:
                     optional_kwargs["tool_choice"] = tool_choice
 
-                # Onyx Patch: Add retries to litellm completion calls to handle 429s/503s
-                num_retries = int(os.environ.get("LLM_NUM_RETRIES", "3"))
-
                 response = litellm.completion(
                     mock_response=get_llm_mock_response() or MOCK_LLM_RESPONSE,
                     model=model,
@@ -666,7 +664,6 @@ class LitellmLLM(LLM):
                     timeout=timeout_override or self._timeout,
                     max_tokens=max_tokens,
                     client=client,
-                    num_retries=num_retries,
                     **optional_kwargs,
                     **passthrough_kwargs,
                 )

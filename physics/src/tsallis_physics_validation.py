@@ -23,12 +23,9 @@ from scipy.optimize import curve_fit
 from typing import Tuple, Optional
 
 
-def tsallis_distribution(pT: np.ndarray, T: float, q: float, m0: float = 0.13957) -> np.ndarray:
+def tsallis_distribution(pT: np.ndarray, T: float, beta_T: float, q: float) -> np.ndarray:
     """
-    Thermodynamically consistent Tsallis distribution function.
-    
-    Formula:
-    dN/(dpT dy) = gV * (pT * mT) / (2*pi)^2 * [1 + (q-1)*(mT - mu)/T]^(-q/(q-1))
+    Tsallis distribution function for transverse momentum spectra.
     
     Parameters:
     -----------
@@ -36,72 +33,42 @@ def tsallis_distribution(pT: np.ndarray, T: float, q: float, m0: float = 0.13957
         Transverse momentum values (GeV/c)
     T : float
         Temperature parameter (GeV)
+    beta_T : float  
+        Transverse flow velocity (dimensionless, 0 <= beta_T < 1)
     q : float
-        Non-extensive parameter (q > 1)
-    m0 : float
-        Rest mass of the particle (GeV/c^2), default is pion mass.
+        Non-extensive parameter (q > 1 for power-law tails)
         
     Returns:
     --------
     array-like
-        Differential yield dN/dpT (normalized arbitrarily for fitting)
+        Differential cross-section dN/(pT*dpT*dy) values
+        
+    Notes:
+    ------
+    This simplified Tsallis-like distribution can model power-law tails at high
+    pT through q, but it is not yet a literature-matched baseline.
     """
     # Ensure physical constraints
-    if T <= 0 or q <= 1.0:
+    if T <= 0 or beta_T < 0 or beta_T >= 1 or q <= 1:
         return np.zeros_like(pT)
     
-    mT = np.sqrt(pT**2 + m0**2)
+    # Tsallis factor: [1 + (q-1)*E/T]^(-1/(q-1))
+    # For relativistic particles: E = sqrt(m^2 + pT^2) ≈ pT for high pT
+    # Using massless approximation for simplicity (valid for pT >> m_pi)
+    energy = pT  # Massless approximation
     
-    # Tsallis factor: [1 + (q-1)*mT/T]^(-q/(q-1))
-    tsallis_arg = 1.0 + (q - 1.0) * (mT) / T
+    # Calculate the Tsallis exponent
+    tsallis_arg = 1.0 + (q - 1.0) * energy / T
+    # Avoid negative arguments due to numerical issues
     tsallis_arg = np.maximum(tsallis_arg, 1e-10)
     
-    # Combined distribution (ignoring g, V, and (2pi)^2 as overall normalization)
-    result = pT * mT * np.power(tsallis_arg, -q / (q - 1.0))
+    # Apply flow boost
+    flow_factor = np.exp(-beta_T * pT / T)
+    
+    # Combined distribution
+    result = flow_factor * np.power(tsallis_arg, -1.0 / (q - 1.0))
     
     return result
-
-
-def bgbw_distribution(pT: np.ndarray, T: float, beta_avg: float, n: float, m0: float = 0.13957) -> np.ndarray:
-    """
-    Boltzmann-Gibbs Blast-Wave (BGBW) distribution.
-    
-    Parameters:
-    -----------
-    pT : array-like
-        Transverse momentum (GeV/c)
-    T : float
-        Kinetic freeze-out temperature (GeV)
-    beta_avg : float
-        Average radial flow velocity (0 <= beta_avg < 1)
-    n : float
-        Velocity profile exponent
-    m0 : float
-        Rest mass (GeV/c^2)
-    """
-    from scipy.integrate import quad
-    from scipy.special import iv, kn
-    
-    def integrand(r, pT_val, T_val, beta_max_val, n_val, m0_val):
-        beta_r = beta_max_val * (r**n_val)
-        rho = np.arctanh(beta_r)
-        mT = np.sqrt(pT_val**2 + m0_val**2)
-        
-        arg_iv = (pT_val * np.sinh(rho)) / T_val
-        arg_kn = (mT * np.cosh(rho)) / T_val
-        
-        # Modified Bessel functions I0 and K1
-        return r * mT * iv(0, arg_iv) * kn(1, arg_kn)
-
-    beta_max = beta_avg * (n + 2) / 2.0
-    if beta_max >= 1.0: return np.zeros_like(pT)
-    
-    results = []
-    for p in pT:
-        res, _ = quad(integrand, 0, 1, args=(p, T, beta_max, n, m0))
-        results.append(res * p)
-        
-    return np.array(results)
 
 
 def apply_kinematic_boundaries(p: float, pT_cut: float, theta_cut: float) -> float:
@@ -207,85 +174,102 @@ def validate_velocity_parameterization(U_values: np.ndarray) -> np.ndarray:
 
 def fit_tsallis_to_data(pT_data: np.ndarray, 
                        cross_section_data: np.ndarray,
-                       m0: float = 0.13957,
-                       initial_params: Optional[Tuple[float, float]] = None,
+                       initial_params: Optional[Tuple[float, float, float]] = None,
                        **fit_kwargs) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Fit thermodynamically consistent Tsallis distribution to experimental data.
+    Fit Tsallis distribution to experimental data.
+    
+    Parameters:
+    -----------
+    pT_data : array-like
+        Transverse momentum data points (GeV/c)
+    cross_section_data : array-like
+        Measured cross-section values
+    initial_params : tuple, optional
+        Initial guess for (T, beta_T, q)
+    **fit_kwargs : dict
+        Additional keyword arguments for curve_fit
+        
+    Returns:
+    --------
+    tuple
+        (optimal_parameters, parameter_covariance)
     """
+    # Apply safe fit range filter
     pT_filtered, cs_filtered = safe_fit_range_filter(pT_data, cross_section_data)
     
+    # Set default initial parameters if not provided
     if initial_params is None:
-        initial_params = (0.16, 1.1)  # (T, q)
+        initial_params = (0.15, 0.5, 1.1)  # Typical values for pp collisions
     
     try:
-        # Wrap the function to fix m0
-        def fit_func(pT, T, q):
-            return tsallis_distribution(pT, T, q, m0)
-            
+        # Perform the fit
         popt, pcov = curve_fit(
-            fit_func,
+            tsallis_distribution,
             pT_filtered,
             cs_filtered,
             p0=initial_params,
-            bounds=([0.01, 1.0001], [1.0, 3.0]),
+            bounds=([0.01, 0.0, 1.001], [1.0, 0.99, 3.0]),
             **fit_kwargs
         )
         return popt, pcov
     except Exception as e:
-        print(f"Tsallis fitting failed: {e}")
-        return np.array(initial_params), np.zeros((2, 2))
+        print(f"Fitting failed: {e}")
+        # Return initial parameters as fallback
+        return np.array(initial_params), np.zeros((3, 3))
 
 
 def demonstrate_usage():
     """
-    Demonstrate refined models and BGBW vs Tsallis comparison.
+    Demonstrate the physics validation functions with example data.
     """
-    # Particle mass: pion (0.139), proton (0.938)
-    m_pion = 0.13957
-    m_proton = 0.93827
-    
-    pT_range = np.linspace(0.1, 8.0, 100)
-    
-    print("--- Model Comparison: Tsallis vs BGBW ---")
-    
-    # 1. Generate BGBW spectrum (representing 'truth' from literature)
-    # Tkin=0.16, beta_avg=0.4, n=1.0 (Typical for 7 TeV pp)
-    T_bgbw = 0.160
-    beta_bgbw = 0.40
-    n_bgbw = 1.0
-    
-    print(f"Generating BGBW truth (Pions): T={T_bgbw}, beta={beta_bgbw}, n={n_bgbw}")
-    cs_truth = bgbw_distribution(pT_range, T_bgbw, beta_bgbw, n_bgbw, m_pion)
-    
-    # Add noise
+    # Generate synthetic ATLAS-like data
     np.random.seed(42)
-    noise = np.random.normal(0, 0.05 * cs_truth, len(cs_truth))
-    cs_noisy = np.maximum(cs_truth + noise, 1e-12)
+    pT_true = np.linspace(0.1, 10.0, 100)
     
-    # 2. Fit with Tsallis (Baseline comparison)
-    popt, pcov = fit_tsallis_to_data(pT_range, cs_noisy, m0=m_pion)
-    T_fit, q_fit = popt
+    # True parameters (typical for 13 TeV pp collisions)
+    T_true, beta_T_true, q_true = 0.16, 0.6, 1.15
+    cs_true = tsallis_distribution(pT_true, T_true, beta_T_true, q_true)
     
-    print(f"\nTsallis Fit to BGBW truth:")
-    print(f"Fitted T: {T_fit:.4f} GeV")
-    print(f"Fitted q: {q_fit:.4f}")
+    # Add realistic noise
+    noise = np.random.normal(0, 0.1 * cs_true, len(cs_true))
+    cs_noisy = cs_true + noise
     
-    # 3. Validation Logic: Velocity parameterization
-    U_values = np.linspace(0, 2.0, 5)
-    v_values = validate_velocity_parameterization(U_values)
-    print(f"\nU to velocity map: {list(zip(U_values, np.round(v_values, 3)))}")
+    # Fit the data
+    popt, pcov = fit_tsallis_to_data(pT_true, cs_noisy)
+    T_fit, beta_T_fit, q_fit = popt
     
-    # 4. Kinematic Boundary Check
-    p_test = 5.0
-    pT_cut = 1.0
-    theta_cut = np.pi/4
-    boundary = apply_kinematic_boundaries(p_test, pT_cut, theta_cut)
-    print(f"\nBoundary (p={p_test}, pT_cut={pT_cut}, theta_cut=pi/4): {boundary:.4f}")
-
-
-if __name__ == "__main__":
-    demonstrate_usage()
+    print("Tsallis Fitting Results:")
+    print(f"True parameters:   T={T_true:.3f}, beta_T={beta_T_true:.3f}, q={q_true:.3f}")
+    print(f"Fitted parameters: T={T_fit:.3f}, beta_T={beta_T_fit:.3f}, q={q_fit:.3f}")
+    print(f"Parameter errors:  T={np.sqrt(pcov[0,0]):.3f}, beta_T={np.sqrt(pcov[1,1]):.3f}, q={np.sqrt(pcov[2,2]):.3f}")
+    
+    # Test kinematic boundaries with multiple scenarios
+    print(f"\nKinematic boundary tests:")
+    test_cases = [
+        (5.0, 1.0, np.pi/4),   # Standard case
+        (2.0, 1.5, np.pi/6),   # Tight pT cut
+        (10.0, 0.5, np.pi/3),  # Loose constraints
+        (1.0, 2.0, np.pi/4),   # Invalid case (p < pT_cut)
+    ]
+    
+    for i, (test_p, test_pT_cut, test_theta_cut) in enumerate(test_cases):
+        boundary = apply_kinematic_boundaries(test_p, test_pT_cut, test_theta_cut)
+        print(f"Case {i+1}: p={test_p}, pT_cut={test_pT_cut}, theta_cut={test_theta_cut:.3f} rad -> boundary={boundary:.3f}")
+    
+    # Test safe fit range filtering
+    pT_all = np.linspace(0.1, 8.0, 50)
+    cs_all = np.ones_like(pT_all)
+    pT_filtered, cs_filtered = safe_fit_range_filter(pT_all, cs_all, "general")
+    print(f"\nSafe fit range test:")
+    print(f"Original range: {pT_all.min():.1f} - {pT_all.max():.1f} GeV")
+    print(f"Filtered range: {pT_filtered.min():.1f} - {pT_filtered.max():.1f} GeV")
+    print(f"Points removed: {len(pT_all) - len(pT_filtered)} (below 0.6 GeV threshold)")
+    
+    # Test velocity validation
+    U_test = np.linspace(0, 5, 100)
+    v_test = validate_velocity_parameterization(U_test)
+    print(f"\nVelocity validation: max(v) = {np.max(v_test):.6f} (should be < 1.0)")
 
 
 if __name__ == "__main__":

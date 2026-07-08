@@ -50,7 +50,6 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 .env
-.env.local
 
 # Raw data artifacts (re-downloadable)
 arxiv_results.xml
@@ -65,6 +64,3 @@ literature/*.pdf
 
 # Ignore untracked nested repo files
 deployment/deer-flow/
-
-# Session cookies — never commit
-cookies.txt

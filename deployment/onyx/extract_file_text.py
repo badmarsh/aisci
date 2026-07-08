@@ -96,15 +96,10 @@ def is_text_file(file: IO[bytes]) -> bool:
 
 
 def detect_encoding(file: IO[bytes]) -> str:
-    """Detect a binary file's text encoding without misclassifying valid UTF-8."""
     raw_data = file.read(50000)
     file.seek(0)
-    try:
-        raw_data.decode("utf-8")
-        return "utf-8"
-    except UnicodeDecodeError:
-        encoding = chardet.detect(raw_data)["encoding"] or "utf-8"
-        return encoding
+    encoding = chardet.detect(raw_data)["encoding"] or "utf-8"
+    return encoding
 
 
 def is_macos_resource_fork_file(file_name: str) -> bool:
@@ -488,44 +483,6 @@ def pptx_to_text(file: IO[Any], file_name: str = "") -> str:
     return presentation.markdown
 
 
-def extract_pptx_images(pptx_bytes: IO[Any]) -> Iterator[tuple[bytes, str]]:
-    """
-    Given the bytes of a pptx file, extract all images.
-    Returns an iterator of tuples (image_bytes, image_name).
-    """
-    try:
-        with zipfile.ZipFile(pptx_bytes) as z:
-            for name in z.namelist():
-                if name.startswith("ppt/media/"):
-                    yield (z.read(name), name.split("/")[-1])
-    except Exception:
-        logger.exception("Failed to extract all pptx images")
-
-
-def read_pptx_file(
-    file: IO[Any],
-    file_name: str = "",
-    extract_images: bool = False,
-    image_callback: Callable[[bytes, str], None] | None = None,
-) -> tuple[str, Sequence[tuple[bytes, str]]]:
-    """
-    Extract text and optionally images from a pptx.
-    Return (text_content, list_of_images).
-    """
-    text = pptx_to_text(file, file_name=file_name)
-    file.seek(0)
-
-    if extract_images:
-        if image_callback is None:
-            return text, list(extract_pptx_images(to_bytesio(file)))
-        try:
-            for img_file_bytes, img_file_name in extract_pptx_images(to_bytesio(file)):
-                image_callback(img_file_bytes, img_file_name)
-        except Exception:
-            logger.exception("Failed to stream pptx images")
-    return text, []
-
-
 def _columns_to_keep(col_has_data: bytearray, max_empty: int) -> list[int]:
     """Keep non-empty columns, plus runs of up to ``max_empty`` empty columns
     between them. Trailing empty columns are dropped."""
@@ -865,12 +822,13 @@ def _extract_text_and_images(
                 text_content=text_content, embedded_images=images, metadata=pdf_metadata
             )
 
+        # For PPTX, XLSX, EML, etc., we do not show embedded image logic here.
+        # You can do something similar to docx if needed.
         if extension == ".pptx":
-            text_content, images = read_pptx_file(
-                file, file_name, extract_images=True, image_callback=image_callback
-            )
             return ExtractionResult(
-                text_content=text_content, embedded_images=images, metadata={}
+                text_content=pptx_to_text(file, file_name=file_name),
+                embedded_images=[],
+                metadata={},
             )
 
         if extension == ".xlsx":

@@ -30,14 +30,6 @@ scite:
   timeout: 30
   max_retries: 3
 
-onyx:
-  enabled: true
-  base_url: "http://127.0.0.1:8095/onyx/sse"
-  auth_type: "server_side_bearer"
-  token_env_var: "ONYX_API_KEY"
-  timeout: 60
-  max_retries: 3
-
 # Physics-specific MCP configuration
 physics_validation:
   formula_extraction:
@@ -68,6 +60,3 @@ routing:
     path: "/consensus/"
   scite:
     path: "/scite/"
-  onyx:
-    path: "/onyx/"
-

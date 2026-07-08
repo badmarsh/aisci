@@ -12,7 +12,6 @@ These instructions apply to any AI coding or research agent working in this repo
 - `research/robert/` is for science-facing questions, evidence, validation criteria, fits, reports, and reproducible runs.
 - `docs/archive/` is historical context only; do not treat archive files as current status.
 - `docs/user-manual/USER_MANUAL.md` is the skill map, pipeline structure, and daily routine reference for all agents and Robert. Read it when onboarding or when unsure which skill applies to a task.
-- GitHub Issues and Pull Requests are the execution and review layer for accepted work. They do not replace canonical docs for current state, decisions, science evidence, or runbooks.
 
 ## Science Rules
 
@@ -32,15 +31,6 @@ These instructions apply to any AI coding or research agent working in this repo
 - Keep science claims and fit conclusions out of `docs/ops/`.
 - Preserve unrelated user changes in the working tree.
 - Put temporary helper scripts in `deployment/helper/`.
-- Do not create new backlog, audit, or status markdown files when a GitHub Issue plus an update to an existing canonical doc will do.
-
-## GitHub Workflow
-
-- Use GitHub Issues for accepted actionable work: platform tasks, docs drift, security remediation, and follow-up implementation.
-- Use Pull Requests for reviewable code/docs changes and keep the PR body focused on what changed, why, verification, and safety constraints.
-- Keep durable facts in repo docs: `docs/ops/` for platform state, `docs/decisions/` for stable decisions, and `research/robert/` for science state.
-- When an Issue and a canonical doc disagree, inspect the recent PR/Issue history, then update the canonical file or correct the Issue rather than creating a new parallel note.
-- Do not paste secret values into Issues, PRs, docs, commit messages, or chat. Report only file paths, variable names, and commit SHAs.
 
 ## Analysis Follow-Through
 
@@ -56,7 +46,6 @@ These instructions apply to any AI coding or research agent working in this repo
 - Create a new dated analysis file only when the analysis is substantial, likely to be reread as a standalone artifact, and cannot be represented clearly as backlog rows, evidence-ledger entries, next actions, or a short update to an existing ops note.
 - If a new analysis file is justified, explain why it is justified and ask before creating it. Also identify the canonical tracker updates that should accompany it.
 - Store platform, deployment, MCP, model, Docker, security, and tooling findings in `docs/ops/`, with actionable items added or updated in `docs/ops/platform-backlog.md`.
-- For accepted active platform work, prefer creating or updating a GitHub Issue and linking the relevant canonical doc instead of expanding `docs/ops/platform-backlog.md` with long operational history.
 - Store durable architecture or process decisions in `docs/decisions/` only when the decision is stable enough to guide future work.
 - Store science-facing questions, evidence states, validation gates, and run tasks under `research/robert/`, using `research/robert/evidence-ledger.md` and `research/robert/next-actions.md` as the canonical files.
 - Keep `ACTION_PLAN.md` high level; do not duplicate detailed backlog rows there.

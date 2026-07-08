@@ -1,7 +1,6 @@
 import copy
 from collections.abc import Callable
 from collections.abc import Generator
-from collections import deque
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -334,52 +333,6 @@ def _fetch_issue_comments(issue: Issue) -> str:
     return "\nComment: ".join(comment.body for comment in comments)
 
 
-
-def _convert_github_file_to_document(
-    repo: Repository.Repository, 
-    content_file: Any, 
-    repo_external_access: ExternalAccess | None
-) -> Document:
-    repo_full_name = repo.full_name
-    parts = repo_full_name.split("/", 1)
-    owner_name = parts[0] if parts else ""
-    repo_name = parts[1] if len(parts) > 1 else repo_full_name
-
-    try:
-        content = content_file.decoded_content.decode("utf-8")
-    except UnicodeDecodeError:
-        try:
-            content = content_file.decoded_content.decode("latin-1")
-        except Exception:
-            content = ""
-    except Exception:
-        content = ""
-
-    doc_metadata = {
-        "repo": repo_full_name,
-        "hierarchy": {
-            "source_path": [owner_name, repo_name, "files"] + content_file.path.split("/"),
-            "owner": owner_name,
-            "repo": repo_name,
-            "object_type": "file",
-        },
-    }
-
-    return Document(
-        id=content_file.html_url,
-        sections=[TextSection(link=content_file.html_url, text=content)],
-        source=DocumentSource.GITHUB,
-        external_access=repo_external_access,
-        semantic_identifier=content_file.name,
-        doc_updated_at=datetime.now(timezone.utc),
-        doc_metadata=doc_metadata,
-        metadata={
-            "object_type": "CodeFile",
-            "repo": repo_full_name,
-            "path": content_file.path,
-        },
-    )
-
 def _convert_issue_to_document(
     issue: Issue, repo_external_access: ExternalAccess | None
 ) -> Document:
@@ -445,7 +398,6 @@ def _convert_issue_to_document(
 class GithubConnectorStage(Enum):
     START = "start"
     PRS = "prs"
-    FILES = "files"
     ISSUES = "issues"
 
 
@@ -459,7 +411,6 @@ class GithubConnectorCheckpoint(ConnectorCheckpoint):
     # Used for the fallback cursor-based pagination strategy
     num_retrieved: int
     cursor_url: str | None = None
-    file_queue: list[str] | None = None
 
     def reset(self) -> None:
         """
@@ -468,7 +419,6 @@ class GithubConnectorCheckpoint(ConnectorCheckpoint):
         self.curr_page = 0
         self.num_retrieved = 0
         self.cursor_url = None
-        self.file_queue = None
 
 
 def make_cursor_url_callback(
@@ -496,19 +446,12 @@ class GithubConnector(
         state_filter: str = "all",
         include_prs: bool = True,
         include_issues: bool = False,
-        include_code_files: bool = False,
-        include_files_md: bool = False,
     ) -> None:
         self.repo_owner = repo_owner
         self.repositories = repositories
         self.state_filter = state_filter
-        
-        # Hardcoded to only index .md files
-        self.include_prs = False
-        self.include_issues = False
-        self.include_code_files = False
-        self.include_files_md = True
-        
+        self.include_prs = include_prs
+        self.include_issues = include_issues
         self.github_client: Github | None = None
 
     def load_credentials(self, credentials: dict[str, Any]) -> dict[str, Any] | None:
@@ -818,55 +761,6 @@ class GithubConnector(
 
             # if we went past the start date during the loop or there are no more
             # issues to get, we move on to the next repo
-            checkpoint.stage = GithubConnectorStage.FILES
-            checkpoint.reset()
-
-        if (self.include_code_files or self.include_files_md) and checkpoint.stage == GithubConnectorStage.FILES:
-            logger.info(f"Fetching files for repo: {repo.name}")
-            if checkpoint.file_queue is None:
-                checkpoint.file_queue = [""]
-
-            num_files = 0
-            while checkpoint.file_queue:
-                current_path = checkpoint.file_queue.pop(0)
-                try:
-                    contents = repo.get_contents(current_path)
-                    if not isinstance(contents, list):
-                        contents = [contents]
-
-                    for content_file in contents:
-                        if content_file.type == "dir":
-                            checkpoint.file_queue.append(content_file.path)
-                        elif content_file.type == "file":
-                            is_md = content_file.name.lower().endswith(".md")
-                            is_code = any(content_file.name.lower().endswith(ext) for ext in [
-                                ".py", ".js", ".ts", ".go", ".c", ".cpp", ".h", ".hpp", ".java",
-                                ".rb", ".php", ".rs", ".sh", ".yaml", ".yml", ".json", ".sql",
-                                ".html", ".css", ".tsx", ".jsx", ".mdx"
-                            ])
-
-                            if (is_md and self.include_files_md) or (is_code and self.include_code_files):
-                                try:
-                                    if is_slim:
-                                        yield Document(
-                                            id=content_file.html_url,
-                                            sections=[],
-                                            external_access=repo_external_access,
-                                            source=DocumentSource.GITHUB,
-                                            semantic_identifier="",
-                                            metadata={},
-                                        )
-                                    else:
-                                        doc = _convert_github_file_to_document(repo, content_file, repo_external_access)
-                                        yield doc
-
-                                    num_files += 1
-                                except Exception as e:
-                                    logger.exception(f"Error converting file {content_file.path}: {e}")
-                except Exception as e:
-                    logger.exception(f"Error fetching contents for {current_path}: {e}")
-
-            logger.info(f"Fetched {num_files} files for repo: {repo.name}")
             checkpoint.stage = GithubConnectorStage.PRS
             checkpoint.reset()
 

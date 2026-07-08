@@ -99,7 +99,7 @@ The skills form **two parallel pipelines** — one for platform/ops work, one fo
 
 **Skill: `aisci-tech-kickoff`**
 
-1. Read `AGENTS.md`, `ACTION_PLAN.md`, `docs/ops/platform-backlog.md`, open GitHub Issues, and `docs/decisions/2026-04-26-system-boundaries.md`
+1. Read `AGENTS.md`, `ACTION_PLAN.md`, `docs/ops/platform-backlog.md`, and `docs/decisions/2026-04-26-system-boundaries.md`
 2. Run `git status --short` + `git log --oneline -n 20` via `git-worktree-guard`
 3. Pick the single highest-leverage non-destructive task from the backlog
 4. State the task and reasoning — then implement or produce an approval-gated plan
@@ -119,7 +119,7 @@ aisci-tech-kickoff          → orient, pick task
   ├── secret-config-auditor  → always when touching .env / config files
   ├── vendored-runtime-maintainer → if deer-flow tree is involved
   ├── aisci-living-docs      → if docs have drifted from reality
-  └── platform-backlog-manager → route accepted active work to GitHub Issues; keep backlog concise
+  └── platform-backlog-manager → write accepted findings to backlog
         └── analysis-handoff-router → close session with 3 options
 ```
 
@@ -145,7 +145,7 @@ science-source-curator       → find and extract evidence from papers/Onyx
 
 - Are any docs now stale because of today's work?
 - Did any new file get created that belongs in archive?
-- Are GitHub Issues, `platform-backlog.md`, and `evidence-ledger.md` still in sync?
+- Is `platform-backlog.md` or `evidence-ledger.md` still in sync?
 
 Then `analysis-handoff-router` closes with the three options for the next agent.
 
@@ -158,10 +158,10 @@ The system has **three idea inlets**, each with a designated landing zone:
 | Source                                                                     | Landing Zone                                                                 | Skill That Processes It                                                                 |
 | :------------------------------------------------------------------------- | :--------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
 | Robert's physics intuition / new manuscript version                        | `research/robert/next-actions.md`                                            | `science-ledger-manager` to gate it, `science-source-curator` to ground it              |
-| Platform observation (something broken, slow, or missing)                  | GitHub Issue for active work; `docs/ops/platform-backlog.md` only for concise canonical state | `platform-backlog-manager` to route it, `aisci-ops-auditor` to audit the surrounding area |
+| Platform observation (something broken, slow, or missing)                  | `docs/ops/platform-backlog.md`                                               | `platform-backlog-manager` to add it, `aisci-ops-auditor` to audit the surrounding area |
 | External literature (new paper on Tsallis, arXiv preprint, Scite citation) | `research/robert/science-questions.md` or directly into `evidence-ledger.md` | `science-source-curator` → `science-ledger-manager`                                     |
 
-**Ideas never go directly into `ACTION_PLAN.md`** — that file is high-level tracking only. An idea becomes real only after it lands in the right execution or canonical tracker and is accepted by the user: GitHub Issues for active platform work, `platform-backlog.md` for concise platform state, or `next-actions.md` for science tasks.
+**Ideas never go directly into `ACTION_PLAN.md`** — that file is high-level tracking only. An idea becomes real only after it lands in one of the two canonical trackers (`platform-backlog.md` or `next-actions.md`) and is accepted by the user.
 
 ---
 
