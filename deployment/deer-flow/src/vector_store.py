@@ -70,12 +70,22 @@ class VectorStore:
         if self.backend == "disabled" or not text:
             return 0
 
-        chunks = []
+        # BUGFIX: previously would infinite-loop or spin backwards when
+        # chunk_overlap >= chunk_size. Also protects against non-positive sizes.
+        if chunk_size <= 0:
+            raise ValueError("chunk_size must be > 0")
+        if chunk_overlap < 0 or chunk_overlap >= chunk_size:
+            raise ValueError("chunk_overlap must be in [0, chunk_size)")
+
+        chunks: list[str] = []
+        step = chunk_size - chunk_overlap
         start = 0
         while start < len(text):
             end = min(start + chunk_size, len(text))
             chunks.append(text[start:end])
-            start += chunk_size - chunk_overlap
+            if end == len(text):
+                break
+            start += step
 
         embeddings = self._embed(chunks)
         meta = metadata or {}
@@ -107,9 +117,15 @@ class VectorStore:
                     self.collection_name,
                     vectors_config=VectorParams(size=dim, distance=Distance.COSINE),
                 )
+            # BUGFIX: Python's built-in hash() is randomised per process
+            # (PYTHONHASHSEED), so the same chunk produced a different point ID
+            # on every run — re-indexing created duplicates instead of upserting.
+            # Use a stable SHA-256-derived integer ID, matching the Chroma path.
             points = [
                 PointStruct(
-                    id=abs(hash(f"{meta.get('run_id','')}-{i}")) % (2**63),
+                    id=int(hashlib.sha256(
+                        f"{meta.get('run_id','')}-{i}-{chunk[:32]}".encode()
+                    ).hexdigest()[:15], 16),
                     vector=emb,
                     payload={**meta, "text": chunk, "chunk_idx": i, "indexed_at": now},
                 )
@@ -133,13 +149,14 @@ class VectorStore:
                 n_results=top_k,
                 include=["documents", "distances", "metadatas"],
             )
+            # BUGFIX: on an empty collection Chroma returns [[]] or [] and
+            # `results["documents"][0]` would raise IndexError; guard it.
+            docs = (results.get("documents") or [[]])[0] or []
+            dists = (results.get("distances") or [[]])[0] or []
+            metas = (results.get("metadatas") or [[]])[0] or []
             return [
                 {"text": d, "score": 1 - dist, "metadata": m}
-                for d, dist, m in zip(
-                    results["documents"][0],
-                    results["distances"][0],
-                    results["metadatas"][0],
-                )
+                for d, dist, m in zip(docs, dists, metas)
             ]
 
         elif self.backend == "qdrant":
