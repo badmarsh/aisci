@@ -169,7 +169,7 @@ class TestFitSpecs:
             "norm_2", "temperature_2", "U_2",
         ]
         self._assert_bounds_keys_match_names(spec)
-        assert spec.parameter_bounds["norm_1"] == (1e-12, None)  # AIS-61: was (0.0, None)
+        assert spec.parameter_bounds["norm_1"] == (0.0, None)
         assert spec.parameter_bounds["temperature_1"] == DEFAULT_MANUSCRIPT_BOUNDS["temperature"]
         assert spec.parameter_bounds["U_2"] == DEFAULT_MANUSCRIPT_BOUNDS["U"]
         assert spec.fixed_metadata == {"eta_max": 2.5, "mass_gev": 0.13957}
@@ -179,7 +179,7 @@ class TestFitSpecs:
         assert spec.model_name == "exact_bose_einstein"
         assert spec.parameter_names == ["norm_1", "temperature_1", "U_1"]
         self._assert_bounds_keys_match_names(spec)
-        assert spec.parameter_bounds["norm_1"] == (1e-12, None)  # AIS-61: was (0.0, None)
+        assert spec.parameter_bounds["norm_1"] == (0.0, None)
         assert spec.parameter_bounds["temperature_1"] == DEFAULT_MANUSCRIPT_BOUNDS["temperature"]
         assert spec.parameter_bounds["U_1"] == DEFAULT_MANUSCRIPT_BOUNDS["U"]
 
@@ -191,7 +191,7 @@ class TestFitSpecs:
             "norm_2", "temperature_2", "q_2",
         ]
         self._assert_bounds_keys_match_names(spec)
-        assert spec.parameter_bounds["norm_2"] == (1e-12, None)  # AIS-61: was (0.0, None)
+        assert spec.parameter_bounds["norm_2"] == (0.0, None)
         assert spec.parameter_bounds["temperature_1"] == DEFAULT_TSALLIS_BOUNDS["temperature"]
         assert spec.parameter_bounds["q_1"] == DEFAULT_TSALLIS_BOUNDS["q"]
 
@@ -200,7 +200,7 @@ class TestFitSpecs:
         assert spec.model_name == "blast_wave"
         assert spec.parameter_names == ["norm_1", "temperature_1", "beta_s_1", "n_1"]
         self._assert_bounds_keys_match_names(spec)
-        assert spec.parameter_bounds["norm_1"] == (1e-12, None)  # AIS-61: was (0.0, None)
+        assert spec.parameter_bounds["norm_1"] == (0.0, None)
         assert spec.parameter_bounds["temperature_1"] == DEFAULT_BLAST_WAVE_BOUNDS["temperature"]
         assert spec.parameter_bounds["beta_s_1"] == DEFAULT_BLAST_WAVE_BOUNDS["beta_s"]
         assert spec.parameter_bounds["n_1"] == DEFAULT_BLAST_WAVE_BOUNDS["n"]

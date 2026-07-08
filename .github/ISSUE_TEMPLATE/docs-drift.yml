@@ -15,7 +15,7 @@ body:
     attributes:
       label: Canonical target
       description: Which existing file should hold the durable update?
-      placeholder: "docs/ops/platform-backlog.md, docs/decisions/<adr>.md, research/robert/next-actions.md"
+      placeholder: "docs/ops/platform-status.md, docs/decisions/<adr>.md, research/robert/next-actions.md"
     validations:
       required: true
   - type: textarea

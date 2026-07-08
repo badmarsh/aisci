@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { MulticaShell } from "@/components/aisci/multica-shell"
 import { TopBar } from "@/components/aisci/top-bar"
 import { LeftRail } from "@/components/aisci/left-rail"
 import { EvidenceLedger } from "@/components/aisci/evidence-ledger"
@@ -23,7 +24,7 @@ export default function AISCIConsole() {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground font-sans">
+    <MulticaShell>
       <TopBar role={role} onRoleChange={handleRoleChange} />
       <div className="flex flex-1 min-h-0">
         <LeftRail role={role} section={section} onSection={setSection} />
@@ -36,6 +37,6 @@ export default function AISCIConsole() {
           {section === "ops"        && <OpsSurface />}
         </main>
       </div>
-    </div>
+    </MulticaShell>
   )
 }

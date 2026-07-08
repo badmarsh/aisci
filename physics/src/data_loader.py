@@ -143,6 +143,9 @@ def classify_table(headers: list[dict[str, Any]]) -> str:
     joined = " | ".join(header_names)
     if "PT(P=3)" in joined and "DPT(P=3)" in joined:
         return "pt_spectrum"
+    # Multi-column layout: first header is pT axis, remaining are multiplicity-bin columns
+    if header_names and "PT(P=3)" in header_names[0] and len(header_names) > 1:
+        return "pt_spectrum"
     if header_names and header_names[0] == "N(P=3)" and "DNEV/DN(P=3)" in joined:
         return "multiplicity_distribution"
     if header_names and header_names[0] == "N(P=3)" and "MEAN(NAME=PT(P=3))" in joined:
@@ -180,55 +183,79 @@ def build_table_metadata(table_json: dict[str, Any], table_index_entry: dict[str
     )
 
 
+
+
+def _bin_label_from_column_header(header_name: str) -> str | None:
+    """Extract e.g. "(X') 21-30" -> "21-30"; "(IX') 31-40" -> "31-40"."""
+    stripped = re.sub(r"^\s*\([IVX]+'\)\s*", "", header_name.strip())
+    m = re.search(r"(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)", stripped)
+    if m:
+        lo = m.group(1)
+        hi = m.group(2)
+        return f"{lo}-{hi}"
+    return None
 def extract_pt_rows(metadata: TableMetadata, table_json: dict[str, Any]) -> list[dict[str, Any]]:
+    # Build y-column -> manuscript_bin mapping for multi-column tables
+    headers = table_json.get("headers", [])
+    y_col_bins: list[tuple[int, str | None]] = []
+    if len(headers) > 1:
+        for col_idx, hdr in enumerate(headers[1:]):
+            label = _bin_label_from_column_header(hdr.get("name", ""))
+            y_col_bins.append((col_idx, label))
+    if not y_col_bins:
+        y_col_bins = [(0, None)]  # single y column, no bin label
+
     rows: list[dict[str, Any]] = []
     for row_index, value in enumerate(table_json.get("values", []), start=1):
         x_cell = (value.get("x") or [{}])[0]
-        y_cell = (value.get("y") or [{}])[0]
-        parsed_errors = {
-            label.lower(): {
-                "minus": minus,
-                "plus": plus,
-                "sym": sym,
+        y_list = value.get("y") or [{}]
+
+        for y_idx, manuscript_bin in y_col_bins:
+            y_cell = y_list[y_idx] if y_idx < len(y_list) else {}
+            parsed_errors = {
+                label.lower(): {
+                    "minus": minus,
+                    "plus": plus,
+                    "sym": sym,
+                }
+                for label, minus, plus, sym in (
+                    symmetrize_error(error) for error in y_cell.get("errors", [])
+                )
             }
-            for label, minus, plus, sym in (
-                symmetrize_error(error) for error in y_cell.get("errors", [])
+
+            stat_error = (parsed_errors.get("stat") or {}).get("sym")
+            sys_error = (parsed_errors.get("sys") or {}).get("sym")
+            total_error = None
+            if stat_error is not None and sys_error is not None:
+                total_error = math.sqrt(stat_error ** 2 + sys_error ** 2)
+
+            rows.append(
+                {
+                    "source_record": HEPDATA_RECORD_ID,
+                    "source_table": metadata.table_name,
+                    "source_table_doi": metadata.table_doi,
+                    "source_location": metadata.location,
+                    "description": metadata.description,
+                    "observable_kind": metadata.observable_kind,
+                    "eta_range": metadata.eta_range,
+                    "multiplicity_selection": metadata.multiplicity_selection,
+                    "pt_selection": metadata.pt_selection,
+                    "extrapolated": metadata.extrapolated,
+                    "row_index": row_index,
+                    "pt_low_gev": parse_float(x_cell.get("low")),
+                    "pt_high_gev": parse_float(x_cell.get("high")),
+                    "pt_center_gev": parse_float(x_cell.get("value")),
+                    "yield_value": parse_float(y_cell.get("value")),
+                    "stat_error": stat_error,
+                    "sys_error_minus": (parsed_errors.get("sys") or {}).get("minus"),
+                    "sys_error_plus": (parsed_errors.get("sys") or {}).get("plus"),
+                    "sys_error": sys_error,
+                    "total_error": total_error,
+                    "fit_ready": manuscript_bin is not None,
+                    "manuscript_bin": manuscript_bin,
+                    "mapping_status": "matched_to_manuscript_bin" if manuscript_bin else "unmatched_to_manuscript_bin",
+                }
             )
-        }
-
-        stat_error = (parsed_errors.get("stat") or {}).get("sym")
-        sys_error = (parsed_errors.get("sys") or {}).get("sym")
-        total_error = None
-        if stat_error is not None and sys_error is not None:
-            total_error = math.sqrt(stat_error ** 2 + sys_error ** 2)
-
-        rows.append(
-            {
-                "source_record": HEPDATA_RECORD_ID,
-                "source_table": metadata.table_name,
-                "source_table_doi": metadata.table_doi,
-                "source_location": metadata.location,
-                "description": metadata.description,
-                "observable_kind": metadata.observable_kind,
-                "eta_range": metadata.eta_range,
-                "multiplicity_selection": metadata.multiplicity_selection,
-                "pt_selection": metadata.pt_selection,
-                "extrapolated": metadata.extrapolated,
-                "row_index": row_index,
-                "pt_low_gev": parse_float(x_cell.get("low")),
-                "pt_high_gev": parse_float(x_cell.get("high")),
-                "pt_center_gev": parse_float(x_cell.get("value")),
-                "yield_value": parse_float(y_cell.get("value")),
-                "stat_error": stat_error,
-                "sys_error_minus": (parsed_errors.get("sys") or {}).get("minus"),
-                "sys_error_plus": (parsed_errors.get("sys") or {}).get("plus"),
-                "sys_error": sys_error,
-                "total_error": total_error,
-                "fit_ready": False,
-                "manuscript_bin": None,
-                "mapping_status": "unmatched_to_manuscript_bin",
-            }
-        )
     return rows
 
 
@@ -373,9 +400,9 @@ def main() -> int:
         ]
     ).sort_values(["observable_kind", "table_name"], kind="stable")
 
-    canonical_pt_df = pd.DataFrame(pt_rows).sort_values(
-        ["source_table", "row_index"], kind="stable"
-    )
+    _raw = pd.DataFrame(pt_rows)
+    canonical_pt_df = (_raw.sort_values(["source_table", "row_index"], kind="stable")
+                       if not _raw.empty else _raw)
 
     mapping_validation = validate_mapping(table_metadata, table_payloads)
 
@@ -384,7 +411,13 @@ def main() -> int:
     table_index_df.to_csv(args.run_dir / "hepdata_table_index.csv", index=False)
     canonical_pt_df.to_csv(args.run_dir / "hepdata_pt_spectra.csv", index=False)
 
-    if mapping_validation["fit_ready"]:
+    # Write fit_input.csv from qualifier-matched rows OR column-bin matched rows
+    _col_bin_ready = (
+        not canonical_pt_df.empty
+        and "fit_ready" in canonical_pt_df.columns
+        and canonical_pt_df["fit_ready"].any()
+    )
+    if mapping_validation["fit_ready"] or _col_bin_ready:
         fit_ready_df = canonical_pt_df[canonical_pt_df["fit_ready"]].copy()
         fit_ready_df.to_csv(args.run_dir / "fit_input.csv", index=False)
 
@@ -392,7 +425,7 @@ def main() -> int:
         "record_id": HEPDATA_RECORD_ID,
         "table_count": len(table_metadata),
         "pt_spectrum_rows": len(canonical_pt_df),
-        "fit_ready": mapping_validation["fit_ready"],
+        "fit_ready": bool(mapping_validation["fit_ready"] or _col_bin_ready),
         "artifacts": [
             "hepdata_record_ins1419652.json",
             "hepdata_table_index.csv",
@@ -407,6 +440,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-def load_data(url: str, timeout_seconds: float = 30.0) -> dict[str, Any]:
-    return request_json(url, timeout_seconds)

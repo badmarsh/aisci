@@ -11,6 +11,8 @@ venv/
 physics/physics_env/
 
 # Environment files with secrets
+**/.env
+!**/.env.example
 deployment/onyx/.env
 deployment/deer-flow/.env
 
@@ -34,6 +36,9 @@ logs/
 .vscode/
 .idea/
 *.swp
+*~
+*.bak
+*.tmp
 
 # Local agent/tool settings
 .codex
@@ -65,6 +70,32 @@ literature/*.pdf
 
 # Ignore untracked nested repo files
 deployment/deer-flow/
+deployment/multica/
 
 # Session cookies — never commit
 cookies.txt
+
+# Test files at root
+/test_*.py
+
+# Build artifacts
+.next/
+*.pyc
+
+# DeerFlow user data
+.deer-flow/users/
+docs/platform/multica/
+
+# Generated Archives and Agent folders
+*.zip
+.claude/
+
+# Ignore temporary agent helper scripts
+deployment/helper/test_*.py
+deployment/helper/check_*.py
+deployment/helper/probe_*.py
+deployment/helper/find_*.py
+deployment/helper/check_*.sh
+deployment/helper/test_*.sh
+deployment/helper/find_*.sh
+deployment/helper/fix_*.sh

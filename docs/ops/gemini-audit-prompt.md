@@ -25,7 +25,7 @@ Please execute the following steps in order. **Do not make unilateral commits**â
 - Ensure `docs/ops/mcp-endpoints.md` accurately reflects the active tool bridges (Scite, Consensus, Onyx) and that deprecated endpoints (e.g., Serena) remain purged from `extensions_config.json`.
 
 ### 4. Platform Backlog Reconciliation
-- Read `docs/ops/platform-backlog.md`.
+- Read `Multica Issues` (`multica issue list`) and `docs/ops/platform-status.md`.
 - Compare the documented open tasks (e.g., Vertex AI provider stubs, OpenSearch parity, RAG baseline gaps) against the actual configuration files and code.
 - Flag any tasks marked "Done" that have regressed, or any "Open" tasks that have actually already been completed.
 

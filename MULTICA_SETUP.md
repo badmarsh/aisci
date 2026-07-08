@@ -2,7 +2,7 @@
 
 ## What's Been Done
 
-1. ✅ Installed Multica CLI v0.3.15
+1. ✅ Installed Multica CLI v0.3.12
 2. ✅ Self-hosted Multica server running with Docker
 3. ✅ Configured to avoid port conflicts with Onyx
 

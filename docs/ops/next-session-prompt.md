@@ -20,7 +20,7 @@ Read first:
 - agent-skills/git-worktree-guard/SKILL.md
 - agent-skills/aisci-ops-auditor/SKILL.md
 - agent-skills/secret-config-auditor/SKILL.md if touching env/config
-- docs/ops/platform-backlog.md
+- docs/ops/platform-status.md
 - docs/ops/onyx-configure.md
 - docs/ops/mcp-endpoints.md
 - docs/ops/deployment-reference.md
@@ -65,7 +65,7 @@ Next highest-value work:
    does not retry every 30 minutes, does not hit heartbeat timeout, and does not
    produce repeated DashScope 429s.
 3. Start issue #6 by migrating only active open backlog rows to GitHub Issues,
-   then shrink `docs/ops/platform-backlog.md` instead of adding new reports.
+   then shrink `docs/ops/platform-status.md` instead of adding new reports.
 4. Fix the `onyx-mcp-server` full Jest failures around `send-chat-message`
    nock expectations, then remove the need for `--no-verify` pushes.
 5. Rebuild `onyx-python-webdeps:3.11` reproducibly once Docker buildx and PyPI

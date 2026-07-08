@@ -151,7 +151,7 @@ This section intentionally stays high level. Detailed science claims, gates, pla
 
 ## 🛠️ PHASE 5 — Tooling References
 
-Keep implementation-specific tooling decisions in `research/robert/fit-plan.md` and platform integration tasks in `docs/ops/platform-backlog.md`. The near-term required tools are `iminuit`, `scipy`, `matplotlib`, and literature search over arXiv/INSPIRE plus citation context checks.
+Keep implementation-specific tooling decisions in `research/robert/fit-plan.md` and platform integration tasks in Multica Issues. The near-term required tools are `iminuit`, `scipy`, `matplotlib`, and literature search over arXiv/INSPIRE plus citation context checks.
 
 ---
 
@@ -167,7 +167,7 @@ Keep implementation-specific tooling decisions in `research/robert/fit-plan.md` 
 
 ### 🔴 Next Actions Required
 - Science queue: `research/robert/next-actions.md`
-- Platform queue: `docs/ops/platform-backlog.md`
+- Platform queue: Multica Issues
 
 ```bash
 # Check Ollama models status

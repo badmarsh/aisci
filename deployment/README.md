@@ -10,5 +10,5 @@ This folder contains the Docker Compose stacks, configuration templates, and hel
 ## Rules
 - Do NOT commit live secrets (`.env` files) or model cache binaries to git.
 - Keep platform implementation details and ops logs out of the `research/robert/` science files.
-- Track deployment blockers and tasks in `docs/ops/platform-backlog.md`.
+- Track deployment blockers and tasks in Multica Issues (`multica issue list`).
 - Document deployment decisions in `docs/decisions/`.
