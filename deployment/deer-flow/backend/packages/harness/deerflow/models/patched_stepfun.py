@@ -31,24 +31,29 @@ def _extract_reasoning(value: Any) -> str | object:
     StepFun may return reasoning via ``reasoning`` (default) or
     ``reasoning_content`` (deepseek-style). Check both fields.
     """
+    # BUGFIX: previously guarded with ``is not None``, so StepFun's warm-up
+    # deltas ``{"reasoning": ""}`` (empty string) slipped through and were
+    # written into additional_kwargs as ``reasoning_content: ""``. Downstream
+    # consumers treat any non-missing reasoning_content as real reasoning
+    # output, so those empty-string writes corrupt the trace UI. Reject
+    # falsy reasoning at extraction time.
     if isinstance(value, Mapping):
-        # Check reasoning_content first (deepseek-style), then reasoning (default)
         for field in ("reasoning_content", "reasoning"):
-            if field in value and value[field] is not None:
+            if field in value and value[field]:
                 return value[field]
         return _MISSING
 
     # Pydantic / SDK object attributes
     for field in ("reasoning_content", "reasoning"):
         attr = getattr(value, field, _MISSING)
-        if attr is not _MISSING and attr is not None:
+        if attr is not _MISSING and attr:
             return attr
 
     # Some SDK versions store extra fields in model_extra
     model_extra = getattr(value, "model_extra", None)
     if isinstance(model_extra, Mapping):
         for field in ("reasoning_content", "reasoning"):
-            if field in model_extra and model_extra[field] is not None:
+            if field in model_extra and model_extra[field]:
                 return model_extra[field]
 
     return _MISSING
@@ -56,9 +61,14 @@ def _extract_reasoning(value: Any) -> str | object:
 
 def _with_reasoning_content(message: AIMessage | AIMessageChunk, reasoning: str) -> AIMessage | AIMessageChunk:
     """Return a copy of *message* with reasoning_content stored in additional_kwargs."""
+    # BUGFIX: previously always allocated a new message via model_copy even
+    # when reasoning matched what was already stored — wasting a Pydantic
+    # deep copy per streaming chunk. Return the original message unchanged
+    # when there is nothing to update.
+    if message.additional_kwargs.get("reasoning_content") == reasoning:
+        return message
     additional_kwargs = dict(message.additional_kwargs)
-    if additional_kwargs.get("reasoning_content") != reasoning:
-        additional_kwargs["reasoning_content"] = reasoning
+    additional_kwargs["reasoning_content"] = reasoning
     return message.model_copy(update={"additional_kwargs": additional_kwargs})
 
 
