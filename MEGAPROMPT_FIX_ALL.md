@@ -738,3 +738,833 @@ After completing all phases, verify each item:
 - Do not create backlog, audit, or status markdown files
 - Do not promote any claim beyond Validated status without completing the required gate
 - Preserve all unrelated user changes in the working tree
+
+---
+
+---
+
+# ═══════════════════════════════════════════════════════════
+# INNOVATION PHASES (8–12)
+# Architectural upgrades identified in the 2026-07-09 review
+# Run ONLY after Phases 1–7 are complete and merged to main
+# ═══════════════════════════════════════════════════════════
+
+These phases implement the three-track roadmap from
+`docs/aisci-review/roadmap.md`. They do NOT touch thesis LaTeX. They
+upgrade the live agent infrastructure so that future science phases
+become increasingly autonomous. Complete them in order.
+
+Before starting any phase here, re-read:
+1. `AGENTS.md` (full file — rules updated 2026-07-09)
+2. `docs/aisci-review/roadmap.md`
+3. `research/robert/evidence-ledger.md` (current claim states)
+
+---
+
+## PHASE 8 — Track C: Autonomous Queue Management (Immediate)
+
+This phase has no code and no new files. It installs the behavioural
+and governance scaffolding that all subsequent phases depend on.
+
+### Task 8A — Verify AGENTS.md constitutional update
+
+Read `AGENTS.md` in full. Confirm it contains a section titled
+`## Autonomous Queue Management` with the following rules present
+verbatim (do not rewrite; just confirm):
+
+1. Agents may only append to `## 🤖 Agent-Proposed (Pending Robert Approval)`.
+2. Agent-proposed items must include the triggering observation and
+   at least one Scite/Consensus citation.
+3. `evidence-ledger.md` promotion proposals must be submitted as PRs,
+   not unilateral ledger edits.
+4. Agents must never overwrite `## 🟢 Active` or `## ✅ Completed`
+   items in `next-actions.md`.
+
+If any rule is missing, apply the diff from
+`docs/aisci-review/gap-analysis-scorecard.md` (section "Gap 3
+Remediation") before proceeding.
+
+**Acceptance:** Running `grep -c "Agent-Proposed" AGENTS.md` returns ≥ 3.
+
+---
+
+### Task 8B — Create the `ledger-anomaly-detector` skill
+
+Create the directory and file:
+`agent-skills/ledger-anomaly-detector/SKILL.md`
+
+Write the following content verbatim:
+
+```markdown
+---
+name: ledger-anomaly-detector
+description: >
+  Scans research/robert/evidence-ledger.md for claims whose Next Gate
+  criteria appear to have been met by existing runs/ artifacts, and for
+  claims with no corresponding active next-actions.md item. Drafts
+  proposals under ## 🤖 Agent-Proposed in next-actions.md.
+  Trigger when: asked to "check the ledger for gaps", run nightly via
+  cron, or invoked after any fit run completes.
+---
+
+## Instructions
+
+### Step 0 — Read canonical files in full
+1. Read `research/robert/evidence-ledger.md`.
+2. Read `research/robert/next-actions.md`.
+3. List the contents of `research/robert/runs/` (top level only).
+
+### Step 1 — Gap detection
+For each claim row in `evidence-ledger.md`:
+- Extract: Claim ID, Status, Next Gate description, Current Evidence.
+- If `Status = Sanity checked`:
+  - Check whether any run directory under `runs/` matches the
+    Next Gate description (e.g., "profile scan CSVs exist" → look for
+    `runs/*-bgbw-profile-scan/contour_bin_*.csv`).
+  - If matched: mark as PROMOTABLE.
+- If `Status = Needs validation` or `Status = Blocked`:
+  - Check whether a corresponding item exists in `## 🟢 Active` or
+    `## 🤖 Agent-Proposed` of `next-actions.md`.
+  - If no item exists: mark as UNTRACKED.
+
+### Step 2 — Literature grounding
+For each PROMOTABLE or UNTRACKED claim:
+- Query Scite MCP: `search(query="<claim text>", limit=3)`.
+- Record the top result: title, DOI, supporting/contrasting count.
+- If Scite is unavailable, query Consensus MCP instead.
+- If both are unavailable, note "literature check skipped — MCP offline"
+  and proceed.
+
+### Step 3 — Draft proposals
+For each PROMOTABLE claim:
+- Draft a promotion proposal entry:
+  ```
+  ### [LAD-YYYY-MM-DD] Promote "<Claim ID>" to Validated
+  **Trigger:** Next Gate criteria met by `runs/<dir>/`.
+  **Evidence:** <file path>.
+  **Literature grounding:** <citation from Step 2>.
+  **Proposed action:** Open a PR updating evidence-ledger.md Status
+  from "Sanity checked" to "Validated" and filling Current Evidence.
+  ```
+
+For each UNTRACKED claim:
+- Draft a new action entry:
+  ```
+  ### [LAD-YYYY-MM-DD] Investigate untracked claim "<Claim ID>"
+  **Trigger:** Claim has Status="<status>" with no active queue item.
+  **Literature grounding:** <citation from Step 2>.
+  **Proposed action:** <specific next experiment or computation>.
+  ```
+
+### Step 4 — Write proposals
+Append ALL drafted proposals to `research/robert/next-actions.md`
+under the section `## 🤖 Agent-Proposed (Pending Robert Approval)`.
+Create the section if it does not exist. Do NOT modify any other
+section.
+
+### Step 5 — Report
+Print a summary:
+- N claims scanned
+- N PROMOTABLE found
+- N UNTRACKED found
+- N proposals written
+- Scite/Consensus availability status
+```
+
+**Acceptance:** File exists and `grep -c "Step" agent-skills/ledger-anomaly-detector/SKILL.md` returns ≥ 5.
+
+---
+
+### Task 8C — Wire nightly GitHub Actions cron
+
+Read `.github/workflows/` to check whether a `ledger-scan.yml`
+workflow file already exists. If it does, read it and update it if
+the job step is stale. If it does not exist, create it:
+
+**File:** `.github/workflows/ledger-scan.yml`
+
+```yaml
+name: Nightly Ledger Anomaly Scan
+
+on:
+  schedule:
+    - cron: '0 4 * * *'   # 04:00 UTC daily
+  workflow_dispatch: {}    # Allow manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  ledger-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install physics dependencies
+        working-directory: physics
+        run: uv sync --frozen || pip install iminuit scipy numpy pandas matplotlib
+
+      - name: Run ledger anomaly scan (dry-run, no MCP)
+        run: |
+          python - <<'EOF'
+          import pathlib, re, datetime, sys
+
+          ledger = pathlib.Path("research/robert/evidence-ledger.md").read_text()
+          next_actions = pathlib.Path("research/robert/next-actions.md").read_text()
+          runs_dirs = list(pathlib.Path("research/robert/runs").iterdir()) \
+                      if pathlib.Path("research/robert/runs").exists() else []
+
+          sanity_ids = re.findall(r'\|\s*([A-Z]-\d+)[^|]*\|\s*Sanity checked', ledger)
+          proposed_ids = re.findall(r'LAD-\d{4}-\d{2}-\d{2}', next_actions)
+
+          print(f"Claims at 'Sanity checked': {sanity_ids}")
+          print(f"Existing LAD proposals: {proposed_ids}")
+          print(f"Run dirs: {[d.name for d in runs_dirs]}")
+          print("Scan complete. MCP literature grounding requires live agent session.")
+          EOF
+
+      - name: Report scan results
+        run: echo "Ledger scan complete. Check logs for PROMOTABLE/UNTRACKED claims."
+```
+
+**Note:** Full literature grounding (Scite/Consensus) requires a live
+agent session with MCP access. This cron job runs a lightweight
+structural scan only. The full skill is invoked manually or via an
+agent session.
+
+**Acceptance:** File exists. `gh workflow list` shows `Nightly Ledger Anomaly Scan`.
+
+---
+
+## PHASE 9 — Track A: Standalone Physics CLI
+
+This phase wraps the existing fitting pipeline in a clean CLI
+entrypoint so it can be called identically from DeerFlow, a bare
+Python session, GitHub Actions, or a sandboxed kernel.
+
+### Task 9A — Create `physics/cli.py`
+
+Read `physics/src/fitting_pipeline.py` (lines 1–60 only) to understand
+the existing `FitSpec` and `fit_one_spec` interface before writing.
+
+Then create `physics/cli.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+AiSci Physics CLI
+=================
+Thin wrapper around physics/src/fitting_pipeline.py that makes the
+pipeline invocable as a one-liner from DeerFlow, CI, or a sandbox kernel.
+
+Usage
+-----
+python physics/cli.py \\
+    --run-dir research/robert/runs/YYYY-MM-DD-test \\
+    --data-path physics/data/fit_input_ins1735345.csv \\
+    --mass-gev 0.13957 \\
+    --models bgbw tsallis_1c tsallis_2c juttner_1c \\
+    --cov-mode diag
+
+Outputs
+-------
+<run-dir>/fit_quality.csv        — chi2/ndf, AIC, BIC per bin per model
+<run-dir>/parameters.csv         — best-fit parameters
+<run-dir>/cli_summary.json       — machine-readable summary for agents
+Stdout: JSON summary (chi2/ndf table) for easy agent parsing.
+"""
+import argparse
+import json
+import pathlib
+import sys
+import datetime
+
+# Ensure physics/src is importable
+sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
+
+
+def parse_args():
+    p = argparse.ArgumentParser(
+        description="AiSci Physics CLI — run model fits and emit JSON summary."
+    )
+    p.add_argument(
+        "--run-dir", required=True,
+        help="Output directory (created if absent). "
+             "E.g. research/robert/runs/YYYY-MM-DD-test"
+    )
+    p.add_argument(
+        "--data-path",
+        default="physics/data/fit_input_ins1735345.csv",
+        help="Path to per-bin pT spectrum CSV (HEPData format)."
+    )
+    p.add_argument(
+        "--mass-gev", type=float, default=0.13957,
+        help="Particle mass in GeV (default: pion 0.13957)."
+    )
+    p.add_argument(
+        "--models", nargs="+",
+        default=["bgbw", "tsallis_1c", "tsallis_2c",
+                 "juttner_1c", "juttner_2c", "bose_1c"],
+        help="Model keys to run. Valid: bgbw tsallis_1c tsallis_2c "
+             "juttner_1c juttner_2c bose_1c bose_2c"
+    )
+    p.add_argument(
+        "--cov-mode", default="diag",
+        choices=["diag", "correlated"],
+        help="Covariance mode: 'diag' (independent) or 'correlated' (GLS)."
+    )
+    p.add_argument(
+        "--xi", type=float, default=1.0,
+        help="Correlation length in log-pT for GLS covariance (default 1.0)."
+    )
+    p.add_argument(
+        "--dry-run", action="store_true",
+        help="Validate args and data path without running fits."
+    )
+    return p.parse_args()
+
+
+def main():
+    args = parse_args()
+    run_dir = pathlib.Path(args.run_dir)
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    # Write run metadata immediately (survives crashes)
+    meta = {
+        "cli_version": "1.0.0",
+        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "data_path": args.data_path,
+        "mass_gev": args.mass_gev,
+        "models": args.models,
+        "cov_mode": args.cov_mode,
+        "xi": args.xi,
+        "run_dir": str(run_dir),
+    }
+    (run_dir / "cli_meta.json").write_text(json.dumps(meta, indent=2))
+
+    if args.dry_run:
+        data_path = pathlib.Path(args.data_path)
+        if not data_path.exists():
+            print(json.dumps({"status": "error",
+                              "message": f"data-path not found: {args.data_path}"}))
+            sys.exit(1)
+        print(json.dumps({"status": "dry-run-ok", "meta": meta}))
+        return
+
+    # Import and run pipeline
+    try:
+        from fitting_pipeline import run_all_fits  # type: ignore
+    except ImportError as e:
+        print(json.dumps({
+            "status": "error",
+            "message": f"Cannot import fitting_pipeline: {e}. "
+                       "Ensure iminuit, scipy, numpy, pandas are installed.",
+        }))
+        sys.exit(2)
+
+    results = run_all_fits(
+        data_path=args.data_path,
+        run_dir=str(run_dir),
+        mass_gev=args.mass_gev,
+        model_keys=args.models,
+        cov_mode=args.cov_mode,
+        xi=args.xi,
+    )
+
+    # Emit machine-readable JSON summary to stdout for agent parsing
+    summary = {
+        "status": "ok",
+        "run_dir": str(run_dir),
+        "models_run": args.models,
+        "bins": list(results.keys()) if isinstance(results, dict) else [],
+        "best_model_per_bin": {
+            bin_key: min(model_results, key=lambda m: model_results[m].get("chi2_ndf", 9999))
+            for bin_key, model_results in results.items()
+        } if isinstance(results, dict) else {},
+    }
+    summary_path = run_dir / "cli_summary.json"
+    summary_path.write_text(json.dumps(summary, indent=2))
+    print(json.dumps(summary, indent=2))
+
+
+if __name__ == "__main__":
+    main()
+```
+
+**Acceptance:** `python physics/cli.py --dry-run --run-dir /tmp/test-cli` exits 0
+and prints `{"status": "dry-run-ok", ...}`.
+
+---
+
+### Task 9B — Add `run_all_fits` entry point to `fitting_pipeline.py`
+
+Read `physics/src/fitting_pipeline.py` and find the `if __name__ == "__main__":` block.
+Check whether `run_all_fits()` is already defined as a callable function (not just
+an inline script block). If it is not, add the following immediately before the
+`if __name__ == "__main__":` block (preserve everything that follows):
+
+```python
+def run_all_fits(
+    data_path: str,
+    run_dir: str,
+    mass_gev: float = 0.13957,
+    model_keys: list | None = None,
+    cov_mode: str = "diag",
+    xi: float = 1.0,
+) -> dict:
+    """
+    Callable entry point for physics/cli.py and DeerFlow tool integration.
+
+    Parameters
+    ----------
+    data_path : str
+        Path to per-bin pT spectrum CSV.
+    run_dir : str
+        Output directory (must exist).
+    mass_gev : float
+        Particle mass in GeV.
+    model_keys : list[str] | None
+        Model identifiers to run. None = run all defined FitSpecs.
+    cov_mode : str
+        'diag' or 'correlated'.
+    xi : float
+        Log-pT correlation length for GLS covariance.
+
+    Returns
+    -------
+    dict
+        Nested dict: {bin_label: {model_key: {chi2_ndf, aic, bic, params}}}.
+    """
+    import pandas as pd
+
+    df = pd.read_csv(data_path)
+    all_specs = build_fit_specs(mass_gev=mass_gev)  # existing function
+
+    if model_keys is not None:
+        all_specs = {k: v for k, v in all_specs.items() if k in model_keys}
+
+    results: dict = {}
+    for bin_label, bin_df in df.groupby("bin_label"):
+        results[bin_label] = {}
+        for model_key, spec in all_specs.items():
+            try:
+                res = fit_one_spec(bin_df, spec, cov_mode=cov_mode, xi=xi,
+                                   run_dir=run_dir, bin_label=str(bin_label))
+                results[bin_label][model_key] = res
+            except Exception as exc:
+                results[bin_label][model_key] = {"status": "failed", "error": str(exc)}
+
+    return results
+```
+
+**Important:** Only add this function if `run_all_fits` does not already exist.
+Use `grep -n "def run_all_fits" physics/src/fitting_pipeline.py` to check first.
+
+**Acceptance:** `grep "def run_all_fits" physics/src/fitting_pipeline.py` returns 1 line.
+
+---
+
+### Task 9C — Add `physics/cli.py` to CI
+
+Read `.github/workflows/physics-tests.yml`. If the workflow runs
+`python -m pytest tests/` but does not test the CLI, add a step:
+
+```yaml
+      - name: Smoke-test physics CLI
+        run: |
+          python physics/cli.py \
+            --dry-run \
+            --run-dir /tmp/smoke-test-cli \
+            --data-path physics/data/fit_input_ins1735345.csv
+```
+
+Add this step immediately after the existing test step. Do not remove
+any existing steps.
+
+**Acceptance:** The new step appears in the workflow file.
+
+---
+
+## PHASE 10 — Track B: DeerFlow De-Vendoring Decision
+
+This phase produces a single durable decision document and extracts
+AiSci-specific skills from the DeerFlow vendor tree.
+
+### Task 10A — Write the de-vendoring decision
+
+Create `docs/decisions/2026-07-09-deerflow-devendoring.md`:
+
+```markdown
+# Decision: DeerFlow De-Vendoring Plan
+
+**Date:** 2026-07-09
+**Status:** Accepted — Q3 2026 target
+**Replaces:** None
+**Impacts:** `deployment/deer-flow/`, `CHANGELOG.md`, `platform-backlog.md`
+
+## Context
+
+`deployment/deer-flow/` contains a full vendored copy (~50K lines) of
+the DeerFlow orchestration framework. The directory is listed in
+`.gitignore`, making:
+- CI verification of the orchestration layer impossible.
+- Patch reproducibility fragile (manual `apply_local_patches.sh` required
+  after every clean checkout).
+- The AiSci science loop unnecessarily coupled to a heavyweight web
+  application backend.
+
+The architectural review (2026-07-09, `docs/aisci-review/gap-analysis-scorecard.md`)
+classified this as Gap 2 ("Over-reliance on DeerFlow") with Priority P1.
+
+## Decision
+
+De-vendor DeerFlow over Q3 2026 (target: 2026-09-30). The AiSci science
+loop will be migrated to the "AiSci Runtime Minimal" stack:
+
+| Component | Current | Target |
+| :--- | :--- | :--- |
+| Orchestration | DeerFlow (web app) | Direct LLM SDK + `agent-skills/` |
+| Tool routing | DeerFlow gateway | `mcp_config.yaml` shared proxy |
+| Physics execution | DeerFlow skill call | `python physics/cli.py` |
+| Frontend | DeerFlow UI | Not required for science loop |
+
+DeerFlow may continue to run as an optional UI layer for Robert's
+day-to-day chat interface, but no science workflow should depend on it
+being available.
+
+## Migration Path
+
+1. **Phase 1 (now):** Extract all AiSci-specific skills from
+   `deployment/deer-flow/skills/` and `deployment/deer-flow/agents/`
+   into `agent-skills/` as vendor-neutral `SKILL.md` files.
+2. **Phase 2 (2026-08):** Wire `physics/cli.py` as the canonical
+   physics execution entrypoint. Remove DeerFlow skill wrappers for physics.
+3. **Phase 3 (2026-09):** Confirm science loop runs end-to-end via
+   `python physics/cli.py` + `mcp_config.yaml` without DeerFlow.
+   Archive `deployment/deer-flow/` as `deployment/archive/deer-flow/`.
+
+## Guardrails
+
+- Do NOT delete `deployment/deer-flow/` until Phase 3 is verified.
+- AiSci-specific patches (documented in `deployment/deer-flow/README-local-patches.md`)
+  must be preserved in `docs/decisions/` before deletion.
+- Onyx remains in place — only the orchestration layer is migrated.
+
+## Acceptance Criteria
+
+- [ ] All AiSci skills migrated to `agent-skills/`.
+- [ ] `python physics/cli.py --dry-run` passes in CI.
+- [ ] Science loop documented in `docs/user-manual/USER_MANUAL.md` no
+      longer references DeerFlow as a required runtime.
+- [ ] `deployment/deer-flow/` removed or archived.
+```
+
+**Acceptance:** File exists. `wc -l docs/decisions/2026-07-09-deerflow-devendoring.md` returns > 50.
+
+---
+
+### Task 10B — Audit and migrate AiSci-specific DeerFlow skills
+
+List the contents of `deployment/deer-flow/skills/` and
+`deployment/deer-flow/agents/`. For each directory found:
+
+1. Read the primary skill/agent file (e.g., `skill.md`, `agent.yaml`,
+   or equivalent).
+2. Determine if the skill is AiSci-specific (references physics, Onyx,
+   Robert, HEP, BGBW, Tsallis) or generic (DeerFlow upstream default).
+3. For each **AiSci-specific** skill:
+   - Create `agent-skills/<skill-name>/SKILL.md` with the content
+     converted to the standard frontmatter format used by existing
+     `agent-skills/` files (see `agent-skills/TEMPLATE.md`).
+   - Add a one-line note at the top: `# Migrated from deployment/deer-flow/skills/<dir>/ on YYYY-MM-DD`
+4. For each **generic/upstream** skill: log its name only, do not copy.
+
+Write a migration manifest to `agent-skills/MIGRATION_MANIFEST.md`:
+```markdown
+# DeerFlow Skill Migration Manifest
+Generated: YYYY-MM-DD
+
+## Migrated (AiSci-specific)
+- <skill-name>: deployment/deer-flow/skills/<dir>/ → agent-skills/<skill-name>/
+
+## Left in vendor (generic upstream)
+- <skill-name>: reason not migrated
+```
+
+**Acceptance:** File `agent-skills/MIGRATION_MANIFEST.md` exists.
+
+---
+
+## PHASE 11 — Track C: Literature-to-Hypothesis Loop
+
+This phase wires the Scite/Consensus MCP tools into a structured
+autonomous hypothesis-extension workflow that agents can invoke after
+any anomalous fit result.
+
+### Task 11A — Create `science-hypothesis-generator` skill
+
+Create `agent-skills/science-hypothesis-generator/SKILL.md`:
+
+```markdown
+---
+name: science-hypothesis-generator
+description: >
+  When a fit run produces an anomalous result (chi²/ndf regression,
+  unexpected parameter value, or new |ρ| > 0.9 correlation), this skill
+  orchestrates: literature retrieval → candidate hypothesis extraction →
+  model modification proposal → next-actions.md entry.
+  Trigger: "generate hypothesis for <anomalous result>" or automatically
+  after any fit run that triggers the Anomaly Duty rule in AGENTS.md.
+---
+
+## Prerequisites
+
+- Scite or Consensus MCP must be reachable (test with `check_mcp_liveness.py`).
+- The triggering fit run directory must be provided.
+- The agent must have already read the evidence-ledger.md entry for the
+  relevant claim before invoking this skill.
+
+## Instructions
+
+### Step 0 — Parse the anomaly
+Accept the following inputs (from the agent's context or explicit args):
+- `anomaly_description`: plain-text description of what was unexpected.
+  E.g. "BGBW chi²/ndf jumped from 2.1 to 18.7 in bin 71–80 after GLS
+  covariance was applied."
+- `run_dir`: path to the triggering fit run directory.
+- `claim_id`: the evidence-ledger claim ID this relates to (e.g. "C-1").
+
+### Step 1 — Literature retrieval (Scite MCP)
+Query Scite with the anomaly as the search string.
+Required query format: `"<observable> <model name> <particle system>"`.
+Example: `"blast wave temperature beta degeneracy pp 13 TeV ALICE"`
+
+Record up to 5 results: title, DOI, abstract snippet, supporting/contrasting
+citation count.
+
+If Scite returns < 2 results, broaden the query by removing the collision
+system. If still < 2, query Consensus MCP with the same string.
+
+### Step 2 — Extract physical explanations
+For each retrieved paper:
+- Does it offer a physical explanation for the observed anomaly?
+- Does it propose a model modification (e.g., incorporating radial flow
+  profile, hadronic rescattering corrections, non-equilibrium effects)?
+- Tag each as: RELEVANT | TANGENTIAL | CONTRADICTS.
+
+### Step 3 — Draft model modification candidate
+From the RELEVANT papers, draft ONE candidate model modification:
+
+```
+## Candidate Model Modification
+**Anomaly:** <anomaly_description>
+**Inspired by:** <paper title, DOI>
+**Physical reasoning:** <1-2 sentences from the paper>
+**Proposed change to fitting_pipeline.py:**
+  - Modify FitSpec: <specific change — e.g., "add radial flow profile
+    exponent n as free parameter in bgbw_scalar()">
+  - Expected effect: <what chi²/ndf change is expected>
+  - Test strategy: run with `python physics/cli.py --models bgbw_nprofile`
+    and compare AIC vs current BGBW.
+**Literature support:** <citation>
+**Acceptance gate:** AIC improvement > 2 units in ≥ 8/10 bins.
+```
+
+### Step 4 — Append to next-actions.md
+Append the following to `research/robert/next-actions.md` under
+`## 🤖 Agent-Proposed (Pending Robert Approval)`:
+
+```
+### [HYP-YYYY-MM-DD] Test <model modification name>
+**Trigger:** <anomaly_description>
+**Triggering run:** <run_dir>
+**Literature grounding:** <title> (<DOI>) — <supporting/contrasting> citations via Scite
+**Proposed action:** <model modification candidate from Step 3>
+**Acceptance:** AIC improvement > 2 in ≥ 8/10 bins; chi²/ndf < 3 in all bins.
+```
+
+### Step 5 — Report
+Print:
+- Anomaly parsed: YES/NO
+- Papers retrieved: N (Scite/Consensus)
+- RELEVANT papers: N
+- Hypothesis drafted: YES/NO
+- next-actions.md entry written: YES/NO
+```
+
+**Acceptance:** File exists. `grep -c "Step" agent-skills/science-hypothesis-generator/SKILL.md` ≥ 5.
+
+---
+
+### Task 11B — Wire anomaly detection into `physics/cli.py`
+
+Read `physics/cli.py` (created in Phase 9). After the `summary_path.write_text(...)` line,
+add the following anomaly-check block:
+
+```python
+    # ── Anomaly duty check (AGENTS.md § Science Rules) ───────────────────
+    ANOMALY_CHI2_THRESHOLD = 10.0
+    ANOMALY_CORR_THRESHOLD = 0.90
+
+    anomalies = []
+    for bin_key, model_results in summary.get("best_model_per_bin", {}).items():
+        for model_key, model_run in results.items() if isinstance(results, dict) else []:
+            if isinstance(model_run, dict):
+                chi2_ndf = model_run.get("chi2_ndf", 0)
+                if chi2_ndf > ANOMALY_CHI2_THRESHOLD:
+                    anomalies.append({
+                        "type": "chi2_regression",
+                        "bin": bin_key,
+                        "model": model_key,
+                        "chi2_ndf": chi2_ndf,
+                        "threshold": ANOMALY_CHI2_THRESHOLD,
+                    })
+                for corr_key, corr_val in model_run.get("correlations", {}).items():
+                    if abs(corr_val) > ANOMALY_CORR_THRESHOLD:
+                        anomalies.append({
+                            "type": "high_correlation",
+                            "bin": bin_key,
+                            "model": model_key,
+                            "param_pair": corr_key,
+                            "rho": corr_val,
+                            "threshold": ANOMALY_CORR_THRESHOLD,
+                        })
+
+    if anomalies:
+        anomaly_path = run_dir / "anomalies.json"
+        anomaly_path.write_text(json.dumps(anomalies, indent=2))
+        print(
+            f"\n⚠️  ANOMALY DUTY: {len(anomalies)} anomaly/anomalies detected. "
+            f"See {anomaly_path}.\n"
+            f"Per AGENTS.md § Science Rules, you MUST append a proposed follow-up "
+            f"item to research/robert/next-actions.md before ending this session.\n"
+            f"Invoke agent-skills/science-hypothesis-generator/ to draft the entry.",
+            file=sys.stderr,
+        )
+        summary["anomalies"] = anomalies
+        summary_path.write_text(json.dumps(summary, indent=2))
+    # ─────────────────────────────────────────────────────────────────────
+```
+
+**Important:** Only add this block if it does not already exist.
+Check with `grep -n "ANOMALY_CHI2_THRESHOLD" physics/cli.py` first.
+
+**Acceptance:** `grep "ANOMALY_CHI2_THRESHOLD" physics/cli.py` returns ≥ 1 line.
+
+---
+
+## PHASE 12 — Integration Verification & Constitution Smoke-Test
+
+This final phase verifies the entire innovation stack end-to-end.
+
+### Task 12A — End-to-end smoke test
+
+Run the following sequence and record every output line in
+`research/robert/runs/YYYY-MM-DD-innovation-smoke-test/smoke_test.log`:
+
+```bash
+# Step 1: CLI dry-run
+python physics/cli.py \
+    --dry-run \
+    --run-dir research/robert/runs/$(date +%Y-%m-%d)-innovation-smoke-test \
+    --data-path physics/data/fit_input_ins1735345.csv
+
+# Step 2: Ledger anomaly scan (structural only, no MCP required)
+python - <<'EOF'
+import pathlib, re
+ledger = pathlib.Path("research/robert/evidence-ledger.md").read_text()
+sanity = re.findall(r'\|\s*([A-Z]-\d+)[^|]*\|\s*Sanity checked', ledger)
+print(f"Claims at Sanity checked: {sanity}")
+print("Structural scan: OK")
+EOF
+
+# Step 3: Verify AGENTS.md has autonomous queue rules
+grep -c "Agent-Proposed" AGENTS.md && echo "AGENTS.md: constitution OK"
+
+# Step 4: Verify ledger-anomaly-detector skill exists
+test -f agent-skills/ledger-anomaly-detector/SKILL.md && \
+    echo "Ledger anomaly detector: OK"
+
+# Step 5: Verify science-hypothesis-generator skill exists
+test -f agent-skills/science-hypothesis-generator/SKILL.md && \
+    echo "Science hypothesis generator: OK"
+
+# Step 6: Verify CLI exists
+test -f physics/cli.py && echo "Physics CLI: OK"
+
+# Step 7: Verify de-vendoring decision exists
+test -f docs/decisions/2026-07-09-deerflow-devendoring.md && \
+    echo "De-vendoring decision: OK"
+```
+
+Write a summary `smoke_test_report.md` in the run directory:
+
+```markdown
+# Innovation Phase Smoke Test
+
+**Date:** YYYY-MM-DD
+**Runner:** <agent name/model>
+
+## Results
+
+| Check | Result |
+| :--- | :--- |
+| Physics CLI dry-run | PASS / FAIL |
+| AGENTS.md constitution | PASS (N matches) / FAIL |
+| Ledger anomaly detector skill | PASS / FAIL |
+| Science hypothesis generator skill | PASS / FAIL |
+| De-vendoring decision doc | PASS / FAIL |
+| Structural ledger scan | PASS — N claims at Sanity checked |
+
+## Open Items
+<list any FAIL items with remediation notes>
+```
+
+**Acceptance:** All 7 checks pass. `smoke_test_report.md` exists with no FAIL rows.
+
+---
+
+### Task 12B — Final verification checklist (Innovation Phases)
+
+After completing Phases 8–12, verify each item:
+
+- [ ] `AGENTS.md` contains `## Autonomous Queue Management` with ≥ 4 rules.
+- [ ] `agent-skills/ledger-anomaly-detector/SKILL.md` exists with ≥ 5 steps.
+- [ ] `.github/workflows/ledger-scan.yml` exists and is syntactically valid.
+- [ ] `physics/cli.py` exists, passes `--dry-run`, and contains `ANOMALY_CHI2_THRESHOLD`.
+- [ ] `physics/src/fitting_pipeline.py` contains `def run_all_fits(`.
+- [ ] `.github/workflows/physics-tests.yml` contains the CLI smoke-test step.
+- [ ] `docs/decisions/2026-07-09-deerflow-devendoring.md` exists.
+- [ ] `agent-skills/MIGRATION_MANIFEST.md` exists (even if empty — indicates audit done).
+- [ ] `agent-skills/science-hypothesis-generator/SKILL.md` exists with ≥ 5 steps.
+- [ ] Smoke-test run dir exists under `research/robert/runs/YYYY-MM-DD-innovation-smoke-test/`.
+- [ ] `smoke_test_report.md` contains no FAIL rows.
+- [ ] `research/robert/next-actions.md` was NOT modified by this phase
+      (innovation phases do not touch the science queue).
+
+---
+
+## OPERATIONAL CONSTRAINTS REMINDER (all phases)
+
+- All new run artifacts: `research/robert/runs/YYYY-MM-DD-<name>/`
+- All permanent findings: `research/robert/evidence-ledger.md` (append only)
+- `next-actions.md`: move completed items only; new items go under `🤖 Agent-Proposed`
+- Do not create backlog, audit, or status markdown files
+- Do not promote any claim beyond Validated without completing the required gate
+- Preserve all unrelated user changes in the working tree
+- Innovation phases (8–12) must not regress any Phase 1–7 output
+
