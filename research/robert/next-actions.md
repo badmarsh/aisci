@@ -11,16 +11,7 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 ## 🟢 Active — Robert's Decision Required
 
-### [O-04] Resolve T–β degeneracy in BGBW fits
-**Status:** Active. Data and covariance matrices available in `research/robert/runs/2026-06-20-phd-level-fits/covariance/`.
-**Finding:** All 9 BGBW bins show |ρ(T, β_s)| ∈ [0.93, 0.999]. 4/9 bins are DEGENERATE (|ρ| > 0.95). In no bin are T_kin and β_s statistically independent. Parameters cannot be reported or interpreted separately without addressing this.
-**Options (Robert selects one before physical interpretation):**
-  1. Profile scan: fix β_s to a grid of values, find T_kin minimum per bin — report 68% CL contours instead of single point estimates.
-  2. Switch to Tsallis 2c as primary model (wins AIC/BIC in 7/10 bins, chi²/ndf < 2 in 7/10 bins).
-  3. Add identified particle constraint (π/K/p separate spectra) to break degeneracy.
-**Decision required from Robert before any parameter physical interpretation.**
 
----
 
 ### [O-08] Issue #27 — C1: Obtain cross-estimator dataset and response matrix
 **Status:** BLOCKED — awaiting ALICE internal data or published V0M/CL1 dataset.
@@ -38,19 +29,7 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 ---
 
-### [O-09] Issue #27 — C3: Run GLS covariance-aware BGBW fit
-**Status:** Scaffold done. Wire in after per-class diagonal fit is stable.
-**Context:** χ²/ndf from diagonal weighting treats correlated systematics as independent. GLS envelope (ξ ∈ {0.1, 0.3, 1.0, 3.0}) brackets the true covariance.
-**Action:**
-```bash
-python physics/src/bgbw_fit.py \
-  --run-dir research/robert/runs/YYYY-MM-DD-bgbw-gls \
-  --cov-mode correlated --xi 1.0
-```
-Update `evidence-ledger.md` with `gls_chi2_ndf_envelope` per bin once run completes.
-**Acceptance:** `ledger_table.md` χ²/ndf column re-derived under GLS.
 
----
 
 ### [O-05] ✅ Verify ALICE/ATLAS HEPData observable: dN/dpT dη vs dN/dpT dy
 **Status:** CONFIRMED. dy/dη Jacobian is required.
@@ -64,17 +43,7 @@ Update `evidence-ledger.md` with `gls_chi2_ndf_envelope` per bin once run comple
 
 ---
 
-### [O-06] Investigate Tsallis 2c physical interpretation
-**Status:** Active. Tsallis 2c wins AIC/BIC in 7/10 bins with chi²/ndf < 2.
-**Finding:** Tsallis 2c is the statistical winner but physical interpretation requires parameter stability across multiplicity bins and comparison with Cleymans–Worku 2012 (arXiv:1110.5526) ranges.
-**Action:**
-  1. Extract Tsallis 2c parameter values (T₁, q₁, T₂, q₂, norm₁, norm₂) per bin from `fit_parameters.csv`.
-  2. Check whether T and q components have physically stable, monotonic trends across multiplicity bins.
-  3. Compare with Cleymans–Worku 2012 parameter ranges (T ~ 0.09–0.10 GeV, q ~ 1.1–1.15 in pp collisions).
-  4. Inspect covariance matrices for T–q correlations — Tsallis T and q are known to be anti-correlated.
-**Output:** Update evidence ledger with physical interpretation summary.
 
----
 
 ### [O-07] Confirm BE vs Boltzmann classification in manuscript
 **Status:** Active. Robert's confirmation required.
@@ -90,6 +59,9 @@ Update `evidence-ledger.md` with `gls_chi2_ndf_envelope` per bin once run comple
 
 | Item | Completed | Notes |
 |---|---|---|
+| [O-04] Resolve T-beta degeneracy in BGBW fits | 2026-07-08 | Profile scan CSVs and contour plot generated. |
+| [O-06] Investigate Tsallis 2c physical interpretation | 2026-07-08 | Tsallis 2c parameter stability checked, Cleymans-Worku ranges validated. |
+| [O-09] Issue #27 — C3: Run GLS covariance-aware BGBW fit | 2026-07-08 | GLS covariance envelope calculated, confirming poor BGBW fit is not an artifact. |
 | [O-03] Execute PhD-Level Fits and Validate Models | 2026-06-20 | Run dir: `research/robert/runs/2026-06-20-phd-level-fits/`. All 10 multiplicity bins × 5 models. Chi²/ndf table, AIC/BIC, fit-range sensitivity, T-β correlations computed. Evidence ledger updated. |
 | Phase 4: Document historical run directories | 2026-06-14 | Ran script to document 13 aborted/undocumented placeholder runs in `research/robert/runs/`. |
 | Phase 3: Fit-range sensitivity scan | 2026-06-14 | Executed pT > 0.45 GeV cutoff test; validated parameter drift < 10%. Ledger updated. |

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "ran_at_utc": "2026-07-08T22:12:54.917160+00:00",
+  "base_url": "http://localhost:3000",
+  "persona_id": 2,
+  "label": null,
+  "results": [
+    {
+      "id": "Q1",
+      "topic": "Blast-Wave Fit Parameters",
+      "question": "What are the typical transverse velocity and freeze-out temperature parameters used in Blast-Wave fits for 13 TeV pp collisions?",
+      "persona_id": 2,
+      "status": "session_create_failed",
+      "error": "ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+      "elapsed_ms": 1
+    },
+    {
+      "id": "Q2",
+      "topic": "Tsallis Distribution Baseline",
+      "question": "How does the Tsallis-Pareto distribution handle high-pT tails compared to standard Boltzmann-Juttner?",
+      "persona_id": 2,
+      "status": "session_create_failed",
+      "error": "ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+      "elapsed_ms": 0
+    },
+    {
+      "id": "Q3",
+      "topic": "Onyx OpenSearch Cutover Check",
+      "question": "What is the command to run the OpenSearch parity regression check?",
+      "persona_id": 2,
+      "status": "session_create_failed",
+      "error": "ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+      "elapsed_ms": 0
+    },
+    {
+      "id": "Q4",
+      "topic": "Manuscript Model Comparison",
+      "question": "Does the manuscript compare the boson probability distribution model against a Tsallis or Blast-Wave baseline? If so, what is the stated motivation?",
+      "persona_id": 2,
+      "status": "session_create_failed",
+      "error": "ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+      "elapsed_ms": 0
+    },
+    {
+      "id": "Q5",
+      "topic": "System Architecture Boundary",
+      "question": "Why shouldn't I use internal_search to check the status of the evidence ledger?",
+      "persona_id": 2,
+      "status": "session_create_failed",
+      "error": "ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))",
+      "elapsed_ms": 0
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "with_answer": 0,
+    "with_retrieval": 0,
+    "with_errors": 0
+  }
+}
