@@ -22,6 +22,8 @@ These instructions apply to any AI coding or research agent working in this repo
 - Keep Bose-Einstein versus Boltzmann/Juttner wording explicit.
 - Do not interpret fit parameters physically until chi2/ndf, covariance, correlations, residuals, fit-range sensitivity, and baseline comparisons exist.
 - Compare against literature-matched Tsallis/Tsallis-Pareto and Blast-Wave baselines before making novelty or model-quality claims.
+- **Anomaly duty:** If a fit run produces chi²/ndf > 10 on a model that previously scored below 5, or reveals a new |ρ| > 0.9 parameter correlation, you MUST append a proposed follow-up item to `research/robert/next-actions.md` under a `## 🤖 Agent-Proposed (Pending Robert Approval)` section before ending your session. Do not silently proceed.
+- **Literature grounding duty:** Before proposing any new hypothesis or model modification, query Scite or Consensus MCP for at least one retrieved paper supporting or refuting the hypothesis. Record the citation in the proposed `next-actions.md` entry.
 
 ## File Hygiene
 
@@ -78,3 +80,13 @@ These instructions apply to any AI coding or research agent working in this repo
 - Use direct MCP/API tools for task-specific literature or citation lookups when they need fresh external evidence.
 - Do not assume Onyx is a universal MCP gateway unless a working endpoint is documented and tested.
 - If the same external service is needed by multiple agents, document it under `docs/ops/` and route it through the shared local MCP proxy when practical.
+
+## Autonomous Queue Management
+
+These rules govern how agents may extend the science task queue without direct human instruction.
+
+- Agents that complete a fit run **may** append items to `research/robert/next-actions.md` only under a dedicated `## 🤖 Agent-Proposed (Pending Robert Approval)` section. Never add items to the `## 🟢 Active` section without Robert's explicit approval.
+- Agent-proposed items must include: the triggering observation (e.g., chi²/ndf value, parameter correlation), the proposed action, and at least one literature citation retrieved from Scite/Consensus supporting the rationale.
+- When `evidence-ledger.md` contains a claim at `Status = Sanity checked` whose `Next Gate` criteria appear to have been met by existing `runs/` artifacts, the agent must draft a promotion proposal as a PR — not unilaterally update the ledger.
+- Agents must never remove or overwrite existing `## 🟢 Active` or `## ✅ Completed` items in `next-actions.md`. Only append to `## 🤖 Agent-Proposed`.
+- The `agent-skills/ledger-anomaly-detector/` skill (when available) is the canonical automation path for nightly ledger gap detection. Do not replicate its logic inline in ad-hoc scripts.
