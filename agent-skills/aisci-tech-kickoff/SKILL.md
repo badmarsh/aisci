@@ -27,7 +27,8 @@ Use `agent-skills/git-worktree-guard/SKILL.md` when git status or history affect
 
 ## Workflow
 
-Pick a small, high-leverage, non-destructive first task. Prefer:
+1. **Agent State Check**: Run `python3 scripts/hooks/verify_agent_state.py`. If it fails, fix the environment before proceeding.
+2. Pick a small, high-leverage, non-destructive first task. Prefer:
 
 1. Safety and secrets hygiene.
 2. Documentation or backlog drift that blocks later agents.

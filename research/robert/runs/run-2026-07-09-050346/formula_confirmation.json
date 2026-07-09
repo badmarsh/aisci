@@ -1,0 +1,23 @@
+{
+  "classification": "juttner_relativistic_boltzmann_exponential",
+  "evidence_lines": [
+    "The distribution function of bosons momentum in a moving system",
+    "The distribution function of bosons momentum in a system moving with the speed U \u00b5 is the following:",
+    "f (p) \u223c \u03b4(p2 \u2212 m2 )\u0398(p0 ) exp(\u2212\u03b2U \u00b5 p\u00b5 ),",
+    "exp(\u2212\u03b2p",
+    "exp(\u2212\u03b2",
+    "exp(\u2212\u03b2",
+    "= 0 p2 dp 0 d\u03d5 0 sin \u03b8d\u03b8 \u221a 21 2 exp(\u2212\u03b2",
+    "exp(\u2212\u03b2",
+    "sinh(\u03b2U p) exp(\u2212\u03b2",
+    "sinh(\u03b2U p) exp(\u2212\u03b2"
+  ],
+  "evidence_pages": [
+    1
+  ],
+  "pdf_path": "/home/ubuntu/aisci/src/ignition/../../research/robert/manuscript/boson-probability-function-moving-system.pdf",
+  "rationale": "The manuscript text exposes a covariant exponential exp(-beta U.p) without a Bose-Einstein denominator. This is a Juttner / relativistic Boltzmann approximation, not an exact Bose-Einstein form.",
+  "related_table_pages": [
+    10
+  ]
+}

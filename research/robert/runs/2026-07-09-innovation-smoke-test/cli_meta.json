@@ -1,0 +1,17 @@
+{
+  "cli_version": "1.0.0",
+  "timestamp": "2026-07-09T01:43:17.898523Z",
+  "data_path": "physics/data/fit_input_ins1735345.csv",
+  "mass_gev": 0.13957,
+  "models": [
+    "bgbw",
+    "tsallis_1c",
+    "tsallis_2c",
+    "juttner_1c",
+    "juttner_2c",
+    "bose_1c"
+  ],
+  "cov_mode": "diag",
+  "xi": 1.0,
+  "run_dir": "research/robert/runs/2026-07-09-innovation-smoke-test"
+}

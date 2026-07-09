@@ -31,8 +31,8 @@ HEADERS_AUTH = {"Authorization": f"Bearer {API_KEY}"}
 CONNECTOR_ID = 3
 
 PDFS = [
-    "/home/ubuntu/aisci/literature/Khuntia_2019_1808.02383.pdf",
-    "/home/ubuntu/aisci/literature/Rath_2020_1908.04208.pdf",
+    "/home/ubuntu/aisci/research/literature/Khuntia_2019_1808.02383.pdf",
+    "/home/ubuntu/aisci/research/literature/Rath_2020_1908.04208.pdf",
 ]
 
 # ── 0. verify auth ─────────────────────────────────────────────────────────
