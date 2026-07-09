@@ -34,6 +34,17 @@ The UI currently expects very specific JSON shapes (defined in `mock-data.ts`). 
 2. **Refine Fit Charts**: Ensure the Recharts components in the Overview page receive dynamic data and that the log-scale $\chi^2/\text{ndf}$ chart correctly highlights the rejection threshold (>5).
 3. **Semantic Styling**: Ensure the UI's semantic tokens (emerald/amber/rose) correctly reflect backend thresholds dynamically.
 
+## Phase 4: Actionable Operations (Mutations)
+The dashboard should not be strictly read-only. We need to empower the user to manage the project loop directly from the UI.
+1. **API Mutations (Python)**:
+   - `POST /api/ingest`: Trigger the `ignition/ingest_pipeline.py` script. Support streaming logs back to the frontend.
+   - `POST /api/fits/run`: Trigger `deployment/helper/run_a1_jacobian_fits.py` or equivalent fitting scaffolds to regenerate fits.
+   - `PATCH /api/evidence/{id}`: Approve or reject evidence, moving claims from 'Proposed' to 'Sanity Checked' or 'Supported'.
+   - `PATCH /api/tasks/{id}`: Update task statuses directly from the UI.
+2. **Frontend Wiring (`useMutation`)**:
+   - Wire the "Run Ingest" button to trigger `POST /api/ingest` and display a Sonner toast with the live status.
+   - Add action buttons to the Evidence and Task rows to allow state mutations using `@tanstack/react-query` `useMutation` hooks, followed by query invalidation to refresh the UI immediately.
+
 ## Instructions for the Agent
 1. **Strictly adhere to the frontend contracts**: Start by reviewing `apps/aisci-dashboard/src/lib/mock-data.ts`. Build your FastAPI models (`pydantic`) to match these structures exactly.
 2. **Iterative wiring**: Wire one page at a time (e.g., Literature first, then Fits). Verify it works before moving to the next.
