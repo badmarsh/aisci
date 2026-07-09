@@ -96,3 +96,4 @@ cookies.txt
 # DeerFlow user data
 .deer-flow/users/
 docs/platform/multica/
+research/robert/runs/*/contour_*.png

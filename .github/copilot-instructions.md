@@ -1,6 +1,14 @@
-# Copilot Onboarding Instructions for DeerFlow
+# Copilot Onboarding Instructions for AiSci / DeerFlow
 
-Use this file as the default operating guide for this repository. Follow it first, and only search the codebase when this file is incomplete or incorrect.
+You are interacting with the AiSci research repository, which uses the DeerFlow agent harness. 
+You must adhere to the core principles laid out in `AGENTS.md` and read the `agent-skills/` directory before executing physics validation tasks.
+
+**Core Directives for AiSci:**
+- **Evidence-Led Science**: Never hallucinate scientific claims or parameter values. All claims must be backed by `research/robert/evidence-ledger.md`.
+- **Terminology**: Always use precise HEP terminology (e.g., "Bose-Einstein distribution" NOT "Boltzmann distribution").
+- **Workflow**: Separate physics logic (`physics/`) from autonomous agent pipelines (`ignition/`) and operations (`docs/ops/`). 
+
+Use this file as the default operating guide for the infrastructure of this repository. Follow it first, and only search the codebase when this file is incomplete or incorrect.
 
 ## 1) Repository Summary
 

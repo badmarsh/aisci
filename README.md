@@ -30,8 +30,9 @@ docs/ops/platform-backlog.md for current status.
 
 ## 📂 Workspace Navigation
 
-- `research/robert/` — **The Primary Research Hub.** Contains workflow, evidence, next actions, and run reports.
-- `physics/src/` — Symbolic and numerical validation scripts (Python/SymPy).
+- `research/` — **The Primary Research Hub.** Contains the `robert/` primary workspace, literature, evidence, next actions, and run reports.
+- `physics/` — Symbolic and numerical validation scripts (Python/SymPy).
+- `ignition/` — Autonomous agent pipelines and literature intake subsystems.
 - `docs/decisions/` — Methodological and architectural decisions.
 - `docs/ops/` — Infrastructure and deployment details.
 

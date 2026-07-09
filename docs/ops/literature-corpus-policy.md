@@ -19,13 +19,13 @@ This policy covers the **HEP literature** corpus indexed under Onyx connector
 
 ## Where literature lives on disk
 
-- **PDFs**: `literature/<First-author>_<Year>_<arXiv-id>.pdf`
-  - Example: `literature/Khuntia_2019_1808.02383.pdf`
+- **PDFs**: `research/literature/<First-author>_<Year>_<arXiv-id>.pdf`
+  - Example: `research/literature/Khuntia_2019_1808.02383.pdf`
 - **Notes** (optional but recommended): `research/robert/literature-notes/<arXiv-id>.md`
   - One short markdown file per paper: title, authors, citation, what claim
     in `evidence-ledger.md` it grounds.
 
-`literature/*.pdf` is `.gitignored` — PDFs do not enter version control.
+`research/literature/*.pdf` is `.gitignored` — PDFs do not enter version control.
 Notes do, so the repo records *what was added and why* even though the
 binary content lives only on disk and inside Onyx.
 
@@ -52,8 +52,8 @@ Use the canonical helper. It reads `ONYX_API_KEY` from env or
 `deployment/onyx/.env` (no hardcoded keys).
 
 ```bash
-# 1. Place the PDF on disk under literature/ with the naming convention.
-cp ~/Downloads/1908.04208v2.pdf literature/Rath_2020_1908.04208.pdf
+# 1. Place the PDF on disk under research/literature/ with the naming convention.
+cp ~/Downloads/1908.04208v2.pdf research/literature/Rath_2020_1908.04208.pdf
 
 # 2. Edit deployment/helper/upload_literature_pdfs.py and add the path to
 #    the PDFS list, OR write a one-off script using the same endpoint.
@@ -84,7 +84,7 @@ artifact's relevant question record. See
   budget.
 - **Re-upload** when a published version replaces a preprint, or when a
   major errata revises a number we cite from the paper.
-- **Periodic audit** (~quarterly): walk `literature/` and confirm every
+- **Periodic audit** (~quarterly): walk `research/literature/` and confirm every
   PDF is referenced by at least one note in
   `research/robert/literature-notes/`. Orphan PDFs are candidates for
   removal.
@@ -97,10 +97,10 @@ same file produce two indexed copies and bias retrieval. To prevent that:
 1. Filename match is the dedup key. Always upload via
    `upload_literature_pdfs.py` so the basename ends up in the connector
    verbatim.
-2. Before adding a paper, grep `literature/` for the arXiv id:
+2. Before adding a paper, grep `research/literature/` for the arXiv id:
 
    ```bash
-   ls literature/ | grep 1808.02383
+   ls research/literature/ | grep 1808.02383
    ```
 
 3. If the file is already there, do not re-upload. If you need to refresh
@@ -118,7 +118,7 @@ To drop a paper from the corpus:
 2. Call `POST /api/manage/admin/connector/3/files/update` with
    `file_ids_to_remove=[<id>]` and no new files. Re-index runs
    automatically.
-3. Delete the local PDF: `rm literature/<file>.pdf`.
+3. Delete the local PDF: `rm research/literature/<file>.pdf`.
 4. If the paper had a note in `research/robert/literature-notes/`, delete
    the note too (or move it to `research/robert/literature-notes/archive/`
    if you want to preserve the rationale for why it was once cited).
@@ -148,7 +148,7 @@ it grounds, and which evidence-ledger row it supports.
   loader pattern from `upload_literature_pdfs.py`.
 - ❌ Re-uploading a paper "to refresh" without using
   `file_ids_to_remove` — produces duplicates, contaminates retrieval.
-- ❌ Keeping orphan PDFs in `literature/` that aren't in the connector.
+- ❌ Keeping orphan PDFs in `research/literature/` that aren't in the connector.
   Either upload them or delete them.
 
 ## Related

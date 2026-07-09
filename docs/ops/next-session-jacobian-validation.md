@@ -28,7 +28,7 @@ cross-check whether the fix was correct. Write the verdict and one evidence-ledg
 Use the arXiv skill at `C:\Users\marek\.gemini\config\plugins\science\skills\literature_search_arxiv\SKILL.md`.
 
 ```bash
-cd /mnt/c/Users/marek/.gemini/config/plugins/science/skills/literature_search_arxiv
+cd /mnt/c/Users/marek/.gemini/config/plugins/agent-skills/literature_search_arxiv
 uv run scripts/download_paper.py --id 1110.5526 --format pdf --output /tmp/cleymans.pdf
 pdftotext /tmp/cleymans.pdf - | grep -A 5 "eq.*1\|equation.*1\|dN.*dpT\|dN.*dy" | head -40
 ```

@@ -101,6 +101,6 @@ def main(output_file: Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=Path, default=Path("literature/references.bib"))
+    parser.add_argument("--output", type=Path, default=Path("research/literature/references.bib"))
     args = parser.parse_args()
     main(args.output)

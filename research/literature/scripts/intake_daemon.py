@@ -10,9 +10,9 @@ from datetime import datetime
 from llm_extractor import extract_paper_claims
 from ledger_updater import update_evidence_ledger
 
-DB_PATH = "/home/ubuntu/aisci/literature/literature.db"
-LOG_PATH = "/home/ubuntu/aisci/literature/ingestion_log.md"
-KILL_SWITCH = "/home/ubuntu/aisci/literature/.kill_intake"
+DB_PATH = "/home/ubuntu/aisci/research/literature/literature.db"
+LOG_PATH = "/home/ubuntu/aisci/research/literature/ingestion_log.md"
+KILL_SWITCH = "/home/ubuntu/aisci/research/literature/.kill_intake"
 POLL_INTERVAL_SEC = 3600 * 6  # 6 hours
 
 KEYWORDS = [

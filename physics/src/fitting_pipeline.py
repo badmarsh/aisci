@@ -201,7 +201,10 @@ def manuscript_component_scalar(
 
     def integrand(eta: float) -> float:
         exponent = (gamma * mt * math.cosh(eta) - U * pt * math.sinh(eta)) / temperature
-        return math.cosh(eta) * mt * safe_exp(-exponent)
+        # dy/deta Jacobian: p_total / (mT * cosh(eta))
+        p_total = math.sqrt(pt * pt * math.cosh(eta) ** 2 + mass_gev ** 2 * math.sinh(eta) ** 2)
+        jacobian = p_total / (mt * math.cosh(eta))  # = dy/deta = p/E, dimensionless
+        return jacobian * math.cosh(eta) * mt * safe_exp(-exponent)
 
     return norm * pt * eta_integral(integrand, -eta_max, eta_max)
 

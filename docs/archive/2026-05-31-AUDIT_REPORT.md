@@ -236,8 +236,8 @@
 - **Severity:** LOW
 - **Location:** `arxiv_results.xml` (7KB)
 - **Description:** Data file in root directory
-- **Impact:** Should be in data/ or literature/ directory
-- **Recommendation:** Move to `literature/` or `data/arxiv/`
+- **Impact:** Should be in data/ or research/literature/ directory
+- **Recommendation:** Move to `research/literature/` or `data/arxiv/`
 - **Effort:** Quick
 
 ---

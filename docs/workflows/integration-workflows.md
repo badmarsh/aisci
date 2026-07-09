@@ -89,7 +89,7 @@ results = mcp_client.call_tool("onyx", "search_onyx", tool_call["arguments"])
         {
             "title": "Khuntia 2019 - Tsallis fits",
             "content": "The Tsallis distribution with q=1.15...",
-            "source": "literature/Khuntia_2019_1808.02383.pdf",
+            "source": "research/literature/Khuntia_2019_1808.02383.pdf",
             "page": 3
         },
         ...
