@@ -21,11 +21,16 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
       - name: Install backend dependencies
-        run: pip install -r requirements.txt
+        run: uv sync --group dev
+        working-directory: deployment/deer-flow/backend
 
       - name: Run backend tests
-        run: python -m pytest tests/ -v
+        run: make test
+        working-directory: deployment/deer-flow/backend
 
   frontend:
     runs-on: ubuntu-latest

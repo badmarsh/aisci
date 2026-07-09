@@ -32,9 +32,9 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Install backend dependencies
-        working-directory: backend
+        working-directory: deployment/deer-flow/backend
         run: uv sync --group dev
 
       - name: Run unit tests of backend
-        working-directory: backend
+        working-directory: deployment/deer-flow/backend
         run: make test
