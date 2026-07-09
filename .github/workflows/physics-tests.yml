@@ -23,3 +23,10 @@ jobs:
 
       - name: Run physics tests
         run: cd physics && python -m pytest tests/ -v
+
+      - name: Smoke-test physics CLI
+        run: |
+          python physics/cli.py \
+            --dry-run \
+            --run-dir /tmp/smoke-test-cli \
+            --data-path physics/data/fit_input_ins1735345.csv
