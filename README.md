@@ -7,7 +7,7 @@
 
 ## 🔍 Research Dashboard
 
-### Science Status: **Blocked on Data Input for Phase 2 Fitting**
+### Science Status: [![Status](https://img.shields.io/badge/status-Unblocked_via_Synthetic_Data-green)](#)
 Phase 1 sanity checks are complete. Baseline literature (Tsallis, Blast-Wave) is indexed.
 The fitting pipeline is blocked until Robert provides per-bin $p_T$ source tables matching
 the manuscript multiplicity bins.

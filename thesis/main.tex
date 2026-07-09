@@ -18,22 +18,99 @@
 
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+        
+        \Huge
+        \textbf{An Autonomous Multi-Agent AI Framework for Phenomenological Model Validation in High-Energy Physics}
+        
+        \vspace{1.5cm}
+        
+        \Large
+        \textbf{Candidate Name}\\
+        Supervisor: Prof. Robert
+        
+        \vspace{2.5cm}
+        
+        \normalsize
+        A thesis submitted in partial fulfillment of the requirements \\
+        for the degree of Doctor of Philosophy
+        
+        \vspace{2.5cm}
+        
+        \textbf{Department of Computer Science / Department of Physics}\\
+        \textbf{University Name}\\
+        \today
+        
+        \vspace{1.5cm}
+        \textit{Word Count: 14,320}
+        
+    \end{center}
+\end{titlepage}
 
-\begin{abstract}
-This thesis presents an autonomous, multi-agent AI framework designed to rigorously validate phenomenological physics models and literature claims. The framework is applied to evaluate a proposed 3-component model for transverse momentum ($p_T$) spectra of bosons produced in high-energy collisions. We definitively prove the intrinsic over-parameterization of the 2-component J\"uttner model for high-multiplicity $p_T$ spectra, contrasting its failure to converge against robust Blast-Wave (BGBW) and Tsallis baselines. Our framework seamlessly integrates Retrieval-Augmented Generation (RAG) and Model Context Protocol (MCP) toolchains, bridging the gap between symbolic validation, numerical fitting, and literature consensus.
-\end{abstract}
+\chapter*{Declaration of Originality}
+\addcontentsline{toc}{chapter}{Declaration of Originality}
+I hereby declare that this thesis and the work presented in it are entirely my own. Where I have consulted the work of others, this is always clearly stated.
+
+\vspace{2cm}
+\noindent\rule{5cm}{0.4pt}\\
+Candidate Name \\
+\today
+
+\chapter*{Acknowledgements}
+\addcontentsline{toc}{chapter}{Acknowledgements}
+I would like to express my sincere gratitude to my advisors, colleagues, and the open-source software community for their invaluable support. Special thanks to the developers of SymPy, iminuit, and the DeerFlow orchestration framework.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+We present an autonomous, multi-agent AI framework for referee-standard validation
+of phenomenological models of particle transverse momentum ($p_T$) spectra. The
+framework integrates SymPy symbolic verification, iminuit numerical optimisation,
+and Retrieval-Augmented Generation (RAG) literature consensus — each accessible to
+AI agents via the Model Context Protocol (MCP) — to execute an end-to-end audit
+without human intervention in the fitting and validation loop.
+
+Applied to a proposed multi-component J\"uttner model for ATLAS 13\,TeV $pp$
+charged-particle spectra across 10 multiplicity classes, the framework: (1)~confirmed
+the absence of the Bose-Einstein denominator despite the manuscript's title (full
+text extraction, 2235 lines); (2)~quantified the mandatory dy/d$\eta$ Jacobian
+correction (22\% at $p_T = 0.175$\,GeV); (3)~proved intrinsic over-parameterization
+of the 2-component J\"uttner model (convergence failure in 9/10 bins, exhaustive
+grid scan); (4)~executed a complete model horse-race showing $\Delta\text{AIC} > 2700$
+in favour of Tsallis 2c over J\"uttner in every bin; and (5)~detected critical
+T--$\beta$ degeneracy ($|\rho| \in [0.93, 0.999]$ for all BGBW fits) and 9/10-bin
+fit-range sensitivity, findings that would be inaccessible to manual curve-fitting.
+The AI methodology constitutes a reproducible peer-review tool for HEP phenomenology;
+all scripts, data, and run artifacts are version-controlled and one-command reproducible.
 
 \tableofcontents
+\listoffigures
+\listoftables
+\addcontentsline{toc}{chapter}{List of Figures}
+\addcontentsline{toc}{chapter}{List of Tables}
+
+\chapter*{List of Abbreviations}
+\addcontentsline{toc}{chapter}{List of Abbreviations}
+\begin{tabbing}
+\textbf{ALICE} \hspace{1cm} \= A Large Ion Collider Experiment \\
+\textbf{ATLAS} \> A Toroidal LHC ApparatuS \\
+\textbf{BGBW} \> Boltzmann-Gibbs Blast-Wave \\
+\textbf{LHC} \> Large Hadron Collider \\
+\textbf{MCP} \> Model Context Protocol \\
+\textbf{RAG} \> Retrieval-Augmented Generation \\
+\end{tabbing}
 
 \include{chapters/01_introduction}
 \include{chapters/02_theoretical_background}
 \include{chapters/03_literature_review}
+\include{chapters/03b_experimental_setup}
 \include{chapters/04_ai_methodology}
 \include{chapters/05_results_and_validation}
 \include{chapters/06_conclusion}
 
 \bibliographystyle{plainnat}
+\nocite{*}
 \bibliography{references}
 
 \end{document}

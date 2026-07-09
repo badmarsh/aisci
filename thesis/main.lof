@@ -1,0 +1,9 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Multi-agent validation pipeline architecture. The diagram illustrates the interplay between the DeerFlow orchestration layer, the Onyx RAG system, symbolic mathematical evaluators, and the numerical fitting pipeline.}}{25}{figure.5.1}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces BGBW profile-scan confidence contours in the $(T_{\text {kin}}, \langle \beta \rangle )$ plane for 10 ATLAS 13\,TeV $pp$ multiplicity classes. Shaded regions: 68\% CL (dark, $\Delta \chi ^2 < 1$) and 95\% CL (light, $\Delta \chi ^2 < 3.84$). Star marks the global minimum per bin. Source: \texttt {deployment/helper/bgbw\_profile\_scan.py}; run: \texttt {research/robert/runs/2026-07-08-bgbw-profile-scan/}.}}{36}{figure.6.1}%
+\addvspace {10\p@ }
