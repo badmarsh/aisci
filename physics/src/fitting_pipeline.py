@@ -593,7 +593,7 @@ def fit_one_spec(
 
     for seed_index, initial_values in enumerate(spec.initial_grid_builder(x_values, y_values), start=1):
         minuit = Minuit(least_squares, *initial_values, name=spec.parameter_names)
-        minuit.errordef = Minuit.LEAST_SQUARES
+        # minuit.errordef = Minuit.LEAST_SQUARES (handled by LeastSquares)
         minuit.strategy = 1
         for parameter_name, bounds in spec.parameter_bounds.items():
             minuit.limits[parameter_name] = bounds

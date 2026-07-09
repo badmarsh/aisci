@@ -1,11 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { BookMarked } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageShell } from "@/components/PageShell";
-import { tasks, type Task } from "@/lib/mock-data";
+import { type Task } from "@/lib/types";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchTasks, updateTask, syncFromFiles } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/tasks")({
   head: () => ({
@@ -27,37 +32,92 @@ const priorityStyles: Record<Task["priority"], string> = {
 };
 
 function TasksPage() {
-  const active = tasks.filter((t) => t.status === "active");
-  const blocked = tasks.filter((t) => t.status === "blocked");
-  const proposed = tasks.filter((t) => t.status === "proposed");
+  const queryClient = useQueryClient();
+
+  const { data: tasks = [], isLoading, isError } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: fetchTasks,
+  });
+
+  const mutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => updateTask(id, status),
+    onSuccess: (_, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["activity"] });
+      toast.success(`Task marked as ${status}`, {
+        description: "next-actions.md updated.",
+      });
+    },
+    onError: () => {
+      toast.error("Failed to update task status.");
+    },
+  });
+
+  const syncMutation = useMutation({
+    mutationFn: syncFromFiles,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["evidence"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+
+  const active = tasks.filter((t: Task) => t.status === "active");
+  const blocked = tasks.filter((t: Task) => t.status === "blocked");
+  const proposed = tasks.filter((t: Task) => t.status === "proposed");
+
+  if (isLoading) {
+    return (
+      <PageShell>
+        <Skeleton className="h-[200px] w-full" />
+      </PageShell>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageShell>
+        <div className="text-rose-brand">Error loading tasks.</div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
       <Tabs defaultValue="active">
-        <TabsList className="bg-muted/40">
-          <TabsTrigger value="active">🟢 Active ({active.length})</TabsTrigger>
-          <TabsTrigger value="blocked">⏸ Blocked ({blocked.length})</TabsTrigger>
-          <TabsTrigger value="proposed">🤖 Agent-Proposed ({proposed.length})</TabsTrigger>
-        </TabsList>
+        <div className="mb-4 flex items-center justify-between">
+          <TabsList className="bg-muted/40">
+            <TabsTrigger value="active">🟢 Active ({active.length})</TabsTrigger>
+            <TabsTrigger value="blocked">⏸ Blocked ({blocked.length})</TabsTrigger>
+            <TabsTrigger value="proposed">🤖 Agent-Proposed ({proposed.length})</TabsTrigger>
+          </TabsList>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            disabled={syncMutation.isPending} 
+            onClick={() => syncMutation.mutate()}
+          >
+            Sync from Files
+          </Button>
+        </div>
 
         <TabsContent value="active">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {active.map((t) => (
-              <TaskCard key={t.id} t={t} />
+            {active.map((t: Task) => (
+              <TaskCard key={t.id} t={t} mutation={mutation} />
             ))}
           </div>
         </TabsContent>
         <TabsContent value="blocked">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {blocked.map((t) => (
-              <TaskCard key={t.id} t={t} />
+            {blocked.map((t: Task) => (
+              <TaskCard key={t.id} t={t} mutation={mutation} />
             ))}
           </div>
         </TabsContent>
         <TabsContent value="proposed">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {proposed.map((t) => (
-              <TaskCard key={t.id} t={t} proposed />
+            {proposed.map((t: Task) => (
+              <TaskCard key={t.id} t={t} proposed mutation={mutation} />
             ))}
           </div>
         </TabsContent>
@@ -66,7 +126,7 @@ function TasksPage() {
   );
 }
 
-function TaskCard({ t, proposed }: { t: Task; proposed?: boolean }) {
+function TaskCard({ t, proposed, mutation }: { t: Task; proposed?: boolean; mutation?: any }) {
   return (
     <Card
       className={`glass-card fade-in-up transition hover:border-primary/40 ${
@@ -110,6 +170,18 @@ function TaskCard({ t, proposed }: { t: Task; proposed?: boolean }) {
           </div>
           <span className="font-mono">{t.date}</span>
         </div>
+        {proposed && (
+          <div className="mt-3">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={mutation?.isPending}
+              onClick={() => mutation?.mutate({ id: t.id, status: "active" })}
+            >
+              Approve to Active
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

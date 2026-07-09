@@ -13,6 +13,7 @@ import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as LiteratureRouteImport } from './routes/literature'
 import { Route as FitsRouteImport } from './routes/fits'
 import { Route as EvidenceRouteImport } from './routes/evidence'
+import { Route as AnomaliesRouteImport } from './routes/anomalies'
 import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -36,6 +37,11 @@ const EvidenceRoute = EvidenceRouteImport.update({
   path: '/evidence',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnomaliesRoute = AnomaliesRouteImport.update({
+  id: '/anomalies',
+  path: '/anomalies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgentsRoute = AgentsRouteImport.update({
   id: '/agents',
   path: '/agents',
@@ -50,6 +56,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agents': typeof AgentsRoute
+  '/anomalies': typeof AnomaliesRoute
   '/evidence': typeof EvidenceRoute
   '/fits': typeof FitsRoute
   '/literature': typeof LiteratureRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agents': typeof AgentsRoute
+  '/anomalies': typeof AnomaliesRoute
   '/evidence': typeof EvidenceRoute
   '/fits': typeof FitsRoute
   '/literature': typeof LiteratureRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/agents': typeof AgentsRoute
+  '/anomalies': typeof AnomaliesRoute
   '/evidence': typeof EvidenceRoute
   '/fits': typeof FitsRoute
   '/literature': typeof LiteratureRoute
@@ -74,13 +83,28 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/agents' | '/evidence' | '/fits' | '/literature' | '/tasks'
+  fullPaths:
+    | '/'
+    | '/agents'
+    | '/anomalies'
+    | '/evidence'
+    | '/fits'
+    | '/literature'
+    | '/tasks'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/agents' | '/evidence' | '/fits' | '/literature' | '/tasks'
+  to:
+    | '/'
+    | '/agents'
+    | '/anomalies'
+    | '/evidence'
+    | '/fits'
+    | '/literature'
+    | '/tasks'
   id:
     | '__root__'
     | '/'
     | '/agents'
+    | '/anomalies'
     | '/evidence'
     | '/fits'
     | '/literature'
@@ -90,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AgentsRoute: typeof AgentsRoute
+  AnomaliesRoute: typeof AnomaliesRoute
   EvidenceRoute: typeof EvidenceRoute
   FitsRoute: typeof FitsRoute
   LiteratureRoute: typeof LiteratureRoute
@@ -126,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EvidenceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/anomalies': {
+      id: '/anomalies'
+      path: '/anomalies'
+      fullPath: '/anomalies'
+      preLoaderRoute: typeof AnomaliesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agents': {
       id: '/agents'
       path: '/agents'
@@ -146,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentsRoute: AgentsRoute,
+  AnomaliesRoute: AnomaliesRoute,
   EvidenceRoute: EvidenceRoute,
   FitsRoute: FitsRoute,
   LiteratureRoute: LiteratureRoute,
@@ -154,3 +187,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

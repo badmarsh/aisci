@@ -1,6 +1,8 @@
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
+import sys, os
+sys.path.insert(0, os.path.dirname(__file__))
 from database import init_db, insert_paper, insert_claim, insert_dataset
 from extraction_engine import extract_insights
 

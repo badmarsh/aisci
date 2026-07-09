@@ -10,12 +10,19 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
-import { BookOpen, Atom, ShieldCheck, ListTodo, ArrowUpRight } from "lucide-react";
+import { BookOpen, Atom, ShieldCheck, ListTodo, ArrowUpRight, AlertTriangle, Copy } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PageShell } from "@/components/PageShell";
-import { chi2Series, activityFeed } from "@/lib/mock-data";
+import { type Activity, type Anomaly } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLiterature, fetchFits, fetchEvidence, fetchTasks, fetchActivity, fetchAnomalies, fetchExportSummary } from "@/lib/api";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,44 +47,111 @@ type Kpi = {
   badge?: { text: string; className: string };
 };
 
-const kpis: Kpi[] = [
-  {
-    label: "Papers Ingested",
-    value: "312",
-    sub: "+8 today",
-    Icon: BookOpen,
-    accent: "text-emerald-brand",
-  },
-  {
-    label: "Active Fits",
-    value: "10",
-    sub: "bins across 3 models",
-    Icon: Atom,
-    accent: "text-primary",
-    badge: {
-      text: "RUNNING",
-      className: "bg-primary/15 text-primary ring-1 ring-primary/40",
-    },
-  },
-  {
-    label: "Claims Tracked",
-    value: "47",
-    sub: "12 pending review",
-    Icon: ShieldCheck,
-    accent: "text-amber-brand",
-  },
-  {
-    label: "Open Tasks",
-    value: "6",
-    sub: "2 agent-proposed",
-    Icon: ListTodo,
-    accent: "text-primary",
-  },
-];
-
 function Overview() {
+  const [showAnomalies, setShowAnomalies] = useState(false);
+  const { data: literature = [] } = useQuery({ queryKey: ["literature"], queryFn: fetchLiterature });
+  const { data: fitsData = { fitRows: [], chi2Series: [] } as any } = useQuery({ queryKey: ["fits"], queryFn: () => fetchFits() });
+  const { data: evidence = [] } = useQuery({ queryKey: ["evidence"], queryFn: fetchEvidence });
+  const { data: tasks = [] } = useQuery({ queryKey: ["tasks"], queryFn: fetchTasks });
+  const { data: activityFeed = [] } = useQuery({ queryKey: ["activity"], queryFn: fetchActivity });
+
+  const { data: anomalies = [] } = useQuery({
+    queryKey: ["anomalies"],
+    queryFn: () => fetchAnomalies(),
+    staleTime: 60_000,
+  });
+
+  const criticalCount = anomalies.filter((a: Anomaly) => a.severity === "critical").length;
+  const warningCount = anomalies.filter((a: Anomaly) => a.severity === "warning").length;
+
+  async function handleExport() {
+    try {
+      const { markdown } = await fetchExportSummary();
+      await navigator.clipboard.writeText(markdown);
+      toast.success("Summary copied to clipboard!", {
+        description: "Paste it into a GitHub Issue or research log.",
+      });
+    } catch {
+      toast.error("Failed to export summary.");
+    }
+  }
+
+  const kpis: Kpi[] = [
+    {
+      label: "Papers Ingested",
+      value: String(literature.length),
+      sub: "+0 today",
+      Icon: BookOpen,
+      accent: "text-emerald-brand",
+    },
+    {
+      label: "Active Fits",
+      value: String(fitsData.fitRows?.length || 0),
+      sub: "bins across models",
+      Icon: Atom,
+      accent: "text-primary",
+      badge: {
+        text: "RUNNING",
+        className: "bg-primary/15 text-primary ring-1 ring-primary/40",
+      },
+    },
+    {
+      label: "Claims Tracked",
+      value: String(evidence.length),
+      sub: `${evidence.filter((e: any) => e.status === "Proposed").length} pending review`,
+      Icon: ShieldCheck,
+      accent: "text-amber-brand",
+    },
+    {
+      label: "Open Tasks",
+      value: String(tasks.filter((t: any) => t.status !== "closed").length),
+      sub: `${tasks.filter((t: any) => t.status === "proposed").length} agent-proposed`,
+      Icon: ListTodo,
+      accent: "text-primary",
+    },
+  ];
+
   return (
     <PageShell>
+      <div className="mb-4 flex justify-end">
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExport}>
+          <Copy className="h-3.5 w-3.5" />
+          Export Summary
+        </Button>
+      </div>
+
+      {anomalies.length > 0 && (
+        <Alert className="mb-4 glass-card border-rose-brand/40">
+          <AlertTriangle className="h-4 w-4 text-rose-brand" />
+          <AlertTitle className="flex items-center justify-between">
+            <span className="text-rose-brand">
+              {criticalCount > 0 ? `${criticalCount} critical` : ""}{criticalCount > 0 && warningCount > 0 ? " · " : ""}
+              {warningCount > 0 ? `${warningCount} warnings` : ""} — physics anomalies in latest run
+            </span>
+            <button
+              className="ml-4 text-xs underline text-muted-foreground hover:text-foreground"
+              onClick={() => setShowAnomalies((s) => !s)}
+            >
+              {showAnomalies ? "Hide" : "Show details"}
+            </button>
+          </AlertTitle>
+          {showAnomalies && (
+            <AlertDescription className="mt-2">
+              <ul className="space-y-0.5 text-xs font-mono">
+                {anomalies.slice(0, 8).map((a: Anomaly, i: number) => (
+                  <li key={i} className={a.severity === "critical" ? "text-rose-brand" : "text-amber-brand"}>
+                    [{a.bin}] {a.model}: {a.message}
+                  </li>
+                ))}
+                {anomalies.length > 8 && (
+                  <li className="text-muted-foreground">…and {anomalies.length - 8} more. <Link to="/fits" className="underline">Go to Fits page.</Link></li>
+                )}
+              </ul>
+            </AlertDescription>
+          )}
+        </Alert>
+      )}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((k) => (
           <Card key={k.label} className="glass-card fade-in-up transition hover:border-primary/40">
@@ -119,7 +193,7 @@ function Overview() {
           <CardContent>
             <div className="h-[360px] w-full">
               <ResponsiveContainer>
-                <LineChart data={chi2Series} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                <LineChart data={fitsData.chi2Series || []} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
                   <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
                   <XAxis
                     dataKey="bin"
@@ -193,28 +267,37 @@ function Overview() {
           <CardContent>
             <ScrollArea className="h-[360px] pr-3">
               <ul className="space-y-2">
-                {activityFeed.map((e, i) => {
-                  const dot: Record<string, string> = {
-                    emerald: "bg-emerald-brand",
-                    cyan: "bg-primary",
-                    amber: "bg-amber-brand",
-                    rose: "bg-rose-brand",
-                  };
+                {activityFeed.map((e: Activity) => {
+                  let colorClass = "bg-primary";
+                  if (e.action.toLowerCase().includes("flagged") || e.action.toLowerCase().includes("error")) {
+                    colorClass = "bg-rose-brand";
+                  } else if (e.action.toLowerCase().includes("proposed")) {
+                    colorClass = "bg-amber-brand";
+                  } else if (e.action.toLowerCase().includes("complete") || e.action.toLowerCase().includes("updated")) {
+                    colorClass = "bg-emerald-brand";
+                  }
+
+                  // format timestamp to time only if today
+                  const t = new Date(e.timestamp);
+                  const timeStr = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
                   return (
                     <li
-                      key={i}
+                      key={e.id}
                       className="group flex gap-3 rounded-md border border-transparent p-2 transition hover:border-border hover:bg-muted/40"
                     >
                       <span
-                        className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dot[e.color]} ring-2 ring-background`}
+                        className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${colorClass} ring-2 ring-background`}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-[11px] text-muted-foreground">
-                            {e.time}
+                            {timeStr}
                           </span>
                         </div>
-                        <p className="text-sm leading-snug text-foreground/90">{e.text}</p>
+                        <p className="text-sm leading-snug text-foreground/90">
+                          <strong>{e.action}</strong>: {e.details}
+                        </p>
                       </div>
                     </li>
                   );

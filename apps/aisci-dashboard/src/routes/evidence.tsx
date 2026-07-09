@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Fragment, useState } from "react";
+import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +13,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PageShell } from "@/components/PageShell";
-import { evidence, type EvidenceRow } from "@/lib/mock-data";
+import { type EvidenceRow } from "@/lib/types";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchEvidence, updateEvidence, syncFromFiles } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/evidence")({
   head: () => ({
@@ -37,15 +42,69 @@ const statusStyles: Record<EvidenceRow["status"], string> = {
 
 function EvidencePage() {
   const [open, setOpen] = useState<number | null>(null);
+  const queryClient = useQueryClient();
+
+  const { data: evidence = [], isLoading, isError } = useQuery({
+    queryKey: ["evidence"],
+    queryFn: fetchEvidence,
+  });
+
+  const mutation = useMutation({
+    mutationFn: ({ id, status }: { id: number; status: string }) => updateEvidence(id, status),
+    onSuccess: (_, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ["evidence"] });
+      queryClient.invalidateQueries({ queryKey: ["activity"] });
+      toast.success(`Evidence marked as ${status}`, {
+        description: "evidence-ledger.md updated.",
+      });
+    },
+    onError: () => {
+      toast.error("Failed to update evidence status.");
+    },
+  });
+
+  const syncMutation = useMutation({
+    mutationFn: syncFromFiles,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["evidence"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
 
   const summary = [
-    { label: "Supported", value: 3, dot: "🟢", accent: "text-emerald-brand" },
-    { label: "Sanity Checked", value: 8, dot: "🟡", accent: "text-amber-brand" },
-    { label: "Proposed", value: 2, dot: "🔵", accent: "text-primary" },
+    { label: "Supported", value: evidence.filter((e: EvidenceRow) => e.status === "Supported").length, dot: "🟢", accent: "text-emerald-brand" },
+    { label: "Sanity Checked", value: evidence.filter((e: EvidenceRow) => e.status === "Sanity Checked").length, dot: "🟡", accent: "text-amber-brand" },
+    { label: "Proposed", value: evidence.filter((e: EvidenceRow) => e.status === "Proposed").length, dot: "🔵", accent: "text-primary" },
   ];
+
+  if (isLoading) {
+    return (
+      <PageShell>
+        <Skeleton className="h-[200px] w-full" />
+      </PageShell>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageShell>
+        <div className="text-rose-brand">Error loading evidence ledger.</div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
+      <div className="mb-4 flex items-center justify-end">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          disabled={syncMutation.isPending} 
+          onClick={() => syncMutation.mutate()}
+        >
+          Sync from Files
+        </Button>
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {summary.map((s) => (
           <Card key={s.label} className="glass-card fade-in-up">
@@ -81,7 +140,7 @@ function EvidencePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {evidence.map((row, i) => (
+              {evidence.map((row: EvidenceRow, i: number) => (
                 <Fragment key={i}>
                   <TableRow
                     key={i}
@@ -93,7 +152,13 @@ function EvidencePage() {
                         className={`h-4 w-4 text-muted-foreground transition-transform ${open === i ? "rotate-180" : ""}`}
                       />
                     </TableCell>
-                    <TableCell className="max-w-md">{row.claim}</TableCell>
+                    <TableCell className="max-w-md">
+                      <div dangerouslySetInnerHTML={{ 
+                        __html: row.claim
+                          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                          .replace(/<br>/g, '<br/>')
+                      }} />
+                    </TableCell>
                     <TableCell>
                       <Badge className={statusStyles[row.status]}>{row.status}</Badge>
                     </TableCell>
@@ -108,6 +173,25 @@ function EvidencePage() {
                       <TableCell colSpan={4}>
                         <div className="py-2 text-sm leading-relaxed text-foreground/90">
                           {row.narrative}
+                          <div className="mt-3 flex gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              disabled={mutation.isPending}
+                              onClick={() => mutation.mutate({ id: row.id, status: "Supported" })}
+                            >
+                              Approve
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-rose-brand"
+                              disabled={mutation.isPending}
+                              onClick={() => mutation.mutate({ id: row.id, status: "Rejected" })}
+                            >
+                              Reject
+                            </Button>
+                          </div>
                         </div>
                       </TableCell>
                     </TableRow>

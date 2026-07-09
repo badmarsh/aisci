@@ -4,5 +4,8 @@ version = "0.1.0"
 description = "AiSci RAG and literature intake pipelines"
 dependencies = [
     "requests",
-    "pydantic"
+    "pydantic",
+    "fastapi",
+    "uvicorn",
+    "pandas"
 ]

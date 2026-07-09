@@ -40,6 +40,18 @@ def main():
     with open(output_file, "w") as f:
         json.dump(results, f, indent=2, sort_keys=True)
         
+    # Check for parameter degeneracies (rho > 0.9)
+    corr_file = run_dir / "parameter_correlations.csv"
+    if corr_file.exists():
+        corr_df = pd.read_csv(corr_file)
+        degeneracies = corr_df[abs(corr_df['correlation']) > 0.9]
+        if not degeneracies.empty:
+            print(f"WARNING: {len(degeneracies)} parameter correlations > 0.9 found. See evidence ledger.")
+            # Log to DB Activity
+            sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / 'ignition'))
+            from api import log_activity
+            log_activity("Full Covariance Scan", "AI", f"Flagged {len(degeneracies)} bin/model combinations with rho > 0.9")
+        
     print(f"Results saved to {output_file}")
 
 if __name__ == "__main__":

@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PageShell } from "@/components/PageShell";
-import { agents, type Agent } from "@/lib/mock-data";
+import { type Agent } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAgents } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/agents")({
   head: () => ({
@@ -31,10 +34,31 @@ const statusStyles: Record<Agent["status"], string> = {
 function AgentsPage() {
   const [open, setOpen] = useState<Agent | null>(null);
 
+  const { data: agents = [], isLoading, isError } = useQuery({
+    queryKey: ["agents"],
+    queryFn: fetchAgents,
+  });
+
+  if (isLoading) {
+    return (
+      <PageShell>
+        <Skeleton className="h-[200px] w-full" />
+      </PageShell>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageShell>
+        <div className="text-rose-brand">Error loading agents.</div>
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
-        {agents.map((a) => (
+        {agents.map((a: Agent) => (
           <Card key={a.name} className="glass-card fade-in-up transition hover:border-primary/40">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
@@ -65,10 +89,10 @@ function AgentsPage() {
             </CardHeader>
             <CardContent>
               <p className="mb-3 text-xs text-foreground/80">{a.summary}</p>
-              <div className="rounded-md border border-border bg-black/40 p-2 font-mono text-[11px] leading-relaxed">
+              <div className="rounded-md border border-border bg-muted/50 p-2 font-mono text-[11px] leading-relaxed">
                 {a.log.slice(0, 5).map((line, i) => (
-                  <div key={i} className="truncate text-muted-foreground">
-                    <span className="text-primary/70">›</span> {line}
+                  <div key={i} className="truncate text-zinc-600 dark:text-zinc-400">
+                    <span className="text-emerald-600/70 dark:text-emerald-500/70">›</span> {line}
                   </div>
                 ))}
               </div>
@@ -90,18 +114,13 @@ function AgentsPage() {
               {open?.name} — Full Log
             </DialogTitle>
           </DialogHeader>
-          <ScrollArea className="h-[400px] rounded-md border border-border bg-black/60 p-3">
+          <ScrollArea className="h-[400px] rounded-md border border-border bg-zinc-100 dark:bg-black/95 p-3">
             <pre className="font-mono text-[11px] leading-relaxed">
               {open?.log.map((line, i) => (
-                <div key={i} className="text-emerald-brand/80">
+                <div key={i} className={line.toLowerCase().includes("error") ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}>
                   {line}
                 </div>
               ))}
-              {open?.name === "Ingest Agent" && (
-                <div className="mt-2 text-rose-brand">
-                  {`Traceback (most recent call last):\n  File "ingest/arxiv_client.py", line 87, in fetch\n    resp.raise_for_status()\nrequests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: http://export.arxiv.org/api/query`}
-                </div>
-              )}
             </pre>
           </ScrollArea>
         </DialogContent>

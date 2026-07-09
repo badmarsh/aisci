@@ -1,5 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Atom, BookOpen, ShieldCheck, ListTodo, Bot, Moon, Sun } from "lucide-react";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Home, Atom, BookOpen, ShieldCheck, ListTodo, Bot, Moon, Sun, AlertTriangle } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Sidebar,
@@ -21,8 +21,8 @@ const items = [
   { title: "Overview", url: "/", icon: Home },
   { title: "Physics Fits", url: "/fits", icon: Atom },
   { title: "Literature Intake", url: "/literature", icon: BookOpen },
-  { title: "Evidence Ledger", url: "/evidence", icon: ShieldCheck },
   { title: "Task Queue", url: "/tasks", icon: ListTodo },
+  { title: "Anomalies", url: "/anomalies", icon: AlertTriangle },
   { title: "Agents", url: "/agents", icon: Bot },
 ];
 
@@ -30,13 +30,14 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const [light, setLight] = useState(false);
+  const navigate = useNavigate();
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
-    if (light) root.classList.add("light");
-    else root.classList.remove("light");
-  }, [light]);
+    if (dark) root.classList.add("dark");
+    else root.classList.remove("dark");
+  }, [dark]);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -74,10 +75,12 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
-                      <Link to={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
+                      <div className="flex w-full items-center justify-between group">
+                        <Link to={item.url} className="flex flex-1 items-center gap-2">
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -90,12 +93,11 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border">
         <Button
           variant="ghost"
-          size="sm"
-          className="justify-start gap-2"
-          onClick={() => setLight((l) => !l)}
+          size="icon"
+          onClick={() => setDark(!dark)}
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
         >
-          {light ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          {!collapsed && <span>{light ? "Light mode" : "Dark mode"}</span>}
+          {dark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
         </Button>
       </SidebarFooter>
     </Sidebar>

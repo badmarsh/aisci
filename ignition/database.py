@@ -57,6 +57,43 @@ def init_db():
         )
     ''')
     
+    # Evidence table (canonical status from evidence-ledger.md)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Evidence (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            claim TEXT,
+            status TEXT,
+            nextGate TEXT,
+            run TEXT,
+            narrative TEXT
+        )
+    ''')
+
+    # Tasks table (canonical queue from next-actions.md)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Tasks (
+            id TEXT PRIMARY KEY,
+            title TEXT,
+            description TEXT,
+            priority TEXT,
+            assignee TEXT,
+            date TEXT,
+            citation TEXT,
+            status TEXT
+        )
+    ''')
+
+    # ActivityLogs table (UI event audit trail)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ActivityLogs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
+            action TEXT,
+            user TEXT,
+            details TEXT
+        )
+    ''')
+    
     conn.commit()
     conn.close()
 

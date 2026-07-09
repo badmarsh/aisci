@@ -45,8 +45,23 @@ The dashboard should not be strictly read-only. We need to empower the user to m
    - Wire the "Run Ingest" button to trigger `POST /api/ingest` and display a Sonner toast with the live status.
    - Add action buttons to the Evidence and Task rows to allow state mutations using `@tanstack/react-query` `useMutation` hooks, followed by query invalidation to refresh the UI immediately.
 
+## Phase 5: Replace Demo Data with Real Systems & Implement Missing Features
+Currently, the database tables (`Evidence`, `Tasks`) are seeded with demo data from the frontend mock file, and `/api/agents` returns hardcoded values. The dashboard must now be wired to the real continuous system operations.
+
+1. **Replace Demo Data with Real Data Sources**:
+   - **Evidence Ledger**: Write a synchronization script (or update the FastAPI startup/routes) that parses the canonical Markdown file `research/robert/evidence-ledger.md` and populates the `Evidence` SQLite table. Ensure bidirectional sync if an evidence status is mutated (Approve/Reject) from the UI.
+   - **Tasks / Action Queue**: Parse the canonical `research/robert/next-actions.md` file to populate the `Tasks` table. Similar to Evidence, patching a task status in the UI must update the markdown file.
+   - **Agents Logging**: Instead of hardcoded mocks for `/api/agents`, implement a real streaming/logging mechanism. Tail the `backend.log` and `frontend.log` or track real Python agent sub-process `stdout`/`stderr` logs so they can be viewed live in the Agent Dialog logs.
+
+2. **Implement Missing Agent Integrations & Features**:
+   - **LLM Extraction Pipeline (Ollama/OpenAlex)**: Complete the integration of the `ingest_pipeline.py` script. Connect it to an active local Ollama instance or the real OpenAlex API to ensure "Run Ingest" actively pulls new literature and stores it in the `Papers` table.
+   - **Scite.ai Citation Lookup**: Implement the missing task functionality to query Scite.ai to automatically retrieve the supporting literature for claims.
+   - **Full Covariance Scan**: Ensure the "Run Fits" mutation triggers a script that actively scans $\rho(T,\beta)$ correlation across all bins and flags any values $>0.9$, saving this directly into the DB/evidence ledger.
+   - **Live Activity Feed**: Hook the `activityFeed` on the Overview page to a real event stream instead of the static `mock-data.ts`. Store events (e.g., "Fit Run Completed", "New Claim Flagged") in an `ActivityLogs` table and serve it via a new `/api/activity` endpoint.
+
 ## Instructions for the Agent
 1. **Strictly adhere to the frontend contracts**: Start by reviewing `apps/aisci-dashboard/src/lib/mock-data.ts`. Build your FastAPI models (`pydantic`) to match these structures exactly.
 2. **Iterative wiring**: Wire one page at a time (e.g., Literature first, then Fits). Verify it works before moving to the next.
 3. **Preserve styling**: Do not alter the Tailwind classes or the glassmorphism aesthetic unless absolutely necessary for rendering dynamic state.
 4. **Python Standards**: Follow the project's strict typing and linting rules when building the FastAPI backend.
+5. **Bidirectional Sync**: Remember that the markdown files (`evidence-ledger.md`, `next-actions.md`) are the project's single source of truth. The database acts as a fast querying layer for the UI. Ensure changes in the UI are persisted back to the markdown files.

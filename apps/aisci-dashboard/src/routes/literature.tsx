@@ -16,7 +16,10 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PageShell } from "@/components/PageShell";
-import { papers, claimTypeDist, type Paper } from "@/lib/mock-data";
+import { type Paper } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLiterature } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/literature")({
   head: () => ({
@@ -32,11 +35,6 @@ export const Route = createFileRoute("/literature")({
   component: LiteraturePage,
 });
 
-const stats: { label: string; value: number; kind: "icon" | "arxiv" | "openalex" }[] = [
-  { label: "Total Papers", value: 312, kind: "icon" },
-  { label: "arXiv Papers", value: 178, kind: "arxiv" },
-  { label: "OpenAlex Papers", value: 134, kind: "openalex" },
-];
 
 const confidenceStyles = {
   HIGH: "bg-emerald-brand/15 text-emerald-brand ring-1 ring-emerald-brand/40",
@@ -48,16 +46,59 @@ function LiteraturePage() {
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Paper | null>(null);
 
+  const { data: papers = [], isLoading, isError } = useQuery({
+    queryKey: ["literature"],
+    queryFn: fetchLiterature,
+  });
+
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
     if (!needle) return papers;
     return papers.filter(
-      (p) =>
+      (p: Paper) =>
         p.title.toLowerCase().includes(needle) ||
         p.category.toLowerCase().includes(needle) ||
         p.source.toLowerCase().includes(needle),
     );
-  }, [q]);
+  }, [q, papers]);
+
+  const stats: { label: string; value: number; kind: "icon" | "arxiv" | "openalex" }[] = useMemo(() => [
+    { label: "Total Papers", value: papers.length, kind: "icon" },
+    { label: "arXiv Papers", value: papers.filter((p: Paper) => p.source === "arXiv").length, kind: "arxiv" },
+    { label: "OpenAlex Papers", value: papers.filter((p: Paper) => p.source === "OpenAlex").length, kind: "openalex" },
+  ], [papers]);
+
+  const claimTypeDist = useMemo(() => {
+    let hep = 0;
+    let bridge = 0;
+    papers.forEach((p: Paper) => {
+      if (p.bridge) bridge += p.claims;
+      else hep += p.claims;
+    });
+    return [
+      { type: "HEP_LITERATURE", count: hep },
+      { type: "CS_HEP_BRIDGE", count: bridge },
+    ];
+  }, [papers]);
+
+  if (isLoading) {
+    return (
+      <PageShell>
+        <div className="space-y-4">
+          <Skeleton className="h-[100px] w-full" />
+          <Skeleton className="h-[300px] w-full" />
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (isError) {
+    return (
+      <PageShell>
+        <div className="text-rose-brand">Error loading literature data.</div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
@@ -127,7 +168,7 @@ function LiteraturePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((p, i) => (
+                {rows.map((p: Paper, i: number) => (
                   <TableRow
                     key={i}
                     onClick={() => setSelected(p)}
