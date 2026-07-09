@@ -6,26 +6,3 @@ This thesis establishes that an autonomous, multi-agent AI framework can success
 Our numerical pipeline exposed the intrinsic limitations of the proposed 2-component J\"uttner model. The model's failure to converge—driven by extreme parameter correlation and flat $\chi^2$ likelihood manifolds—demonstrates that na\"ively introducing additional moving thermal sources results in severe over-parameterization rather than physical insight. Conversely, our framework independently validated the Boltzmann-Gibbs Blast-Wave (BGBW) baseline, extracting freeze-out parameters that align perfectly with established ALICE experimental literature.
 
 Ultimately, this work proves that resolving the soft/hard tension in high-energy collisions requires robust, mathematically stable formalisms (such as the Tsallis distribution or explicit soft/hard decompositions) rather than the proliferation of unconstrained thermal components. The AI-augmented methodology developed herein establishes a new paradigm for automated peer review, ensuring that phenomenological proposals meet rigorous standards of reproducibility and statistical stability in high-energy physics.
-
-\section{Summary of Contributions}
-In addressing the dual challenges of phenomenological over-parameterization and literature reproducibility, this thesis makes the following primary contributions:
-\begin{itemize}
-    \item \textbf{1. Multi-Agent Validation Architecture:} We designed and implemented an autonomous AI framework orchestrating RAG literature retrieval, SymPy symbolic evaluation, and \texttt{iminuit} numerical optimization.
-    \item \textbf{2. Baseline Validation:} We rigorously validated established baseline models (BGBW and Tsallis) against ATLAS 13 TeV $p_T$ spectrum data across ten multiplicity classes, reproducing established literature trends for freeze-out temperatures and flow velocities.
-    \item \textbf{3. Structural Stability Testing:} We systematically tested the proposed multi-component J\"uttner model, explicitly diagnosing mathematical degeneracies and proving its structural over-parameterization through covariance and likelihood manifold analysis.
-    \item \textbf{4. Automated Peer-Review Methodology:} We established an automated, reproducible peer-review methodology capable of screening complex phenomenological claims for theoretical consistency and statistical rigor before publication.
-\end{itemize}
-
-\section{Implications for Automated Peer Review}
-The volume of manuscripts uploaded to preprint servers like arXiv necessitates new tools to assist human reviewers. This thesis demonstrates that AI orchestration frameworks can effectively automate the mathematical auditing of phenomenological papers. By connecting language models to precise symbolic math evaluators and numerical fitting libraries via the Model Context Protocol, we transition AI from a passive reading tool into an active scientific critic. This automated peer-review methodology can quickly identify missing Jacobian transformations, verify thermodynamic limits, and flag over-parameterization, allowing human reviewers to focus on the physical interpretation and novelty of the proposed physics.
-
-\section{Future Work}
-
-\subsection{Phase 2: Executing 3-Component Model Fitting}
-The immediate next step in this research arc is the completion of Phase 2 numerical fitting. Once exact, per-bin $p_T$ source data tables are provided by the original authors, the pipeline will be deployed to fit the full 3-component J\"uttner model. Evaluating this expanded parameter space against true experimental uncertainties will provide the definitive conclusion regarding the model's physical viability.
-
-\subsection{RAG System Improvements}
-The validation of the RAG system highlighted specific indexing gaps, notably the failure of Questions 3 and 5 in the evaluation set to retrieve content from the \texttt{docs/} directory connector. Future work must resolve this by re-indexing the internal operational documents and optimizing the dense retriever to better balance scholarly PDF documents against plain-text markdown operational notes.
-
-\subsection{Generalization to Other Particle Species}
-While this thesis focused on inclusive charged-particle spectra (predominantly pions), analyzing identified particle spectra (kaons, protons, lambdas) provides much tighter constraints on radial flow and freeze-out dynamics due to the mass dependence of these observables. Future deployments of the AI validation framework will ingest identified particle spectra from ALICE and CMS to simultaneously fit multiple species, imposing cross-species parameter constraints that further stress-test proposed multi-component formalisms.

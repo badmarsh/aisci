@@ -27,35 +27,3 @@ For large transverse masses or temperatures where quantum degeneracy is negligib
 f(p) \propto \exp\left(-\frac{p^\mu U_\mu}{T}\right)
 \end{equation}
 For a static system ($U = (1, 0, 0, 0)$), this reduces to $f(p) \propto \exp(-E/T)$. In models proposing multiple moving thermal sources, the argument becomes $p^\mu U_\mu = m_T \cosh(y - Y_{source}) - p_T \cos(\phi) U_T$. Over-parameterization of $U^\mu$ often leads to severe structural instability in numerical fits.
-
-\section{Statistical Mechanics of Relativistic Heavy-Ion Collisions}
-The description of particle production in high-energy collisions relies heavily on relativistic statistical mechanics. Following the collision, a strongly interacting medium, often modeled as a Quark-Gluon Plasma (QGP), expands and cools until it reaches a critical state. This evolutionary process involves two distinct freeze-out stages: chemical freeze-out and kinetic freeze-out. 
-
-Chemical freeze-out occurs when inelastic collisions cease, effectively fixing the relative particle abundances (ratios of pions, kaons, protons, etc.). Kinetic freeze-out follows later, when the system becomes so dilute that elastic collisions also cease, freezing the momentum distributions of the produced particles. The parameters extracted from $p_T$ spectrum models—specifically the kinetic freeze-out temperature ($T_{\text{kin}}$) and the transverse flow velocity ($\beta_T$)—characterize the state of the system at this final kinetic decoupling surface. Understanding this process within the context of the QCD phase diagram is essential, as the evolution of these thermodynamic variables with collision energy and system size provides indirect signatures of phase transitions.
-
-\section{Over-parameterization in Multi-Component Models}
-In attempting to capture the full structural detail of $p_T$ spectra, phenomenologists often construct multi-component models that blend different physical sources. A critical issue arises when such models become over-parameterized. Over-parameterization occurs when the number of free parameters exceeds the constraining power of the empirical data, leading to mathematical degeneracies. 
-
-This degeneracy can be formalized using the Fisher Information Matrix (FIM), denoted $\mathcal{I}(\theta)$, for a model with parameter vector $\theta$:
-\begin{equation}
-\mathcal{I}_{ij}(\theta) = \mathbb{E} \left[ \left(\frac{\partial}{\partial \theta_i} \log \mathcal{L}(\theta; x)\right) \left(\frac{\partial}{\partial \theta_j} \log \mathcal{L}(\theta; x)\right) \right]
-\end{equation}
-where $\mathcal{L}$ is the likelihood function given data $x$. When a model is structurally unidentifiable, the FIM becomes singular (or nearly singular), implying a flat likelihood manifold where multiple distinct parameter combinations yield identical (or statistically indistinguishable) predictions.
-
-In practice, this is diagnosed by examining the covariance matrix $C = \mathcal{I}^{-1}$ near the minimum of the negative log-likelihood (or $\chi^2$). The correlation coefficient between parameters $\theta_i$ and $\theta_j$ is given by:
-\begin{equation}
-\rho_{ij} = \frac{C_{ij}}{\sqrt{C_{ii} C_{jj}}}
-\end{equation}
-When off-diagonal correlation coefficients $\rho_{ij}$ approach $\pm 1.0$, it signals a near-perfect linear dependence between parameters. In such regimes, the parameters lose their independent physical meaning, and the model's predictive power vanishes, indicating a structural model failure rather than a physical discovery.
-
-\section{The $\eta \to y$ Jacobian Transformation}
-Experimental constraints often dictate the measurement of pseudorapidity ($\eta = -\ln[\tan(\theta/2)]$) rather than rapidity ($y = \frac{1}{2}\ln[(E+p_z)/(E-p_z)]$). When comparing theoretical models parameterized in $y$ to experimental data reported in $\eta$, a Jacobian transformation is mathematically required. The relationship between the two variables involves the particle mass $m$, momentum $p_T$, and rapidity $y$:
-\begin{equation}
-\frac{d^2N}{dp_T \, d\eta} = J(\eta, p_T, m) \frac{d^2N}{dp_T \, dy}
-\end{equation}
-where the Jacobian determinant $J$ evaluates to:
-\begin{equation}
-J = \sqrt{1 - \frac{m^2}{m_T^2 \cosh^2 y}}
-\end{equation}
-
-This transformation approaches unity ($J \to 1$) in the massless limit ($m \to 0$) or at high transverse momentum ($p_T \gg m$). However, in the low-$p_T$ regime ($p_T < 1.0$ GeV/c for pions, and higher thresholds for heavier hadrons like protons), the difference between $\eta$ and $y$ becomes highly significant. Fitting $\frac{d^2N}{dp_T \, d\eta}$ data with a $\frac{d^2N}{dp_T \, dy}$ theoretical function without applying the Jacobian constitutes a mathematical error. This critical claim is explicitly tested and verified by our automated validation framework (via \texttt{asta\_jacobian\_check.py} and \texttt{s2\_jacobian\_check.py}), ensuring that baseline models and proposed functions handle coordinate transformations with rigorous mathematical consistency.
