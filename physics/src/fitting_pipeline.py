@@ -1004,6 +1004,58 @@ def main() -> int:
     print(json.dumps(final_status, indent=2, sort_keys=True))
     return 0
 
+def run_all_fits(
+    data_path: str,
+    run_dir: str,
+    mass_gev: float = 0.13957,
+    model_keys: list | None = None,
+    cov_mode: str = "diag",
+    xi: float = 1.0,
+) -> dict:
+    """
+    Callable entry point for physics/cli.py and DeerFlow tool integration.
+
+    Parameters
+    ----------
+    data_path : str
+        Path to per-bin pT spectrum CSV.
+    run_dir : str
+        Output directory (must exist).
+    mass_gev : float
+        Particle mass in GeV.
+    model_keys : list[str] | None
+        Model identifiers to run. None = run all defined FitSpecs.
+    cov_mode : str
+        'diag' or 'correlated'.
+    xi : float
+        Log-pT correlation length for GLS covariance.
+
+    Returns
+    -------
+    dict
+        Nested dict: {bin_label: {model_key: {chi2_ndf, aic, bic, params}}}.
+    """
+    import pandas as pd
+
+    df = pd.read_csv(data_path)
+    all_specs = build_fit_specs(mass_gev=mass_gev)  # existing function
+
+    if model_keys is not None:
+        all_specs = {k: v for k, v in all_specs.items() if k in model_keys}
+
+    results: dict = {}
+    for bin_label, bin_df in df.groupby("bin_label"):
+        results[bin_label] = {}
+        for model_key, spec in all_specs.items():
+            try:
+                res = fit_one_spec(bin_df, spec, cov_mode=cov_mode, xi=xi,
+                                   run_dir=run_dir, bin_label=str(bin_label))
+                results[bin_label][model_key] = res
+            except Exception as exc:
+                results[bin_label][model_key] = {"status": "failed", "error": str(exc)}
+
+    return results
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
