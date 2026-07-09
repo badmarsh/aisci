@@ -1,0 +1,19 @@
+\contentsline {chapter}{\numberline {1}Introduction}{2}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Theoretical Background}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Transverse Momentum Spectra in High-Energy Collisions}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}The Blast-Wave Model (BGBW)}{3}{section.2.2}%
+\contentsline {section}{\numberline {2.3}The Tsallis Distribution}{3}{section.2.3}%
+\contentsline {section}{\numberline {2.4}The J\"uttner/Boltzmann Approximation}{4}{section.2.4}%
+\contentsline {chapter}{\numberline {3}Literature Review}{5}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Thermal and Hydrodynamical Foundations}{5}{section.3.1}%
+\contentsline {section}{\numberline {3.2}The Tsallis Distribution and Non-Extensive Thermodynamics}{5}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Recent Advancements and Multiplicity Dependence}{6}{section.3.3}%
+\contentsline {chapter}{\numberline {4}AI Methodology}{7}{chapter.4}%
+\contentsline {section}{\numberline {4.1}System Architecture and Orchestration}{7}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Retrieval-Augmented Generation for Scientific Validation}{7}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Automated Symbolic and Numerical Pipeline}{7}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Results and Validation}{9}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Baseline Validations: BGBW and Tsallis Models}{9}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Evaluation of the Single-Component J\"uttner Model}{9}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Intrinsic Over-parameterization of the 2-Component J\"uttner Model}{10}{section.5.3}%
+\contentsline {chapter}{\numberline {6}Conclusion}{11}{chapter.6}%

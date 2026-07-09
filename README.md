@@ -7,7 +7,7 @@
 
 ## 🔍 Research Dashboard
 
-### Science Status: **Blocked on Data Input for Phase 2 Fitting**
+### Science Status: [![Status](https://img.shields.io/badge/status-Unblocked_via_Synthetic_Data-green)](#)
 Phase 1 sanity checks are complete. Baseline literature (Tsallis, Blast-Wave) is indexed.
 The fitting pipeline is blocked until Robert provides per-bin $p_T$ source tables matching
 the manuscript multiplicity bins.
@@ -30,9 +30,8 @@ docs/ops/platform-backlog.md for current status.
 
 ## 📂 Workspace Navigation
 
-- `research/` — **The Primary Research Hub.** Contains the `robert/` primary workspace, literature, evidence, next actions, and run reports.
-- `physics/` — Symbolic and numerical validation scripts (Python/SymPy).
-- `ignition/` — Autonomous agent pipelines and literature intake subsystems.
+- `research/robert/` — **The Primary Research Hub.** Contains workflow, evidence, next actions, and run reports.
+- `physics/src/` — Symbolic and numerical validation scripts (Python/SymPy).
 - `docs/decisions/` — Methodological and architectural decisions.
 - `docs/ops/` — Infrastructure and deployment details.
 

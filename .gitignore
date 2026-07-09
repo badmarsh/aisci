@@ -60,17 +60,6 @@ __pycache__/
 # Raw data artifacts (re-downloadable)
 arxiv_results.xml
 
-# Fitting pipeline run diagnostics — binary outputs, re-generable
-research/robert/runs/*/diagnostics/*.png
-research/robert/runs/*/diagnostics/*.csv
-research/robert/runs/*/covariance/*.csv
-
-# Scratch output files
-python_output.txt
-
-# SQLite evidence graph DB (rebuilt on ingest)
-data/evidence_graph.db
-
 # Large source PDFs at repo root (store in research/robert/ or external storage)
 /*.pdf
 .aider*
@@ -96,4 +85,3 @@ cookies.txt
 # DeerFlow user data
 .deer-flow/users/
 docs/platform/multica/
-research/robert/runs/*/contour_*.png
