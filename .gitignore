@@ -85,3 +85,6 @@ cookies.txt
 # DeerFlow user data
 .deer-flow/users/
 docs/platform/multica/
+
+# Ignore untracked node_modules
+node_modules/
