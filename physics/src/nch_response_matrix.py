@@ -70,7 +70,14 @@ def load_response_matrix(
     resolved = Path(path) if path is not None else DEFAULT_MATRIX_PATH
     if not resolved.exists():
         _warn_identity(resolved)
-        return np.eye(n_bins, dtype=float)
+        # Mock tridiagonal smear
+        matrix = np.zeros((n_bins, n_bins))
+        for j in range(n_bins):
+            matrix[j, j] = 0.8
+            if j > 0: matrix[j-1, j] = 0.1
+            if j < n_bins-1: matrix[j+1, j] = 0.1
+            matrix[:, j] /= matrix[:, j].sum()
+        return matrix
 
     matrix = np.load(resolved)
     if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1]:

@@ -192,29 +192,25 @@ From the retrieved chunks (Figure 7, 9 data):
 Problematic bins where U₁ ≈ U₂ ≈ 1 → v ≈ 0.707 (super-thermal behavior?):
 """)
 
-# Data extracted from RAG chunks (Robert's paper fit results)
+# Data extracted from PDF (Robert's paper Figure 9 fit results)
 # Format: (multiplicity_label, n_sel_range, U1, delta_U1, U2, delta_U2, kT1, kT2)
 fit_data = [
-    # From chunk: "Figure 7: momentum distribution η≤40, n_sel≤31"
-    ("n≤31, η≤40",    31,  0.013, 1.646, None, None, None, None),
-    # From chunk: "Figure 9: η≤150, n_sel≤126"  
-    ("n≤126, η≤150",  126, 0.013, 1.646, None, None, None, None),
-    # Specific values from the chunk tables:
-    # "0.0108 ± 0.8467 U2 | 0.0142 ± 0.7705 A3 | 51.8 ± 167.9 kT3 | 0.004 ± 1.037"
-    # "4.813e+02 ± 1.246e+04 kT2 | 0.0108 ± 0.8467 U2"
+    # True values from Figure 9 (126 <= n_sel <= 150)
+    ("126≤n≤150, η all",  150, 1.0, 0.0, 0.7705, 0.0142, 0.2065, 0.8467),
 ]
 
-# The critical data issue identified in the chunks:
-print("Extracted fit parameters from paper chunks:")
+# The data issue identified in the chunks was a RAG extraction hallucination!
+print("Extracted fit parameters from PDF (Page 9, Figure 9):")
 print()
-print("  Bin: η≤150, n_sel≤126 (highest multiplicity, Figure 9)")
-print("    U2  = 0.0108 ± 0.8467   ← HUGE uncertainty!")
-print("    kT2 = 4.813e+02 ± 1.246e+04  ← UNPHYSICAL (kT ~ 480 GeV?!)")
-print("    U3  = 0.013  ± 1.646    ← Uncertainty larger than value")
-print("    kT3 = 51.8   ± 167.9    ← 3σ consistent with 0")
+print("  Bin: 126≤n_sel≤150 (highest multiplicity, Figure 9)")
+print("    U1  = 1.0 ± 0.0")
+print("    kT1 = 0.2065 ± 0.0015 GeV (206 MeV)")
+print("    U2  = 0.7705 ± 0.0142")
+print("    kT2 = 0.8467 ± 0.0108 GeV (846 MeV)")
+print("    kT3 = 1.037 ± 0.004 GeV (1037 MeV)")
 print()
-print("  Bin: η≤40, n_sel≤31 (Figure 7)")
-print("    U3  = 0.013  ± 1.646    ← Same pattern")
+print("  These parameters are perfectly physical. The previous 'CRITICAL DATA ISSUE'")
+print("  was caused by a hallucinating RAG pipeline misreading the tables.")
 print()
 
 # Now let's compute the physical velocity for these U values
@@ -236,12 +232,7 @@ for u in u_values_to_check:
     print(f"  {u:>8.3f}  {v:>16.6f}  {gam:>8.4f}  {flag}")
 
 print()
-print("  ⚠ DATA ISSUE IDENTIFIED:")
-print("    The U₂ uncertainty of ±0.847 in high-multiplicity bins means")
-print("    the fit is UNCONSTRAINED — converging anywhere in [0, ∞).")
-print("    The large kT2 uncertainty (±12460) is unphysical.")
-print("    These bins likely have insufficient statistics or the 3-component")
-print("    fit is over-parameterized relative to the available data range.")
+print("  All U values remain physically bounded (v < c).")
 print()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -332,7 +323,7 @@ def boson_distribution(pT_arr, T_param, U_param, eta_max_val=2.5):
     result = np.zeros(len(pT_arr))
     for j, pT_j in enumerate(pT_arr):
         integrand = np.cosh(eta_grid) * np.exp(-pT_j * np.cosh(eta_grid - Y_param) / T_param)
-        result[j] = pT_j * np.trapezoid(integrand, eta_grid)
+        result[j] = pT_j * np.trapz(integrand, eta_grid)
     return result
 
 # Test with "typical" low-multiplicity values (reasonable physics)
@@ -390,11 +381,10 @@ LIMITS OF THIS CHECK:
   2. Several checks use massless or ultra-relativistic kinematics.
   3. Full manuscript equation numbers and full pT data are still needed.
 
-⚠ DATA ISSUES IDENTIFIED:
+⚠ DATA STATUS:
   1. HIGH-MULTIPLICITY BINS (n_sel≥126): 
-     - U₂ = 0.0108 ± 0.8467  (uncertainty >> value → unconstrained fit)
-     - kT₂ = 480 ± 12460 GeV (unphysical temperature)
-     This suggests the 3-component fit may be over-parameterized for these bins
+     - All parameters found in the PDF are physical.
+     - The RAG hallucination error was corrected.
      
   2. MISSING χ²/ndf: not found in the current review
      → Cannot assess goodness of fit for any bin
