@@ -31,6 +31,17 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 
 ## 🤖 Agent-Proposed
+### Manuscript Consistency Audit
+1. **Extreme Fit-Range Sensitivity (W-05)**
+   - **Draft Claim**: "When excluding the low-pT region (pT < 0.45 GeV), T_kin drifts by up to 43 MeV in certain bins (>7σ deviation). Document this extreme sensitivity..."
+   - **Ledger Status**: The ledger claim "Boltzmann/Jüttner approximation is valid for pT > 120 MeV... y≈η approximation valid..." states: `Fit-range sensitivity scan ... shows maximum parameter drift < 10%, validating the pT > 0.12 GeV cutoff robustness.`
+   - **Violation**: The draft claims *extreme* sensitivity (>7σ), while the evidence ledger explicitly validates the *robustness* of the cutoff with <10% drift. The draft asserts a stronger, contradictory claim than what the ledger supports.
+
+2. **Pion-Mass Assumption Bias (W-07)**
+   - **Draft Claim**: "The authors must either fit strictly identified spectra (π, K, p) simultaneously, or explicitly document the estimated thermodynamic bias..."
+   - **Ledger Status**: `Sanity check (level-2 only)`.
+   - **Violation**: The draft relies on a claim that has not reached `Supported` status. It is currently only a `Sanity check`.
+
 
 ### [A-01] Computational Rescue Strategy: Symbolic Regression for Kinematic Boundaries
 **Context:** Robert's exact Jüttner derivation fails at high-$p_T$. Recent work by Bendavid et al. (arXiv:2508.00989v3) demonstrates using Symbolic Regression (e.g., PySR) to derive compact analytical expressions for complex kinematic observables in HEP.

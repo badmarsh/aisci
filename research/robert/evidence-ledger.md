@@ -332,6 +332,19 @@ Related: issue #27, issue #26 (RAG corpus gap)
 ---
 
 ## 🤖 Agent-Proposed Intake
+### ID Collisions
+- **O-05**:
+  - `evidence-ledger.md:303`: The Jacobian Fix (Ran the manuscript_juttner fit pipeline explicitly isolating the dy/deta Jacobian inclusion.)
+  - `next-actions.md:18`: ✅ Verify ALICE/ATLAS HEPData observable: dN/dpT dη vs dN/dpT dy
+- **O-09**:
+  - `evidence-ledger.md:317`: Phase Space Jacobian Proof (SymPy proof of integration volume element)
+  - `next-actions.md:77`: Issue #27 — C3: Run GLS covariance-aware BGBW fit
+- **O-10**:
+  - `evidence-ledger.md:322`: Bose-Einstein vs Boltzmann Limit Proof (Resolves O-07)
+  - `next-actions.md:74`: Dashboard Data Sync & UI Audit
+
+*Note:* `O-05` descriptions are somewhat related (Jacobian fix vs verifying HEPData needs Jacobian), but `O-09` and `O-10` are completely unrelated between the two files.
+
 
 | Claim | Evidence Required | Current Evidence | Status | Next Gate |
 |-------|-------------------|------------------|--------|-----------|
