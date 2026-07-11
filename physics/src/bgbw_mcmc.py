@@ -115,11 +115,7 @@ def main():
     print(f"Found {len(bins)} bins. Running MCMC for each...")
     
     # We will use GPU if available, else CPU.
-    try:
-        numpyro.set_platform("gpu")
-        print("Set Numpyro to GPU.")
-    except Exception as e:
-        print(f"Failed to set GPU, using default: {e}")
+    # JAX defaults to GPU automatically if jaxlib is installed.
     
     mass_gev = 0.13957  # Pion mass
     

@@ -12,42 +12,6 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 ## 🟢 Active — Robert's Decision Required
 
 
-### [O-12] Merge `pr28` (BGBW per-class fits)
-**Status:** ACTIVE — Ready for merge.
-**Context:** The `pr28` branch contains the structural updates to `physics/src/` to support BGBW per-class fits (Issue #27) and locks the dependencies via `uv.lock`.
-**Actions (Robert or ALICE collaboration):**
-1. Merge `pr28` into `main` (`git merge pr28`).
-2. Verify tests pass.
-
-
-
-### [O-11] Deprecate 3-Component Jüttner & Execute 2-Component Exact Bose-Einstein Fits
-**Status:** ACTIVE — Pipeline is scaffolded and ready.
-**Context:** We mathematically proved that the 3-component model is degenerate at low radial velocities (Fisher Information rank deficiency) and that the Boltzmann approximation underestimates high-T yield by 84%.
-**Actions (Robert or ALICE collaboration):**
-1. Run the `fitting_pipeline.py` using ONLY the 2-component exact Bose-Einstein model (`component_counts = (1, 2)`).
-2. Validate that the 2-component Bose-Einstein fit removes the infinite uncertainties seen in the 3c Jüttner model.
-3. Update the manuscript text to declare the usage of the exact Bose-Einstein denominator.
-**Acceptance:** `fitting_pipeline.py` run completes cleanly for 2c exact Bose-Einstein and yields finite parameter uncertainties.
-
----
-
-### [O-08] Issue #27 — C1: Obtain cross-estimator dataset and response matrix
-**Status:** ACTIVE — V0M estimator datasets located (arXiv:2310.10236, arXiv:2603.13203).
-**Context:** ins1735345 uses SPD-tracklets (|η| < 0.8) estimator. The manuscript uses a different Nch definition. The T_kin rising trend (partially an estimator artifact) cannot be de-coupled from physics without a cross-estimator comparison.
-**Scaffold done:**
-- `physics/src/nch_response_matrix.py` — identity placeholder + Moore–Penrose unfolder.
-- `research/robert/runs/2026-07-08-bgbw-estimator-crosscheck/README.md` — unblock path documented.
-- `evidence-ledger.md` — Agent documented the INSPIRE-HEP DOIs/arXivs containing the ALICE V0M datasets.
-**Actions (Robert or ALICE collaboration):**
-1. Pull the HEPData records for `ins2711421` (arXiv:2310.10236) to construct the true V0M response matrix.
-2. Generate response matrix R (ALICE MC: PYTHIA8 + GEANT4 → SPD tracklets vs Nch).
-3. Save R to `physics/data/response_matrix/R_spd_to_nch.npy`.
-4. Run: `python physics/src/bgbw_fit.py --run-dir research/robert/runs/YYYY-MM-DD-bgbw-estimator-crosscheck --data-path <v0m_csv>`
-5. Populate delta table in `evidence-ledger.md`.
-**Acceptance:** delta table T_kin, ⟨β⟩ per bin for SPD-tracklets vs second estimator recorded.
-
----
 
 
 
@@ -65,13 +29,6 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 
 
-### [O-07] Confirm BE vs Boltzmann classification in manuscript
-**Status:** RESOLVED — Agent proved catastrophic failure of Boltzmann approximation.
-**Finding:** SymPy exact fractional error analysis shows `(Boltz - BE)/BE = -exp(-E/T)`. At low pT (~100 MeV) for the high-multiplicity thermal component (kT3 ~ 1000 MeV), the Boltzmann approximation causes an 84.2% underestimation of the yield. 
-**Action:** The manuscript MUST transition to the exact Bose-Einstein model `(exp(...)-1)⁻¹`. The text stating "Boson probability function" is physically false if integrated as a Boltzmann distribution at these temperatures.
-**Note:** exact_bose_einstein fits are already scaffolded in `fitting_pipeline.py`. Robert must run them.
-
----
 
 ## 🤖 Agent-Proposed
 
@@ -87,29 +44,6 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 - [ ] **D-02 (Docs):** The project lacks a central glossary for parameter notation (e.g., T_stat vs T_kin, U vs β_s). Execute `aisci-living-docs` skill to create a `docs/decisions/notation-glossary.md` and link it from `workflow.md`.
 - [ ] **D-03 (Data):** The `ins1735345` data file is loaded but the pipeline script `fitting_pipeline.py` currently hardcodes paths to earlier test tables. Modify the script to accept an `--input` argument, defaulting to the new `ins1735345` file, ensuring the upcoming fits actually use the unblocked data.
 
-### [A-03] Theoretical Derivation: Exact Analytical Integration of Moving Tsallis Source over η
-**Status:** AGENT-PROPOSED — requires Robert's approval to activate.
-**Source:** Perplexity academic + GitHub analysis, 2026-07-11.
-**Context:** Evidence-ledger entry (2026-07-10, "Exact analytical integration of a moving
-Tsallis source over pseudorapidity") confirms that no exact closed-form analytical
-integration of a moving Tsallis source over pseudorapidity (with proper dy/dη Jacobian
-and collective flow U) exists in the literature. The closest work is Lao et al.
-(arXiv:1611.08391v4) which only derives a first-order Taylor expansion in (q-1).
-This is a genuine theoretical gap that could form the core novelty of a revised manuscript.
-**Proposed approach:**
-1. Use SymPy (already in physics/.venv) to attempt a full symbolic integration of:
-   (d²N/dp_T dη) = ∫ f_Tsallis(p_T, η, U, T, q) × (dy/dη) dη
-   over the ALICE acceptance |η| < 0.8, with the exact dy/dη = p/(m_T cosh η) Jacobian.
-2. If closed-form is not achievable, construct a Padé approximant [M/N] rational function
-   to the integrand. Padé approximants converge outside the Taylor radius and are more
-   accurate than truncated series for transcendental functions.
-3. As an alternative, apply Symbolic Regression via PySR (arXiv:2508.00989v3, Bendavid
-   et al., already referenced as [A-01]) to find the minimal compact analytical correction.
-4. If an exact or high-order approximation is found, this becomes the manuscript's primary
-   theoretical contribution, superseding the Boltzmann/Jüttner derivation.
-**Target file for results:** research/robert/runs/YYYY-MM-DD-tsallis-exact-eta-integration/
-**Acceptance:** SymPy derivation script produces a closed-form or Padé expression validated
-against numerical quadrature to < 0.1% across pT ∈ [0.15, 3.0] GeV, η ∈ [-0.8, 0.8].
 
 ### [A-04] Literature Cross-Check: Femtoscopy HBT Source Size vs Thermal Fit Parameters
 **Status:** AGENT-PROPOSED — requires Robert's approval to activate.
@@ -131,28 +65,7 @@ non-thermal contributions.
 **Acceptance:** Comparison table (R_HBT-implied T_kin vs spectral T_kin per bin) added
 to evidence-ledger.md with a status of Supported or Tension as appropriate.
 
-### [A-05] Bayesian MCMC Posterior for T_kin–β_s Joint Contours
-**Status:** AGENT-PROPOSED — requires Robert's approval to activate.
-**Source:** Perplexity academic + GitHub analysis, 2026-07-11.
-**Context:** Task 9 (evidence-ledger.md, 2026-06-20) confirmed T–β correlations |ρ| up
-to −0.999 in BGBW fits. The Minuit covariance matrix gives the χ² curvature at the
-minimum but does not capture the non-Gaussian shape of the joint posterior, which is
-what a referee will demand when |ρ| > 0.95. The file physics/src/bgbw_jax_autodiff.py
-(5.7 KB, currently orphaned per platform-backlog.md) provides exact JAX gradients
-suitable for a NUTS/HMC sampler.
-**Proposed approach:**
-1. Wire physics/src/bgbw_jax_autodiff.py into a NumPyro or BlackJAX HMC sampler.
-2. Run NUTS posterior sampling for each of the 10 multiplicity bins with 2000 warmup +
-   2000 draw steps.
-3. Plot 2D (T_kin, β_s) posterior contours at 68% and 95% credible intervals.
-4. Report marginal posteriors and compare their widths to the Minuit diagonal errors to
-   quantify the underestimation from covariance-diagonal reporting.
-5. These corner plots become the publishable replacement for the degenerate parameter table.
-**Target file:** research/robert/runs/YYYY-MM-DD-bgbw-mcmc-posteriors/
-**Acceptance:** Corner plots for all 10 bins stored in the run dir with R-hat < 1.01 for
-all chains, and a summary claim row added to evidence-ledger.md.
 
----
 
 ## ✅ Completed
 

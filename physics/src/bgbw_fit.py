@@ -155,14 +155,38 @@ def fit_bin(
     """
     norm_guess = float(np.nanmax(y))
 
-    def model(pt_vals: np.ndarray, norm: float, temperature: float, beta_s: float, n_val: float) -> np.ndarray:
-        return bgbw_vec(pt_vals, norm, temperature, beta_s, n_val, mass_gev)
+    try:
+        import jax
+        import jax.numpy as jnp
+        from bgbw_jax_autodiff import bgbw_likelihood
+        jax.config.update("jax_enable_x64", True)
+        jpt = jnp.array(pt, dtype=jnp.float64)
+        jy = jnp.array(y, dtype=jnp.float64)
+        jerr = jnp.array(err, dtype=jnp.float64)
+        grad_fn = jax.grad(bgbw_likelihood)
+        
+        def jax_cost(norm: float, temperature: float, beta_s: float, n_val: float) -> float:
+            return float(bgbw_likelihood(jnp.array([norm, temperature, beta_s, n_val]), jpt, jy, jerr, mass_gev))
+            
+        def jax_grad(norm: float, temperature: float, beta_s: float, n_val: float) -> np.ndarray:
+            return np.array(grad_fn(jnp.array([norm, temperature, beta_s, n_val]), jpt, jy, jerr, mass_gev))
+
+        cost_func = jax_cost
+        grad_func = jax_grad
+    except ImportError:
+        def model(pt_vals: np.ndarray, norm: float, temperature: float, beta_s: float, n_val: float) -> np.ndarray:
+            return bgbw_vec(pt_vals, norm, temperature, beta_s, n_val, mass_gev)
+        cost_func = LeastSquares(pt, y, err, model)
+        grad_func = None
 
     best: dict[str, Any] | None = None
 
     for T0, b0, n0 in INIT_GRID:
-        cost = LeastSquares(pt, y, err, model)
-        m = Minuit(cost, norm=norm_guess, temperature=T0, beta_s=b0, n_val=n0)
+        if grad_func is not None:
+            m = Minuit(cost_func, norm=norm_guess, temperature=T0, beta_s=b0, n_val=n0, grad=grad_func)
+        else:
+            m = Minuit(cost_func, norm=norm_guess, temperature=T0, beta_s=b0, n_val=n0)
+        m.errordef = Minuit.LEAST_SQUARES
         m.strategy = 1
         m.limits["norm"] = (1e-12, None)
         m.limits["temperature"] = BLAST_WAVE_BOUNDS["temperature"]
