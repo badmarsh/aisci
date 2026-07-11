@@ -2,7 +2,7 @@
 
 This document describes the full AiSci platform: how Onyx, DeerFlow, LiteLLM, MCP, and the model providers fit together.
 
-For operational status and open work, see Multica Issues. For deployment shape and commands, see `docs/ops/deployment-reference.md`.
+For operational status and open work, see GitHub Issues. For deployment shape and commands, see `docs/ops/deployment-reference.md`.
 
 ---
 
@@ -119,7 +119,7 @@ DeerFlow agents access Onyx knowledge via two paths:
 
 Host binding: `127.0.0.1:8095`. Internal Docker binding: `:80` on `onyx_default`.
 
-Scite and Consensus OAuth tokens must be completed manually and stored in `.env.local` (not `/tmp/`). See Multica Issues — "Scite and Consensus OAuth never completed".
+Scite and Consensus OAuth tokens must be completed manually and stored in `.env.local` (not `/tmp/`). See GitHub Issues — "Scite and Consensus OAuth never completed".
 
 ---
 
@@ -169,7 +169,7 @@ User message
 | `deployment/deer-flow/apply_local_patches.sh` | Patch verification script |
 | `deployment/helper/onyx_opensearch_cutover.py` | OpenSearch parity gate |
 | `docs/ops/deployment-reference.md` | Live service URLs and layout |
-| Multica Issues | Active tasks and operational work |
+| GitHub Issues | Active tasks and operational work |
 | `docs/ops/troubleshooting.md` | Known failure modes and fixes |
 
 ---

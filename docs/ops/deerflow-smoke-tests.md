@@ -150,4 +150,4 @@ Known non-critical failures: `scite` and `consensus` fail with 401 until OAuth i
 - `deployment/deer-flow/README-local-patches.md` — patches required before running
 - `deployment/deer-flow/apply_local_patches.sh` — verify patches are applied
 - `docs/ops/troubleshooting.md` — failure mode runbook
-- `Multica Issues` — "end-to-end MCP/tool execution still needs verification"
+- `GitHub Issues` — "end-to-end MCP/tool execution still needs verification"

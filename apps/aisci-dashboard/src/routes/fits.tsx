@@ -184,7 +184,21 @@ function FitsPage() {
         </div>
       </div>
 
-      <Card className="glass-card fade-in-up">
+      {data?.status === "Incomplete" ? (
+        <Card className="glass-card fade-in-up border-red-500/20 bg-red-500/5 mt-4">
+          <CardHeader>
+            <CardTitle className="text-red-400 flex items-center gap-2 text-base">
+              <AlertTriangle className="w-5 h-5" />
+              Run Incomplete or Failed
+            </CardTitle>
+            <p className="text-sm text-red-400/80">
+              {data.error || "Missing fit quality data"}
+            </p>
+          </CardHeader>
+        </Card>
+      ) : (
+        <>
+          <Card className="glass-card fade-in-up">
         <CardHeader>
           <CardTitle className="text-base">Fit Results</CardTitle>
           <p className="text-xs text-muted-foreground">
@@ -326,6 +340,9 @@ function FitsPage() {
           </Alert>
         )}
       </div>
+
+        </>
+      )}
 
       <FitDetailSheet row={selected} runId={data?.runId} onClose={() => setSelected(null)} />
     </PageShell>

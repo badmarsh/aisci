@@ -197,6 +197,6 @@ To verify DeerFlow can access mounted files:
 **DeerFlow Status:** File access capability confirmed working (mount configuration correct), but file upload feature has a blocking bug that needs resolution.
 
 **Next Steps:** 
-1. File Multica issue for DeerFlow upload bug
+1. File GitHub issue for DeerFlow upload bug
 2. Update DeerFlow documentation with sandbox lifecycle details
 3. Consider adding sandbox pre-warming for development environments

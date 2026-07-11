@@ -11,6 +11,7 @@
 
 | System | Status | Services | Notes |
 |--------|--------|----------|-------|
+| **AiSci Dashboard** | ✅ Operational | Frontend (Vite) + Backend (FastAPI) | Actively developed as part of this repository. Accessible via `start_dashboard.sh`. |
 | **Onyx** | ✅ Operational | 18/18 running | All fixes applied, embeddings working |
 | **DeerFlow** | ✅ Running | 3/3 edge services running | UI reachable; end-to-end tool execution still needs focused test |
 
@@ -163,6 +164,12 @@ Ollama:           http://localhost:11434
 ```
 Web Interface:    http://localhost:2026
 API:              http://localhost:2026/api
+```
+
+### AiSci Dashboard Services
+```
+Web Interface:    http://localhost:5173
+Backend API:      http://localhost:8001
 ```
 
 **Note:** All ports bound to `127.0.0.1` for security (not `0.0.0.0`)

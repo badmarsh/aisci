@@ -66,4 +66,5 @@ export type Anomaly = {
   type: "chi2" | "correlation" | "boundary";
   severity: "critical" | "warning";
   message: string;
+  value: number;
 };

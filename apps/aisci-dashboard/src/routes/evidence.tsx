@@ -33,11 +33,11 @@ export const Route = createFileRoute("/evidence")({
   component: EvidencePage,
 });
 
-const statusStyles: Record<EvidenceRow["status"], string> = {
+const statusStyles: Record<string, string> = {
   Supported: "bg-emerald-brand/15 text-emerald-brand ring-1 ring-emerald-brand/40",
-  "Sanity Checked": "bg-amber-brand/15 text-amber-brand ring-1 ring-amber-brand/40",
+  "Sanity checked": "bg-amber-brand/15 text-amber-brand ring-1 ring-amber-brand/40",
   Proposed: "bg-primary/15 text-primary ring-1 ring-primary/40",
-  Rejected: "bg-rose-brand/15 text-rose-brand ring-1 ring-rose-brand/40",
+  "Rejected (Bulletproof)": "bg-rose-brand/15 text-rose-brand ring-1 ring-rose-brand/40",
 };
 
 function EvidencePage() {
@@ -73,7 +73,7 @@ function EvidencePage() {
 
   const summary = [
     { label: "Supported", value: evidence.filter((e: EvidenceRow) => e.status === "Supported").length, dot: "🟢", accent: "text-emerald-brand" },
-    { label: "Sanity Checked", value: evidence.filter((e: EvidenceRow) => e.status === "Sanity Checked").length, dot: "🟡", accent: "text-amber-brand" },
+    { label: "Sanity checked", value: evidence.filter((e: EvidenceRow) => e.status === "Sanity checked").length, dot: "🟡", accent: "text-amber-brand" },
     { label: "Proposed", value: evidence.filter((e: EvidenceRow) => e.status === "Proposed").length, dot: "🔵", accent: "text-primary" },
   ];
 
