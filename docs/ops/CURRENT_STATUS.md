@@ -2,7 +2,7 @@
 **Last Updated:** 2026-05-30  
 **Maintainer:** Platform Operations
 
-> Snapshot only. Durable open work is tracked in Multica Issues; system state in `docs/ops/platform-status.md`
+> Snapshot only. Durable open work is tracked in GitHub Issues; system state in `docs/ops/platform-status.md`
 > and deployment shape in `docs/ops/deployment-reference.md`.
 
 ---
@@ -196,7 +196,7 @@ API:              http://localhost:2026/api
 ## ⚠️ Known Issues
 
 ### P0 - Critical
-1. **API Key Rotation Required** - Keys exposed in git history (see Multica Issues)
+1. **API Key Rotation Required** - Keys exposed in git history (see GitHub Issues)
 
 ### P1 - Important
 1. **DeerFlow MCP/tool execution not yet re-tested end to end** - Runtime is up, but authenticated tool execution still needs a focused check

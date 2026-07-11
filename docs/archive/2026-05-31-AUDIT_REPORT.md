@@ -130,7 +130,7 @@
 ### Issue 3.1: Excessive Root Documentation
 - **Category:** Redundancy & Duplication
 - **Severity:** MEDIUM
-- **Location:** 11 markdown files in root: `ACTION_PLAN.md`, `AGENTS.md`, `CHANGELOG.md`, `COMPREHENSIVE_AUDIT_PROMPT.md`, `HANDOFF.md`, `HARMONIZATION_COMPLETE.md`, `IMPLEMENTATION_SUMMARY.md`, `MULTICA_SETUP.md`, `RAG_ANALYSIS.md`, `README.md`, `craft-cms-content.md`
+- **Location:** 10 markdown files in root: `ACTION_PLAN.md`, `AGENTS.md`, `CHANGELOG.md`, `COMPREHENSIVE_AUDIT_PROMPT.md`, `HANDOFF.md`, `HARMONIZATION_COMPLETE.md`, `IMPLEMENTATION_SUMMARY.md`, `RAG_ANALYSIS.md`, `README.md`, `craft-cms-content.md`
 - **Description:** Too many status/handoff documents at root level
 - **Impact:** Confusing navigation, unclear which is current, redundant information
 - **Recommendation:**
@@ -138,7 +138,7 @@
   2. Move `HANDOFF.md`, `HARMONIZATION_COMPLETE.md`, `IMPLEMENTATION_SUMMARY.md` to `docs/status/`
   3. Move `ACTION_PLAN.md` to `docs/planning/`
   4. Move `AGENTS.md` to `docs/architecture/`
-  5. Move `MULTICA_SETUP.md`, `RAG_ANALYSIS.md` to `docs/ops/`
+  5. Move `RAG_ANALYSIS.md` to `docs/ops/`
   6. Delete `COMPREHENSIVE_AUDIT_PROMPT.md` (task-specific, not documentation)
   7. Move `craft-cms-content.md` to appropriate location or delete
 - **Effort:** Medium

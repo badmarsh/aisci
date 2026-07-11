@@ -73,7 +73,7 @@
 ### This Week
 4. ⏳ Create .env.example files documenting required variables
 5. ⏳ Move remaining root documentation to docs/
-6. ⏳ Fix DeerFlow upload bug (Multica issue created)
+6. ⏳ Fix DeerFlow upload bug (GitHub issue created)
 
 ### This Month
 7. ⏳ Clean git history of secrets using git-filter-repo

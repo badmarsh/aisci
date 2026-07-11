@@ -224,4 +224,4 @@ The symbolic layer is already green (sanity-checked in the evidence ledger). The
 
 ### Manuscript Location
 
-The primary manuscript PDF lives at `research/robert/manuscript/boson-probability-function-moving-system.pdf`, co-located with `evidence-ledger.md`, `fit-plan.md`, and `validation-plan.md` (consistent with the `research/robert/` boundary defined in `AGENTS.md`).
+The primary manuscript Markdown lives at `research/robert/manuscript/boson-probability-function-moving-system.md`, co-located with `evidence-ledger.md`, `fit-plan.md`, and `validation-plan.md` (consistent with the `research/robert/` boundary defined in `AGENTS.md`).
