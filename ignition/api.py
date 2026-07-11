@@ -53,13 +53,12 @@ def get_latest_run_path() -> str:
     return os.path.join(RUNS_BASE, sorted(candidates)[-1])
 
 def list_run_dirs() -> list[str]:
-    """Return all run directory names that contain fit_quality.csv, newest first."""
+    """Return all run directory names, newest first."""
     if not os.path.exists(RUNS_BASE):
         return []
     candidates = [
         d for d in os.listdir(RUNS_BASE)
         if os.path.isdir(os.path.join(RUNS_BASE, d))
-        and os.path.exists(os.path.join(RUNS_BASE, d, 'fit_quality.csv'))
     ]
     return sorted(candidates, reverse=True)
 
@@ -179,11 +178,32 @@ def update_evidence(evidence_id: int, body: StatusUpdate):
 def get_fits(run: Optional[str] = None, compare_run: Optional[str] = None):
     try:
         run_path = os.path.join(RUNS_BASE, run) if run else get_latest_run_path()
+        run_name = os.path.basename(run_path)
+        
+        # Check if CSVs exist, if not return Incomplete payload
+        if not os.path.exists(os.path.join(run_path, "fit_quality.csv")):
+            return {
+                "status": "Incomplete",
+                "error": "Missing fit_quality.csv",
+                "runId": run_name,
+                "fitRows": [],
+                "chi2Series": [],
+                "bins": []
+            }
+            
         quality_df = pd.read_csv(os.path.join(run_path, "fit_quality.csv"))
         params_df = pd.read_csv(os.path.join(run_path, "fit_parameters.csv"))
         corr_df = pd.read_csv(os.path.join(run_path, "parameter_correlations.csv"))
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        # Fallback for other errors (e.g., malformed CSV)
+        return {
+            "status": "Incomplete",
+            "error": str(e),
+            "runId": run if run else "unknown",
+            "fitRows": [],
+            "chi2Series": [],
+            "bins": []
+        }
 
     # Map model names to nice names
     model_map = {
@@ -291,9 +311,15 @@ class AnomalyItem(BaseModel):
     type: str      # "chi2" | "correlation" | "boundary"
     severity: str  # "critical" | "warning"
     message: str
+    value: float
 
 @app.get("/api/anomalies", response_model=List[AnomalyItem])
-def get_anomalies(run: Optional[str] = None):
+def get_anomalies(
+    run: Optional[str] = None,
+    chi2_critical: float = 200.0,
+    chi2_warning: float = 10.0,
+    rho_warning: float = 0.95
+):
     """Scan the latest (or specified) run for physics anomalies."""
     try:
         run_path = os.path.join(RUNS_BASE, run) if run else get_latest_run_path()
@@ -314,15 +340,17 @@ def get_anomalies(run: Optional[str] = None):
     for _, row in quality_df.iterrows():
         m = model_map.get(row['model_name'], row['model_name'])
         chi2_val = float(row['chi2_ndf'])
-        if chi2_val > 200:
+        if chi2_val > chi2_critical:
             anomalies.append(AnomalyItem(
                 bin=row['group_label'], model=m, type="chi2", severity="critical",
-                message=f"χ²/ndf = {chi2_val:.0f} — model fails completely"
+                message=f"χ²/ndf = {chi2_val:.0f} — model fails completely",
+                value=chi2_val
             ))
-        elif chi2_val > 10:
+        elif chi2_val > chi2_warning:
             anomalies.append(AnomalyItem(
                 bin=row['group_label'], model=m, type="chi2", severity="warning",
-                message=f"χ²/ndf = {chi2_val:.1f} — poor fit quality"
+                message=f"χ²/ndf = {chi2_val:.1f} — poor fit quality",
+                value=chi2_val
             ))
 
     # Off-diagonal correlation checks
@@ -330,11 +358,12 @@ def get_anomalies(run: Optional[str] = None):
         if row['parameter_left'] == row['parameter_right']:
             continue
         rho = float(row['correlation'])
-        if abs(rho) > 0.95:
+        if abs(rho) > rho_warning:
             m = model_map.get(row['model_name'], row['model_name'])
             anomalies.append(AnomalyItem(
                 bin=row['group_label'], model=m, type="correlation", severity="warning",
-                message=f"ρ({row['parameter_left']}, {row['parameter_right']}) = {rho:.3f}"
+                message=f"ρ({row['parameter_left']}, {row['parameter_right']}) = {rho:.3f}",
+                value=abs(rho)
             ))
 
     # Boundary checks (U_1 at speed-of-light limit)
@@ -343,7 +372,8 @@ def get_anomalies(run: Optional[str] = None):
             m = model_map.get(row['model_name'], row['model_name'])
             anomalies.append(AnomalyItem(
                 bin=row['group_label'], model=m, type="boundary", severity="warning",
-                message=f"U_1 = {float(row['value']):.4f} — at speed-of-light boundary (U < c)"
+                message=f"U_1 = {float(row['value']):.4f} — at speed-of-light boundary (U < c)",
+                value=float(row['value'])
             ))
 
     return anomalies

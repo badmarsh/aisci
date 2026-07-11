@@ -26,26 +26,50 @@ def extract_insights(title, abstract, category):
     Abstract: {abstract}
     Category: {category}
     
-    Extract key scientific claims and any datasets used. Return pure JSON format:
-    {{
-      "claims": [
-        {{"text": "Claim description", "confidence": "HIGH/MEDIUM/LOW", "type": "HEP_LITERATURE or CS_HEP_BRIDGE"}}
-      ],
-      "datasets": ["Dataset Name"]
-    }}
-    IMPORTANT: Ensure all LaTeX commands in the JSON strings are properly double-escaped (e.g. \\\\alpha instead of \\alpha).
-    Do not output markdown code blocks or explanations, just the JSON.
+    Extract key scientific claims and any datasets used.
     """
     
+    schema = {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "insights_extraction",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "claims": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "text": {"type": "string"},
+                                "confidence": {"type": "string", "enum": ["HIGH", "MEDIUM", "LOW"]},
+                                "type": {"type": "string", "enum": ["HEP_LITERATURE", "CS_HEP_BRIDGE"]}
+                            },
+                            "required": ["text", "confidence", "type"],
+                            "additionalProperties": False
+                        }
+                    },
+                    "datasets": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }
+                },
+                "required": ["claims", "datasets"],
+                "additionalProperties": False
+            },
+            "strict": True
+        }
+    }
+    
     import time
-    import re
     for attempt in range(3):
         try:
             req = urllib.request.Request(
                 'https://openrouter.ai/api/v1/chat/completions',
                 data=json.dumps({
                     "model": "openai/gpt-4o-mini",
-                    "messages": [{"role": "user", "content": prompt}]
+                    "messages": [{"role": "user", "content": prompt}],
+                    "response_format": schema
                 }).encode('utf-8'),
                 headers={
                     'Content-Type': 'application/json',
@@ -57,20 +81,6 @@ def extract_insights(title, abstract, category):
             data = json.loads(response.read())
             resp_text = data.get("choices", [{}])[0].get("message", {}).get("content", "{}")
             
-            # Strip markdown formatting if any
-            resp_text = resp_text.strip()
-            if resp_text.startswith("```json"):
-                resp_text = resp_text[7:]
-            elif resp_text.startswith("```"):
-                resp_text = resp_text[3:]
-            if resp_text.endswith("```"):
-                resp_text = resp_text[:-3]
-            resp_text = resp_text.strip()
-            
-            # Fix unescaped backslashes (e.g., \to, \pi) which are common in LaTeX
-            # This regex finds a backslash that is not followed by a valid JSON escape char
-            resp_text = re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', resp_text)
-                
             parsed = json.loads(resp_text)
             insights['claims'] = parsed.get("claims", [])
             insights['datasets'] = parsed.get("datasets", [])

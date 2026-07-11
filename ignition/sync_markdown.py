@@ -2,6 +2,7 @@ import os
 import re
 import sqlite3
 import threading
+from marko.ext.gfm import gfm
 
 try:
     import fcntl
@@ -36,6 +37,13 @@ def get_db():
 EVIDENCE_FILE = os.path.join(os.path.dirname(__file__), '..', 'research', 'robert', 'evidence-ledger.md')
 TASKS_FILE = os.path.join(os.path.dirname(__file__), '..', 'research', 'robert', 'next-actions.md')
 
+def _extract_text(node):
+    if hasattr(node, 'children') and isinstance(node.children, list):
+        return "".join(_extract_text(c) for c in node.children)
+    elif hasattr(node, 'children') and isinstance(node.children, str):
+        return node.children
+    return ""
+
 def sync_evidence_to_db():
     if not os.path.exists(EVIDENCE_FILE):
         return
@@ -43,40 +51,32 @@ def sync_evidence_to_db():
     with open(EVIDENCE_FILE, 'r') as f:
         content = f.read()
 
-    table_matches = re.finditer(
-        r'\|\s*Claim\s*\|.*?\n\|[-| ]+\|\n((?:\|.*\|\n?)+)',
-        content,
-        re.DOTALL
-    )
-    
+    doc = gfm.parse(content)
     rows = []
     row_id = 1
-    for table_match in table_matches:
-        for line in table_match.group(1).split('\n'):
-            line = line.strip()
-            if not line.startswith('|') or line.startswith('|---'):
-                continue
-            # Split on pipe, strip whitespace, drop first and last empty elements
-            parts = [p.strip() for p in line.split('|')][1:-1]
-            if len(parts) >= 5:
-                # Columns: Claim | Evidence Required | Current Evidence | Status | Next Gate
-                claim_text = parts[0]
-                current_evidence = parts[2]  # narrative
-                status = parts[3]
-                next_gate = parts[4]
-                # Normalise status — strip whitespace and handle case variants
-                status_clean = status.strip()
-                # Collapse <br> tags in narrative for DB storage
-                narrative_clean = re.sub(r'<br\s*/?>', ' | ', current_evidence)
-                rows.append({
-                    "id": row_id,
-                    "claim": claim_text,
-                    "status": status_clean,
-                    "nextGate": next_gate,
-                    "run": "",
-                    "narrative": narrative_clean[:2000],  # cap at 2000 chars for DB
-                })
-                row_id += 1
+    
+    for child in doc.children:
+        if child.__class__.__name__ == "Table":
+            # first row is header
+            for i, row in enumerate(child.children):
+                if i == 0: continue # skip header
+                cells = [_extract_text(cell) for cell in row.children]
+                if len(cells) >= 5:
+                    claim_text = cells[0].strip()
+                    current_evidence = cells[2].strip()
+                    status_clean = cells[3].strip()
+                    next_gate = cells[4].strip()
+                    
+                    narrative_clean = re.sub(r'<br\s*/?>', ' | ', current_evidence)
+                    rows.append({
+                        "id": row_id,
+                        "claim": claim_text,
+                        "status": status_clean,
+                        "nextGate": next_gate,
+                        "run": "",
+                        "narrative": narrative_clean[:2000],
+                    })
+                    row_id += 1
 
     conn = get_db()
     cursor = conn.cursor()
@@ -122,62 +122,78 @@ def sync_tasks_to_db():
         
     with open(TASKS_FILE, 'r') as f:
         content = f.read()
-        
+
+    doc = gfm.parse(content)
     tasks = []
-    blocks = re.finditer(r'### \[([A-Z0-9-]+)\](.*?)\n\*\*Status:\*\* (.*?)\n(.*?)(?=\n### \[|\Z)', content, re.DOTALL)
     
-    for match in blocks:
-        task_id = match.group(1).strip()
-        title = match.group(2).strip()
-        status_line = match.group(3).strip()
-        body = match.group(4).strip()
+    current_task = None
+    
+    for child in doc.children:
+        node_type = child.__class__.__name__
         
-        desc_match = re.search(r'\*\*Context:\*\* (.*?)\n', body)
-        description = desc_match.group(1).strip() if desc_match else title
+        if node_type == "Heading" and getattr(child, 'level', 0) == 3:
+            heading_text = _extract_text(child).strip()
+            # Expecting "### [TASK-ID] Title"
+            m = re.match(r'^\[([A-Z0-9-]+)\](.*)', heading_text)
+            if m:
+                if current_task:
+                    tasks.append(current_task)
+                current_task = {
+                    "id": m.group(1).strip(),
+                    "title": m.group(2).strip(),
+                    "description": "",
+                    "priority": "HIGH",
+                    "assignee": "AI",
+                    "date": "2026-07-09",
+                    "citation": "",
+                    "status": "proposed"
+                }
+        elif current_task:
+            text = _extract_text(child).strip()
+            if text.startswith("**Status:**"):
+                status_line = text.upper()
+                if "BLOCKED" in status_line:
+                    current_task["status"] = "blocked"
+                elif "ACTIVE" in status_line:
+                    current_task["status"] = "active"
+                else:
+                    current_task["status"] = "proposed"
+            elif text.startswith("**Context:**"):
+                current_task["description"] = text.replace("**Context:**", "").strip()
         
-        status_line_upper = status_line.upper()
-        if "BLOCKED" in status_line_upper:
-            status = "blocked"
-        elif "ACTIVE" in status_line_upper:
-            status = "active"
-        else:
-            status = "proposed"
-            
-        tasks.append({
-            "id": task_id,
-            "title": title,
-            "description": description,
-            "priority": "HIGH",
-            "assignee": "AI",
-            "date": "2026-07-09",
-            "citation": "",
-            "status": status
-        })
-        
-    table_match = re.search(r'## ✅ Completed.*?\n\| Item \| Completed \| Notes \|\n\|---\|---\|---\|\n(.*?)(?=\n\n|\Z)', content, re.DOTALL)
-    if table_match:
-        for line in table_match.group(1).split('\n'):
-            if line.strip().startswith('|'):
-                parts = [p.strip() for p in line.split('|')][1:-1]
-                if len(parts) >= 3:
-                    title_match = re.search(r'\[(.*?)\] (.*)', parts[0])
-                    if title_match:
-                        task_id = title_match.group(1).strip()
-                        title = title_match.group(2).strip()
-                    else:
-                        task_id = "c-" + parts[0][:10].replace(" ", "-")
-                        title = parts[0]
+        if node_type == "Table":
+            # Looking for Completed tasks table
+            header = [_extract_text(c).strip() for c in child.children[0].children] if child.children else []
+            if len(header) >= 3 and header[0] == "Item" and header[1] == "Completed":
+                for i, row in enumerate(child.children):
+                    if i == 0: continue
+                    cells = [_extract_text(cell) for cell in row.children]
+                    if len(cells) >= 3:
+                        title_str = cells[0].strip()
+                        date_str = cells[1].strip()
+                        notes_str = cells[2].strip()
                         
-                    tasks.append({
-                        "id": task_id,
-                        "title": title,
-                        "description": parts[2],
-                        "priority": "LOW",
-                        "assignee": "RB",
-                        "date": parts[1],
-                        "citation": "",
-                        "status": "done"
-                    })
+                        m = re.match(r'^\[(.*?)\]\s*(.*)', title_str)
+                        if m:
+                            t_id = m.group(1).strip()
+                            t_title = m.group(2).strip()
+                        else:
+                            t_id = "c-" + title_str[:10].replace(" ", "-")
+                            t_title = title_str
+                            
+                        tasks.append({
+                            "id": t_id,
+                            "title": t_title,
+                            "description": notes_str,
+                            "priority": "LOW",
+                            "assignee": "RB",
+                            "date": date_str,
+                            "citation": "",
+                            "status": "done"
+                        })
+
+    if current_task:
+        tasks.append(current_task)
                     
     conn = get_db()
     cursor = conn.cursor()
@@ -206,4 +222,4 @@ def sync_db_to_tasks(task_id, new_status):
 if __name__ == '__main__':
     sync_evidence_to_db()
     sync_tasks_to_db()
-    print("Markdown synced to DB.")
+    print("Markdown synced to DB using AST parsing.")

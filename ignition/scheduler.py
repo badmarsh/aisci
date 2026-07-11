@@ -33,7 +33,7 @@ def run_scheduler(context=None):
     
     run_dir = get_run_dir()
     # Get the actual manuscript PDF path
-    manuscript_pdf = os.path.join(os.path.dirname(__file__), '..', 'research', 'robert', 'manuscript', 'boson-probability-function-moving-system.pdf')
+    manuscript_md = os.path.join(os.path.dirname(__file__), '..', 'research', 'robert', 'manuscript', 'boson-probability-function-moving-system.md')
     
     # Copy a mock mapping validation file to satisfy the pipeline's data-readiness gate
     mock_mapping = os.path.join(os.path.dirname(__file__), '..', 'research', 'robert', 'runs', '2026-04-27-baseline-fit', 'hepdata_mapping_validation.json')
