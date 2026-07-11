@@ -1,0 +1,1119 @@
+{
+  "access_count": {
+    "sum": 1330
+  },
+  "additional_resources": true,
+  "breadcrumb_text": "Acharya, Shreyasi et al.",
+  "coordinator": 46,
+  "data_tables": [
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 1/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 1/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 1/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 1/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 1/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 1/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 1/yoda1"
+      },
+      "description": "Spherocity distributions with respect to different multiplicity selections.",
+      "doi": "10.17182/hepdata.153642.v1/t1",
+      "id": 1671618,
+      "location": "Figure 1",
+      "messages": false,
+      "name": "Table 1",
+      "processed_name": "Table1",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 2/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 2/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 2/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 2/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 2/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 2/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 2/yoda1"
+      },
+      "description": " vs  for different multiplicity and spherocity classes.",
+      "doi": "10.17182/hepdata.153642.v1/t2",
+      "id": 1671619,
+      "location": "Figure 2",
+      "messages": false,
+      "name": "Table 2",
+      "processed_name": "Table2",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 3/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 3/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 3/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 3/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 3/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 3/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 3/yoda1"
+      },
+      "description": "pT differential Phi spectra as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t3",
+      "id": 1671620,
+      "location": "Figures 3(4)_Phi-pT spectra",
+      "messages": false,
+      "name": "Table 3",
+      "processed_name": "Table3",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 4/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 4/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 4/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 4/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 4/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 4/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 4/yoda1"
+      },
+      "description": "pT differential Proton spectra as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t4",
+      "id": 1671621,
+      "location": "Figures 3(4)_Proton-pT spectra",
+      "messages": false,
+      "name": "Table 4",
+      "processed_name": "Table4",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 5/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 5/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 5/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 5/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 5/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 5/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 5/yoda1"
+      },
+      "description": "pT differential Lambda spectra as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t5",
+      "id": 1671622,
+      "location": "Figures 3(4)_Lambda-pT spectra",
+      "messages": false,
+      "name": "Table 5",
+      "processed_name": "Table5",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 6/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 6/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 6/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 6/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 6/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 6/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 6/yoda1"
+      },
+      "description": "pT differential Xi spectra as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t6",
+      "id": 1671623,
+      "location": "Figures 3(4)_Xi-pT spectra",
+      "messages": false,
+      "name": "Table 6",
+      "processed_name": "Table6",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 7/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 7/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 7/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 7/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 7/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 7/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 7/yoda1"
+      },
+      "description": "pT differential Pion spectra as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t7",
+      "id": 1671624,
+      "location": "Figures 3(4)_Pion-pT spectra",
+      "messages": false,
+      "name": "Table 7",
+      "processed_name": "Table7",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 8/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 8/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 8/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 8/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 8/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 8/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 8/yoda1"
+      },
+      "description": "pT differential Kaon spectra as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t8",
+      "id": 1671625,
+      "location": "Figures 3(4)_Kaon-pT spectra",
+      "messages": false,
+      "name": "Table 8",
+      "processed_name": "Table8",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 9/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 9/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 9/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 9/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 9/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 9/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 9/yoda1"
+      },
+      "description": "pT differential K0 spectra as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t9",
+      "id": 1671626,
+      "location": "Figures 3(4)_K0-pT spectra",
+      "messages": false,
+      "name": "Table 9",
+      "processed_name": "Table9",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 10/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 10/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 10/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 10/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 10/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 10/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 10/yoda1"
+      },
+      "description": "pT differential Kstar spectra as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t10",
+      "id": 1671627,
+      "location": "Figures 3(4)_Kstar-pT spectra",
+      "messages": false,
+      "name": "Table 10",
+      "processed_name": "Table10",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 11/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 11/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 11/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 11/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 11/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 11/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 11/yoda1"
+      },
+      "description": "Mean distributions as a function of Spherocity for nTracklets:0-1%.",
+      "doi": "10.17182/hepdata.153642.v1/t11",
+      "id": 1671628,
+      "location": "Figure 6",
+      "messages": false,
+      "name": "Table 11",
+      "processed_name": "Table11",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 12/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 12/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 12/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 12/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 12/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 12/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 12/yoda1"
+      },
+      "description": "pT differential Phito-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t12",
+      "id": 1671629,
+      "location": "Figures 7(8)_Phi over Pi",
+      "messages": false,
+      "name": "Table 12",
+      "processed_name": "Table12",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 13/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 13/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 13/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 13/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 13/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 13/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 13/yoda1"
+      },
+      "description": "pT differential Protonto-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t13",
+      "id": 1671630,
+      "location": "Figures 7(8)_Proton over Pi",
+      "messages": false,
+      "name": "Table 13",
+      "processed_name": "Table13",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 14/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 14/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 14/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 14/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 14/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 14/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 14/yoda1"
+      },
+      "description": "pT differential Lambdato-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t14",
+      "id": 1671631,
+      "location": "Figures 7(8)_Lambda over Pi",
+      "messages": false,
+      "name": "Table 14",
+      "processed_name": "Table14",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 15/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 15/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 15/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 15/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 15/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 15/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 15/yoda1"
+      },
+      "description": "pT differential Xito-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t15",
+      "id": 1671632,
+      "location": "Figures 7(8)_Xi over Pi",
+      "messages": false,
+      "name": "Table 15",
+      "processed_name": "Table15",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 16/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 16/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 16/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 16/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 16/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 16/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 16/yoda1"
+      },
+      "description": "pT differential Kaonto-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t16",
+      "id": 1671633,
+      "location": "Figures 7(8)_Kaon over Pi",
+      "messages": false,
+      "name": "Table 16",
+      "processed_name": "Table16",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 17/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 17/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 17/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 17/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 17/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 17/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 17/yoda1"
+      },
+      "description": "pT differential K0to-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t17",
+      "id": 1671634,
+      "location": "Figures 7(8)_K0 over Pi",
+      "messages": false,
+      "name": "Table 17",
+      "processed_name": "Table17",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 18/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 18/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 18/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 18/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 18/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 18/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 18/yoda1"
+      },
+      "description": "pT differential Kstarto-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t18",
+      "id": 1671635,
+      "location": "Figures 7(8)_Kstar over Pi",
+      "messages": false,
+      "name": "Table 18",
+      "processed_name": "Table18",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 19/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 19/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 19/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 19/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 19/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 19/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 19/yoda1"
+      },
+      "description": "pT differential Protonto-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t19",
+      "id": 1671636,
+      "location": "Figures 9(10)_Proton over Pi",
+      "messages": false,
+      "name": "Table 19",
+      "processed_name": "Table19",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 20/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 20/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 20/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 20/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 20/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 20/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 20/yoda1"
+      },
+      "description": "pT differential Lambdato-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t20",
+      "id": 1671637,
+      "location": "Figures 9(10)_Lambda over Pi",
+      "messages": false,
+      "name": "Table 20",
+      "processed_name": "Table20",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 21/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 21/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 21/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 21/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 21/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 21/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 21/yoda1"
+      },
+      "description": "pT differential Xito-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t21",
+      "id": 1671638,
+      "location": "Figures 9(10)_Xi over Pi",
+      "messages": false,
+      "name": "Table 21",
+      "processed_name": "Table21",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 22/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 22/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 22/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 22/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 22/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 22/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 22/yoda1"
+      },
+      "description": "pT differential Kaonto-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t22",
+      "id": 1671639,
+      "location": "Figures 9(10)_Kaon over Pi",
+      "messages": false,
+      "name": "Table 22",
+      "processed_name": "Table22",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 23/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 23/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 23/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 23/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 23/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 23/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 23/yoda1"
+      },
+      "description": "pT differential K0to-pion ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t23",
+      "id": 1671640,
+      "location": "Figures 9(10)_K0 over Pi",
+      "messages": false,
+      "name": "Table 23",
+      "processed_name": "Table23",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 24/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 24/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 24/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 24/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 24/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 24/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 24/yoda1"
+      },
+      "description": "pT differential hPoverPi_ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t24",
+      "id": 1671641,
+      "location": "Figure 11_hPoverPi_ pT ratios",
+      "messages": false,
+      "name": "Table 24",
+      "processed_name": "Table24",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 25/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 25/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 25/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 25/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 25/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 25/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 25/yoda1"
+      },
+      "description": "pT differential hLoverK0s_ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t25",
+      "id": 1671642,
+      "location": "Figure 11_hLoverK0s_ pT ratios",
+      "messages": false,
+      "name": "Table 25",
+      "processed_name": "Table25",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 26/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 26/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 26/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 26/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 26/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 26/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 26/yoda1"
+      },
+      "description": "pT differential hXioverPhi_ratios as a function of spherocity within 0-1% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t26",
+      "id": 1671643,
+      "location": "Figure 11_hXioverPhi_ pT ratios",
+      "messages": false,
+      "name": "Table 26",
+      "processed_name": "Table26",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 27/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 27/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 27/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 27/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 27/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 27/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 27/yoda1"
+      },
+      "description": "pT differential hK0soverK_ratios as a function of spherocity within 0-1% nTracklets and V0M.",
+      "doi": "10.17182/hepdata.153642.v1/t27",
+      "id": 1671644,
+      "location": "Figure 12_hK0soverK_ pT ratios",
+      "messages": false,
+      "name": "Table 27",
+      "processed_name": "Table27",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 28/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 28/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 28/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 28/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 28/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 28/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 28/yoda1"
+      },
+      "description": "Integrated double-ratios as a function of spherocity within 0-1% nTracklets, extrapolated over the full pT range.",
+      "doi": "10.17182/hepdata.153642.v1/t28",
+      "id": 1671645,
+      "location": "Figure 13",
+      "messages": false,
+      "name": "Table 28",
+      "processed_name": "Table28",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 29/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 29/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 29/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 29/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 29/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 29/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 29/yoda1"
+      },
+      "description": "Integrated double-ratios as a function of spherocity within 0-1% nTracklets, only utilizing the measured pT range.",
+      "doi": "10.17182/hepdata.153642.v1/t29",
+      "id": 1671646,
+      "location": "Figure 14",
+      "messages": false,
+      "name": "Table 29",
+      "processed_name": "Table29",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 30/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 30/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 30/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 30/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 30/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 30/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 30/yoda1"
+      },
+      "description": "pT differential Phito-pion ratios as a function of spherocity within 0-10% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t30",
+      "id": 1671647,
+      "location": "Figures 16_Phi over Pi",
+      "messages": false,
+      "name": "Table 30",
+      "processed_name": "Table30",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 31/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 31/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 31/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 31/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 31/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 31/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 31/yoda1"
+      },
+      "description": "pT differential Protonto-pion ratios as a function of spherocity within 0-10% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t31",
+      "id": 1671648,
+      "location": "Figures 16_Proton over Pi",
+      "messages": false,
+      "name": "Table 31",
+      "processed_name": "Table31",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 32/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 32/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 32/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 32/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 32/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 32/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 32/yoda1"
+      },
+      "description": "pT differential Lambdato-pion ratios as a function of spherocity within 0-10% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t32",
+      "id": 1671649,
+      "location": "Figures 16_Lambda over Pi",
+      "messages": false,
+      "name": "Table 32",
+      "processed_name": "Table32",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 33/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 33/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 33/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 33/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 33/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 33/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 33/yoda1"
+      },
+      "description": "pT differential Xito-pion ratios as a function of spherocity within 0-10% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t33",
+      "id": 1671650,
+      "location": "Figures 16_Xi over Pi",
+      "messages": false,
+      "name": "Table 33",
+      "processed_name": "Table33",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 34/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 34/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 34/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 34/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 34/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 34/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 34/yoda1"
+      },
+      "description": "pT differential Kaonto-pion ratios as a function of spherocity within 0-10% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t34",
+      "id": 1671651,
+      "location": "Figures 16_Kaon over Pi",
+      "messages": false,
+      "name": "Table 34",
+      "processed_name": "Table34",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 35/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 35/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 35/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 35/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 35/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 35/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 35/yoda1"
+      },
+      "description": "pT differential K0to-pion ratios as a function of spherocity within 0-10% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t35",
+      "id": 1671652,
+      "location": "Figures 16_K0 over Pi",
+      "messages": false,
+      "name": "Table 35",
+      "processed_name": "Table35",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 36/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 36/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 36/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 36/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 36/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 36/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 36/yoda1"
+      },
+      "description": "pT differential Kstarto-pion ratios as a function of spherocity within 0-10% nTracklets.",
+      "doi": "10.17182/hepdata.153642.v1/t36",
+      "id": 1671653,
+      "location": "Figures 16_Kstar over Pi",
+      "messages": false,
+      "name": "Table 36",
+      "processed_name": "Table36",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 37/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 37/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 37/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 37/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 37/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 37/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 37/yoda1"
+      },
+      "description": "pT differential Phito-pion ratios as a function of spherocity within 0-1% V0M.",
+      "doi": "10.17182/hepdata.153642.v1/t37",
+      "id": 1671654,
+      "location": "Figures 17_Phi over Pi",
+      "messages": false,
+      "name": "Table 37",
+      "processed_name": "Table37",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 38/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 38/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 38/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 38/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 38/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 38/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 38/yoda1"
+      },
+      "description": "pT differential Protonto-pion ratios as a function of spherocity within 0-1% V0M.",
+      "doi": "10.17182/hepdata.153642.v1/t38",
+      "id": 1671655,
+      "location": "Figures 17_Proton over Pi",
+      "messages": false,
+      "name": "Table 38",
+      "processed_name": "Table38",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 39/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 39/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 39/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 39/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 39/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 39/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 39/yoda1"
+      },
+      "description": "pT differential Lambdato-pion ratios as a function of spherocity within 0-1% V0M.",
+      "doi": "10.17182/hepdata.153642.v1/t39",
+      "id": 1671656,
+      "location": "Figures 17_Lambda over Pi",
+      "messages": false,
+      "name": "Table 39",
+      "processed_name": "Table39",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 40/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 40/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 40/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 40/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 40/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 40/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 40/yoda1"
+      },
+      "description": "pT differential Xito-pion ratios as a function of spherocity within 0-1% V0M.",
+      "doi": "10.17182/hepdata.153642.v1/t40",
+      "id": 1671657,
+      "location": "Figures 17_Xi over Pi",
+      "messages": false,
+      "name": "Table 40",
+      "processed_name": "Table40",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 41/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 41/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 41/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 41/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 41/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 41/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 41/yoda1"
+      },
+      "description": "pT differential Kaonto-pion ratios as a function of spherocity within 0-1% V0M.",
+      "doi": "10.17182/hepdata.153642.v1/t41",
+      "id": 1671658,
+      "location": "Figures 17_Kaon over Pi",
+      "messages": false,
+      "name": "Table 41",
+      "processed_name": "Table41",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 42/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 42/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 42/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 42/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 42/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 42/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 42/yoda1"
+      },
+      "description": "pT differential K0to-pion ratios as a function of spherocity within 0-1% V0M.",
+      "doi": "10.17182/hepdata.153642.v1/t42",
+      "id": 1671659,
+      "location": "Figures 17_K0 over Pi",
+      "messages": false,
+      "name": "Table 42",
+      "processed_name": "Table42",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 43/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 43/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 43/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 43/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 43/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 43/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 43/yoda1"
+      },
+      "description": "pT differential Kstarto-pion ratios as a function of spherocity within 0-1% V0M.",
+      "doi": "10.17182/hepdata.153642.v1/t43",
+      "id": 1671660,
+      "location": "Figures 17_Kstar over Pi",
+      "messages": false,
+      "name": "Table 43",
+      "processed_name": "Table43",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 44/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 44/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 44/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 44/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 44/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 44/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 44/yoda1"
+      },
+      "description": "Integrated double-ratios as a function of spherocity within 0-10% nTracklets, only utilizing the measured pT range.",
+      "doi": "10.17182/hepdata.153642.v1/t44",
+      "id": 1671661,
+      "location": "Figure 18 and Figure 19 (for Phi/Pi ratio)",
+      "messages": false,
+      "name": "Table 44",
+      "processed_name": "Table44",
+      "resources": []
+    },
+    {
+      "data": {
+        "csv": "https://www.hepdata.net/download/table/ins2711421/Table 45/csv",
+        "json": "https://www.hepdata.net/download/table/ins2711421/Table 45/json",
+        "root": "https://www.hepdata.net/download/table/ins2711421/Table 45/root",
+        "yaml": "https://www.hepdata.net/download/table/ins2711421/Table 45/yaml",
+        "yoda": "https://www.hepdata.net/download/table/ins2711421/Table 45/yoda",
+        "yoda.h5": "https://www.hepdata.net/download/table/ins2711421/Table 45/yoda.h5",
+        "yoda1": "https://www.hepdata.net/download/table/ins2711421/Table 45/yoda1"
+      },
+      "description": "Integrated double-ratios as a function of spherocity within 0-1% V0M, only utilizing the measured pT range.",
+      "doi": "10.17182/hepdata.153642.v1/t45",
+      "id": 1671662,
+      "location": "Figure 18",
+      "messages": false,
+      "name": "Table 45",
+      "processed_name": "Table45",
+      "resources": []
+    }
+  ],
+  "mode": "record",
+  "overall_status": "finished",
+  "participant_count": 2,
+  "recid": 153642,
+  "record": {
+    "abstract": "Results on the transverse spherocity dependence of light-flavor particle production ($\\pi$, K, p, $\\phi$, ${\\rm K^{*0}}$, ${\\rm K}^{0}_{\\rm{S}}$, $\\Lambda$, $\\Xi$) at midrapidity in high-multiplicity pp collisions at $\\sqrt{s} = 13$ TeV were obtained with the ALICE apparatus. The transverse spherocity estimator ($S_{{\\rm O}}^{{\\it p}_{\\rm T}=1}$) categorizes events by their azimuthal topology. Utilizing narrow selections on $S_{\\text{O}}^{{\\it p}_{\\rm T}=1}$, it is possible to contrast particle production in collisions dominated by many soft initial interactions with that observed in collisions dominated by one or more hard scatterings. Results are reported for two multiplicity estimators covering different pseudorapidity regions. The $S_{{\\rm O}}^{{\\it p}_{\\rm T}=1}$ estimator is found to effectively constrain the hardness of the events when the midrapidity ($\\left | \\eta \\right |< 0.8$) estimator is used. The production rates of strange particles are found to be slightly higher for soft isotropic topologies, and severely suppressed in hard jet-like topologies. These effects are more pronounced for hadrons with larger mass and strangeness content, and observed when the topological selection is done within a narrow multiplicity interval. This demonstrates that an important aspect of the universal scaling of strangeness enhancement with final-state multiplicity is that high-multiplicity collisions are dominated by soft, isotropic processes. On the contrary, strangeness production in events with jet-like processes is significantly reduced. The results presented in this article are compared with several QCD-inspired Monte Carlo event generators. Models that incorporate a two-component phenomenology, either through mechanisms accounting for string density, or thermal production, are able to describe the observed strangeness enhancement as a function of $S_{{\\rm O}}^{{\\it p}_{\\rm T}=1}$.",
+    "access_urls": {
+      "links": {
+        "csv": "https://www.hepdata.net/download/submission/ins2711421/1/csv",
+        "json": "https://www.hepdata.net/download/submission/ins2711421/1/json",
+        "root": "https://www.hepdata.net/download/submission/ins2711421/1/root",
+        "yaml": "https://www.hepdata.net/download/submission/ins2711421/1/yaml",
+        "yoda": "https://www.hepdata.net/download/submission/ins2711421/1/yoda",
+        "yoda-h5": "https://www.hepdata.net/download/submission/ins2711421/1/yoda.h5"
+      }
+    },
+    "analyses": [],
+    "arxiv_id": "arXiv:2310.10236",
+    "collaborations": [
+      "ALICE"
+    ],
+    "control_number": "153642",
+    "creation_date": "2023-10-16",
+    "data_abstract": "",
+    "data_keywords": {
+      "cmenergies": []
+    },
+    "doc_type": "publication",
+    "doi": "10.1007/JHEP05(2024)184",
+    "first_author": {
+      "affiliation": "Clermont-Ferrand U.",
+      "full_name": "Acharya, Shreyasi"
+    },
+    "hepdata_doi": "10.17182/hepdata.153642.v1",
+    "id": 153642,
+    "inspire_id": "2711421",
+    "journal_info": "JHEP 05 (2024) 184",
+    "keywords": [
+      {
+        "source": "author",
+        "value": "Hadron-Hadron Scattering"
+      },
+      {
+        "source": "author",
+        "value": "Particle and Resonance Production"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "p p: colliding beams"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "strangeness: enhancement"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "p p: scattering"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "pi"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "K"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "p"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "Phi(1020)"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "K*(892)0"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "K0(S)"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "Lambda"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "Xi"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "final state: multiplicity"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "production: thermal"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "strangeness: production"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "string: density"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "rapidity: difference"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "rapidity dependence"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "strangeness: parton"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "estimator"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "transverse"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "topology"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "numerical calculations: Monte Carlo"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "scaling"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "strange particle"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "ALICE"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "CERN LHC Coll"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "topological"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "hard scattering"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "suppression"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "data analysis method"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "experimental results"
+      },
+      {
+        "schema": "INSPIRE",
+        "value": "13000 GeV-cms"
+      }
+    ],
+    "last_updated": "Tue, 30 Jul 2024 08:38:48 GMT",
+    "parent_child_join": {
+      "name": "parent_publication"
+    },
+    "publication_date": "2024-06-18T00:00:00",
+    "recid": 153642,
+    "resources": [
+      {
+        "description": "Created with hepdata_lib 0.15.0",
+        "type": "zenodo",
+        "url": "https://doi.org/10.5281/zenodo.1217998"
+      }
+    ],
+    "subject_area": [
+      "hep-ex",
+      "nucl-ex"
+    ],
+    "summary_authors": [
+      {
+        "affiliation": "Clermont-Ferrand U.",
+        "full_name": "Acharya, Shreyasi"
+      },
+      {
+        "affiliation": "Rez, Nucl. Phys. Inst.",
+        "full_name": "Adamova, Dagmar"
+      },
+      {
+        "affiliation": "CERN",
+        "full_name": "Aglieri Rinella, Gianluca"
+      },
+      {
+        "affiliation": "Turin Polytechnic",
+        "full_name": "Agnello, Michelangelo"
+      },
+      {
+        "affiliation": "INFN, Bologna",
+        "full_name": "Agrawal, Neelima"
+      },
+      {
+        "affiliation": "Calcutta, VECC",
+        "full_name": "Ahammed, Zubayer"
+      },
+      {
+        "affiliation": "Aligarh Muslim U.",
+        "full_name": "Ahmad, Shakeel"
+      },
+      {
+        "affiliation": "KISTI, Daejeon",
+        "full_name": "Ahn, Sang Un"
+      },
+      {
+        "affiliation": "Kosice U.",
+        "full_name": "Ahuja, Ishaan"
+      },
+      {
+        "affiliation": "Unlisted",
+        "full_name": "Akindinov, Alexander"
+      }
+    ],
+    "title": "Light-flavor particle production in high-multiplicity pp collisions at $\\mathbf{\\sqrt{\\textit{s}} = 13}$ TeV as a function of transverse spherocity",
+    "type": [
+      "article"
+    ],
+    "uuid": "75b53ae8-7487-41b7-98d4-550778450bce",
+    "version": 1,
+    "year": "2024"
+  },
+  "record_type": "publication",
+  "related_recids": [],
+  "related_to_this_recids": [],
+  "resources_with_doi": [],
+  "reviewers_notified": true,
+  "site_url": "https://www.hepdata.net",
+  "status": "finished",
+  "table_id_to_show": 1671618,
+  "table_name_to_show": "Table 1",
+  "version": 1,
+  "version_count": 1,
+  "watched": false
+}

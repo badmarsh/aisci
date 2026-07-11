@@ -208,8 +208,11 @@ def fit_bin(
 
         if best is None or (result["success"] and not best["success"]):
             best = result
+            if result["success"]:
+                best["minuit_obj"] = m
         elif result["success"] == best["success"] and result["chi2"] < best.get("chi2", math.inf):
             best = result
+            best["minuit_obj"] = m
 
     if best is None:
         return {"success": False, "error": "no convergent seed"}
@@ -294,6 +297,8 @@ def parse_args() -> argparse.Namespace:
                    help="Particle mass [GeV] (default: pion mass 0.13957)")
     p.add_argument("--cov-mode", choices=["diag", "correlated"], default="diag",
                    help="Covariance mode: diag=diagonal χ², correlated=GLS envelope (C3)")
+    p.add_argument("--contours", action="store_true",
+                   help="Generate MINOS contours (slow)")
     p.add_argument("--xi", type=float, default=1.0,
                    help="Correlation length for correlated mode (default: 1.0)")
     return p.parse_args()
@@ -309,6 +314,12 @@ def main() -> None:
 
     bins = sorted(df["manuscript_bin"].dropna().unique(), key=lambda b: int(str(b).split("-")[0]))
     print(f"Found {len(bins)} multiplicity bins: {bins}")
+
+    fig_contour, ax_contour = None, None
+    colors = []
+    if _HAS_MPL:
+        fig_contour, ax_contour = plt.subplots(figsize=(8, 6))
+        colors = plt.cm.viridis(np.linspace(0, 1, len(bins)))
 
     all_results: list[dict[str, Any]] = []
     csv_path = run_dir / "fit_results.csv"
@@ -355,9 +366,34 @@ def main() -> None:
                 run_dir / f"fit_bin_{bin_label.replace('-', '_')}.png",
                 pt, y, err, result, bin_label, args.mass_gev,
             )
+            
+            # MINOS Contour Plot
+            if args.contours and _HAS_MPL and ax_contour is not None and "minuit_obj" in result:
+                m_best = result["minuit_obj"]
+                color = colors[bins.index(bin_label)]
+                try:
+                    pts_68 = m_best.mncontour("temperature", "beta_s", cl=0.68, size=15)
+                    ax_contour.plot(pts_68[:, 0], pts_68[:, 1], "-", color=color, label=f"Bin {bin_label}")
+                    pts_95 = m_best.mncontour("temperature", "beta_s", cl=0.95, size=15)
+                    ax_contour.plot(pts_95[:, 0], pts_95[:, 1], "--", color=color, alpha=0.7)
+                except Exception as e:
+                    print(f"\n  [Warning] MINOS contour failed for bin {bin_label}: {e}")
+                    
+            # Remove minuit obj so it doesn't break JSON serialization later
+            result.pop("minuit_obj", None)
 
     # CSV was written incrementally per bin above
     print(f"\nResults written to {csv_path}")
+
+    if args.contours and fig_contour is not None and ax_contour is not None:
+        ax_contour.set_xlabel("T_kin [GeV]")
+        ax_contour.set_ylabel("beta_s")
+        ax_contour.set_title("BGBW Profile Likelihood Contours (T_kin vs beta_s)")
+        ax_contour.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8)
+        fig_contour.tight_layout()
+        fig_contour.savefig(run_dir / "bgbw_contours.png", dpi=120)
+        plt.close(fig_contour)
+        print(f"MINOS contour plot written to {run_dir / 'bgbw_contours.png'}")
 
     # Write JSON summary
     summary = {

@@ -26,8 +26,7 @@ import pandas as pd
 import requests
 
 
-HEPDATA_RECORD_ID = "ins1419652"
-HEPDATA_RECORD_URL = f"https://www.hepdata.net/record/{HEPDATA_RECORD_ID}?format=json"
+HEPDATA_RECORD_ID = "ins1419652" # Default
 MANUSCRIPT_MULTIPLICITY_BINS = [
     (21, 30),
     (31, 40),
@@ -68,6 +67,12 @@ def parse_args() -> argparse.Namespace:
         help="Run directory under research/robert/runs/YYYY-MM-DD-baseline-fit",
     )
     parser.add_argument(
+        "--record-id",
+        type=str,
+        default=HEPDATA_RECORD_ID,
+        help="HEPData record ID (e.g. ins1419652)",
+    )
+    parser.add_argument(
         "--timeout-seconds",
         type=float,
         default=30.0,
@@ -81,7 +86,7 @@ def request_json(url: str, timeout_seconds: float) -> dict[str, Any]:
     last_exc: Exception | None = None
     for attempt in range(3):
         try:
-            response = requests.get(url, timeout=timeout_seconds)
+            response = requests.get(url, timeout=timeout_seconds, headers={'User-Agent': 'Mozilla/5.0'})
             response.raise_for_status()
             return response.json()
         except requests.RequestException as exc:
@@ -239,7 +244,7 @@ def extract_pt_rows(metadata: TableMetadata, table_json: dict[str, Any]) -> list
 
             rows.append(
                 {
-                    "source_record": HEPDATA_RECORD_ID,
+                    "source_record": getattr(metadata, "record_id", HEPDATA_RECORD_ID),
                     "source_table": metadata.table_name,
                     "source_table_doi": metadata.table_doi,
                     "source_location": metadata.location,
@@ -286,6 +291,7 @@ def manuscript_bin_labels() -> list[str]:
 def validate_mapping(
     table_metadata: list[TableMetadata],
     table_payloads: dict[str, dict[str, Any]],
+    record_id: str,
 ) -> dict[str, Any]:
     manuscript_labels = manuscript_bin_labels()
     pt_tables = [metadata for metadata in table_metadata if metadata.observable_kind == "pt_spectrum"]
@@ -355,7 +361,7 @@ def validate_mapping(
         )
 
     return {
-        "record_id": HEPDATA_RECORD_ID,
+        "record_id": record_id,
         "manuscript_multiplicity_bins": manuscript_labels,
         "pt_spectrum_tables": pt_table_summary,
         "multiplicity_distribution_tables": multiplicity_row_coverage,
@@ -373,7 +379,8 @@ def main() -> int:
     args = parse_args()
     args.run_dir.mkdir(parents=True, exist_ok=True)
 
-    record_json = request_json(HEPDATA_RECORD_URL, args.timeout_seconds)
+    record_url = f"https://www.hepdata.net/record/{args.record_id}?format=json"
+    record_json = request_json(record_url, args.timeout_seconds)
     table_payloads: dict[str, dict[str, Any]] = {}
     table_metadata: list[TableMetadata] = []
     pt_rows: list[dict[str, Any]] = []
@@ -389,7 +396,7 @@ def main() -> int:
     table_index_df = pd.DataFrame(
         [
             {
-                "source_record": HEPDATA_RECORD_ID,
+                "source_record": args.record_id,
                 "table_name": metadata.table_name,
                 "table_doi": metadata.table_doi,
                 "location": metadata.location,
@@ -412,9 +419,9 @@ def main() -> int:
     canonical_pt_df = (_raw.sort_values(["source_table", "row_index"], kind="stable")
                        if not _raw.empty else _raw)
 
-    mapping_validation = validate_mapping(table_metadata, table_payloads)
+    mapping_validation = validate_mapping(table_metadata, table_payloads, args.record_id)
 
-    write_json(args.run_dir / "hepdata_record_ins1419652.json", record_json)
+    write_json(args.run_dir / f"hepdata_record_{args.record_id}.json", record_json)
     write_json(args.run_dir / "hepdata_mapping_validation.json", mapping_validation)
     table_index_df.to_csv(args.run_dir / "hepdata_table_index.csv", index=False)
     canonical_pt_df.to_csv(args.run_dir / "hepdata_pt_spectra.csv", index=False)
@@ -430,12 +437,12 @@ def main() -> int:
         fit_ready_df.to_csv(args.run_dir / "fit_input.csv", index=False)
 
     summary = {
-        "record_id": HEPDATA_RECORD_ID,
+        "record_id": args.record_id,
         "table_count": len(table_metadata),
         "pt_spectrum_rows": len(canonical_pt_df),
         "fit_ready": bool(mapping_validation["fit_ready"] or _col_bin_ready),
         "artifacts": [
-            "hepdata_record_ins1419652.json",
+            f"hepdata_record_{args.record_id}.json",
             "hepdata_table_index.csv",
             "hepdata_pt_spectra.csv",
             "hepdata_mapping_validation.json",
