@@ -979,7 +979,7 @@ def run_all_fits(
     xi: float = 1.0,
 ) -> dict:
     """
-    Callable entry point for physics/cli.py and DeerFlow tool integration.
+    Callable entry point for physics/cli.py.
 
     Parameters
     ----------

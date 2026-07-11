@@ -13,7 +13,7 @@ def get_latest_run_dir():
 def test_latest_run_fit_quality():
     """
     Validates that the latest run contains at least some models with acceptable chi2/ndf.
-    Replaces the previous DeerFlow runtime gating by running as a post-fit CI check.
+    Runs as a post-fit CI check to enforce quality gating.
     """
     run_dir = os.environ.get('FIT_RUN_DIR', get_latest_run_dir())
     if not run_dir or not os.path.isdir(run_dir):

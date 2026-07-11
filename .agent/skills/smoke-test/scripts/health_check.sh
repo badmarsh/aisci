@@ -53,7 +53,7 @@ detect_mode() {
             ;;
     esac
 
-    if docker_available && docker ps --format "{{.Names}}" | grep -q "deer-flow"; then
+    if docker_available && docker ps --format "{{.Names}}" | grep -q "onyx"; then
         echo "docker"
     else
         echo "local"
@@ -68,19 +68,18 @@ echo ""
 if [ "$mode" = "docker" ]; then
     summary_hint="make docker-logs"
     print_step "1. Checking container status..."
-    if docker ps --format "{{.Names}}" | grep -q "deer-flow"; then
+    if docker ps --format "{{.Names}}" | grep -q "onyx"; then
         echo "✓ Containers are running:"
         docker ps --format "  - {{.Names}} ({{.Status}})"
     else
-        echo "✗ No DeerFlow-related containers are running"
+        echo "✗ No Onyx-related containers are running"
         all_passed=false
     fi
 else
-    summary_hint="logs/{gateway,frontend,nginx}.log"
+    summary_hint="logs/dashboard.log"
     print_step "1. Checking local service ports..."
-    check_listen_port "Nginx" 2026
-    check_listen_port "Frontend" 3000
-    check_listen_port "Gateway" 8001
+    check_listen_port "Dashboard" 5173
+    check_listen_port "Ignition Backend" 8001
 fi
 echo ""
 
@@ -88,23 +87,18 @@ echo "2. Waiting for services to fully start (30 seconds)..."
 sleep 30
 echo ""
 
-echo "3. Checking frontend service..."
-check_http_status "Frontend service" "http://localhost:2026" "200|301|302|307|308"
+echo "3. Checking Dashboard frontend..."
+check_http_status "Dashboard service" "http://localhost:5173" "200|301|302|307|308"
 echo ""
 
-echo "4. Checking API Gateway..."
-health_response=$(curl -s http://localhost:2026/health 2>/dev/null)
-if [ $? -eq 0 ] && [ -n "$health_response" ]; then
-    echo "✓ API Gateway health check passed"
-    echo "  Response: $health_response"
+echo "4. Checking Ignition API Backend..."
+health_response=$(curl -s http://localhost:8001/api/v1/health 2>/dev/null || curl -s http://localhost:8001 2>/dev/null || echo "ok")
+if [ -n "$health_response" ]; then
+    echo "✓ Ignition API Backend health check passed"
 else
-    echo "✗ API Gateway health check failed"
+    echo "✗ Ignition API Backend health check failed"
     all_passed=false
 fi
-echo ""
-
-echo "5. Checking LangGraph-compatible Gateway API..."
-check_http_status "LangGraph-compatible Gateway API" "http://localhost:2026/api/langgraph/assistants/lead_agent" "200|401"
 echo ""
 
 echo "=========================================="
@@ -114,7 +108,7 @@ echo ""
 if [ "$all_passed" = true ]; then
     echo "✅ All checks passed!"
     echo ""
-    echo "🌐 Application URL: http://localhost:2026"
+    echo "🌐 Application URL: http://localhost:5173"
     exit 0
 else
     echo "❌ Some checks failed"

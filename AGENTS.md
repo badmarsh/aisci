@@ -102,7 +102,7 @@ Before executing any large task, agents must perform a repository health check a
 When creating GitHub Issues to capture research, decisions, or bugs, always structure them properly:
 - **Use Templates**: Utilize the templates in `.github/ISSUE_TEMPLATE/` (`research.md`, `decision.md`, `bug.md`).
 - **Use Domain Tags**: Apply relevant domain labels (e.g., `physics`, `fitting`).
-- **Use Source Tags**: Apply source labels if the info came from an external tool or agent (e.g., `from-perplexity`, `from-onyx`, `from-deerflow`, `from-claude-code`).
+- **Use Source Tags**: Apply source labels if the info came from an external tool or agent (e.g., `from-perplexity`, `from-onyx`, `from-claude-code`).
 - **Link the Graph**: Proactively link related issues using `AIS-XXX` notation to build a searchable knowledge graph.
 - **Keep GitHub Clean**: In PR descriptions, do not duplicate context. Provide a high-level summary and link to the relevant Issue for the full "why" and "how".
 

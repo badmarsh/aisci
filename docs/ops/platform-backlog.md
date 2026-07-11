@@ -121,10 +121,10 @@ Use this file for concise operational state on Onyx, DeerFlow, MCP, Docker, mode
 
 ## Operational Guardrails
 
-- [ ] Add an Onyx grounding-check gate so DeerFlow agents must retrieve a matching Onyx chunk before writing any formula or parameter claim to `research/robert/evidence-ledger.md`.
+- [ ] Add an Onyx grounding-check gate so agents must retrieve a matching Onyx chunk before writing any formula or parameter claim to `research/robert/evidence-ledger.md`.
 - [ ] Implement content-hash signed run artifacts so `reproducible-physics-runner` emits JSON with SHA256 of fit inputs and outputs, and `science-ledger-manager` links to the hash rather than an LLM summary.
-- [ ] Wire arXiv REST API and INSPIRE-HEP as DeerFlow gateway tools after auth hardening. **Partial**: arXiv API integration done for Onyx (`deployment/onyx/arxiv_api_ingest.py`). INSPIRE-HEP API and DeerFlow gateway integration still pending.
-- [ ] Add a model-selection-check sub-task to the DeerFlow physics agent so it computes AIC, BIC, and chi-squared per dof for every active model variant after each fit run.
+- [ ] Wire arXiv REST API and INSPIRE-HEP as standard MCP tools after auth hardening. **Partial**: arXiv API integration done for Onyx (`deployment/onyx/arxiv_api_ingest.py`). INSPIRE-HEP API MCP integration still pending.
+- [ ] Add a model-selection-check sub-task to the physics agent so it computes AIC, BIC, and chi-squared per dof for every active model variant after each fit run.
 - [ ] Encode pT gate values as versioned `research/robert/config/ptgates.json`, and require `reproducible-physics-runner` to load and record the applied gate values in each run artifact header.
 - [ ] Use physics_env: Use the existing virtual environment in `physics/physics_env` which already has `matplotlib` 3.10.9 and other dependencies installed.
 - [ ] Move DashScope API key out of `config.yaml` into `.env` as `$DASHSCOPE_API_KEY` (see security hygiene row above).

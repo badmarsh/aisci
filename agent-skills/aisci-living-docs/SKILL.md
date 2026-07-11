@@ -1,6 +1,6 @@
 ---
 name: aisci-living-docs
-description: Scan the entire AiSci codebase to understand its current real state, then add, update, or archive documentation so that three audiences always have accurate information: the coding agents manager (ops/platform), Robert the researcher (science workflow), and any new agent reading the repo for the first time. Optionally drafts a DeerFlow deep-research run to cross-check platform status against running services.
+description: Scan the entire AiSci codebase to understand its current real state, then add, update, or archive documentation so that three audiences always have accurate information: the coding agents manager (ops/platform), Robert the researcher (science workflow), and any new agent reading the repo for the first time.
 ---
 
 # AiSci Living Docs
@@ -132,25 +132,6 @@ Check each declared section against what you found in §1–§6:
 
 ---
 
-## DeerFlow Integration (Optional)
-
-When the platform scan reveals service status that cannot be confirmed from
-static files alone (e.g., whether Onyx is reachable, whether Ollama has models
-loaded, whether LiteLLM routes are healthy), you may request a DeerFlow
-deep-research pass:
-
-1. Draft a DeerFlow task prompt that asks for:
-   - Live `docker ps` output for the aisci stack
-   - `ollama list` output
-   - A single RAG query to Onyx to confirm the persona is responding
-   - `curl` of each MCP proxy route listed in `mcp-endpoints.md`
-2. Present the draft to the user for approval before submitting.
-3. Use the DeerFlow output to update `docs/ops/mcp-endpoints.md` status
-   cells and any open `platform-backlog.md` rows that are now confirmed done.
-4. Do not use DeerFlow to make or verify science claims.
-
----
-
 ## Workflow
 
 1. Read all files in **Read First** and complete **Scan Checklist §1–§6**.
@@ -162,9 +143,8 @@ deep-research pass:
 4. Present the full drift report to the user.
 5. For each accepted fix: edit the target file with the minimum necessary change.
 6. For each rejected fix: note it as a known drift item in `docs/ops/platform-backlog.md`.
-7. If DeerFlow live verification is warranted, draft the task prompt and ask for approval.
-8. After all edits, confirm which files were changed and which were accurate.
-9. Close with `analysis-handoff-router`: implement remaining fixes now,
+7. After all edits, confirm which files were changed and which were accurate.
+8. Close with `analysis-handoff-router`: implement remaining fixes now,
    persist to backlog, or write a next-session prompt.
 
 ---

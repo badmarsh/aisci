@@ -13,7 +13,6 @@
 |--------|--------|----------|-------|
 | **AiSci Dashboard** | ✅ Operational | Frontend (Vite) + Backend (FastAPI) | Actively developed as part of this repository. Accessible via `start_dashboard.sh`. |
 | **Onyx** | ✅ Operational | 18/18 running | All fixes applied, embeddings working |
-| **DeerFlow** | ✅ Running | 3/3 edge services running | UI reachable; end-to-end tool execution still needs focused test |
 
 ---
 
@@ -121,33 +120,6 @@ OpenSearch: 9 active shards, 1,988 documents
 
 ---
 
-## 🦌 DeerFlow Deployment Status
-
-### Service Health (RUNNING)
-
-```bash
-Status: ✅ RUNNING
-Verified: 2026-05-30
-Host URL: http://localhost:2026
-Services: deer-flow-nginx, deer-flow-gateway, deer-flow-frontend
-Network: deer-flow-gateway joins both deer-flow-dev_deer-flow-dev and onyx_default
-```
-
-### Known Issues (from HANDOFF.md 2026-05-20)
-
-1. **Model Configuration** - Was using gemini-2.5-flash
-2. **MCP Transport** - Scite/Consensus HTTP transport issues
-3. **Sandbox Mounting** - Fixed per handoff
-4. **File Permissions** - Fixed per handoff
-
-### Action Required
-
-- [ ] Test authenticated DeerFlow UI/API workflow execution
-- [ ] Test DeerFlow-Onyx MCP/tool integration from the DeerFlow client
-- [ ] Keep Scite/Consensus OAuth tokens out of docs and logs
-
----
-
 ## 🔗 Port Mappings (Canonical)
 
 ### Onyx Services
@@ -158,12 +130,6 @@ MCP Proxy:        http://localhost:8095
 Unstructured:     http://localhost:8000
 Image Bridge:     http://localhost:8090
 Ollama:           http://localhost:11434
-```
-
-### DeerFlow Services
-```
-Web Interface:    http://localhost:2026
-API:              http://localhost:2026/api
 ```
 
 ### AiSci Dashboard Services
@@ -196,7 +162,6 @@ Backend API:      http://localhost:8001
 
 ### Handoffs
 - **Current handoff:** `HANDOFF.md` (updated 2026-05-30)
-- **DeerFlow audit:** `HANDOFF.md` (original 2026-05-20)
 
 ---
 
@@ -206,7 +171,6 @@ Backend API:      http://localhost:8001
 1. **API Key Rotation Required** - Keys exposed in git history (see GitHub Issues)
 
 ### P1 - Important
-1. **DeerFlow MCP/tool execution not yet re-tested end to end** - Runtime is up, but authenticated tool execution still needs a focused check
 2. **qwen-max Quota Exhausted** - Free tier depleted, using qwen-omni-flash instead
 3. **local-context-model Slow** - 24s first load (then 2-3s cached)
 
@@ -229,24 +193,19 @@ Backend API:      http://localhost:8001
 
 ### 2026-05-20
 - ✅ Onyx v4 beta transition completed
-- ✅ DeerFlow audit completed (see HANDOFF.md)
-- ⚠️ DeerFlow issues identified
 
 ---
 
 ## 🎯 Next Actions
 
 ### Immediate (This Session)
-1. [ ] Test DeerFlow-Onyx MCP/tool integration from an authenticated DeerFlow session
-2. [ ] Rotate exposed API keys
+1. [ ] Rotate exposed API keys
 
 ### Soon (Next Session)
-1. [ ] Add a short authenticated DeerFlow smoke-test command or checklist
-2. [ ] Enable paid tier for qwen-max or remove it from the active route set
+1. [ ] Enable paid tier for qwen-max or remove it from the active route set
 
 ### Eventually
 1. [ ] Add HF_TOKEN for faster model downloads
-2. [ ] Document DeerFlow startup procedure in the existing deployment reference
 
 ---
 

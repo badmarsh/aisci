@@ -1,6 +1,6 @@
 ---
 name: aisci-ops-auditor
-description: Audit the technical architecture and operations of AiSci, including Onyx, DeerFlow, MCP, Docker, LiteLLM, models, paths, deployment docs, and security-sensitive config. Use for full structured audits with a findings table output — not for single-task session kickoff.
+description: Audit the technical architecture and operations of AiSci, including Onyx, MCP, Docker, LiteLLM, models, paths, deployment docs, and security-sensitive config. Use for full structured audits with a findings table output — not for single-task session kickoff.
 ---
 
 # AiSci Ops Auditor
@@ -16,7 +16,7 @@ Use this for architecture, platform, or operations analysis.
 - `docs/ops/platform-backlog.md`
 - Relevant `docs/ops/*.md`
 - `docs/decisions/*.md`
-- Relevant files under `deployment/onyx/` and `deployment/deer-flow/`
+- Relevant files under `deployment/onyx/`
 
 ## Rules
 
@@ -30,7 +30,7 @@ Use this for architecture, platform, or operations analysis.
 ## Workflow
 
 1. Read `AGENTS.md` and the canonical ops files listed in **Read First**.
-2. Inspect relevant deployment files under `deployment/onyx/` and `deployment/deer-flow/`.
+2. Inspect relevant deployment files under `deployment/onyx/`.
 3. Cross-reference running container labels and compose files for path and model drift.
 4. Identify each finding with: severity, evidence file path and line where possible, impact, and suggested next action.
 5. Classify each action as: safe to implement now, needs user approval, or out of scope (refer to `secret-config-auditor`).

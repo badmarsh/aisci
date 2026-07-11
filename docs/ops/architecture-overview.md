@@ -12,22 +12,22 @@ For operational status and open work, see GitHub Issues. For deployment shape an
 ┌─────────────────────────────────────────────────────────────────────┐
 │  User / Agent                                                        │
 │  Browser → http://localhost:3000 (Onyx)                             │
-│  Browser → http://localhost:2026 (DeerFlow)                         │
+│  Browser → http://localhost:5173 (AiSci Dashboard)                  │
 └────────────────┬────────────────────────────────────────────────────┘
                  │
     ┌────────────▼────────────┐      ┌──────────────────────────────┐
-    │  Onyx Stack             │      │  DeerFlow Stack              │
-    │  (deployment/onyx/)     │      │  (deployment/deer-flow/)     │
-    │                         │      │                              │
-    │  onyx-nginx :80/:3000   │      │  deer-flow-nginx :2026       │
-    │  onyx-web-server        │      │  deer-flow-frontend :3000    │
-    │  onyx-api-server :8080  │◄─────│  deer-flow-gateway :8001     │
-    │  onyx-background        │      │  (LangGraph runtime)         │
-    │  onyx-mcp-server :3000  │      └──────────────┬───────────────┘
-    │  onyx-mcp-proxy :80     │◄────────────────────┘
-    │    (127.0.0.1:8095)     │      DeerFlow reaches MCP internally
-    └────────────┬────────────┘      via http://onyx-mcp-proxy:80/
-                 │                   on the shared onyx_default network
+    │  Onyx Stack             │      │  AiSci Core                  │
+    │  (deployment/onyx/)     │      │                              │
+    │                         │      │  AiSci Dashboard :5173       │
+    │  onyx-nginx :80/:3000   │      │  Ignition Engine :8001       │
+    │  onyx-web-server        │◄─────│  (FastAPI + Physics)         │
+    │  onyx-api-server :8080  │      │                              │
+    │  onyx-background        │      └──────────────┬───────────────┘
+    │  onyx-mcp-server :3000  │      AiSci reaches MCP via
+    │  onyx-mcp-proxy :80     │◄──── 127.0.0.1:8095
+    │    (127.0.0.1:8095)     │      
+    └────────────┬────────────┘      
+                 │                   
     ┌────────────▼────────────┐
     │  Storage & Search       │
     │  onyx-opensearch :9200  │  Dense vector retrieval (Alibaba/1536)
@@ -77,36 +77,6 @@ For operational status and open work, see GitHub Issues. For deployment shape an
 
 ---
 
-## DeerFlow
-
-**Role:** Multi-agent orchestration. LangGraph-based lead agent with subagents, sandbox execution, MCP tools, and skills.
-
-**Key components:**
-
-| Container | Role |
-|---|---|
-| `deer-flow-gateway` | FastAPI + LangGraph runtime, REST API on :8001 |
-| `deer-flow-frontend` | Next.js chat UI on :3000 |
-| `deer-flow-nginx` | Reverse proxy, exposes :2026 to host |
-
-**Networks:** `deer-flow-gateway` is attached to both `deer-flow-dev_deer-flow-dev` and `onyx_default`. This is what allows it to reach `onyx-mcp-proxy` and `onyx-api-server` by container name.
-
-**Config:** `deployment/deer-flow/config.yaml` (gitignored). See `deployment/deer-flow/README-local-patches.md` for required local patches.
-
----
-
-## Onyx–DeerFlow Bridge
-
-DeerFlow agents access Onyx knowledge via two paths:
-
-1. **MCP (primary):** `deer-flow-gateway` → `http://onyx-mcp-proxy:80/onyx/` → `onyx-mcp-server` → `onyx-api-server`. Configured in `deployment/deer-flow/extensions_config.json` (gitignored; see `extensions_config.example.json`).
-
-2. **Direct REST (secondary):** `deerflow.community.onyx.tools:onyx_search_tool` calls `onyx-api-server:8080` directly using `ONYX_API_KEY`. Configured in `deployment/deer-flow/config.yaml` under `tools`.
-
-**Renaming any container or network requires updating both `extensions_config.json` and `config.yaml`.**
-
----
-
 ## MCP Proxy
 
 `onyx-mcp-proxy` is an nginx container that routes MCP protocol calls:
@@ -137,9 +107,7 @@ Routes all LLM calls for both Onyx and DeerFlow. Config: `deployment/onyx/onyx-l
 | `nvidia-balanced` | llama-3.3-70b-instruct | NVIDIA NIM |
 | `local-chat` | qwen2.5:latest | Ollama |
 
-**DeerFlow** uses its own model list in `config.yaml` pointing at OpenRouter and NVIDIA directly (not via LiteLLM).
 
----
 
 ## Data Flow: RAG Query
 
@@ -164,9 +132,7 @@ User message
 | `deployment/onyx/onyx-litellm_config.yaml` | LiteLLM model routing |
 | `deployment/onyx/monitoring/check_health.sh` | Runtime health checks |
 | `deployment/onyx/preflight_check.sh` | Pre-reindex safety gate |
-| `deployment/deer-flow/config.yaml` | DeerFlow agent config (gitignored) |
-| `deployment/deer-flow/README-local-patches.md` | Required local patches |
-| `deployment/deer-flow/apply_local_patches.sh` | Patch verification script |
+
 | `deployment/helper/onyx_opensearch_cutover.py` | OpenSearch parity gate |
 | `docs/ops/deployment-reference.md` | Live service URLs and layout |
 | GitHub Issues | Active tasks and operational work |
