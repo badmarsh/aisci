@@ -8,13 +8,18 @@ export async function fetchLiterature() {
 
 import type { Anomaly } from "./types";
 
-export async function fetchAnomalies(run?: string, chi2Critical = 200.0, chi2Warning = 10.0, rhoWarning = 0.95): Promise<Anomaly[]> {
+export async function fetchAnomalies(
+  run?: string,
+  chi2Critical = 200.0,
+  chi2Warning = 10.0,
+  rhoWarning = 0.95,
+): Promise<Anomaly[]> {
   const params = new URLSearchParams();
   if (run) params.set("run", run);
   params.set("chi2_critical", chi2Critical.toString());
   params.set("chi2_warning", chi2Warning.toString());
   params.set("rho_warning", rhoWarning.toString());
-  
+
   const url = `${API_URL}/anomalies?${params.toString()}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch anomalies");

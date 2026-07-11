@@ -18,7 +18,8 @@ export const Route = createFileRoute("/agents")({
       { title: "Agents — AiSci" },
       {
         name: "description",
-        content: "Active agent sessions running the AiSci autonomous research pipeline with live logs.",
+        content:
+          "Active agent sessions running the AiSci autonomous research pipeline with live logs.",
       },
     ],
   }),
@@ -34,7 +35,11 @@ const statusStyles: Record<Agent["status"], string> = {
 function AgentsPage() {
   const [open, setOpen] = useState<Agent | null>(null);
 
-  const { data: agents = [], isLoading, isError } = useQuery({
+  const {
+    data: agents = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["agents"],
     queryFn: fetchAgents,
   });
@@ -67,7 +72,9 @@ function AgentsPage() {
                     {a.status === "ACTIVE" && (
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-brand opacity-60" />
                     )}
-                    <span className={`relative inline-flex h-2 w-2 rounded-full ${statusStyles[a.status]}`} />
+                    <span
+                      className={`relative inline-flex h-2 w-2 rounded-full ${statusStyles[a.status]}`}
+                    />
                   </span>
                   {a.name}
                 </CardTitle>
@@ -117,7 +124,14 @@ function AgentsPage() {
           <ScrollArea className="h-[400px] rounded-md border border-border bg-zinc-100 dark:bg-black/95 p-3">
             <pre className="font-mono text-[11px] leading-relaxed">
               {open?.log.map((line, i) => (
-                <div key={i} className={line.toLowerCase().includes("error") ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}>
+                <div
+                  key={i}
+                  className={
+                    line.toLowerCase().includes("error")
+                      ? "text-rose-600 dark:text-rose-400"
+                      : "text-emerald-600 dark:text-emerald-400"
+                  }
+                >
                   {line}
                 </div>
               ))}

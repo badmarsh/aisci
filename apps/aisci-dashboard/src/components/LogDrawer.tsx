@@ -1,8 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
-export function LogDrawer({ target, onClose }: { target: "ingest" | "fits" | null; onClose: () => void }) {
+export function LogDrawer({
+  target,
+  onClose,
+}: {
+  target: "ingest" | "fits" | null;
+  onClose: () => void;
+}) {
   const [lines, setLines] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const scrollRef = useRef<HTMLPreElement>(null);
@@ -52,8 +64,10 @@ export function LogDrawer({ target, onClose }: { target: "ingest" | "fits" | nul
 
   const getLineColor = (line: string) => {
     const l = line.toLowerCase();
-    if (l.includes("error") || l.includes("fail") || l.includes("traceback")) return "text-rose-600 dark:text-rose-400";
-    if (l.includes("success") || l.includes("done") || l.includes("complete")) return "text-emerald-600 dark:text-emerald-400";
+    if (l.includes("error") || l.includes("fail") || l.includes("traceback"))
+      return "text-rose-600 dark:text-rose-400";
+    if (l.includes("success") || l.includes("done") || l.includes("complete"))
+      return "text-emerald-600 dark:text-emerald-400";
     return "text-zinc-600 dark:text-zinc-400";
   };
 
@@ -69,12 +83,10 @@ export function LogDrawer({ target, onClose }: { target: "ingest" | "fits" | nul
               <CheckCircle2 className="h-4 w-4 text-emerald-brand" />
             )}
           </SheetTitle>
-          <SheetDescription>
-            Live stream from {target}.log
-          </SheetDescription>
+          <SheetDescription>Live stream from {target}.log</SheetDescription>
         </SheetHeader>
-        
-        <pre 
+
+        <pre
           ref={scrollRef}
           className="flex-1 overflow-y-auto rounded-md border border-border bg-zinc-100 dark:bg-black/95 p-4 text-xs font-mono"
         >

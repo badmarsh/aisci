@@ -1,5 +1,15 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Home, Atom, BookOpen, ShieldCheck, ListTodo, Bot, Moon, Sun, AlertTriangle } from "lucide-react";
+import {
+  Home,
+  Atom,
+  BookOpen,
+  ShieldCheck,
+  ListTodo,
+  Bot,
+  Moon,
+  Sun,
+  AlertTriangle,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Sidebar,
@@ -106,7 +116,13 @@ export function AppSidebar() {
 
 function AtomLogo() {
   return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-5 w-5 text-primary"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
       <circle cx="12" cy="12" r="1.6" fill="currentColor" />
       <ellipse cx="12" cy="12" rx="9" ry="3.5" />
       <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(60 12 12)" />

@@ -44,7 +44,11 @@ function EvidencePage() {
   const [open, setOpen] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: evidence = [], isLoading, isError } = useQuery({
+  const {
+    data: evidence = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["evidence"],
     queryFn: fetchEvidence,
   });
@@ -72,9 +76,24 @@ function EvidencePage() {
   });
 
   const summary = [
-    { label: "Supported", value: evidence.filter((e: EvidenceRow) => e.status === "Supported").length, dot: "🟢", accent: "text-emerald-brand" },
-    { label: "Sanity checked", value: evidence.filter((e: EvidenceRow) => e.status === "Sanity checked").length, dot: "🟡", accent: "text-amber-brand" },
-    { label: "Proposed", value: evidence.filter((e: EvidenceRow) => e.status === "Proposed").length, dot: "🔵", accent: "text-primary" },
+    {
+      label: "Supported",
+      value: evidence.filter((e: EvidenceRow) => e.status === "Supported").length,
+      dot: "🟢",
+      accent: "text-emerald-brand",
+    },
+    {
+      label: "Sanity checked",
+      value: evidence.filter((e: EvidenceRow) => e.status === "Sanity checked").length,
+      dot: "🟡",
+      accent: "text-amber-brand",
+    },
+    {
+      label: "Proposed",
+      value: evidence.filter((e: EvidenceRow) => e.status === "Proposed").length,
+      dot: "🔵",
+      accent: "text-primary",
+    },
   ];
 
   if (isLoading) {
@@ -96,10 +115,10 @@ function EvidencePage() {
   return (
     <PageShell>
       <div className="mb-4 flex items-center justify-end">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          disabled={syncMutation.isPending} 
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={syncMutation.isPending}
           onClick={() => syncMutation.mutate()}
         >
           Sync from Files
@@ -153,11 +172,13 @@ function EvidencePage() {
                       />
                     </TableCell>
                     <TableCell className="max-w-md">
-                      <div dangerouslySetInnerHTML={{ 
-                        __html: row.claim
-                          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                          .replace(/<br>/g, '<br/>')
-                      }} />
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: row.claim
+                            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                            .replace(/<br>/g, "<br/>"),
+                        }}
+                      />
                     </TableCell>
                     <TableCell>
                       <Badge className={statusStyles[row.status]}>{row.status}</Badge>
@@ -168,22 +189,25 @@ function EvidencePage() {
                     </TableCell>
                   </TableRow>
                   {open === i && (
-                    <TableRow key={`d-${i}`} className="border-border bg-muted/20 hover:bg-muted/20">
+                    <TableRow
+                      key={`d-${i}`}
+                      className="border-border bg-muted/20 hover:bg-muted/20"
+                    >
                       <TableCell></TableCell>
                       <TableCell colSpan={4}>
                         <div className="py-2 text-sm leading-relaxed text-foreground/90">
                           {row.narrative}
                           <div className="mt-3 flex gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
+                            <Button
+                              variant="outline"
+                              size="sm"
                               disabled={mutation.isPending}
                               onClick={() => mutation.mutate({ id: row.id, status: "Supported" })}
                             >
                               Approve
                             </Button>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               className="text-rose-brand"
                               disabled={mutation.isPending}

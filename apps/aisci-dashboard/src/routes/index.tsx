@@ -10,7 +10,15 @@ import {
   ReferenceLine,
   ResponsiveContainer,
 } from "recharts";
-import { BookOpen, Atom, ShieldCheck, ListTodo, ArrowUpRight, AlertTriangle, Copy } from "lucide-react";
+import {
+  BookOpen,
+  Atom,
+  ShieldCheck,
+  ListTodo,
+  ArrowUpRight,
+  AlertTriangle,
+  Copy,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Link } from "@tanstack/react-router";
@@ -20,7 +28,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { PageShell } from "@/components/PageShell";
 import { type Activity, type Anomaly } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
-import { fetchLiterature, fetchFits, fetchEvidence, fetchTasks, fetchActivity, fetchAnomalies, fetchExportSummary } from "@/lib/api";
+import {
+  fetchLiterature,
+  fetchFits,
+  fetchEvidence,
+  fetchTasks,
+  fetchActivity,
+  fetchAnomalies,
+  fetchExportSummary,
+} from "@/lib/api";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -49,8 +65,14 @@ type Kpi = {
 
 function Overview() {
   const [showAnomalies, setShowAnomalies] = useState(false);
-  const { data: literature = [] } = useQuery({ queryKey: ["literature"], queryFn: fetchLiterature });
-  const { data: fitsData = { fitRows: [], chi2Series: [] } as any } = useQuery({ queryKey: ["fits"], queryFn: () => fetchFits() });
+  const { data: literature = [] } = useQuery({
+    queryKey: ["literature"],
+    queryFn: fetchLiterature,
+  });
+  const { data: fitsData = { fitRows: [], chi2Series: [] } as any } = useQuery({
+    queryKey: ["fits"],
+    queryFn: () => fetchFits(),
+  });
   const { data: evidence = [] } = useQuery({ queryKey: ["evidence"], queryFn: fetchEvidence });
   const { data: tasks = [] } = useQuery({ queryKey: ["tasks"], queryFn: fetchTasks });
   const { data: activityFeed = [] } = useQuery({ queryKey: ["activity"], queryFn: fetchActivity });
@@ -125,7 +147,8 @@ function Overview() {
           <AlertTriangle className="h-4 w-4 text-rose-brand" />
           <AlertTitle className="flex items-center justify-between">
             <span className="text-rose-brand">
-              {criticalCount > 0 ? `${criticalCount} critical` : ""}{criticalCount > 0 && warningCount > 0 ? " · " : ""}
+              {criticalCount > 0 ? `${criticalCount} critical` : ""}
+              {criticalCount > 0 && warningCount > 0 ? " · " : ""}
               {warningCount > 0 ? `${warningCount} warnings` : ""} — physics anomalies in latest run
             </span>
             <button
@@ -139,12 +162,20 @@ function Overview() {
             <AlertDescription className="mt-2">
               <ul className="space-y-0.5 text-xs font-mono">
                 {anomalies.slice(0, 8).map((a: Anomaly, i: number) => (
-                  <li key={i} className={a.severity === "critical" ? "text-rose-brand" : "text-amber-brand"}>
+                  <li
+                    key={i}
+                    className={a.severity === "critical" ? "text-rose-brand" : "text-amber-brand"}
+                  >
                     [{a.bin}] {a.model}: {a.message}
                   </li>
                 ))}
                 {anomalies.length > 8 && (
-                  <li className="text-muted-foreground">…and {anomalies.length - 8} more. <Link to="/fits" className="underline">Go to Fits page.</Link></li>
+                  <li className="text-muted-foreground">
+                    …and {anomalies.length - 8} more.{" "}
+                    <Link to="/fits" className="underline">
+                      Go to Fits page.
+                    </Link>
+                  </li>
                 )}
               </ul>
             </AlertDescription>
@@ -164,9 +195,7 @@ function Overview() {
             <CardContent>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold tracking-tight">{k.value}</span>
-                {k.badge && (
-                  <Badge className={k.badge.className}>{k.badge.text}</Badge>
-                )}
+                {k.badge && <Badge className={k.badge.className}>{k.badge.text}</Badge>}
               </div>
               <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                 {k.label === "Papers Ingested" && (
@@ -182,9 +211,7 @@ function Overview() {
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="glass-card fade-in-up lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">
-              Model χ²/ndf Across Multiplicity Bins
-            </CardTitle>
+            <CardTitle className="text-base">Model χ²/ndf Across Multiplicity Bins</CardTitle>
             <p className="text-xs text-muted-foreground">
               Rejection threshold at χ²/ndf = 5 (dashed). Jüttner 1c fails the Boltzmann
               approximation across all bins.
@@ -193,7 +220,10 @@ function Overview() {
           <CardContent>
             <div className="h-[360px] w-full">
               <ResponsiveContainer>
-                <LineChart data={fitsData.chi2Series || []} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                <LineChart
+                  data={fitsData.chi2Series || []}
+                  margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
+                >
                   <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
                   <XAxis
                     dataKey="bin"
@@ -269,17 +299,23 @@ function Overview() {
               <ul className="space-y-2">
                 {activityFeed.map((e: Activity) => {
                   let colorClass = "bg-primary";
-                  if (e.action.toLowerCase().includes("flagged") || e.action.toLowerCase().includes("error")) {
+                  if (
+                    e.action.toLowerCase().includes("flagged") ||
+                    e.action.toLowerCase().includes("error")
+                  ) {
                     colorClass = "bg-rose-brand";
                   } else if (e.action.toLowerCase().includes("proposed")) {
                     colorClass = "bg-amber-brand";
-                  } else if (e.action.toLowerCase().includes("complete") || e.action.toLowerCase().includes("updated")) {
+                  } else if (
+                    e.action.toLowerCase().includes("complete") ||
+                    e.action.toLowerCase().includes("updated")
+                  ) {
                     colorClass = "bg-emerald-brand";
                   }
 
                   // format timestamp to time only if today
                   const t = new Date(e.timestamp);
-                  const timeStr = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const timeStr = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
                   return (
                     <li

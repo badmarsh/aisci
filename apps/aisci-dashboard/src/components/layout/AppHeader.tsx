@@ -46,7 +46,7 @@ export function AppHeader() {
     },
     onError: () => {
       toast.error("Ingest failed.");
-    }
+    },
   });
 
   const fitsMutation = useMutation({
@@ -58,7 +58,7 @@ export function AppHeader() {
     },
     onError: () => {
       toast.error("Fits failed.");
-    }
+    },
   });
 
   function runIngest() {
@@ -114,7 +114,11 @@ export function AppHeader() {
           )}
           {fitsMutation.isPending ? "Running Fits…" : "Run Fits"}
         </Button>
-        <Popover onOpenChange={(open) => { if (open) setHasReadNotifications(true); }}>
+        <Popover
+          onOpenChange={(open) => {
+            if (open) setHasReadNotifications(true);
+          }}
+        >
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-4 w-4" />
@@ -136,10 +140,15 @@ export function AppHeader() {
               {recentActivities.length > 0 ? (
                 <div className="flex flex-col">
                   {recentActivities.map((item: any, i: number) => (
-                    <div key={i} className="flex flex-col gap-1 border-b border-border p-4 text-sm last:border-0 hover:bg-muted/50">
+                    <div
+                      key={i}
+                      className="flex flex-col gap-1 border-b border-border p-4 text-sm last:border-0 hover:bg-muted/50"
+                    >
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-foreground">{item.action}</span>
-                        <span className="text-[10px] text-muted-foreground">{new Date(item.timestamp).toLocaleTimeString()}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(item.timestamp).toLocaleTimeString()}
+                        </span>
                       </div>
                       <p className="text-xs text-muted-foreground">{item.details}</p>
                     </div>

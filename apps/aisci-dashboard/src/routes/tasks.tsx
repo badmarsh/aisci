@@ -18,7 +18,8 @@ export const Route = createFileRoute("/tasks")({
       { title: "Task Queue — AiSci" },
       {
         name: "description",
-        content: "Active, blocked, and agent-proposed tasks in the AiSci autonomous research pipeline.",
+        content:
+          "Active, blocked, and agent-proposed tasks in the AiSci autonomous research pipeline.",
       },
     ],
   }),
@@ -34,7 +35,11 @@ const priorityStyles: Record<Task["priority"], string> = {
 function TasksPage() {
   const queryClient = useQueryClient();
 
-  const { data: tasks = [], isLoading, isError } = useQuery({
+  const {
+    data: tasks = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["tasks"],
     queryFn: fetchTasks,
   });
@@ -90,10 +95,10 @@ function TasksPage() {
             <TabsTrigger value="blocked">⏸ Blocked ({blocked.length})</TabsTrigger>
             <TabsTrigger value="proposed">🤖 Agent-Proposed ({proposed.length})</TabsTrigger>
           </TabsList>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            disabled={syncMutation.isPending} 
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={syncMutation.isPending}
             onClick={() => syncMutation.mutate()}
           >
             Sync from Files

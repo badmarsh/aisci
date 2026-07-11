@@ -13,8 +13,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { PageShell } from "@/components/PageShell";
 import { type Paper } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
@@ -35,7 +46,6 @@ export const Route = createFileRoute("/literature")({
   component: LiteraturePage,
 });
 
-
 const confidenceStyles = {
   HIGH: "bg-emerald-brand/15 text-emerald-brand ring-1 ring-emerald-brand/40",
   MEDIUM: "bg-amber-brand/15 text-amber-brand ring-1 ring-amber-brand/40",
@@ -46,7 +56,11 @@ function LiteraturePage() {
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Paper | null>(null);
 
-  const { data: papers = [], isLoading, isError } = useQuery({
+  const {
+    data: papers = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["literature"],
     queryFn: fetchLiterature,
   });
@@ -62,11 +76,22 @@ function LiteraturePage() {
     );
   }, [q, papers]);
 
-  const stats: { label: string; value: number; kind: "icon" | "arxiv" | "openalex" }[] = useMemo(() => [
-    { label: "Total Papers", value: papers.length, kind: "icon" },
-    { label: "arXiv Papers", value: papers.filter((p: Paper) => p.source === "arXiv").length, kind: "arxiv" },
-    { label: "OpenAlex Papers", value: papers.filter((p: Paper) => p.source === "OpenAlex").length, kind: "openalex" },
-  ], [papers]);
+  const stats: { label: string; value: number; kind: "icon" | "arxiv" | "openalex" }[] = useMemo(
+    () => [
+      { label: "Total Papers", value: papers.length, kind: "icon" },
+      {
+        label: "arXiv Papers",
+        value: papers.filter((p: Paper) => p.source === "arXiv").length,
+        kind: "arxiv",
+      },
+      {
+        label: "OpenAlex Papers",
+        value: papers.filter((p: Paper) => p.source === "OpenAlex").length,
+        kind: "openalex",
+      },
+    ],
+    [papers],
+  );
 
   const claimTypeDist = useMemo(() => {
     let hep = 0;
