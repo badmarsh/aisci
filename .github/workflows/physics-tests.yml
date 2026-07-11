@@ -19,7 +19,9 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install numpy pandas scipy iminuit sympy requests
+        run: |
+          cd physics
+          pip install -r requirements.txt
 
       - name: Run physics tests
         run: cd physics && python -m pytest tests/ -v
