@@ -88,3 +88,10 @@ docs/platform/multica/
 
 # Ignore untracked node_modules
 node_modules/
+
+# Data and large run artifacts
+physics/data/*.pdf
+physics/data/*.tar.gz
+physics/data/*.zip
+physics/data/arxiv_*/
+research/robert/runs/**/*.png

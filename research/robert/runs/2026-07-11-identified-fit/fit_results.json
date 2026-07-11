@@ -1,0 +1,50 @@
+{
+  "mode": "identified species (Level 1)",
+  "data": "physics/data/fit_input_ins1682316.csv",
+  "caveat_c2": "Level-1 identified-species refit. Verify against published ALICE results.",
+  "n_rows": 3,
+  "results": [
+    {
+      "species": "pion",
+      "mass_gev": 0.13957,
+      "success": true,
+      "chi2": 101563.83861618898,
+      "ndf": 476,
+      "chi2_ndf": 213.36940885753987,
+      "norm": 2925.7622353102124,
+      "temperature_gev": 0.10460891927372795,
+      "beta_s": 0.8949535566788009,
+      "n_val": 3.9999999998852536,
+      "mean_beta": 0.29831785223197216,
+      "n_points": 480
+    },
+    {
+      "species": "kaon",
+      "mass_gev": 0.49368,
+      "success": true,
+      "chi2": 44926.01846184698,
+      "ndf": 426,
+      "chi2_ndf": 105.46013723438259,
+      "norm": 1130.0508882029542,
+      "temperature_gev": 0.121040801682175,
+      "beta_s": 0.862908643812566,
+      "n_val": 3.9999999998992446,
+      "mean_beta": 0.28763621460901884,
+      "n_points": 430
+    },
+    {
+      "species": "proton",
+      "mass_gev": 0.93827,
+      "success": true,
+      "chi2": 35740.295871687296,
+      "ndf": 406,
+      "chi2_ndf": 88.03028539824457,
+      "norm": 5667.656907269782,
+      "temperature_gev": 0.12696404851905993,
+      "beta_s": 0.6937505072249806,
+      "n_val": 3.9999999999893516,
+      "mean_beta": 0.2312501690754039,
+      "n_points": 410
+    }
+  ]
+}
