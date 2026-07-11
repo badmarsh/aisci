@@ -1,0 +1,21 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "Softhard_epjc.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "Softhard_ref.bib"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "sn-mathphys-num.bst"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}
