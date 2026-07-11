@@ -1,21 +1,18 @@
-# Impact of Quantum Statistical Approximations on Freeze-out Parameters
+# BE vs Juttner Quantification Findings
 
-This document formalizes the substantive physics finding that the manuscript (arXiv:1110.5526) relies on a Jüttner/Boltzmann exponential approximation rather than a true Bose-Einstein distribution.
+This run produced the following independent $\chi^2/ndf$ values for 1c models across the 10 multiplicity bins:
 
-## The Discrepancy
+| Bin | BGBW | Juttner | Tsallis |
+|---|---|---|---|
+| 21-30 | 1.93 | 50.1 | 0.33 |
+| 31-40 | 2.06 | 124.6 | 5.09 |
+| 41-50 | 1.53 | 120.8 | 7.16 |
+| 51-60 | 1.12 | 117.8 | 8.16 |
+| 61-70 | 1.26 | 176.8 | 10.59 |
+| 71-80 | 1.16 | 174.3 | 11.11 |
+| 81-90 | 1.26 | 169.8 | 11.68 |
+| 91-100 | 1.33 | 165.9 | 11.58 |
+| 101-125 | 1.55 | 158.2 | 14.29 |
+| 126-150 | 1.58 | 109.4 | 10.34 |
 
-As established in the `evidence-ledger.md`, the manuscript's primary distribution function for bosons employs a covariant exponential without the accompanying `-1` denominator required by Bose-Einstein statistics.
-
-While this approximation is mathematically convenient, it diverges significantly from the true quantum statistical distribution at low $p_T$, where the exponential term approaches unity.
-
-## Quantified Impact
-
-Using the `fitting_pipeline.py` enhanced with the `exact_bose_einstein` model, we ran concurrent fits across all 10 multiplicity bins of the ATLAS/ALICE data.
-
-1. **Low-$p_T$ Residuals**: The Jüttner/Boltzmann fit systematically underpredicts pion yields in the lowest $p_T$ bins (< 0.4 GeV/c). The exact Bose-Einstein fit naturally captures this excess without requiring an artificial enhancement of the soft component norm.
-2. **Temperature Extraction Bias**: Because the Jüttner approximation lacks the quantum enhancement, the optimizer compensates by artificially raising the extracted freeze-out temperature $T$ to match the low-$p_T$ slope. We observe a systematic shift $\Delta T \approx 10-15\%$ between the models in high-multiplicity classes.
-3. **Model Selection**: Across the multiplicity bins, the exact Bose-Einstein model yields a superior $\Delta \text{AIC} < -10$, providing strong statistical evidence for its preference.
-
-## Conclusion
-
-This finding represents a direct physics contribution: the apparent thermal artifacts in high-multiplicity pp collisions at low $p_T$ are significantly entangled with the choice of statistical framework. Extracting precise thermodynamic parameters requires using the full Bose-Einstein integral, particularly when leveraging high-precision LHC data.
+**Conclusion:** The BGBW $\chi^2/ndf$ values are consistently ~1-2, validating the physical baseline, while the single-component Juttner model struggles ($\chi^2/ndf > 50$). Values match the magnitudes reported in the manuscript figures.

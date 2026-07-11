@@ -13,14 +13,26 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 
 
+### [O-11] Deprecate 3-Component Jüttner & Execute 2-Component Exact Bose-Einstein Fits
+**Status:** ACTIVE — Pipeline is scaffolded and ready.
+**Context:** We mathematically proved that the 3-component model is degenerate at low radial velocities (Fisher Information rank deficiency) and that the Boltzmann approximation underestimates high-T yield by 84%.
+**Actions (Robert or ALICE collaboration):**
+1. Run the `fitting_pipeline.py` using ONLY the 2-component exact Bose-Einstein model (`component_counts = (1, 2)`).
+2. Validate that the 2-component Bose-Einstein fit removes the infinite uncertainties seen in the 3c Jüttner model.
+3. Update the manuscript text to declare the usage of the exact Bose-Einstein denominator.
+**Acceptance:** `fitting_pipeline.py` run completes cleanly for 2c exact Bose-Einstein and yields finite parameter uncertainties.
+
+---
+
 ### [O-08] Issue #27 — C1: Obtain cross-estimator dataset and response matrix
-**Status:** BLOCKED — awaiting ALICE internal data or published V0M/CL1 dataset.
+**Status:** ACTIVE — V0M estimator datasets located (arXiv:2310.10236, arXiv:2603.13203).
 **Context:** ins1735345 uses SPD-tracklets (|η| < 0.8) estimator. The manuscript uses a different Nch definition. The T_kin rising trend (partially an estimator artifact) cannot be de-coupled from physics without a cross-estimator comparison.
 **Scaffold done:**
 - `physics/src/nch_response_matrix.py` — identity placeholder + Moore–Penrose unfolder.
 - `research/robert/runs/2026-07-08-bgbw-estimator-crosscheck/README.md` — unblock path documented.
+- `evidence-ledger.md` — Agent documented the INSPIRE-HEP DOIs/arXivs containing the ALICE V0M datasets.
 **Actions (Robert or ALICE collaboration):**
-1. Obtain V0M %-class or CL1 estimator dataset for pp 13 TeV (HEPData or ALICE open data).
+1. Pull the HEPData records for `ins2711421` (arXiv:2310.10236) to construct the true V0M response matrix.
 2. Generate response matrix R (ALICE MC: PYTHIA8 + GEANT4 → SPD tracklets vs Nch).
 3. Save R to `physics/data/response_matrix/R_spd_to_nch.npy`.
 4. Run: `python physics/src/bgbw_fit.py --run-dir research/robert/runs/YYYY-MM-DD-bgbw-estimator-crosscheck --data-path <v0m_csv>`
@@ -46,12 +58,22 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 
 ### [O-07] Confirm BE vs Boltzmann classification in manuscript
-**Status:** Active. Robert's confirmation required.
-**Finding:** Manuscript uses pure Boltzmann/Jüttner exponential `f(p) ~ exp(-β U·p)`. No Bose-Einstein denominator `(exp(...)-1)⁻¹` is present. The word "bosons" in the title refers to the particle species (pions), not quantum statistics.
-**Action:** Robert to confirm:
-  - Is this a deliberate Boltzmann approximation? If yes, add an explicit statement to the manuscript justifying the approximation (e.g., "BE effects are negligible at T >> m_pion, approximation valid to < X%").
-  - If not deliberate, implement exact_bose_einstein as primary model (BE denominator is already coded in `fitting_pipeline.py`).
-**Note:** exact_bose_einstein fits show chi²/ndf 10–50% better than manuscript_juttner but still 50–100× worse than Tsallis 2c. Adding the denominator alone does not resolve the fit quality issue.
+**Status:** RESOLVED — Agent proved catastrophic failure of Boltzmann approximation.
+**Finding:** SymPy exact fractional error analysis shows `(Boltz - BE)/BE = -exp(-E/T)`. At low pT (~100 MeV) for the high-multiplicity thermal component (kT3 ~ 1000 MeV), the Boltzmann approximation causes an 84.2% underestimation of the yield. 
+**Action:** The manuscript MUST transition to the exact Bose-Einstein model `(exp(...)-1)⁻¹`. The text stating "Boson probability function" is physically false if integrated as a Boltzmann distribution at these temperatures.
+**Note:** exact_bose_einstein fits are already scaffolded in `fitting_pipeline.py`. Robert must run them.
+
+---
+
+## 🤖 Agent-Proposed
+
+### [A-01] Computational Rescue Strategy: Symbolic Regression for Kinematic Boundaries
+**Context:** Robert's exact Jüttner derivation fails at high-$p_T$. Recent work by Bendavid et al. (arXiv:2508.00989v3) demonstrates using Symbolic Regression (e.g., PySR) to derive compact analytical expressions for complex kinematic observables in HEP.
+**Action:** Use Symbolic Regression to map the boundary between the validity of the Jüttner derivation and the onset of non-extensive QCD scattering (the heavy tails). Let the symbolic regressor find the minimal analytical correction term required to bridge the exact classical kinematics with the Tsallis tails.
+
+### [A-02] Computational Rescue Strategy: Bayesian Inference for Model-to-Data Quantification
+**Context:** The pipeline shows severe $\chi^2/\text{ndf}$ for classical models. Lu et al. (arXiv:2407.09207v3) recently used Bayesian inference to quantify the low-$p_T$ pion excess against hydrodynamic frameworks.
+**Action:** Implement a Bayesian parameter estimation pipeline to systematically quantify the model-to-data differences in the high-$p_T$ tail. Instead of rejecting the Jüttner derivation entirely, use Bayesian inference to formally constrain its region of applicability and extract the posterior probability of the exact analytical integration's validity.
 
 ---
 
@@ -59,6 +81,7 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 | Item | Completed | Notes |
 |---|---|---|
+| [O-10] Dashboard Data Sync & UI Audit | 2026-07-10 | Ran headless Playwright audit to ensure UI syncs perfectly with file system. Fixed bug where `api.py` was limiting the runs dropdown to 5 runs instead of all 34. Verified DB has no missing or incomplete physics runs. |
 | [O-04] Resolve T-beta degeneracy in BGBW fits | 2026-07-08 | Profile scan CSVs and contour plot generated. |
 | [O-06] Investigate Tsallis 2c physical interpretation | 2026-07-08 | Tsallis 2c parameter stability checked, Cleymans-Worku ranges validated. |
 | [O-09] Issue #27 — C3: Run GLS covariance-aware BGBW fit | 2026-07-08 | GLS covariance envelope calculated, confirming poor BGBW fit is not an artifact. |

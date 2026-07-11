@@ -1,0 +1,2236 @@
+The distribution function of bosons momentum in a moving system
+
+The distribution function of bosons momentum in a system moving with the speed U µ is the following:
+f (p) ∼ δ(p2 − m2 )Θ(p0 ) exp(−βU µ pµ ),
+⃗ ) is the speed four-vector of the moving
+where β = 1/kT , pµ is the boson four-momentum, U µ = γ(1, U
+boson system and Θ(p0 ) is the step function ensuring that the particle energy is positive.
+⃗
+
+⃗
+
+⃗
+
+⃗
+
+⃗ = 1P =M P = P =√ P
+The three-dimensional speed vector is equal to U
+γ M
+E M
+E
+2
+
+⃗2
+M +P
+
+.
+
+Then, the term in the exponent will be:
+⃗
+
+⃗ )(p0 , p⃗) = −β E (p0 − √ P .⃗p
+−βU µ pµ = −βγ(1, U
+M
+2
+
+⃗
+M +P
+
+√
+) = −βp0
+2
+
+⃗2
+⃗
+M 2 +P
++ β PM.⃗p
+M
+
+The δ function expressed through the p0 will be:
+√ 2 2
+√ 2 2
+)
+⃗ +m )
+δ(p0 + p
+δ(p0 − p
+√ 2⃗ +m
+√
++
+δ(p2 − m2 ) =
+2
+2
+2
+2
+
+p
+⃗ +m
+
+2
+
+p
+⃗ +m
+
+The second term corresponds to a negative energy p0 < 0 and therefore multiplied with the step function
+Θ(p0 ), it will give 0. The only term, which will survive is the first one. Therefore, the integral of the
+distribution function will be:
+√
+R ∞ 3 R ∞ 0 δ(p0 −√p⃗2 +m2 )
+R∞
+⃗2
+⃗
+0 M 2 +P
+√
++ β PM.⃗p ) = −∞ d3 p⃗ √ 21
+d
+p
+⃗
+exp(−βp
+dp
+M
+−∞
+0
+2
+2
+2
+
+p
+⃗ +m
+
+2
+
+p
+⃗ +m
+
+√
+exp(−β
+2
+
+√
+
+⃗2
+⃗
+m2 +⃗
+p2 M 2 +P
++ β PM.⃗p )
+M
+
+We can choose the coordinates in a way that the system is moving only in direction of the z-axis P⃗ =
+(0, 0, Pz ). Then the integral will be:
+√ 2 2√ 2
+R∞ 3
+m +⃗
+p
+M +Pz 2
+1
+z pz
+√
+exp(−β
+d
+p
+⃗
++ β PM
+)=
+M
+−∞
+2
+2
+2 p
+⃗ +m
+√ 2 2√ 2
+R∞
+R 2π
+Rπ
+m +⃗
+p
+M +Pz 2
+= 0 p2 dp 0 dϕ 0 sin θdθ √ 21 2 exp(−β
++ β Pz pMcos θ ) =
+M
+2 p
+⃗ +m
+√ 2 2√ 2
+R∞
+m +⃗
+p
+M +Pz 2
+βPz p
+M
+= 2π 0 dp √ 2p 2 βP
+sinh
+exp(−β
+)
+M
+M
+z
+p
+⃗ +m
+
+Labeling Pz = M U , where U is the z-component of the system velocity (equal to the system’s total velocity,
+as the z-component is the only one non-zero component), we get for the probability function:
+√ 2p
+f (p) = 2π
+C
+p
+⃗
+
+1
+
++m2 βU
+
+sinh(βU p) exp(−β
+
+p
+
+√
+m2 + p⃗2 1 + U 2 ),
+
+where C is the normalization factor equal to:
+C=
+
+R∞
+0
+
+2π √ p
+dp βU
+2
+p
+⃗
+
++m2
+
+sinh(βU p) exp(−β
+
+p
+√
+m2 + p⃗2 1 + U 2 ).
+1
+
+In the experimental data, η and pT cuts are usually applied. To account for η cut, the limits of the
+integral over θ angle change
+
+Rπ
+0
+
+dθ →
+
+R π−θcut
+θcut
+
+dθ, where θcut is the θ angle corresponding to the maximum
+
+η value. Thus the probability function will become:
+√ 2p
+f (p) = 2π
+C
+p
+⃗
+
+1
+
++m2 βU
+
+sinh(βU p cos θcut ) exp(−β
+
+p
+√
+m2 + p⃗2 1 + U 2 ).
+
+When the phase-space is restricted by an η (and thus also a θ) interval, analogously the probability function
+will become:
+√ 2p
+f (p) = 2π
+C
+
+1
+p
+⃗ +m2 βU
+
+p
+√
+
+
+min
+max
+sinh(βU p cos θcut
+) − sinh(βU p cos θcut
+) exp(−β m2 + p⃗2 1 + U 2 ).
+
+To account for pT cut (pTcut ), we will write the integral in p, ϕ, pz coordinates using the correct
+Jacobian (equal to p):
+√
+
+R∞
+
+d3 p⃗ √ 21
+−∞
+2
+
+p
+⃗ +m
+
+exp(−β
+2
+
+√
+
+m2 +⃗
+p2 M 2 +Pz 2
+z pz
++ β PM
+)=
+M
+
+√ 2 2√ 2
+R pmax
+m +⃗
+p
+M +Pz 2
+1
+z
+z pz
+√
+exp(−β
+) exp(β PM
+)=
+pdp
+dϕ
+dp
+z
+M
+0
+0
+pmin
+2
+2
+z
+2 p
+⃗ +m
+q
+√ 2 2√ 2
+2
+2
+R∞
+m +⃗
+p
+M +Pz 2 R p −pTcut
+z pz
+q
+= 2π 0 dp √ 2p 2 exp(−β
+)
+dpz exp(β PM
+)=
+M
+2 p
+⃗ +m
+− p2 −p2T
+cut
+q
+√ 2 2√ 2
+R∞
+βPz p2 −p2T
+m +⃗
+p
+M +Pz 2
+cut
+M
+sinh
+= 2π 0 dp √ 2p 2 βP
+exp(−β
+)=
+M
+M
+z
+=
+
+R∞
+
+R 2π
+
+p
+⃗ +m
+
+R∞
+= 2π 0 dp √ 2p
+
+1
+sinh(βU
+p
+⃗ +m2 βU
+
+q
+
+p2 −p2Tcut ) exp(−β
+
+p
+
+√
+m2 + p⃗2 1 + U 2 ).
+
+Thus the probability function will become:
+√ 2p
+f (p) = 2π
+C
+
+1
+sinh(βU
+p
+⃗ +m2 βU
+
+q
+
+p2 −p2Tcut ) exp(−β
+
+p
+
+√
+m2 + p⃗2 1 + U 2 ).
+
+Finally, applying both pT and |η| cuts simultanously, we get the following probability function:
+√ 2p
+f (p) = 2π
+C
+p
+⃗
+
+1
+
++m2 βU
+
+sinh(βU
+
+q
+
+p2 −p2Tcut cos θcut ) exp(−β
+
+p
+
+√
+m2 + p⃗2 1 + U 2 )
+
+In the following plots and tables, the distributions from 13 TeV pp collisions from the ATLAS experiment are shown and described with the functions derived above.
+
+2
+
+Entries
+
+Entries
+
+12
+
+Entries
+
+fitter2
+7000
+
+kT = 200 MeV, U = 0.4
+
+10
+
+0.9938
+0.7441
+
+0.8663
+0.5877
+
+kT = 0.4, U = 0.2
+
+6
+
+kT = 600 MeV, U = 0.4
+
+kT = 0.4, U = 0.6
+5
+
+8
+4
+6
+3
+4
+
+2
+
+2
+
+1
+
+0
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+0
+0
+
+7
+p [GeV]
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+p [GeV]
+
+Figure 1: The momentum distributions obtained from the theory predictions compared for 2 different
+temperatures (left) and for 2 different velocities at temperature kT = 400 MeV (right).
+
+×103
+
+truth_energy_sum
+Entries
+Mean
+Std Dev
+
+120
+
+2.550572e+07
+45.22
+42.79
+
+100
+
+800
+
+×103
+
+truth_track_n
+Entries
+Mean
+Std Dev
+
+700
+
+2.550572e+07
+33.23
+27.06
+
+600
+500
+
+80
+
+400
+
+60
+
+300
+40
+200
+20
+
+0
+
+100
+
+20
+
+40
+
+60
+
+80
+
+100
+
+120
+
+140
+
+160
+
+180
+
+200
+E [GeV]
+
+0
+
+20
+
+40
+
+60
+
+80
+
+100
+
+120
+
+140
+
+nch
+
+Figure 2: Distributions of the sum of energies of all particles in an event (left) and of particle multiplicity
+(right).
+
+|η| <= 0.7
+
+|η| > 0.7
+truth_energy_with_cuts_sum
+
+Entries
+Mean
+Std Dev
+
+50000
+
+2.550572e+07
+28.02
+29.39
+
+truth_energy_with_cuts_sum
+
+Entries
+Mean
+Std Dev
+
+60000
+
+2.550572e+07
+22.47
+24.25
+
+50000
+
+40000
+
+40000
+30000
+30000
+20000
+20000
+10000
+
+0
+
+10000
+
+20
+
+40
+
+60
+
+80
+
+100
+
+120
+
+140
+
+160
+
+180
+
+200
+E [GeV]
+
+0
+
+20
+
+40
+
+60
+
+80
+
+100
+
+120
+
+140
+
+160
+
+180
+
+200
+E [GeV]
+
+Figure 3: Sum of energies of all particles in an event for tracks in central region (left) and in forward region
+(right).
+3
+
+7000
+
+7000
+Mean
+Std Dev
+
+Mean
+Std Dev
+
+1.6
+
+T
+
+9287914
+Entries
+25.8
+Mean x
+Mean y
+0.5583
+Std Dev x
+22.71
+Std Dev y 0.1585
+
+1.8
+
+p
+
+p
+
+T
+
+no_multiplicity_split/no_kt_split/event_n_pt
+
+2
+
+1
+
+0.9
+
+1.4
+1.2
+
+0.8
+
+1
+0.7
+
+0.8
+no_multiplicity_split/no_kt_split/event_n_pt_profile
+
+0.6
+
+0.6
+0.4
+
+Entries
+Mean
+Mean y
+Std Dev
+Std Dev y
+
+0.5
+
+0.2
+20
+
+40
+
+60
+
+80
+
+100
+
+120
+
+140
+
+0.4
+
+nsel
+
+20
+
+40
+
+60
+
+80
+
+100
+
+120
+
+140
+
+160
+
+9287823
+25.86
+0.5586
+22.88
+0.1595
+180
+
+Figure 4: Average pT of tracks in an event as a function of number of charged particles in event. 2D
+histogram (left) profile histogram (right).
+
+4
+
+200
+nsel
+
+×103
+
+p > 100 MeV
+T
+p > 200 MeV
+T
+p > 300 MeV
+T
+p > 400 MeV
+T
+p > 500 MeV
+
+250
+
+200
+
+T
+
+150
+
+100
+
+50
+
+0
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+1.4
+
+1.6
+
+1.8
+2
+p [GeV]
+
+×103
+
+×103
+160
+
+p > 100 MeV
+T
+p > 200 MeV
+T
+p > 300 MeV
+T
+p > 400 MeV
+T
+p > 500 MeV
+
+|η| > 0.7
+140
+120
+
+120
+100
+
+T
+
+100
+
+p > 100 MeV
+T
+p > 200 MeV
+T
+p > 300 MeV
+T
+p > 400 MeV
+T
+p > 500 MeV
+T
+
+80
+
+80
+60
+
+60
+
+40
+
+40
+
+20
+
+20
+
+0
+
+|η| <= 0.7
+
+140
+
+0.2
+
+0.4
+
+0.6
+
+0.8
+
+1
+
+1.2
+
+1.4
+
+1.6
+
+1.8
+2
+p [GeV]
+
+0
+0.1
+
+0.2
+
+0.3
+
+0.4
+
+0.5
+
+0.6
+
+0.7
+
+0.8
+
+0.9
+1
+p [GeV]
+
+Figure 5: The momentum distributions for different pT cuts shown for all tracks, central region and forward
+region. One can see, that in forward and therefore also in general region, pT cut of 200 MeV changes
+the shape of the momentum distribution up to 1.2 GeV. Similarly for pT cut of 300 MeV the momentum
+distribution shape is changed up to 1.8 GeV. One can assume that pT cut of 100 MeV changes the momentum
+distribution up to 600 MeV. For the central region, the effect is much weaker. One can see that each pT cut
+changes the momentum distribution up to 1.25 times its value. It means, that pT cut of 100 MeV changes
+the momentum distribution up to 125 MeV. Therefore when fitting momentum distributions in forward all
+general region, fit for p < 600 MeV is not feasible.
+
+5
+
+Entries
+
+6900
+
+EntriesEntries 7000
+6900
+Entries
+Mean
+
+6900
+0.9425
+
+Mean Mean0.8819
+0.9387
+Std Dev
+
+0.6487
+
+Std Dev 0.5767
+Std Dev
+
+0.6448
+
+1
+
+0.25
+
+no cuts
+
+no cuts
+
+p > 100 MeV
+
+p > 100 MeV
+
+T
+
+T
+
+0.2
+
+p > 100 MeV, |η| < 2.5
+
+0.8
+
+p > 100 MeV, |η| < 2.5
+
+T
+
+T
+
+p > 100 MeV, |η| < 0.7
+
+p > 100 MeV, |η| < 0.7
+
+T
+
+T
+
+0.15
+
+0.6
+
+0.1
+
+0.4
+
+0.05
+
+0.2
+
+0
+0
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+0
+0
+
+3
+p [GeV]
+
+0.5
+
+1
+
+1.5
+
+2
+
+2.5
+
+3
+p [GeV]
+
+Figure 6: The momentum distributions obtained from the theory predictions compared for different pT and
+|η| cuts unscaled (left) and scaled to the same integral (right).
+
+6
+
+31 ≤ nsel ≤ 40, |η| < 0.7
+
+×10
+
+3
+
+Entries
+
+9663125
+
+Mean
+
+0.6199
+
+180
+
+Std Dev
+χ2 / ndf
+
+0.4834
+
+160
+
+A1
+
+1.919e+07 ± 1.286e+05
+
+140
+
+kT1
+U1
+
+0.06566 ± 0.00016
+
+A2
+
+2.399e+06 ± 9.651e+03
+
+kT2
+U2
+
+0.2198 ± 0.0011
+0.7518 ± 0.0050
+
+A3
+
+2.864e+05 ± 5.262e+03
+
+kT3
+
+0.481 ± 0.002
+
+200
+
+120
+100
+80
+
+220
+
+160
+
+0.1107 ± 0.0074
+
+140
+120
+100
+80
+60
+40
+
+20
+
+20
+1
+
+1.5
+
+2
+
+2.5
+
+0
+0
+
+3
+p [GeV]
+
+Entries
+
+2.296524e+07
+
+Mean
+
+1.418
+1.16
+
+Std Dev
+χ2 / ndf
+
+180
+
+533.7 / 174
+
+40
+
+0.5
+
+multiplicity_31_40/no_kt_split/track_p_eta_over_07
+
+200
+
+60
+
+0
+0
+
+31 ≤ nsel ≤ 40, |η| ≥ 0.7
+
+×10
+
+3
+
+multiplicity_31_40/no_kt_split/track_p_eta_below_07
+
+1
+
+2
+
+3
+
+1299 / 457
+
+A1
+
+5.518e+06 ± 3.934e+04
+
+kT1
+U1
+
+0.9593 ± 0.0065
+
+A2
+
+5.751e+05 ± 1.420e+04
+
+0.1521 ± 0.0011
+
+0.591 ± 0.007
+
+kT2
+U2
+
+0.004987 ± 0.004304
+
+A3
+
+1.202e+05 ± 4.567e+03
+
+kT3
+
+1.407 ± 0.014
+
+4
+
+5
+
+6
+p [GeV]
+
+31 ≤ nsel ≤ 40, η all
+
+×10
+
+3
+
+multiplicity_31_40/no_kt_split/track_p
+
+Entries
+
+350
+
+3.262837e+07
+
+Mean
+
+1.205
+1.087
+
+Std Dev
+χ2 / ndf
+
+300
+
+A1
+
+250
+200
+150
+
+5219 / 580
+5.533e+06 ± 2.912e+04
+
+kT1
+U1
+
+0.1733 ± 0.0014
+
+A2
+
+2.745e+05 ± 1.423e+04
+
+kT2
+U2
+
+0.6048 ± 0.0093
+
+A3
+
+2.362e+04 ± 8.373e+02
+
+kT3
+
+1.646 ± 0.013
+
+0.9805 ± 0.0076
+
+0.4413 ± 0.0128
+
+100
+50
+0
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+p [GeV]
+
+Figure 7: The momentum distribution for particular multiplicity interval in the various regions of pseudorapidity fitted with function assuming 2 moving and 1 static systems in the range of 120 (350) MeV ≤ p ≤
+2000 (5000) MeV. All parameters of the fit are shown in the plots.
+
+7
+
+21 ≤ nsel ≤ 30, η all
+
+×10
+
+3
+
+400
+
+Entries
+
+3.344041e+07
+
+Mean
+
+1.17
+1.056
+
+350
+
+Std Dev
+χ2 / ndf
+
+300
+
+A1
+
+5.042e+06 ± 1.104e+05
+
+kT1
+U1
+
+0.1292 ± 0.0006
+
+A2
+
+1.316e+06 ± 2.806e+04
+
+kT2
+U2
+
+0.3613 ± 0.0030
+
+A3
+
+5.345e+04 ± 1.653e+03
+
+kT3
+
+1.324 ± 0.010
+
+250
+200
+150
+
+3
+
+5555 / 480
+
+0.7907 ± 0.0144
+
+250
+200
+
+0.741 ± 0.003
+
+150
+
+50
+
+50
+
+2
+
+3
+
+4
+
+5
+
+0
+0
+
+6
+p [GeV]
+
+41 ≤ nsel ≤ 50, η all
+
+×10
+
+3
+
+300
+
+250
+
+200
+
+150
+
+Entries
+
+2.978051e+07
+
+Mean
+
+1.232
+
+Std Dev
+χ2 / ndf
+
+1.109
+
+1
+
+2
+
+3
+
+3
+
+5.127e+06 ± 1.001e+05
+
+kT1
+U1
+
+0.1384 ± 0.0012
+
+1.205
+1.087
+5105 / 480
+
+A1
+
+5.368e+06 ± 2.567e+04
+
+kT1
+U1
+
+0.9272 ± 0.0036
+
+A2
+
+3.446e+05 ± 1.668e+03
+
+0.168 ± 0.000
+
+kT2
+U2
+
+0.5536 ± 0.0008
+
+A3
+
+3.361e+04 ± 3.345e+02
+
+kT3
+
+1.511 ± 0.004
+
+4
+
+0.4358 ± 0.0052
+
+5
+
+6
+p [GeV]
+
+multiplicity_51_60/no_kt_split/track_p
+
+Entries
+
+2.532143e+07
+
+Mean
+
+250
+
+1.254
+1.126
+
+Std Dev
+χ2 / ndf
+
+4739 / 480
+
+A1
+
+3.262837e+07
+
+Mean
+
+51 ≤ nsel ≤ 60, η all
+
+×10
+
+multiplicity_41_50/no_kt_split/track_p
+
+Entries
+Std Dev
+χ2 / ndf
+
+300
+
+100
+
+1
+
+multiplicity_31_40/no_kt_split/track_p
+
+350
+
+100
+
+0
+0
+
+31 ≤ nsel ≤ 40, η all
+
+×10
+
+multiplicity_21_30/no_kt_split/track_p
+
+A1
+
+3979 / 480
+4.806e+06 ± 1.609e+05
+
+kT1
+U1
+
+0.1444 ± 0.0027
+
+A2
+
+6.332e+05 ± 6.798e+03
+
+A2
+
+3.614e+05 ± 2.567e+04
+
+kT2
+U2
+
+0.4478 ± 0.0011
+0.5722 ± 0.0105
+
+kT2
+U2
+
+0.4451 ± 0.0271
+
+A3
+
+3.954e+04 ± 1.251e+03
+
+A3
+
+3.34e+04 ± 1.66e+03
+
+kT3
+
+1.458 ± 0.012
+
+kT3
+
+1.484 ± 0.019
+
+200
+
+0.8439 ± 0.0085
+
+150
+
+100
+
+0.9407 ± 0.0196
+0.506 ± 0.010
+
+100
+50
+
+50
+
+0
+0
+
+1
+
+3
+
+4
+
+5
+
+0
+0
+
+6
+p [GeV]
+
+61 ≤ nsel ≤ 70, η all
+
+×10
+
+3
+
+220
+
+2
+
+200
+
+2.034211e+07
+
+Mean
+
+1.272
+
+Std Dev
+χ2 / ndf
+
+180
+160
+
+3
+
+140
+120
+100
+80
+
+4.01e+06 ± 1.33e+05
+
+kT1
+U1
+
+0.8764 ± 0.0168
+
+A2
+
+4.12e+05 ± 2.05e+04
+
+kT2
+U2
+
+0.4504 ± 0.0065
+
+A3
+
+3.299e+04 ± 8.416e+02
+
+kT3
+
+1.424 ± 0.010
+
+3
+
+Entries
+
+1.536676e+07
+
+Mean
+
+1.288
+1.152
+1277 / 478
+3.836e+06 ± 1.408e+05
+
+kT1
+U1
+
+0.1254 ± 0.0024
+
+100
+
+A2
+
+7.558e+04 ± 1.318e+03
+
+80
+
+kT2
+U2
+
+0.9609 ± 0.0055
+
+A3
+
+3.254e+05 ± 1.319e+04
+
+kT3
+
+0.4635 ± 0.0064
+
+60
+
+60
+
+6
+p [GeV]
+
+A1
+
+120
+
+0.5062 ± 0.0197
+
+5
+
+Std Dev
+χ2 / ndf
+
+140
+
+0.128 ± 0.002
+
+4
+
+multiplicity_71_80/no_kt_split/track_p
+
+160
+
+1.14
+3448 / 480
+
+A1
+
+2
+
+71 ≤ nsel ≤ 80, η all
+
+×10
+
+multiplicity_61_70/no_kt_split/track_p
+
+Entries
+
+1
+
+0.9948 ± 0.0098
+0.8013 ± 0.0031
+
+40
+
+40
+20
+
+20
+0
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+0
+0
+
+6
+p [GeV]
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+p [GeV]
+
+Figure 8: The momentum distribution for various multiplicity intervals in the whole region of pseudorapidity
+fitted with function assuming 2 moving and 1 static systems in the range of 120 MeV ≤ p ≤ 5000 MeV. All
+parameters of the fit are shown in the plots.
+
+8
+
+81 ≤ nsel ≤ 90, η all
+
+×10
+
+3
+
+91 ≤ nsel ≤ 100, η all
+multiplicity_91_100/no_kt_split/track_p
+
+multiplicity_81_90/no_kt_split/track_p
+
+100
+
+80
+
+60
+
+40
+
+Entries
+
+1.105887e+07
+
+Mean
+
+1.301
+
+Std Dev
+χ2 / ndf
+
+1.161
+
+70000
+
+2.159e+06 ± 2.062e+04
+
+kT1
+U1
+
+0.1455 ± 0.0005
+
+A2
+
+3.174e+04 ± 5.763e+02
+
+60000
+
+0.9994 ± 0.0030
+
+kT2
+U2
+
+0.9749 ± 0.0063
+
+A3
+
+1.927e+05 ± 2.205e+03
+
+kT3
+
+0.5014 ± 0.0030
+
+50000
+40000
+
+0.7425 ± 0.0133
+
+7573508
+
+Mean
+
+1.313
+1.168
+
+Std Dev
+χ2 / ndf
+
+1956 / 480
+
+A1
+
+Entries
+
+30000
+
+865.7 / 478
+
+A1
+
+1.884e+06 ± 6.310e+04
+
+kT1
+U1
+
+0.1227 ± 0.0010
+
+A2
+
+3.257e+04 ± 1.603e+03
+
+0.9854 ± 0.0204
+
+kT2
+U2
+
+0.8571 ± 0.0149
+
+A3
+
+1.709e+05 ± 6.219e+03
+
+kT3
+
+0.4557 ± 0.0062
+
+0.869 ± 0.024
+
+20000
+20
+10000
+0
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+0
+0
+
+6
+p [GeV]
+
+1
+
+101 ≤ nsel ≤ 125, η all
+
+2
+
+3
+
+Entries
+
+80000
+
+5
+
+6
+p [GeV]
+
+126 ≤ nsel ≤ 150, η all
+
+multiplicity_101_125/no_kt_split/track_p
+
+90000
+
+4
+
+multiplicity_126_150/no_kt_split/track_p
+
+25000
+
+9160083
+
+Entries
+
+Mean
+
+1.33
+
+Mean
+
+Std Dev
+χ2 / ndf
+
+1.181
+
+Std Dev
+χ2 / ndf
+
+1902 / 480
+
+70000
+
+A1
+
+1.821e+06 ± 5.269e+04
+0.1403 ± 0.0027
+
+60000
+
+kT1
+U1
+A2
+
+3.305e+04 ± 1.521e+03
+
+50000
+
+kT2
+U2
+
+0.908 ± 0.016
+0.8701 ± 0.0301
+
+40000
+
+A3
+
+1.538e+05 ± 8.417e+03
+
+kT3
+
+0.5028 ± 0.0087
+
+20000
+
+A1
+
+1 ± 0.0
+
+15000
+
+10000
+
+2492477
+1.355
+1.197
+1322 / 480
+2.803e+05 ± 2.530e+03
+
+kT1
+U1
+
+0.2065 ± 0.0015
+
+A2
+
+1.246e+04 ± 4.813e+02
+
+kT2
+U2
+
+0.8467 ± 0.0108
+
+1 ± 0.0
+
+0.7705 ± 0.0142
+
+A3
+
+167.9 ± 51.8
+
+kT3
+
+1.037 ± 0.004
+
+30000
+20000
+
+5000
+
+10000
+0
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+0
+0
+
+6
+p [GeV]
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+p [GeV]
+
+Figure 9: The momentum distribution for various multiplicity intervals in the whole region of pseudorapidity
+fitted with function assuming 2 moving and 1 static systems in the range of 120 MeV ≤ p ≤ 5000 MeV. All
+parameters of the fit are shown in the plots.
+
+9
+
+nsel
+
+U1
+
+kT1 [MeV]
+
+U2
+
+kT2 [MeV]
+
+kT3 [MeV]
+
+21–30
+
+0.791
+
+129
+
+0.741
+
+361
+
+1324
+
+31–40
+
+0.927
+
+168
+
+0.436
+
+554
+
+1511
+
+41–50
+
+0.844
+
+138
+
+0.572
+
+448
+
+1458
+
+51–60
+
+0.941
+
+144
+
+0.445
+
+506
+
+1484
+
+61–70
+
+0.876
+
+128
+
+0.506
+
+450
+
+1424
+
+71–80
+
+0.995
+
+125
+
+0.961
+
+801
+
+464
+
+81–90
+
+0.999
+
+146
+
+0.743
+
+975
+
+501
+
+91–100
+
+0.985
+
+123
+
+0.869
+
+857
+
+456
+
+101–125
+
+1.000
+
+140
+
+0.870
+
+908
+
+503
+
+126–150
+
+1.000
+
+207
+
+0.771
+
+847
+
+1037
+
+Table 1: Results of the momentum distributions fits by 3 temperatures (2 systems are considered boosted
+and one static) at 13 TeV for different multiplicity intervals. Values for intervals of small multiplicity are
+similar to each other, while for high multiplicity, the values are different.
+
+10
+
+

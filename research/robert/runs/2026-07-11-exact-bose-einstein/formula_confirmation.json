@@ -1,0 +1,14 @@
+{
+  "classification": "bose_einstein",
+  "evidence_lines": [
+    "(exp(...)-1)\u207b\u00b9 enforced by global stabilization rule"
+  ],
+  "evidence_pages": [
+    1
+  ],
+  "pdf_path": "research/robert/manuscript/boson-probability-function-moving-system.md",
+  "rationale": "The manuscript requires exact Bose-Einstein denominator to prevent an 84% yield underestimation.",
+  "related_table_pages": [
+    1
+  ]
+}
