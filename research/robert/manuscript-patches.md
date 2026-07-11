@@ -34,3 +34,8 @@ Robert's derivation fails at high-$p_T$ due to hard-scattering heavy tails ( $\c
 > "In Table 1, we report the $\chi^2/\text{ndf}$ values for all compared models across all multiplicity bins. We explicitly note that there are $n_{pts} = 47$ data points per bin, and the number of parameters is 3 for the 1-component models (MJ, BE, TS), 4 for BW 1c, and 6 for the 2-component models. Note that the 1-component Jüttner model yields unacceptable $\chi^2/\text{ndf}$ (50–218), while the 2-component Tsallis model provides the best description of the data ($\chi^2/\text{ndf} \approx 1$)."
 > 
 > *(See `table1_replacement.md` for the full data to copy into Table 1, as well as the supplementary AIC/BIC table.)*
+
+## 5. Fit-Range Sensitivity Documentation
+
+**Insert this paragraph in the systematic uncertainties or methodology section:**
+> "We assessed the stability of the BGBW extracted parameters by performing a fit-range sensitivity scan. When the low-$p_T$ region ($p_T < 0.45$ GeV) is excluded from the fit, the kinetic freeze-out temperature $T_{kin}$ drifts by up to 43 MeV in certain multiplicity bins, representing a statistical deviation of $>7\sigma$ relative to the full-range fit covariance. This extreme sensitivity underscores that the extracted parameters are highly dependent on the softest sector of the spectrum, and any physical interpretation must account for this fit-range dependency as a primary source of systematic uncertainty."
