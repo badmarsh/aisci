@@ -83,6 +83,7 @@ These instructions apply to any AI coding or research agent working in this repo
 
 - Always verify that the application and its services are running successfully after finishing an implementation, so the user doesn't have to discover errors themselves.
 - **Global Mitigation Rule:** When fixing an issue, catching a hallucination, or updating a theoretical conclusion (e.g., invalidating a model approximation), agents MUST verify and apply the fix across the entire repository. This includes updating tests, data files, evidence ledgers, run scripts, and UI tracking. Do not limit the fix to the single isolated source file where the issue was first found.
+- **Complete Reading & Verification:** Agents MUST read files, diffs, commit logs, and terminal outputs thoroughly to the very end. Do not prematurely stop reading after finding an initial match or familiar pattern at the top of an output. When analyzing branches, PRs, or large logs, explicitly review the full list of changed files and the entire commit message before drawing conclusions or taking action.
 
 ## Mandatory Intake Stage: Principle Violation & Verification Analysis
 

@@ -1,7 +1,7 @@
 # Robert — Science Next Actions
 
 This is the canonical task queue for Robert's physics workflow.
-Platform-blocked items (waiting on Ollama, Scite key, etc.) are noted separately; their resolution is tracked in Multica Issues.
+Platform-blocked items (waiting on Ollama, Scite key, etc.) are noted separately; their resolution is tracked in GitHub Issues.
 
 Science tasks become active only after acceptance by Robert. Do not add, remove, or reword items without Robert's approval.
 
@@ -33,14 +33,15 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 ## 🤖 Agent-Proposed
 ### Manuscript Consistency Audit
 1. **Extreme Fit-Range Sensitivity (W-05)**
-   - **Draft Claim**: "When excluding the low-pT region (pT < 0.45 GeV), T_kin drifts by up to 43 MeV in certain bins (>7σ deviation). Document this extreme sensitivity..."
-   - **Ledger Status**: The ledger claim "Boltzmann/Jüttner approximation is valid for pT > 120 MeV... y≈η approximation valid..." states: `Fit-range sensitivity scan ... shows maximum parameter drift < 10%, validating the pT > 0.12 GeV cutoff robustness.`
-   - **Violation**: The draft claims *extreme* sensitivity (>7σ), while the evidence ledger explicitly validates the *robustness* of the cutoff with <10% drift. The draft asserts a stronger, contradictory claim than what the ledger supports.
+   - ~~**Draft Claim**: "When excluding the low-pT region (pT < 0.45 GeV), T_kin drifts by up to 43 MeV in certain bins (>7σ deviation). Document this extreme sensitivity..."~~
+   - ~~**Ledger Status**: The ledger claim...~~
+   - **Resolved**: The evidence ledger has been updated to reflect the 2026-06-20 >7σ fit-range sensitivity findings. The draft claim is now consistent with the evidence ledger.
 
 2. **Pion-Mass Assumption Bias (W-07)**
    - **Draft Claim**: "The authors must either fit strictly identified spectra (π, K, p) simultaneously, or explicitly document the estimated thermodynamic bias..."
    - **Ledger Status**: `Sanity check (level-2 only)`.
    - **Violation**: The draft relies on a claim that has not reached `Supported` status. It is currently only a `Sanity check`.
+   - **Next Action**: Revise manuscript draft to downgrade the "Pion-Mass Assumption Bias" claim to a hypothesis or warning until the level-1 identified-species refit is complete and the claim reaches `Supported`.
 
 
 ### [A-01] Computational Rescue Strategy: Symbolic Regression for Kinematic Boundaries

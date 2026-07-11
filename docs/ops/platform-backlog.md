@@ -167,14 +167,6 @@ Keys still present in `deployment/onyx/.env` (tracked file). These are dev/perso
 
 ## Operational State & Backlog Reconciliation
 
-1. **Missing Documentation Link**:
-   - `docs/user-manual/USER_MANUAL.md` is referenced by `AGENTS.md`, `agent-skills/aisci-living-docs/SKILL.md`, and `docs/ops/gemini-audit-prompt.md`.
-   - The directory and file do not exist in the repository.
-
-2. **Approval Gates Validation**:
+1. **Approval Gates Validation**:
    - Checked `agent-skills/hitl-checkpoint-manager/SKILL.md` and `agent-skills/analysis-handoff-router/SKILL.md`. Both correctly explicitly warn against overwriting validated claims or require offering a handoff without automatic commits, matching the canonical approval gate constraint.
 
-3. **Multica Issue Ambiguity**:
-   - Noticed in `next-actions.md`: `Platform-blocked items (waiting on Ollama, Scite key, etc.) are noted separately; their resolution is tracked in Multica Issues.`
-   - And in `O-05`: "Create Multica Issue for adding Jacobian to manuscript..."
-   - It is unclear if "Multica Issue" refers to a GitHub project/label in this repository or an external tracker.
