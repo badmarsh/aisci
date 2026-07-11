@@ -18,3 +18,6 @@ Current local checks are treated as sanity checks until they are tied to exact m
 - `referee-report-draft.md` - running draft of referee-style critique.
 - `next-actions.md` - current work queue.
 - `runs/` - dated, reproducible analysis runs.
+
+## Canonical Scripts
+- **boson_paper_analysis.py**: The canonical analysis script is located at `physics/src/boson_paper_analysis.py`.

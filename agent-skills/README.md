@@ -13,22 +13,30 @@ All skills follow the `TEMPLATE.md` schema:
 4. `## Output & Approval Gates`: When to ask for permission and how to shape output.
 
 ## Available Skills
-
-- `aisci-tech-kickoff` - start a technical work session, choose a safe first task, and execute or plan it.
-- `analysis-handoff-router` - after analysis, offer implementation, targeted persistence, or a next-session prompt.
-- `git-worktree-guard` - use git status/history safely for context while preserving unrelated changes.
-- `platform-backlog-manager` - manage actionable platform work in `docs/ops/platform-backlog.md`.
-- `researcher-docs-manager` - maintain high-signal research docs, separate physics from infra, clean stale working docs, and archive history.
-- `aisci-ops-auditor` - audit Onyx, DeerFlow, MCP, Docker, models, and deployment docs/config.
-- `secret-config-auditor` - review secrets, env handling, Docker socket exposure, auth mounts, and MCP config leaks.
-- `mcp-integration-planner` - plan shared MCP/API integrations for literature and citation tools.
-- `onyx-rag-eval-manager` - manage retrieval evaluation discipline for Onyx RAG tuning.
-- `reproducible-physics-runner` - run physics validation scripts and store reproducible artifacts correctly.
-- `science-report-writer` - write referee reports and science-facing summaries from ledger-supported evidence.
-- `science-source-curator` - ingest and reconcile manuscript, PDF, literature, and data-table source evidence.
-- `science-ledger-manager` - manage Robert science claims, evidence states, and next actions.
-- `vendored-runtime-maintainer` - work safely in vendored DeerFlow/runtime trees and separate upstream code from local config.
-- `aisci-living-docs` - scan the entire codebase to understand the current real state of AiSci, then update documentation for three audiences: the coding agents manager (ops/platform), Robert the researcher (science workflow), and any new agent onboarding. Optionally uses DeerFlow for live service verification.
+| Skill | Purpose | Status | Last Use |
+|-------|---------|--------|----------|
+| `academic-stress-tester` | A fail-closed workflow to extract literal quotes from drafts, run them through a strict verification gate, and aggressively stress-test logic against the evidence ledger. | Active | Unknown |
+| `aisci-living-docs` | Scan the entire codebase to understand the current real state of AiSci, then update documentation for three audiences. | Active | Unknown |
+| `aisci-ops-auditor` | Audit the technical architecture and operations of AiSci. | Active | Unknown |
+| `aisci-tech-kickoff` | Start a technical work session in /home/ubuntu/aisci by reading current project context. | Active | Unknown |
+| `analysis-handoff-router` | Route findings after an analysis, audit, review, or research pass. | Active | Unknown |
+| `fit-anomaly-resolution` | Playbook for translating mathematical fit anomalies into physically sound model modifications. | Active | Unknown |
+| `git-worktree-guard` | Use git safely for project context and change hygiene. | Active | Unknown |
+| `hitl-checkpoint-manager` | Intercept high-uncertainty decisions and format structured prompts to force human alignment. | Active | Unknown |
+| `hypothesis-generator` | Brainstorm physically sound extensions to the Tsallis-Pareto and Bose-Einstein models based on literature gaps. | Active | Unknown |
+| `latex-poster-builder` | End-to-end LaTeX poster generation pipeline. | Active | Unknown |
+| `mcp-integration-planner` | Plan shared MCP or direct API integrations for research and citation tools. | Active | Unknown |
+| `onyx-rag-eval-manager` | Manage Onyx RAG evaluation discipline. | Active | Unknown |
+| `physics-auditor` | Act as a strict gatekeeper that rejects fit results violating boundary conditions or fundamental physical constraints. | Active | Unknown |
+| `platform-backlog-manager` | Manage actionable platform, deployment, MCP, Docker, model, security, and tooling tasks in docs/ops/platform-backlog.md. | Active | Unknown |
+| `reproducible-physics-runner` | Run or prepare Robert physics validation scripts, fits, plots, and sanity checks. | Active | Unknown |
+| `researcher-docs-manager` | Reconcile active docs, separate science from platform infrastructure, and archive historical detail. | Active | Unknown |
+| `science-ledger-manager` | Manage Robert science-facing claim status, evidence states, validation gates, and next actions. | Active | Referenced in trackers |
+| `science-peer-reviewer` | Act as a hostile academic peer reviewer. | Active | Unknown |
+| `science-report-writer` | Draft or revise referee reports, science summaries, validation reports, and response notes. | Active | Unknown |
+| `science-source-curator` | Manage science source materials such as Robert's manuscript PDF, literature PDFs, arXiv/INSPIRE/HEPData references. | Active | Unknown |
+| `secret-config-auditor` | Review repository config, deployment files, docs, and runtime assumptions for committed secrets. | Active | Unknown |
+| `vendored-runtime-maintainer` | Work safely in vendored or nested runtime trees such as deployment/deer-flow. | Active | Unknown |
 
 ## Common Rules
 

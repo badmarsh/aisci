@@ -114,7 +114,7 @@ def test_smoke_pipeline(mock_get, mock_hepdata_responses, tmp_path):
     args_pipeline.run_dir = tmp_path
     args_pipeline.pdf_path = Path("dummy.pdf")
     args_pipeline.mass_gev = 0.13957
-    args_pipeline.models = ["manuscript_juttner"]
+    args_pipeline.models = ["exact_bose_einstein"]
     args_pipeline.max_components = 1
 
     # Since fitting all models takes time and minuit fits might fail on simulated data,
@@ -126,7 +126,7 @@ def test_smoke_pipeline(mock_get, mock_hepdata_responses, tmp_path):
     def mock_build_fit_specs(eta_max, mass_gev):
         specs = original_build_fit_specs(eta_max, mass_gev)
         # return only 1c models to run fast in smoke test
-        return [s for s in specs if s.component_count == 1 and s.model_name == "manuscript_juttner"]
+        return [s for s in specs if s.component_count == 1 and s.model_name == "exact_bose_einstein"]
 
     with patch("fitting_pipeline.parse_args", return_value=args_pipeline), \
          patch("fitting_pipeline.confirm_manuscript_formula", return_value=mock_formula), \

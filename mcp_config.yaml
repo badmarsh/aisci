@@ -30,6 +30,28 @@ scite:
   timeout: 30
   max_retries: 3
 
+inspirehep:
+  enabled: true
+  base_url: "https://inspirehep.net/api/"
+  # INSPIRE-HEP REST API is public and does not require authentication.
+  # Use for: HEPData record lookup, paper metadata, citation counts, arXiv cross-ref.
+  # Rate limit: 15 requests/second (burst), 5 req/s sustained recommended.
+  auth_type: "none"
+  timeout: 30
+  max_retries: 3
+  notes: "Primary source for HEPData ins* record resolution and LHC paper metadata."
+
+openalexhep:
+  enabled: true
+  base_url: "https://api.openalex.org/"
+  # OpenAlex REST API is public. Polite pool: add ?mailto=your@email in queries.
+  # Use for: literature search, author disambiguation, citation graph traversal.
+  # Prefer over S2 for full open-access metadata.
+  auth_type: "none"
+  timeout: 30
+  max_retries: 3
+  notes: "Use for broad literature searches. Add polite pool email via OPENALEX_EMAIL env var."
+
 onyx:
   enabled: true
   base_url: "http://127.0.0.1:8095/onyx/sse"
