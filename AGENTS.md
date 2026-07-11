@@ -78,3 +78,34 @@ These instructions apply to any AI coding or research agent working in this repo
 - Use direct MCP/API tools for task-specific literature or citation lookups when they need fresh external evidence.
 - Do not assume Onyx is a universal MCP gateway unless a working endpoint is documented and tested.
 - If the same external service is needed by multiple agents, document it under `docs/ops/` and route it through the shared local MCP proxy when practical.
+
+## General Practices
+
+- Always verify that the application and its services are running successfully after finishing an implementation, so the user doesn't have to discover errors themselves.
+- **Global Mitigation Rule:** When fixing an issue, catching a hallucination, or updating a theoretical conclusion (e.g., invalidating a model approximation), agents MUST verify and apply the fix across the entire repository. This includes updating tests, data files, evidence ledgers, run scripts, and UI tracking. Do not limit the fix to the single isolated source file where the issue was first found.
+
+## Mandatory Intake Stage: Principle Violation & Verification Analysis
+
+Before executing any large task, agents must perform a repository health check against established principles:
+- **Analyze Redundancy:** Check if the user request implies creating a new tracking document or "Megaprompt". If so, reject the creation of a new file and instead route the data into existing canonical files (`next-actions.md`, `evidence-ledger.md`, `platform-backlog.md`).
+- **Verify Before Deletion:** Before removing any outdated Megaprompt, tracking document, or task list, explicitly verify (by checking the target files in the codebase) whether the most valuable/critical items in those documents were actually implemented. Any uncompleted actionable items must be migrated to the canonical queues.
+- **Check for Outdated State:** Quickly scan the root for redundant files or orphaned documentation that violates the single-source-of-truth rule. Recommend their cleanup (following the verification step above).
+- **Ensure Canonical Alignment:** Verify that any UI or code wiring explicitly respects the exact capitalization and structure of canonical documents.
+
+## Environment & Execution Protocols
+
+- **Windows/WSL Boundary:** When operating in a Windows environment but the workspace is a WSL UNC path (e.g., `\\wsl.localhost\Ubuntu\...`), avoid running Node/NPM or Python commands directly in Windows `pwsh`. Wrap execution in WSL bash: `wsl bash -c "cd /home/ubuntu/aisci && <command>"`.
+- **Python Virtual Environment Isolation:** The Python environment is nested in `physics/.venv`, not the project root. Agents must explicitly source `physics/.venv/bin/activate` or use `physics/.venv/bin/python` to ensure dependencies like `iminuit` and `pytest` are correctly resolved.
+
+## Knowledge Capture & Tagging Taxonomy
+
+When creating GitHub Issues to capture research, decisions, or bugs, always structure them properly:
+- **Use Templates**: Utilize the templates in `.github/ISSUE_TEMPLATE/` (`research.md`, `decision.md`, `bug.md`).
+- **Use Domain Tags**: Apply relevant domain labels (e.g., `physics`, `fitting`).
+- **Use Source Tags**: Apply source labels if the info came from an external tool or agent (e.g., `from-perplexity`, `from-onyx`, `from-deerflow`, `from-claude-code`).
+- **Link the Graph**: Proactively link related issues using `AIS-XXX` notation to build a searchable knowledge graph.
+- **Keep GitHub Clean**: In PR descriptions, do not duplicate context. Provide a high-level summary and link to the relevant Issue for the full "why" and "how".
+
+## Temporary & Scratch Files
+
+- **No Scratch Files Allowed**: No temporary or scratch files (e.g., scratch scripts, debug logs, one-off plotting scripts, local db copies, or screenshots) should ever be saved to the repository working directory without explicit user allowance.

@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-PDF_PATH = Path("/home/ubuntu/aisci/research/robert/manuscript/boson-probability-function-moving-system.pdf")
+PDF_PATH = Path("/home/ubuntu/aisci/research/robert/manuscript/boson-probability-function-moving-system.md")
 OUT_TXT = Path("/home/ubuntu/aisci/research/robert/scratch/manuscript_text.txt")
 
 def main():

@@ -29,7 +29,7 @@ Shared shell:
 
 ## What's out of scope (intentionally)
 
-- **Backend wiring.** All data is mocked inline. There is no data fetching, auth, or Multica integration yet.
+- **Backend wiring.** All data is mocked inline. There is no data fetching or auth integration yet.
 
 ## Running locally (optional)
 
@@ -48,13 +48,9 @@ pnpm dev                      # http://localhost:3000
 
 If you only want to look at the design, just open the v0 demo link above — no setup needed.
 
-## Multica integration path
+## Agent integration path
 
-Stack matches what Multica's frontend uses (Next.js 14 App Router, React Server Components, shadcn/ui, Tailwind, lucide-react), so this directory can later be lifted into a Multica module by:
-
-1. Replacing mock data with Multica-API-fetched data (server components + `multica` SDK)
-2. Wrapping in Multica's auth/session shell
-3. Promoting the `webapp/` directory to wherever Multica modules live in the host repo
+Stack matches our intended Next.js 14 App Router, React Server Components, shadcn/ui, Tailwind, lucide-react frontend, so this directory can later be lifted into a primary module by replacing mock data with API-fetched data and wrapping in the auth shell.
 
 ## Provenance
 

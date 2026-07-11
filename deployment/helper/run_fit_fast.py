@@ -46,7 +46,7 @@ except ImportError:
 # ────────────────────────────────────────────────────
 DATA_CSV = BASE_DIR / "physics/data/fit_input_ins1735345.csv"
 RUN_DIR  = BASE_DIR / "research/robert/runs/2026-05-30-multiplicity-fit"
-PDF_PATH = BASE_DIR / "research/robert/manuscript/boson-probability-function-moving-system.pdf"
+PDF_PATH = BASE_DIR / "research/robert/manuscript/boson-probability-function-moving-system.md"
 
 # Manuscript acceptance and mass
 ETA_MAX  = 0.8    # |η| < 0.8 (ALICE, this record)
