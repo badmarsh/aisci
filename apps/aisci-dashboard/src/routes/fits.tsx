@@ -95,12 +95,10 @@ function FitsPage() {
     enabled: !!activeRun,
   });
 
-  const fitRows: FitRow[] = data?.fitRows || [];
-
-  const rows = useMemo(
-    () => (filter === "All Models" ? fitRows : fitRows.filter((r: FitRow) => r.model === filter)),
-    [filter, fitRows],
-  );
+  const rows = useMemo(() => {
+    const fitRows: FitRow[] = data?.fitRows || [];
+    return filter === "All Models" ? fitRows : fitRows.filter((r: FitRow) => r.model === filter);
+  }, [filter, data?.fitRows]);
 
   const tSeriesData = useMemo(() => {
     if (!data?.fitRows || !data?.bins) return [];
