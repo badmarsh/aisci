@@ -12,6 +12,14 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 ## 🟢 Active — Robert's Decision Required
 
 
+### [O-12] Merge `pr28` (BGBW per-class fits)
+**Status:** ACTIVE — Ready for merge.
+**Context:** The `pr28` branch contains the structural updates to `physics/src/` to support BGBW per-class fits (Issue #27) and locks the dependencies via `uv.lock`.
+**Actions (Robert or ALICE collaboration):**
+1. Merge `pr28` into `main` (`git merge pr28`).
+2. Verify tests pass.
+
+
 
 ### [O-11] Deprecate 3-Component Jüttner & Execute 2-Component Exact Bose-Einstein Fits
 **Status:** ACTIVE — Pipeline is scaffolded and ready.
@@ -78,6 +86,71 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 - [ ] **D-01 (Analysis):** The Fisher Information matrix shows the 3-component Jüttner parameterization (T_stat, T_kin, β_s) is mathematically singular at U → 0, meaning it cannot be fitted with physical meaning. Execute `fit-anomaly-resolution` skill to recommend a non-singular baseline (e.g., exact Bose-Einstein 2-component) and document the mathematical proof for Robert.
 - [ ] **D-02 (Docs):** The project lacks a central glossary for parameter notation (e.g., T_stat vs T_kin, U vs β_s). Execute `aisci-living-docs` skill to create a `docs/decisions/notation-glossary.md` and link it from `workflow.md`.
 - [ ] **D-03 (Data):** The `ins1735345` data file is loaded but the pipeline script `fitting_pipeline.py` currently hardcodes paths to earlier test tables. Modify the script to accept an `--input` argument, defaulting to the new `ins1735345` file, ensuring the upcoming fits actually use the unblocked data.
+
+### [A-03] Theoretical Derivation: Exact Analytical Integration of Moving Tsallis Source over η
+**Status:** AGENT-PROPOSED — requires Robert's approval to activate.
+**Source:** Perplexity academic + GitHub analysis, 2026-07-11.
+**Context:** Evidence-ledger entry (2026-07-10, "Exact analytical integration of a moving
+Tsallis source over pseudorapidity") confirms that no exact closed-form analytical
+integration of a moving Tsallis source over pseudorapidity (with proper dy/dη Jacobian
+and collective flow U) exists in the literature. The closest work is Lao et al.
+(arXiv:1611.08391v4) which only derives a first-order Taylor expansion in (q-1).
+This is a genuine theoretical gap that could form the core novelty of a revised manuscript.
+**Proposed approach:**
+1. Use SymPy (already in physics/.venv) to attempt a full symbolic integration of:
+   (d²N/dp_T dη) = ∫ f_Tsallis(p_T, η, U, T, q) × (dy/dη) dη
+   over the ALICE acceptance |η| < 0.8, with the exact dy/dη = p/(m_T cosh η) Jacobian.
+2. If closed-form is not achievable, construct a Padé approximant [M/N] rational function
+   to the integrand. Padé approximants converge outside the Taylor radius and are more
+   accurate than truncated series for transcendental functions.
+3. As an alternative, apply Symbolic Regression via PySR (arXiv:2508.00989v3, Bendavid
+   et al., already referenced as [A-01]) to find the minimal compact analytical correction.
+4. If an exact or high-order approximation is found, this becomes the manuscript's primary
+   theoretical contribution, superseding the Boltzmann/Jüttner derivation.
+**Target file for results:** research/robert/runs/YYYY-MM-DD-tsallis-exact-eta-integration/
+**Acceptance:** SymPy derivation script produces a closed-form or Padé expression validated
+against numerical quadrature to < 0.1% across pT ∈ [0.15, 3.0] GeV, η ∈ [-0.8, 0.8].
+
+### [A-04] Literature Cross-Check: Femtoscopy HBT Source Size vs Thermal Fit Parameters
+**Status:** AGENT-PROPOSED — requires Robert's approval to activate.
+**Source:** Perplexity academic + GitHub analysis, 2026-07-11.
+**Context:** arXiv:2607.04351 ("Quantum interference effects enhanced in π+p femtoscopic
+correlation functions") is already indexed in evidence-ledger.md agent-proposed intake.
+HBT femtoscopy measures the space-time extent of the pion-emitting source — the same
+source whose momentum distribution is being fitted. If T_kin and flow β extracted from
+pT spectra are physically meaningful, they should be consistent with the source size
+R_HBT via: R_HBT ~ ℏ/(T_kin × cosh(y)) × f(β). A tension between spectral T_kin and
+HBT-inferred T_kin would be strong evidence that the spectral fit is absorbing
+non-thermal contributions.
+**Action:**
+1. Retrieve HBT radii R_out, R_side, R_long from arXiv:2607.04351 for pp 13 TeV.
+2. Map them to multiplicity classes matching ins1735345.
+3. Compare against the T_kin values in research/robert/runs/2026-07-08-bgbw-per-class/.
+4. Record agreement or tension in evidence-ledger.md as a new claim row.
+**Target file for results:** research/robert/evidence-ledger.md (new claim row).
+**Acceptance:** Comparison table (R_HBT-implied T_kin vs spectral T_kin per bin) added
+to evidence-ledger.md with a status of Supported or Tension as appropriate.
+
+### [A-05] Bayesian MCMC Posterior for T_kin–β_s Joint Contours
+**Status:** AGENT-PROPOSED — requires Robert's approval to activate.
+**Source:** Perplexity academic + GitHub analysis, 2026-07-11.
+**Context:** Task 9 (evidence-ledger.md, 2026-06-20) confirmed T–β correlations |ρ| up
+to −0.999 in BGBW fits. The Minuit covariance matrix gives the χ² curvature at the
+minimum but does not capture the non-Gaussian shape of the joint posterior, which is
+what a referee will demand when |ρ| > 0.95. The file physics/src/bgbw_jax_autodiff.py
+(5.7 KB, currently orphaned per platform-backlog.md) provides exact JAX gradients
+suitable for a NUTS/HMC sampler.
+**Proposed approach:**
+1. Wire physics/src/bgbw_jax_autodiff.py into a NumPyro or BlackJAX HMC sampler.
+2. Run NUTS posterior sampling for each of the 10 multiplicity bins with 2000 warmup +
+   2000 draw steps.
+3. Plot 2D (T_kin, β_s) posterior contours at 68% and 95% credible intervals.
+4. Report marginal posteriors and compare their widths to the Minuit diagonal errors to
+   quantify the underestimation from covariance-diagonal reporting.
+5. These corner plots become the publishable replacement for the degenerate parameter table.
+**Target file:** research/robert/runs/YYYY-MM-DD-bgbw-mcmc-posteriors/
+**Acceptance:** Corner plots for all 10 bins stored in the run dir with R-hat < 1.01 for
+all chains, and a summary claim row added to evidence-ledger.md.
 
 ---
 

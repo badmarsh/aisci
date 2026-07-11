@@ -17,6 +17,32 @@ This document provides independent validation values for cross-checking against 
 | 101-125 | 169.7  | 37.8   | 144.4  | 33.1   | 19.2   | **1.37** | 12.9 |
 | 126-150 | 103.4  | 17.7   | 85.6   | 15.7   | 12.3   | **0.45** | 5.3 |
 
+### AIC/BIC Model Comparison (ΔAIC relative to best model per bin)
+
+> Source: evidence-ledger.md, section "AIC/BIC Model Comparison (Task 8, 2026-06-20)"
+> Lower ΔAIC = better. **Bold** = winner per bin.
+> n_pts = 47; n_params: 1c = 3 (MJ/BE/TS) or 4 (BW); 2c = 6 (MJ/BE/TS)
+
+| Bin     | MJ 1c | BE 1c | TS 1c  | TS 2c  | BW 1c |
+|---------|------:|------:|-------:|-------:|------:|
+| 21-30   | 2930  | 2784  | 5      | **0**  | 795   |
+| 31-40   | 7008  | 6439  | 241    | **0**  | 1194  |
+| 41-50   | 6881  | 6218  | 340    | **0**  | 1036  |
+| 51-60   | 6755  | 6039  | 403    | **0**  | 972   |
+| 61-70   | 8802  | 7705  | **0**  | 6      | 471   |
+| 71-80   | 9225  | 8093  | 754    | **0**  | 1047  |
+| 81-90   | 7886  | 6741  | **0**  | 6      | 83    |
+| 91-100  | 7246  | 6104  | **0**  | —      | —     |
+| 101-125 | 7404  | 6291  | 784    | **0**  | 496   |
+| 126-150 | 4526  | 3741  | 517    | **0**  | 207   |
+
+**Overall winner: Tsallis 2c in 7/10 bins; Tsallis 1c in 3 bins (61-70, 81-90, 91-100).**
+**ΔAIC(TS2c vs BW1c): TS2c beats BW1c by 83–1194 units across all bins where both present.**
+**BIC confirms same winner in all 10 bins.**
+⚠️ Tsallis 2c AIC/BIC win does NOT imply physical correctness — see chi²/ndf table and
+C1/C2/C3 caveats above. Covariance inspection and parameter stability are required before
+physical interpretation.
+
 ### BGBW Per-Class Fit Parameters
 
 > ⚠️ **Caveats**: All values below carry three interlocking caveats (C1/C2/C3) and must not be physically interpreted until these are resolved.
