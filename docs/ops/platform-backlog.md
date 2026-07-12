@@ -10,6 +10,7 @@
 
 | Priority | System | Issue | Why It Matters | Next Action | Status |
 |---|---|---|---|---|---|
+| P1 | Infra | **Dashboard CQRS and Playwright Tests** — Replaced `subprocess.Popen` with safe asyncio-based background task execution. Added Playwright `page.route` intercepts to mock backend for E2E tests, verified 0 errors in CI mode, and ensured zero `8081` references remain. | Fixes blocking E2E test failures and improves Ignition engine's concurrency and task management. | None. | Done — 2026-07-12 |
 | P1 | Infra | **Physics Structure Consolidation** — Merged `physics/` logic into `libs/physics-core/` and deleted the redundant root folder. Legacy python dashboard references dropped. | Removes structural duplication of physics core logic, conforming to monorepo standard. | None. | Done — 2026-07-12 |
 | P1 | Infra | **Virtual Environment Consolidation** — Migrated the scattered physics virtual environments (`physics/.venv`, `physics_env`) into a single standard `libs/physics-core/.venv`. | Removes environment fragmentation and ensures predictable dependencies for tests and agents. | None. | Done — 2026-07-12 |
 | P1 | Infra | **Merge aisci-phase3-review** — Unmerged Phase 3 architecture, physics CLI, Devendoring plan, and Agent skills (`ledger-anomaly-detector`, `science-hypothesis-generator`). | Required for moving away from DeerFlow and fully enabling autonomous loops. | Execute `git merge aisci-phase3-review`. | Done — 2026-07-11 |

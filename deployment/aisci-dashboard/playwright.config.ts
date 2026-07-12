@@ -1,5 +1,4 @@
 import { defineConfig, devices } from "@playwright/test";
-
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -8,7 +7,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:8081",
+    baseURL: "http://localhost:5173",
     trace: "on-first-retry",
   },
   projects: [
@@ -20,7 +19,7 @@ export default defineConfig({
   // Optionally run the dev server before testing
   webServer: {
     command: "cd ../../ && bash start_dashboard.sh",
-    url: "http://localhost:8081",
+    url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

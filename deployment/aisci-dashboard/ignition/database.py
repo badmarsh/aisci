@@ -1,11 +1,15 @@
 import sqlite3
 import os
-
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'evidence_graph.db')
+from config import DB_PATH
 
 def get_connection():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    return sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA foreign_keys=ON")
+    conn.execute("PRAGMA busy_timeout=5000")
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def init_db():
     conn = get_connection()
@@ -91,6 +95,34 @@ def init_db():
             action TEXT,
             user TEXT,
             details TEXT
+        )
+    ''')
+    
+    # JobExecutions table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS JobExecutions (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            status TEXT,
+            error TEXT,
+            log_path TEXT,
+            artifact_manifest TEXT,
+            created_at TEXT,
+            updated_at TEXT
+        )
+    ''')
+
+    # ReviewDecisions table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ReviewDecisions (
+            id TEXT PRIMARY KEY,
+            target_id TEXT,
+            expected_hash TEXT,
+            requested_state TEXT,
+            reviewer TEXT,
+            rationale TEXT,
+            status TEXT,
+            created_at TEXT
         )
     ''')
     

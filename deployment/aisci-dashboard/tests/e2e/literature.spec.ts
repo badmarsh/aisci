@@ -1,6 +1,16 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Literature Intake", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route("**/api/literature", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([{ id: "1", title: "Test Paper", source: "arXiv" }]),
+      });
+    });
+  });
+
   test("should display papers and support search filtering", async ({ page }) => {
     await page.goto("/literature");
 

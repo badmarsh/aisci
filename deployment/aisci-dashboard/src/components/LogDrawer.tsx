@@ -24,7 +24,8 @@ export function LogDrawer({
     setLines([]);
     setDone(false);
 
-    const eventSource = new EventSource(`http://localhost:8001/api/logs/${target}`);
+    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8001/api";
+    const eventSource = new EventSource(`${API_BASE}/logs/${target}`);
 
     eventSource.onmessage = (e) => {
       try {

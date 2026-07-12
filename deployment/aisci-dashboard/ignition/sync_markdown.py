@@ -28,15 +28,11 @@ def _atomic_write(path: str, lines: list[str]) -> None:
             finally:
                 fcntl.flock(f, fcntl.LOCK_UN)
 
-def get_db():
-    db_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'evidence_graph.db')
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    return conn
+from database import get_connection
+from config import EVIDENCE_FILE, TASKS_FILE
 
-EVIDENCE_FILE = os.path.join(os.path.dirname(__file__), '..', 'research', 'robert', 'evidence-ledger.md')
-TASKS_FILE = os.path.join(os.path.dirname(__file__), '..', 'research', 'robert', 'next-actions.md')
+def get_db():
+    return get_connection()
 
 def _extract_text(node):
     if hasattr(node, 'children') and isinstance(node.children, list):
@@ -90,31 +86,50 @@ def sync_evidence_to_db():
     conn.commit()
     conn.close()
 
-def sync_db_to_evidence(evidence_id, new_status):
+def materialize_approved_decisions():
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT claim FROM Evidence WHERE id = ?", (evidence_id,))
-    row = cursor.fetchone()
-    conn.close()
+    cursor.execute("SELECT id, target_id, requested_state FROM ReviewDecisions WHERE status = 'Proposed'")
+    decisions = cursor.fetchall()
     
-    if not row:
+    if not decisions:
+        conn.close()
         return
-    
-    target_claim = row['claim'].strip()
-    
+
+    # For simplicity, we assume we only update Evidence statuses for now.
     with open(EVIDENCE_FILE, 'r') as f:
         lines = f.readlines()
         
-    for i, line in enumerate(lines):
-        if line.strip().startswith('|') and target_claim in line:
-            parts = line.split('|')
-            if len(parts) >= 6:
-                parts[4] = f" {new_status} "
-                lines[i] = "|".join(parts)
-            break
+    changed = False
+    for dec in decisions:
+        evidence_id = dec['target_id']
+        new_status = dec['requested_state']
+        
+        cursor.execute("SELECT claim FROM Evidence WHERE id = ?", (evidence_id,))
+        row = cursor.fetchone()
+        if not row:
+            continue
             
-    with _file_lock:
-        _atomic_write(EVIDENCE_FILE, lines)
+        target_claim = row['claim'].strip()
+        for i, line in enumerate(lines):
+            if line.strip().startswith('|') and target_claim in line:
+                parts = line.split('|')
+                if len(parts) >= 6:
+                    parts[4] = f" {new_status} "
+                    lines[i] = "|".join(parts)
+                    changed = True
+                break
+                
+        cursor.execute("UPDATE ReviewDecisions SET status = 'Applied' WHERE id = ?", (dec['id'],))
+        
+    if changed:
+        with _file_lock:
+            _atomic_write(EVIDENCE_FILE, lines)
+            
+    conn.commit()
+    conn.close()
+    
+    if changed:
         sync_evidence_to_db()
 
 def sync_tasks_to_db():

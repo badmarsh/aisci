@@ -15,6 +15,7 @@ import {
 import { PageShell } from "@/components/PageShell";
 import { type EvidenceRow } from "@/lib/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import DOMPurify from "dompurify";
 import { fetchEvidence, updateEvidence, syncFromFiles } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -83,8 +84,8 @@ function EvidencePage() {
       accent: "text-emerald-brand",
     },
     {
-      label: "Sanity checked",
-      value: evidence.filter((e: EvidenceRow) => e.status === "Sanity checked").length,
+      label: "Sanity Checked",
+      value: evidence.filter((e: EvidenceRow) => e.status === "Sanity Checked").length,
       dot: "🟡",
       accent: "text-amber-brand",
     },
@@ -174,9 +175,11 @@ function EvidencePage() {
                     <TableCell className="max-w-md">
                       <div
                         dangerouslySetInnerHTML={{
-                          __html: row.claim
-                            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-                            .replace(/<br>/g, "<br/>"),
+                          __html: DOMPurify.sanitize(
+                            row.claim
+                              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                              .replace(/<br>/g, "<br/>"),
+                          ),
                         }}
                       />
                     </TableCell>

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "Cleaning up existing processes on ports 8001 and 8081..."
+echo "Cleaning up existing processes on ports 8001 and 5173..."
 fuser -k 8001/tcp 2>/dev/null
-fuser -k 8081/tcp 2>/dev/null
+fuser -k 5173/tcp 2>/dev/null
 sleep 1
 
 echo "Starting AiSci Dashboard Services..."
@@ -15,16 +15,16 @@ BACKEND_PID=$!
 cd ../../..
 
 # Start Frontend
-echo "Starting Frontend (npm run dev on port 8081)..."
+echo "Starting Frontend (npm run dev on port 5173)..."
 cd deployment/aisci-dashboard
-npm run dev -- --port 8081 > frontend.log 2>&1 &
+npm run dev -- --port 5173 > frontend.log 2>&1 &
 FRONTEND_PID=$!
 cd ../..
 
 echo "=========================================="
 echo "✅ Services Started!"
 echo "📡 Backend running on port 8001 (PID: $BACKEND_PID) -> deployment/aisci-dashboard/backend.log"
-echo "🖥️  Frontend running on port 8081 (PID: $FRONTEND_PID) -> deployment/aisci-dashboard/frontend.log"
+echo "🖥️  Frontend running on port 5173 (PID: $FRONTEND_PID) -> deployment/aisci-dashboard/frontend.log"
 echo "=========================================="
 echo "Press Ctrl+C to stop all services."
 

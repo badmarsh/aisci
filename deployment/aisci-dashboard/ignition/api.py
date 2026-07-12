@@ -3,7 +3,7 @@ import json
 import sqlite3
 import pandas as pd
 from typing import List, Dict, Any, Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -11,13 +11,22 @@ import subprocess
 import asyncio
 import sys
 import time
+import uuid
+import json
 sys.path.insert(0, os.path.dirname(__file__))
 import sync_markdown
 from datetime import datetime
 
 from database import init_db
+from config import RUNS_BASE, AUTH_TOKEN
+import fit_parser
+from validation_policy import default_policy
 
 app = FastAPI(title="AiSci Dashboard API")
+
+def verify_token(authorization: Optional[str] = Header(None)):
+    if AUTH_TOKEN and authorization != f"Bearer {AUTH_TOKEN}":
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 @app.on_event("startup")
 async def startup():
@@ -38,8 +47,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'evidence_graph.db')
-RUNS_BASE = os.path.join(os.path.dirname(__file__), '..', 'research', 'robert', 'runs')
+from config import RUNS_BASE
+from database import get_connection
 
 def get_latest_run_path() -> str:
     """Return the most recently modified run directory that contains fit_quality.csv."""
@@ -63,10 +72,7 @@ def list_run_dirs() -> list[str]:
     return sorted(candidates, reverse=True)
 
 def get_db():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    return get_connection()
 
 def log_activity(action, user, details):
     conn = get_db()
@@ -166,37 +172,24 @@ def get_evidence():
     return [dict(r) for r in rows]
 
 @app.patch("/api/evidence/{evidence_id}")
-def update_evidence(evidence_id: int, body: StatusUpdate):
-    sync_markdown.sync_db_to_evidence(evidence_id, body.status)
+def update_evidence(evidence_id: int, body: StatusUpdate, _: None = Depends(verify_token)):
+    req_id = str(uuid.uuid4())
     conn = get_db()
-    conn.execute("UPDATE Evidence SET status = ? WHERE id = ?", (body.status, evidence_id))
+    conn.execute(
+        "INSERT INTO ReviewDecisions (id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (req_id, str(evidence_id), body.status, "User", "Proposed", datetime.now().isoformat())
+    )
     conn.commit()
     conn.close()
-    log_activity("Updated Evidence", "User", f"Set evidence #{evidence_id} to {body.status}")
-    return {"status": "success"}
+    log_activity("Review Requested", "User", f"Requested evidence #{evidence_id} status change to {body.status}")
+    return {"status": "review_requested", "requestId": req_id}
 
 @app.get("/api/fits")
 def get_fits(run: Optional[str] = None, compare_run: Optional[str] = None):
     try:
         run_path = os.path.join(RUNS_BASE, run) if run else get_latest_run_path()
-        run_name = os.path.basename(run_path)
-        
-        # Check if CSVs exist, if not return Incomplete payload
-        if not os.path.exists(os.path.join(run_path, "fit_quality.csv")):
-            return {
-                "status": "Incomplete",
-                "error": "Missing fit_quality.csv",
-                "runId": run_name,
-                "fitRows": [],
-                "chi2Series": [],
-                "bins": []
-            }
-            
-        quality_df = pd.read_csv(os.path.join(run_path, "fit_quality.csv"))
-        params_df = pd.read_csv(os.path.join(run_path, "fit_parameters.csv"))
-        corr_df = pd.read_csv(os.path.join(run_path, "parameter_correlations.csv"))
+        parsed = fit_parser.parse_fit_artifacts(run_path)
     except Exception as e:
-        # Fallback for other errors (e.g., malformed CSV)
         return {
             "status": "Incomplete",
             "error": str(e),
@@ -206,100 +199,36 @@ def get_fits(run: Optional[str] = None, compare_run: Optional[str] = None):
             "bins": []
         }
 
-    # Map model names to nice names
-    model_map = {
-        "manuscript_juttner": "Jüttner 1c",
-        "tsallis": "Tsallis 2c",
-        "exact_bose_einstein": "Bose-Einstein 1c"
-    }
-
-    # Build correlation lookup: { bin: { model_nice: { "param_left|param_right": rho } } }
-    corr_lookup: dict = {}
-    for _, row in corr_df.iterrows():
-        b = row['group_label']
-        m_nice = model_map.get(row['model_name'], row['model_name'])
-        key = f"{row['parameter_left']}|{row['parameter_right']}"
-        corr_lookup.setdefault(b, {}).setdefault(m_nice, {})[key] = round(float(row['correlation']), 4)
-
-    run_name = os.path.basename(run_path)
-    run_date = run_name[:10] if len(run_name) >= 10 else "unknown"
-    run_timestamp = f"{run_date}T00:00:00Z"
-
-    # First we build the fitRows
-    fit_rows = []
-    
-    for _, row in quality_df.iterrows():
-        bin_label = row['group_label']
-        model_nice = model_map.get(row['model_name'], row['model_name'])
-        
-        # get params
-        subset = params_df[(params_df['group_label'] == bin_label) & (params_df['model_name'] == row['model_name'])]
-        
-        t_str = "—"
-        beta_str = "—"
-        
-        t_row = subset[subset['parameter_name'] == 'temperature_1']
-        if not t_row.empty:
-            t_val = t_row.iloc[0]['value']
-            t_err = t_row.iloc[0]['error']
-            t_str = f"{t_val:.3f} ± {t_err:.3f}"
-            
-        beta_row = subset[subset['parameter_name'] == 'beta_1'] # hypothetical, might be 'beta_1' or 'velocity_1'
-        if not beta_row.empty:
-            b_val = beta_row.iloc[0]['value']
-            b_err = beta_row.iloc[0]['error']
-            beta_str = f"{b_val:.3f} ± {b_err:.3f}"
-
-        fit_rows.append({
-            "bin": bin_label,
-            "model": model_nice,
-            "chi2": round(row['chi2_ndf'], 2),
-            "quality": row['fit_quality_flag'].upper(),
-            "T": t_str,
-            "beta": beta_str,
-            "aic": round(row['aic'], 1),
-            "status": "Converged" if row['success'] else "Failed",
-            "correlations": corr_lookup.get(bin_label, {}).get(model_nice, {}),
-            "seedIndex": int(row['seed_index']) if 'seed_index' in row and not pd.isna(row['seed_index']) else None,
-            "runTimestamp": run_timestamp,
-        })
-
-    # Now build the chi2Series (for the chart)
-    # We need bins and for each bin, chi2 for each model
-    bins = sorted(quality_df['group_label'].unique(), key=lambda x: int(x.split('-')[0]))
+    # Build chi2Series
     chi2_series = []
-    for b in bins:
+    for b in parsed["bins"]:
         entry = {"bin": b}
-        for m in ["Jüttner 1c", "Tsallis 2c", "Bose-Einstein 1c"]:
-            val = None
-            subset = quality_df[(quality_df['group_label'] == b) & (quality_df['model_name'].map(lambda x: model_map.get(x, x)) == m)]
-            if not subset.empty:
-                val = subset.iloc[0]['chi2_ndf']
-            entry[m] = round(val, 2) if val is not None and not pd.isna(val) else None
+        for row in parsed["fitRows"]:
+            if row["bin"] == b:
+                entry[row["model"]] = row["chi2"]
         chi2_series.append(entry)
 
     compare_series = None
     if compare_run:
         try:
             cmp_path = os.path.join(RUNS_BASE, compare_run)
-            cmp_quality = pd.read_csv(os.path.join(cmp_path, "fit_quality.csv"))
+            cmp_parsed = fit_parser.parse_fit_artifacts(cmp_path)
             compare_series = []
-            for b in bins:
+            for b in cmp_parsed["bins"]:
                 entry = {"bin": b}
-                for m_raw, m_nice in model_map.items():
-                    val = cmp_quality[(cmp_quality['group_label'] == b) & (cmp_quality['model_name'] == m_raw)]
-                    if not val.empty:
-                        entry[f"{m_nice} (cmp)"] = val.iloc[0]['chi2_ndf']
+                for row in cmp_parsed["fitRows"]:
+                    if row["bin"] == b:
+                        entry[f"{row['model']} (cmp)"] = row["chi2"]
                 compare_series.append(entry)
         except Exception:
             compare_series = None
 
     return {
-        "fitRows": fit_rows,
+        "fitRows": parsed["fitRows"],
         "chi2Series": chi2_series,
         "compareSeries": compare_series,
-        "bins": bins,
-        "runId": run_name
+        "bins": parsed["bins"],
+        "runId": parsed["runId"]
     }
 
 @app.get("/api/fits/runs")
@@ -315,67 +244,60 @@ class AnomalyItem(BaseModel):
     value: float
 
 @app.get("/api/anomalies", response_model=List[AnomalyItem])
-def get_anomalies(
-    run: Optional[str] = None,
-    chi2_critical: float = 200.0,
-    chi2_warning: float = 10.0,
-    rho_warning: float = 0.95
-):
-    """Scan the latest (or specified) run for physics anomalies."""
+def get_anomalies(run: Optional[str] = None):
+    """Scan the latest (or specified) run for physics anomalies using ValidationPolicy."""
     try:
         run_path = os.path.join(RUNS_BASE, run) if run else get_latest_run_path()
-        quality_df = pd.read_csv(os.path.join(run_path, "fit_quality.csv"))
-        corr_df = pd.read_csv(os.path.join(run_path, "parameter_correlations.csv"))
-        params_df = pd.read_csv(os.path.join(run_path, "fit_parameters.csv"))
+        parsed = fit_parser.parse_fit_artifacts(run_path)
     except FileNotFoundError:
         return []
 
-    model_map = {
-        "manuscript_juttner": "Jüttner 1c",
-        "tsallis": "Tsallis 2c",
-        "exact_bose_einstein": "Bose-Einstein 1c"
-    }
     anomalies: List[AnomalyItem] = []
 
-    # Chi2/ndf checks
-    for _, row in quality_df.iterrows():
-        m = model_map.get(row['model_name'], row['model_name'])
-        chi2_val = float(row['chi2_ndf'])
-        if chi2_val > chi2_critical:
+    # Chi2 checks
+    for _, row in parsed["quality_df"].iterrows():
+        m_nice = fit_parser.parse_model_name(row['model_name'])
+        chi2_val = float(row.get('chi2_ndf', 0.0))
+        sev, msg = default_policy.validate_chi2(chi2_val)
+        if sev != "ok":
             anomalies.append(AnomalyItem(
-                bin=row['group_label'], model=m, type="chi2", severity="critical",
-                message=f"χ²/ndf = {chi2_val:.0f} — model fails completely",
-                value=chi2_val
-            ))
-        elif chi2_val > chi2_warning:
-            anomalies.append(AnomalyItem(
-                bin=row['group_label'], model=m, type="chi2", severity="warning",
-                message=f"χ²/ndf = {chi2_val:.1f} — poor fit quality",
-                value=chi2_val
+                bin=row['group_label'], model=m_nice, type="chi2", severity=sev,
+                message=msg, value=chi2_val
             ))
 
-    # Off-diagonal correlation checks
-    for _, row in corr_df.iterrows():
+    # Correlation checks
+    for _, row in parsed["corr_df"].iterrows():
         if row['parameter_left'] == row['parameter_right']:
             continue
         rho = float(row['correlation'])
-        if abs(rho) > rho_warning:
-            m = model_map.get(row['model_name'], row['model_name'])
+        sev, msg = default_policy.validate_correlation(rho, row['parameter_left'], row['parameter_right'])
+        if sev != "ok":
+            m_nice = fit_parser.parse_model_name(row['model_name'])
             anomalies.append(AnomalyItem(
-                bin=row['group_label'], model=m, type="correlation", severity="warning",
-                message=f"ρ({row['parameter_left']}, {row['parameter_right']}) = {rho:.3f}",
-                value=abs(rho)
+                bin=row['group_label'], model=m_nice, type="correlation", severity=sev,
+                message=msg, value=abs(rho)
             ))
 
-    # Boundary checks (U_1 at speed-of-light limit)
-    for _, row in params_df.iterrows():
-        if row['parameter_name'] == 'U_1' and float(row['value']) > 2.99:
-            m = model_map.get(row['model_name'], row['model_name'])
-            anomalies.append(AnomalyItem(
-                bin=row['group_label'], model=m, type="boundary", severity="warning",
-                message=f"U_1 = {float(row['value']):.4f} — at speed-of-light boundary (U < c)",
-                value=float(row['value'])
-            ))
+    # Boundary checks
+    for _, row in parsed["params_df"].iterrows():
+        pname = row['parameter_name']
+        val = float(row['value'])
+        m_nice = fit_parser.parse_model_name(row['model_name'])
+        
+        if pname in ['beta_1', 'beta_s', 'velocity_1', 'v_1']:
+            sev, msg = default_policy.validate_velocity(val)
+            if sev != "ok":
+                anomalies.append(AnomalyItem(
+                    bin=row['group_label'], model=m_nice, type="boundary", severity=sev,
+                    message=msg, value=val
+                ))
+        elif pname in ['U_1', 'u_1']:
+            sev, msg = default_policy.validate_four_velocity(val)
+            if sev != "ok":
+                anomalies.append(AnomalyItem(
+                    bin=row['group_label'], model=m_nice, type="boundary", severity=sev,
+                    message=msg, value=val
+                ))
 
     return anomalies
 
@@ -415,7 +337,7 @@ def get_export_summary():
     open_tasks = cursor.fetchone()[0]
 
     # Get latest literature
-    cursor.execute("SELECT count(*) FROM Literature")
+    cursor.execute("SELECT count(*) FROM Papers")
     lit_count = cursor.fetchone()[0]
     
     conn.close()
@@ -433,14 +355,6 @@ def get_export_summary():
 """
     return {"markdown": markdown}
 
-@app.post("/api/sync")
-def sync_from_files():
-    try:
-        sync_markdown.sync_evidence_to_db()
-        sync_markdown.sync_tasks_to_db()
-        return {"status": "success", "message": "Synced successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/tasks", response_model=List[TaskModel])
 def get_tasks():
@@ -452,14 +366,17 @@ def get_tasks():
     return [dict(r) for r in rows]
 
 @app.patch("/api/tasks/{task_id}")
-def update_task(task_id: str, body: StatusUpdate):
-    sync_markdown.sync_db_to_tasks(task_id, body.status)
+def update_task(task_id: str, body: StatusUpdate, _: None = Depends(verify_token)):
+    req_id = str(uuid.uuid4())
     conn = get_db()
-    conn.execute("UPDATE Tasks SET status = ? WHERE id = ?", (body.status, task_id))
+    conn.execute(
+        "INSERT INTO ReviewDecisions (id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (req_id, task_id, body.status, "User", "Proposed", datetime.now().isoformat())
+    )
     conn.commit()
     conn.close()
-    log_activity("Updated Task", "User", f"Set task {task_id} to {body.status}")
-    return {"status": "success"}
+    log_activity("Review Requested", "User", f"Requested task {task_id} status change to {body.status}")
+    return {"status": "review_requested", "requestId": req_id}
 
 def tail_log(filepath: str, lines: int = 10) -> list[str]:
     if not os.path.exists(filepath):
@@ -554,7 +471,7 @@ def get_agents():
     ]
 
 @app.post("/api/sync")
-async def manual_sync():
+async def manual_sync(_: None = Depends(verify_token)):
     """Force a re-sync from canonical Markdown files. Call after external agent writes."""
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, sync_markdown.sync_evidence_to_db)
@@ -562,21 +479,60 @@ async def manual_sync():
     log_activity("Manual Sync", "User", "Re-synced Evidence and Tasks from Markdown files.")
     return {"status": "ok", "message": "Synced from evidence-ledger.md and next-actions.md"}
 
-# Mutations
+@app.post("/api/materialize")
+async def materialize_decisions(_: None = Depends(verify_token)):
+    """Apply all 'Proposed' review decisions to the canonical Markdown files safely."""
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, sync_markdown.materialize_approved_decisions)
+    return {"status": "ok", "message": "Materialized approved decisions to canonical files."}
+
+async def run_job_in_background(job_id: str, name: str, cmd: list[str], log_path: str):
+    conn = get_db()
+    conn.execute("UPDATE JobExecutions SET status = 'running', log_path = ? WHERE id = ?", (log_path, job_id))
+    conn.commit()
+    conn.close()
+    
+    with open(log_path, 'w') as f:
+        process = await asyncio.create_subprocess_exec(
+            *cmd, stdout=f, stderr=f
+        )
+        await process.communicate()
+    
+    status = 'completed' if process.returncode == 0 else 'failed'
+    conn = get_db()
+    conn.execute("UPDATE JobExecutions SET status = ?, updated_at = ? WHERE id = ?", 
+                 (status, datetime.now().isoformat(), job_id))
+    conn.commit()
+    conn.close()
+
 @app.post("/api/ingest")
-async def trigger_ingest():
+async def trigger_ingest(_: None = Depends(verify_token)):
+    job_id = str(uuid.uuid4())
+    conn = get_db()
+    conn.execute("INSERT INTO JobExecutions (id, name, status, created_at) VALUES (?, ?, ?, ?)",
+                 (job_id, "Ingest Pipeline", "pending", datetime.now().isoformat()))
+    conn.commit()
+    conn.close()
+    
     log_activity("Started Run Ingest", "AI", "Triggered ingest_pipeline.py via dashboard")
     script_path = os.path.join(os.path.dirname(__file__), "ingest_pipeline.py")
     log_path = os.path.join(os.path.dirname(__file__), '..', 'ingest.log')
-    with open(log_path, 'w') as f:
-        subprocess.Popen([sys.executable, "-u", script_path], stdout=f, stderr=f)
-    return {"status": "accepted", "message": "Ingest pipeline started"}
+    
+    asyncio.create_task(run_job_in_background(job_id, "Ingest Pipeline", [sys.executable, "-u", script_path], log_path))
+    return {"status": "accepted", "jobId": job_id, "message": "Ingest pipeline started"}
 
 @app.post("/api/fits/run")
-async def trigger_fits():
-    log_activity("Started Fit Pipeline", "AI", "Triggered run_a1_jacobian_fits.py via dashboard")
-    script_path = os.path.join(os.path.dirname(__file__), '..', 'deployment', 'helper', 'run_a1_jacobian_fits.py')
+async def trigger_fits(_: None = Depends(verify_token)):
+    job_id = str(uuid.uuid4())
+    conn = get_db()
+    conn.execute("INSERT INTO JobExecutions (id, name, status, created_at) VALUES (?, ?, ?, ?)",
+                 (job_id, "Fit Pipeline", "pending", datetime.now().isoformat()))
+    conn.commit()
+    conn.close()
+    
+    log_activity("Started Fit Pipeline", "AI", "Triggered run_fit_fast.py via dashboard")
+    script_path = os.path.join(os.path.dirname(__file__), '..', '..', 'helper', 'run_fit_fast.py')
     log_path = os.path.join(os.path.dirname(__file__), '..', 'fits.log')
-    with open(log_path, 'w') as f:
-        subprocess.Popen(["python3", script_path], stdout=f, stderr=f)
-    return {"status": "accepted", "message": "Fit runs started"}
+    
+    asyncio.create_task(run_job_in_background(job_id, "Fit Pipeline", ["python3", script_path], log_path))
+    return {"status": "accepted", "jobId": job_id, "message": "Fit runs started"}

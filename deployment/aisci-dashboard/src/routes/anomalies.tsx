@@ -3,15 +3,14 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, TrendingUp, HelpCircle, Activity, Settings2 } from "lucide-react";
 import {
-  ScatterChart,
-  Scatter,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
-  ZAxis,
   CartesianGrid,
   Tooltip as RechartsTooltip,
   ResponsiveContainer,
-  Cell,
+  Legend,
 } from "recharts";
 
 import { PageShell } from "@/components/PageShell";
@@ -89,27 +88,22 @@ function AnomaliesPage() {
   const [selectedRun, setSelectedRun] = useState<string | undefined>();
   const activeRun = selectedRun || (runs.length > 0 ? runs[0] : undefined);
 
-  // Threshold controls
-  const [chi2Warning, setChi2Warning] = useState([10.0]);
-  const [chi2Critical, setChi2Critical] = useState([200.0]);
-  const [rhoWarning, setRhoWarning] = useState([0.95]);
-
   const {
     data: anomalies,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["anomalies", activeRun, chi2Warning[0], chi2Critical[0], rhoWarning[0]],
-    queryFn: () => fetchAnomalies(activeRun, chi2Critical[0], chi2Warning[0], rhoWarning[0]),
+    queryKey: ["anomalies", activeRun],
+    queryFn: () => fetchAnomalies(activeRun),
     enabled: !!activeRun,
   });
 
-  const { criticalCount, warningCount, typeCounts, scatterData } = useMemo(() => {
-    if (!anomalies) return { criticalCount: 0, warningCount: 0, typeCounts: {}, scatterData: [] };
+  const { criticalCount, warningCount, typeCounts, chartData } = useMemo(() => {
+    if (!anomalies) return { criticalCount: 0, warningCount: 0, typeCounts: {}, chartData: [] };
     let cCount = 0;
     let wCount = 0;
     const tCounts: Record<string, number> = {};
-    const scatter: any[] = [];
+    const modelCounts: Record<string, any> = {};
 
     for (const a of anomalies) {
       if (a.severity === "critical") cCount++;
@@ -117,34 +111,19 @@ function AnomaliesPage() {
 
       tCounts[a.type] = (tCounts[a.type] || 0) + 1;
 
-      // Map to scatter points
-      let xVal = 0;
-      const binParts = a.bin.split("-");
-      if (binParts.length === 2) {
-        xVal = parseInt(binParts[0], 10);
+      if (!modelCounts[a.model]) {
+        modelCounts[a.model] = { name: a.model, Critical: 0, Warning: 0 };
       }
 
-      let color = "#10b981"; // emerald
-      if (a.severity === "critical")
-        color = "#f43f5e"; // rose
-      else if (a.severity === "warning") color = "#f59e0b"; // amber
-
-      scatter.push({
-        x: xVal,
-        y: a.value,
-        z: 100, // Dot size
-        name: a.type,
-        bin: a.bin,
-        severity: a.severity,
-        model: a.model,
-        fill: color,
-      });
+      if (a.severity === "critical") modelCounts[a.model].Critical++;
+      if (a.severity === "warning") modelCounts[a.model].Warning++;
     }
+
     return {
       criticalCount: cCount,
       warningCount: wCount,
       typeCounts: tCounts,
-      scatterData: scatter,
+      chartData: Object.values(modelCounts),
     };
   }, [anomalies]);
 
@@ -174,61 +153,7 @@ function AnomaliesPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-6">
-        <Card className="glass-card xl:col-span-1 border-primary/20 bg-primary/5">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Settings2 className="h-4 w-4" />
-              Detection Thresholds
-            </CardTitle>
-            <CardDescription>Adjust archetype sensitivity dynamically.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">χ² Warning</span>
-                <span className="text-xs font-mono">{chi2Warning[0]}</span>
-              </div>
-              <Slider
-                value={chi2Warning}
-                onValueChange={setChi2Warning}
-                max={50}
-                step={1}
-                className="py-2"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">χ² Critical</span>
-                <span className="text-xs font-mono">{chi2Critical[0]}</span>
-              </div>
-              <Slider
-                value={chi2Critical}
-                onValueChange={setChi2Critical}
-                max={500}
-                step={10}
-                className="py-2"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Correlation |ρ| Warning</span>
-                <span className="text-xs font-mono">{rhoWarning[0]}</span>
-              </div>
-              <Slider
-                value={rhoWarning}
-                onValueChange={setRhoWarning}
-                max={1.0}
-                min={0.5}
-                step={0.01}
-                className="py-2"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="xl:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="xl:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           {ARCHETYPES.map((arch) => {
             const count = typeCounts[arch.type] || 0;
             return (
@@ -283,53 +208,22 @@ function AnomaliesPage() {
             <CardContent>
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                  <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis
-                      type="number"
-                      dataKey="x"
-                      name="Multiplicity Bin (Lower)"
-                      tick={{ fontSize: 12 }}
-                    />
-                    <YAxis
-                      type="number"
-                      dataKey="y"
-                      name="Anomaly Value"
-                      tick={{ fontSize: 12 }}
-                      scale="log"
-                      domain={["auto", "auto"]}
-                    />
-                    <ZAxis type="number" dataKey="z" range={[50, 150]} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
                     <RechartsTooltip
-                      cursor={{ strokeDasharray: "3 3" }}
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="bg-black/90 border border-border p-3 rounded-md shadow-lg max-w-[250px]">
-                              <div className="font-semibold text-sm mb-1">{data.model}</div>
-                              <div className="text-xs text-zinc-300 font-mono">Bin: {data.bin}</div>
-                              <div className="text-xs text-zinc-300 mt-1 capitalize">
-                                Type: {data.name}
-                              </div>
-                              <div
-                                className="text-xs font-mono mt-1 font-semibold"
-                                style={{ color: data.fill }}
-                              >
-                                Value: {data.y.toFixed(3)}
-                              </div>
-                            </div>
-                          );
-                        }
-                        return null;
+                      contentStyle={{
+                        backgroundColor: "#000",
+                        borderColor: "#333",
+                        borderRadius: "6px",
                       }}
+                      itemStyle={{ color: "#fff" }}
                     />
-                    <Scatter name="Anomalies" data={scatterData}>
-                      {scatterData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Scatter>
-                  </ScatterChart>
+                    <Legend />
+                    <Bar dataKey="Critical" fill="#f43f5e" />
+                    <Bar dataKey="Warning" fill="#f59e0b" />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>

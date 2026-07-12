@@ -53,6 +53,16 @@ For operational status and open work, see GitHub Issues. For deployment shape an
 
 ---
 
+## AiSci Core & Ignition Engine
+
+The AiSci Ignition Engine (FastAPI) acts as the bridge between the Dashboard and the underlying physics core. It relies on a CQRS (Command Query Responsibility Segregation) and background task architecture to execute heavy operations.
+
+- **Queries (Reads)**: Endpoints fetch data directly from canonical research files (e.g., `research/robert/evidence-ledger.md`, `next-actions.md`) or the SQLite database. Path resolution maps accurately to the `research/robert/` namespace.
+- **Commands & Tasks (Writes)**: Modifying operations and long-running jobs (like executing fits or validating hypotheses) are strictly dispatched as safe `asyncio`-based background tasks rather than blocking `subprocess.Popen` calls.
+- **State tracking**: Background tasks provide status and log outputs seamlessly to the React frontend without tying up FastAPI worker threads.
+
+---
+
 ## Onyx
 
 **Role:** Private RAG platform. Indexes documents, serves search, hosts personas (AI assistants with scoped document sets).

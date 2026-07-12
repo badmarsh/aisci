@@ -31,6 +31,7 @@ const items = [
   { title: "Overview", url: "/", icon: Home },
   { title: "Physics Fits", url: "/fits", icon: Atom },
   { title: "Literature Intake", url: "/literature", icon: BookOpen },
+  { title: "Evidence Ledger", url: "/evidence", icon: ShieldCheck },
   { title: "Task Queue", url: "/tasks", icon: ListTodo },
   { title: "Anomalies", url: "/anomalies", icon: AlertTriangle },
   { title: "Agents", url: "/agents", icon: Bot },
