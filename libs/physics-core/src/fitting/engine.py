@@ -269,6 +269,48 @@ def blast_wave_fit_spec(component_count: int, mass_gev: float) -> FitSpec:
         initial_grid_builder=initial_grid,
     )
 
+def juttner_powerlaw_fit_spec(eta_max: float, mass_gev: float) -> FitSpec:
+    from models.powerlaw import powerlaw_component_scalar
+    
+    parameter_names = ["norm_1", "temperature_1", "U_1", "norm_2", "p0_2", "n_2"]
+    
+    parameter_bounds = {
+        "norm_1": (1e-12, None),
+        "temperature_1": DEFAULT_MANUSCRIPT_BOUNDS["temperature"],
+        "U_1": DEFAULT_MANUSCRIPT_BOUNDS["U"],
+        "norm_2": (1e-12, None),
+        "p0_2": (0.1, 10.0),
+        "n_2": (2.0, 20.0),
+    }
+
+    def model_callable(pt_values: np.ndarray, *params: float) -> np.ndarray:
+        norm_1, t_1, u_1, norm_2, p0_2, n_2 = params
+        pt_array = np.asarray(pt_values, dtype=float)
+        outputs = []
+        for pt in pt_array:
+            val1 = manuscript_component_scalar(float(pt), norm_1, t_1, u_1, eta_max, mass_gev)
+            val2 = powerlaw_component_scalar(float(pt), norm_2, p0_2, n_2)
+            outputs.append(val1 + val2)
+        return np.asarray(outputs, dtype=float)
+
+    def initial_grid(x: np.ndarray, y: np.ndarray) -> list[tuple[float, ...]]:
+        max_y = float(np.max(y)) if len(y) > 0 else 1.0
+        norm_base = max(max_y, 1e-9)
+        return [
+            (norm_base * 0.8, 0.12, 0.4, norm_base * 0.1, 1.0, 5.0),
+            (norm_base * 0.8, 0.16, 0.6, norm_base * 0.1, 1.5, 7.0),
+        ]
+
+    return FitSpec(
+        model_name="juttner_powerlaw",
+        component_count=2,
+        parameter_names=parameter_names,
+        parameter_bounds=parameter_bounds,
+        fixed_metadata={"eta_max": eta_max, "mass_gev": mass_gev},
+        model_callable=model_callable,
+        initial_grid_builder=initial_grid,
+    )
+
 def build_fit_specs(eta_max: float, mass_gev: float) -> list[FitSpec]:
     specs: list[FitSpec] = []
     for component_count in (1, 2):
@@ -276,6 +318,7 @@ def build_fit_specs(eta_max: float, mass_gev: float) -> list[FitSpec]:
         specs.append(bose_fit_spec(component_count, eta_max, mass_gev))
         specs.append(tsallis_fit_spec(component_count, eta_max, mass_gev))
         specs.append(blast_wave_fit_spec(component_count, mass_gev))
+    specs.append(juttner_powerlaw_fit_spec(eta_max, mass_gev))
     return specs
 
 def fit_one_spec(

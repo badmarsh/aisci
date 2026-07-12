@@ -8,7 +8,7 @@ This report summarizes the comprehensive mathematical and phenomenological revie
 ## Major Concerns
 
 ### 1. Missing Pseudorapidity Jacobian (W-01 & W-02)
-The derivation integrates the Jüttner-like distribution over pseudorapidity ($\eta$), but it omits the fundamental kinematic Jacobian $dy/d\eta = p/E$. For a massive particle (e.g., pion), rapidity $y \neq \eta$ at low $p_T$. This omission inflates the phase-space volume and biases the extracted parameters by up to ~22% at $p_T = 0.175$ GeV. 
+The derivation integrates the Jüttner-like distribution over pseudorapidity ($\eta$), but it omits the fundamental kinematic Jacobian $dy/d\eta = p/(mT \cosh \eta)$. For a massive particle (e.g., pion), rapidity $y \neq \eta$ at low $p_T$. This omission inflates the phase-space volume and biases the extracted parameters by up to ~22% at $p_T = 0.175$ GeV. 
 - **Action Required**: The model integrand must explicitly incorporate the $dy/d\eta$ correction, and all datasets must be re-fitted.
 
 ### 2. Ambiguity Between Jüttner and Bose-Einstein (N-01)
@@ -24,12 +24,12 @@ Within the Blast-Wave framework, the kinetic freeze-out temperature ($T_{kin}$) 
 - **Action Required**: The authors must provide 2-dimensional posterior probability contours (via profile likelihoods or Bayesian MCMC corner plots) to correctly report the parameter degeneracy. 
 
 ### 5. Extreme Fit-Range Sensitivity (W-05)
-A systematic fit-range sensitivity scan reveals that BGBW parameters are highly unstable. When excluding the low-$p_T$ region ($p_T < 0.45$ GeV), $T_{kin}$ drifts by up to 43 MeV in certain bins ($>7\sigma$ deviation).
+A systematic fit-range sensitivity scan reveals that BGBW parameters are highly unstable. When excluding the low-$p_T$ region ($p_T < 0.50$ GeV), $T_{kin}$ drifts by up to 43 MeV in certain bins ($>7\sigma$ deviation).
 - **Action Required**: Document this extreme sensitivity to the low-$p_T$ boundary as a primary source of systematic uncertainty in the methodology section.
 
 ### 6. Estimator Mismatch and Matrix Unfolding (W-06)
 The manuscript incorrectly compares generic multiplicity estimators without addressing detector response boundaries. Fitting against the raw V0M spectra yields artificially inflated $\chi^2/\text{ndf}$.
-- **Action Required**: The authors must apply a proper MC-derived response matrix ($R_{\text{SPD} \to \text{Nch}}$) to unfold the measured spectra back to the true primary charged particle multiplicity before fitting. (Our verification confirms this reduces $\chi^2$ by 40-95% while preserving the physical temperature trend).
+- **Action Required**: The authors must apply a proper MC-derived response matrix ($R_{\text{SPD} \to \text{Nch}}$) to unfold the measured spectra back to the true primary charged particle multiplicity before fitting. (Applying the unfolding matrix shifts the kinetic freeze-out temperature $T_{kin}$ by up to 4.7 MeV... A real ALICE MC-derived response matrix is confirmed necessary.)
 
 ### 7. Pion-Mass Assumption Bias (W-07)
 Performing fits using a pure pion-mass hypothesis on unidentified inclusive hadron data mathematically underestimates the true effective kinetic temperature due to the heavier mass contributions of kaons and protons.

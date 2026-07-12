@@ -1,0 +1,12 @@
+{
+  "cli_version": "1.0.0",
+  "timestamp": "2026-07-12T10:06:42.137147Z",
+  "data_path": "libs/physics-core/data/fit_input_ins1735345.csv",
+  "mass_gev": 0.13957,
+  "models": [
+    "juttner_powerlaw"
+  ],
+  "cov_mode": "diag",
+  "xi": 1.0,
+  "run_dir": "research/robert/runs/2026-07-13-juttner-powerlaw"
+}

@@ -54,7 +54,7 @@ def parse_args():
         default=["bgbw", "tsallis_1c", "tsallis_2c",
                  "juttner_1c", "juttner_2c", "bose_1c", "bose_2c"],
         help="Model keys to run. Valid: bgbw tsallis_1c tsallis_2c "
-             "juttner_1c juttner_2c bose_1c bose_2c"
+             "juttner_1c juttner_2c bose_1c bose_2c juttner_powerlaw"
     )
     p.add_argument(
         "--cov-mode", default="diag",

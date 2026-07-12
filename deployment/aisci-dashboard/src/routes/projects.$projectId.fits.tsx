@@ -20,7 +20,7 @@ function FitsPage() {
   });
 
   const { mutate: runFit, isPending: isRunningFit } = useMutation({
-    mutationFn: () => triggerPipeline(projectId, "fitting"),
+    mutationFn: () => triggerPipeline(projectId, "fit-validation"),
     onSuccess: () => {
       toast.success("Fitting pipeline triggered successfully");
       queryClient.invalidateQueries({ queryKey: ["fits", projectId] });

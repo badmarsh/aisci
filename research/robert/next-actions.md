@@ -32,6 +32,11 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 ## 🤖 Agent-Proposed
 
+### [ANOMALY-2026-07-13] Investigate Severe Chi2 Regressions in Jüttner 1c/Bose 1c
+**Trigger**: The `2026-07-13-full-suite` run produced severe $\chi^2/\text{ndf}$ regressions across multiple high-$p_T$ bins.
+**Specifics**: For example, `juttner_1c` gives $\chi^2/\text{ndf} = 178.09$ in bin 101-125, and $\chi^2/\text{ndf} > 200$ in lower multiplicity bins (e.g. 61-70). `bose_1c` shows similarly poor fits.
+**Proposed Action**: Proceed with [HYP-2026-07-12] to determine if adding a power-law tail resolves this.
+
 ### [HYP-2026-07-12] Test Two-Component Soft/Hard Model (Thermal + Power-Law)
 **Trigger:** Classical thermal models (Jüttner and Bose 1c/2c) show severe chi²/ndf regressions (chi²/ndf > 50-200) across all high-$p_T$ bins, while Tsallis fits successfully (chi²/ndf < 20).
 **Triggering run:** research/robert/runs/2026-07-13-full-suite

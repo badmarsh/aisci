@@ -1,0 +1,31 @@
+{
+  "status": "ok",
+  "run_dir": "research/robert/runs/2026-07-13-juttner-powerlaw",
+  "models_run": [
+    "juttner_powerlaw"
+  ],
+  "bins": [
+    "101-125",
+    "126-150",
+    "21-30",
+    "31-40",
+    "41-50",
+    "51-60",
+    "61-70",
+    "71-80",
+    "81-90",
+    "91-100"
+  ],
+  "best_model_per_bin": {
+    "101-125": "juttner_powerlaw",
+    "126-150": "juttner_powerlaw",
+    "21-30": "juttner_powerlaw",
+    "31-40": "juttner_powerlaw",
+    "41-50": "juttner_powerlaw",
+    "51-60": "juttner_powerlaw",
+    "61-70": "juttner_powerlaw",
+    "71-80": "juttner_powerlaw",
+    "81-90": "juttner_powerlaw",
+    "91-100": "juttner_powerlaw"
+  }
+}

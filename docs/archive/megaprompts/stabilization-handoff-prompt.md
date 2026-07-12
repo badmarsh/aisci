@@ -1,3 +1,6 @@
+> [!NOTE]
+> This prompt was disproved by the 2026-07-11 SymPy proof and MIGRAD failures. The 2-component exact Bose-Einstein model is mathematically unstable.
+
 # Megaprompt: Stabilize Robert's Manuscript Fits and Mitigate Flawed Conclusions Globally
 
 Execute the following plan to implement the mathematical conclusions from our stabilization work across the entire repository. We have rigorously proven that the 3-component Jüttner/Boltzmann model used in the manuscript is both physically invalid at high temperatures (underestimating yield by ~84%) and mathematically degenerate at low radial velocities ($U \approx 0$).

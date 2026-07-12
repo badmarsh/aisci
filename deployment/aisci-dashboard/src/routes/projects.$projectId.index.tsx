@@ -101,7 +101,7 @@ function Overview() {
   const queryClient = useQueryClient();
 
   const { mutate: runFullPipeline, isPending: isRunningFull } = useMutation({
-    mutationFn: () => triggerPipeline(projectId, "full-pipeline"),
+    mutationFn: () => triggerPipeline(projectId, "fit-validation"),
     onSuccess: () => {
       toast.success("Full pipeline triggered successfully");
       queryClient.invalidateQueries();
@@ -110,7 +110,7 @@ function Overview() {
   });
 
   const { mutate: ingestLiterature, isPending: isIngesting } = useMutation({
-    mutationFn: () => triggerPipeline(projectId, "ingest"),
+    mutationFn: () => triggerPipeline(projectId, "ingest-validation"),
     onSuccess: () => {
       toast.success("Literature ingestion triggered successfully");
       queryClient.invalidateQueries();

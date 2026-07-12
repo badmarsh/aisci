@@ -738,7 +738,10 @@ async def materialize_decisions(project_id: str, _: None = Depends(verify_token)
 @app.post("/api/projects/{project_id}/pipelines/{pipeline_id}/dry-run")
 async def dry_run_pipeline(project_id: str, pipeline_id: str, _: None = Depends(verify_token)):
     spec = registry.get_project(project_id)
-    pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
+    try:
+        pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     
     try:
         res = pipeline_spec.dry_run()
@@ -749,7 +752,10 @@ async def dry_run_pipeline(project_id: str, pipeline_id: str, _: None = Depends(
 @app.post("/api/projects/{project_id}/pipelines/{pipeline_id}/run")
 async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(verify_token)):
     spec = registry.get_project(project_id)
-    pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
+    try:
+        pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     
     res = pipeline_spec.dry_run()
     if not res["available"]:
