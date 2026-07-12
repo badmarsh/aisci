@@ -35,12 +35,9 @@ def verify_token(authorization: Optional[str] = Header(None)):
 @app.on_event("startup")
 async def startup():
     init_db()
-    for log_name in ['ingest.log', 'fits.log']:
-        log_path = os.path.join(os.path.dirname(__file__), '..', log_name)
-        if not os.path.exists(log_path):
-            open(log_path, 'a').close()
-    sync_markdown.sync_evidence_to_db()
-    sync_markdown.sync_tasks_to_db()
+    for p in registry.list_projects():
+        sync_markdown.sync_evidence_to_db(p.id)
+        sync_markdown.sync_tasks_to_db(p.id)
 
 # Allow requests from Vite frontend
 app.add_middleware(
