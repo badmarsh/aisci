@@ -86,8 +86,8 @@ These instructions apply to any AI coding or research agent working in this repo
 ## Mandatory Intake Stage: Principle Violation & Verification Analysis
 
 Before executing any large task, agents must perform a repository health check against established principles:
-- **Analyze Redundancy:** Check if the user request implies creating a new tracking document or "Megaprompt". If so, reject the creation of a new file and instead route the data into existing canonical files (`next-actions.md`, `evidence-ledger.md`, `platform-backlog.md`).
-- **Verify Before Deletion:** Before removing any outdated Megaprompt, tracking document, or task list, explicitly verify (by checking the target files in the codebase) whether the most valuable/critical items in those documents were actually implemented. Any uncompleted actionable items must be migrated to the canonical queues.
+- **Analyze Redundancy:** Check if the user request implies creating a new tracking document. If so, reject the creation of a new file and instead route the data into existing canonical files (`next-actions.md`, `evidence-ledger.md`, `platform-backlog.md`). **Exception:** "Megaprompts" are explicitly allowed when requested by the user, but they MUST be saved exclusively to the `docs/ops/megaprompts/` directory.
+- **Verify Before Deletion:** Before removing any outdated Megaprompt (including those in `docs/ops/megaprompts/`), tracking document, or task list, explicitly verify (by checking the target files in the codebase) whether the most valuable/critical items in those documents were actually implemented. Any uncompleted actionable items must be migrated to the canonical queues.
 - **Check for Outdated State:** Quickly scan the root for redundant files or orphaned documentation that violates the single-source-of-truth rule. Recommend their cleanup (following the verification step above).
 - **Ensure Canonical Alignment:** Verify that any UI or code wiring explicitly respects the exact capitalization and structure of canonical documents.
 
