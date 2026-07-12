@@ -38,7 +38,17 @@ import {
 import { fetchFitRuns, fetchAnomalies } from "@/lib/api";
 import type { Anomaly } from "@/lib/types";
 
+import { fetchProjects } from "@/lib/api";
+import { redirect } from "@tanstack/react-router";
+
 export const Route = createFileRoute("/projects/$projectId/anomalies")({
+  beforeLoad: async ({ params }) => {
+    const projects = await fetchProjects();
+    const p = projects.find((p) => p.id === params.projectId);
+    if (!p || !p.capabilities.includes("fit_validation")) {
+      throw redirect({ to: `/projects/${params.projectId}` as any });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Physics Anomalies — AiSci" },
@@ -79,9 +89,10 @@ const ARCHETYPES = [
 ];
 
 function AnomaliesPage() {
+  const { projectId } = Route.useParams();
   const { data: runsData } = useQuery({
-    queryKey: ["fitRuns"],
-    queryFn: fetchFitRuns,
+    queryKey: ["runs", projectId],
+    queryFn: () => fetchFitRuns(projectId as string),
   });
   const runs = runsData?.runs || [];
 
@@ -93,9 +104,9 @@ function AnomaliesPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["anomalies", activeRun],
-    queryFn: () => fetchAnomalies(activeRun),
-    enabled: !!activeRun,
+    queryKey: ["anomalies", projectId, activeRun],
+    queryFn: () => fetchAnomalies(projectId as string, activeRun as string),
+    enabled: !!activeRun && !!projectId,
   });
 
   const { criticalCount, warningCount, typeCounts, chartData } = useMemo(() => {

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Literature Intake", () => {
   test.beforeEach(async ({ page }) => {
-    await page.route("**/api/literature", async (route) => {
+    await page.route("**/api/projects/*/literature", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -12,7 +12,7 @@ test.describe("Literature Intake", () => {
   });
 
   test("should display papers and support search filtering", async ({ page }) => {
-    await page.goto("/literature");
+    await page.goto("/projects/robert-boson-manuscript/literature");
 
     await expect(page.locator("text=Total Papers")).toBeVisible();
     await expect(page.locator("text=arXiv Papers")).toBeVisible();

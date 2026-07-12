@@ -50,6 +50,7 @@
   --color-amber-brand: var(--amber-brand);
   --color-emerald-brand: var(--emerald-brand);
   --color-rose-brand: var(--rose-brand);
+  --color-violet-brand: var(--violet-brand);
 }
 
 /* Dark by default */
@@ -92,6 +93,7 @@
   --amber-brand: oklch(0.83 0.16 85);
   --emerald-brand: oklch(0.78 0.17 155);
   --rose-brand: oklch(0.65 0.22 20);
+  --violet-brand: oklch(0.72 0.16 300);
 }
 
 :root {
@@ -122,16 +124,36 @@
   --amber-brand: oklch(0.83 0.16 85);
   --emerald-brand: oklch(0.78 0.17 155);
   --rose-brand: oklch(0.65 0.22 20);
+  --violet-brand: oklch(0.62 0.19 300);
 }
 
 @utility glass-card {
-  background-color: color-mix(in oklab, var(--card) 60%, transparent);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(8px);
+  background-color: color-mix(in oklab, var(--card) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  backdrop-filter: blur(12px) saturate(140%);
+}
+
+/* Subtle scientific grid backdrop for the app shell */
+@utility grid-backdrop {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--border) 45%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--border) 45%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+/* Neon glow ring used on active/primary elements */
+@utility glow-cyan {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--cyan-brand) 40%, transparent),
+    0 0 18px -2px color-mix(in oklab, var(--cyan-brand) 55%, transparent);
 }
 
 @utility fade-in-up {
   animation: fadeInUp 0.4s ease-out both;
+}
+
+@utility pulse-glow {
+  animation: pulseGlow 2.4s ease-in-out infinite;
 }
 
 @keyframes fadeInUp {
@@ -145,15 +167,49 @@
   }
 }
 
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--cyan-brand) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in oklab, var(--cyan-brand) 0%, transparent);
+  }
+}
+
+/* Thin custom scrollbars for high-density panels */
+@utility scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--border) 90%, transparent) transparent;
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
   }
   html,
   body {
+    min-height: 100%;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  a,
+  input {
+    outline-color: var(--color-ring);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

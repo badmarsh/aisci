@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Evidence Ledger", () => {
   test.beforeEach(async ({ page }) => {
-    await page.route("**/api/evidence", async (route) => {
+    await page.route("**/api/projects/*/evidence", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -37,7 +37,7 @@ test.describe("Evidence Ledger", () => {
   });
 
   test("should display mapped statuses properly", async ({ page }) => {
-    await page.goto("/evidence");
+    await page.goto("/projects/robert-boson-manuscript/evidence");
 
     // Make sure summary tabs render
     await expect(page.locator("text=Supported").first()).toBeVisible();

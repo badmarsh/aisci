@@ -16,11 +16,19 @@ import { PageShell } from "@/components/PageShell";
 import { type EvidenceRow } from "@/lib/types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import DOMPurify from "dompurify";
-import { fetchEvidence, updateEvidence, syncFromFiles } from "@/lib/api";
+import { fetchEvidence, updateEvidence, syncFromFiles, fetchProjects } from "@/lib/api";
+import { redirect } from "@tanstack/react-router";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/projects/$projectId/evidence")({
+  beforeLoad: async ({ params }) => {
+    const projects = await fetchProjects();
+    const p = projects.find((p) => p.id === params.projectId);
+    if (!p || !p.capabilities.includes("evidence")) {
+      throw redirect({ to: `/projects/${params.projectId}` as any });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Evidence Ledger — AiSci" },
@@ -42,6 +50,7 @@ const statusStyles: Record<string, string> = {
 };
 
 function EvidencePage() {
+  const { projectId } = Route.useParams();
   const [open, setOpen] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
@@ -50,15 +59,16 @@ function EvidencePage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["evidence"],
-    queryFn: fetchEvidence,
+    queryKey: ["evidence", projectId],
+    queryFn: () => fetchEvidence(projectId),
   });
 
   const mutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }) => updateEvidence(id, status),
+    mutationFn: ({ id, status }: { id: number; status: string }) =>
+      updateEvidence(projectId, id, status),
     onSuccess: (_, { status }) => {
-      queryClient.invalidateQueries({ queryKey: ["evidence"] });
-      queryClient.invalidateQueries({ queryKey: ["activity"] });
+      queryClient.invalidateQueries({ queryKey: ["evidence", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["activity", projectId] });
       toast.success(`Evidence marked as ${status}`, {
         description: "evidence-ledger.md updated.",
       });
@@ -69,10 +79,10 @@ function EvidencePage() {
   });
 
   const syncMutation = useMutation({
-    mutationFn: syncFromFiles,
+    mutationFn: () => syncFromFiles(projectId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["evidence"] });
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["evidence", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
     },
   });
 

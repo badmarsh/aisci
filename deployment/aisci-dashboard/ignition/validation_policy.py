@@ -36,4 +36,11 @@ class ValidationPolicy:
             return "warning", f"U = {u_val:.3f} — extremely high four-velocity (v > 0.995c)"
         return "ok", ""
 
+    def validate_temperature(self, t_val: float) -> tuple[str, str]:
+        if t_val <= 0.0:
+            return "critical", f"T = {t_val:.3f} GeV — unphysical negative temperature"
+        elif t_val > 2.0:
+            return "warning", f"T = {t_val:.3f} GeV — extreme temperature > 2 GeV, likely numerical instability"
+        return "ok", ""
+
 default_policy = ValidationPolicy()

@@ -78,17 +78,27 @@ function AgentsPage() {
                   </span>
                   {a.name}
                 </CardTitle>
-                <Badge
-                  className={
-                    a.status === "ACTIVE"
-                      ? "bg-emerald-brand/15 text-emerald-brand ring-1 ring-emerald-brand/40"
-                      : a.status === "IDLE"
-                        ? "bg-muted text-muted-foreground ring-1 ring-border"
-                        : "bg-amber-brand/15 text-amber-brand ring-1 ring-amber-brand/40"
-                  }
-                >
-                  {a.status}
-                </Badge>
+                <div className="flex gap-2">
+                  {a.provider && (
+                    <Badge
+                      variant="outline"
+                      className="border-border text-muted-foreground font-mono"
+                    >
+                      {a.provider}
+                    </Badge>
+                  )}
+                  <Badge
+                    className={
+                      a.status === "ACTIVE"
+                        ? "bg-emerald-brand/15 text-emerald-brand ring-1 ring-emerald-brand/40"
+                        : a.status === "IDLE"
+                          ? "bg-muted text-muted-foreground ring-1 ring-border"
+                          : "bg-amber-brand/15 text-amber-brand ring-1 ring-amber-brand/40"
+                    }
+                  >
+                    {a.status}
+                  </Badge>
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">
                 Last run: <span className="font-mono">{a.last}</span>

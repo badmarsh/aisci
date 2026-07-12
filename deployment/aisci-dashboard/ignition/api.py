@@ -137,6 +137,7 @@ class AgentModel(BaseModel):
     last: str
     summary: str
     log: List[str]
+    provider: Optional[str] = None
 
 class StatusUpdate(BaseModel):
     status: str
@@ -264,7 +265,7 @@ def update_evidence(project_id: str, evidence_id: int, body: StatusUpdate, _: No
     conn = get_db()
     conn.execute(
         "INSERT INTO ReviewDecisions (id, project_id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (req_id, project_id, str(evidence_id), body.status, "User", "Proposed", datetime.now().isoformat())
+        (req_id, project_id, str(evidence_id), body.status, "User", "Approved", datetime.now().isoformat())
     )
     conn.commit()
     conn.close()
@@ -389,6 +390,13 @@ def get_anomalies(project_id: str, run: Optional[str] = None):
                     bin=row['group_label'], model=m_nice, type="boundary", severity=sev,
                     message=msg, value=val
                 ))
+        elif pname in ['temperature_1', 'T_kin', 'T_stat']:
+            sev, msg = default_policy.validate_temperature(val)
+            if sev != "ok":
+                anomalies.append(AnomalyItem(
+                    bin=row['group_label'], model=m_nice, type="boundary", severity=sev,
+                    message=msg, value=val
+                ))
 
     return anomalies
 
@@ -446,7 +454,56 @@ def get_export_summary(project_id: str):
 {anom_str}
 """
     return {"markdown": markdown}
+@app.get("/api/projects/{project_id}/overview")
+def get_project_overview(project_id: str):
+    spec = registry.get_project(project_id)
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT count(*) FROM Papers WHERE project_id=?", (project_id,))
+    lit_count = cursor.fetchone()[0]
+    cursor.execute("SELECT count(*) FROM Evidence WHERE project_id=?", (project_id,))
+    claims_count = cursor.fetchone()[0]
+    cursor.execute("SELECT count(*) FROM Tasks WHERE status != 'closed' AND project_id=?", (project_id,))
+    open_tasks = cursor.fetchone()[0]
+    conn.close()
+    
+    active_fits_count = 0
+    try:
+        run_path = get_latest_run_path(project_id)
+        if run_path:
+            qual = pd.read_csv(os.path.join(run_path, "fit_quality.csv"))
+            active_fits_count = len(qual)
+    except Exception:
+        pass
+        
+    return {
+        "literature_count": lit_count,
+        "claims_count": claims_count,
+        "open_tasks": open_tasks,
+        "active_fits": active_fits_count
+    }
 
+@app.get("/api/projects/{project_id}/health")
+def get_project_health(project_id: str):
+    # Simply check if project is registered and runs directory exists
+    try:
+        spec = registry.get_project(project_id)
+        runs_base = spec.get_runs_dir()
+        return {"status": "ok", "runs_dir_exists": os.path.exists(runs_base)}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/api/projects/{project_id}/jobs/{job_id}/logs")
+def stream_job_logs(project_id: str, job_id: str):
+    spec = registry.get_project(project_id)
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT log_path FROM JobExecutions WHERE project_id = ? AND id = ?", (project_id, job_id))
+    row = cursor.fetchone()
+    conn.close()
+    if not row or not row["log_path"]:
+        return StreamingResponse(iter([f'data: {{"line": "No logs found for job {job_id}.\\n"}}\n\n']), media_type="text/event-stream")
+    return stream_log_file(row["log_path"])
 
 @app.get("/api/projects/{project_id}/tasks", response_model=List[TaskModel])
 def get_tasks(project_id: str, exclude_done: bool = False):
@@ -468,7 +525,7 @@ def update_task(project_id: str, task_id: str, body: StatusUpdate, _: None = Dep
     conn = get_db()
     conn.execute(
         "INSERT INTO ReviewDecisions (id, project_id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (req_id, project_id, task_id, body.status, "User", "Proposed", datetime.now().isoformat())
+        (req_id, project_id, task_id, body.status, "User", "Approved", datetime.now().isoformat())
     )
     conn.commit()
     conn.close()
@@ -568,7 +625,8 @@ def get_agents():
         "status": "ACTIVE",
         "last": datetime.now().strftime("%Y-%m-%d %H:%M"),
         "summary": "Main API server process",
-        "log": tail_log(backend_log)
+        "log": tail_log(backend_log),
+        "provider": "System"
     }]
 
     ingest_job = pipelines_status.get("ingest-pipeline")
@@ -578,7 +636,8 @@ def get_agents():
             "status": ingest_job["status"].upper(),
             "last": ingest_job["updated_at"],
             "summary": "Literature fetch and LLM extraction",
-            "log": tail_log(ingest_job["log_path"]) if ingest_job["log_path"] else ["[No log]"]
+            "log": tail_log(ingest_job["log_path"]) if ingest_job["log_path"] else ["[No log]"],
+            "provider": "Gemini Pro"
         })
     else:
         agents.append({
@@ -586,7 +645,8 @@ def get_agents():
             "status": "IDLE",
             "last": "Never",
             "summary": "Literature fetch and LLM extraction",
-            "log": ["[No log]"]
+            "log": ["[No log]"],
+            "provider": "Gemini Pro"
         })
 
     fit_job = pipelines_status.get("fit-pipeline")
@@ -595,16 +655,18 @@ def get_agents():
             "name": "Fit Pipeline",
             "status": fit_job["status"].upper(),
             "last": fit_job["updated_at"],
-            "summary": "Physics spectra fitting routines",
-            "log": tail_log(fit_job["log_path"]) if fit_job["log_path"] else ["[No log]"]
+            "summary": "Minuit physics fitting and validation",
+            "log": tail_log(fit_job["log_path"]) if fit_job["log_path"] else ["[No log]"],
+            "provider": "Minuit"
         })
     else:
         agents.append({
             "name": "Fit Pipeline",
             "status": "IDLE",
             "last": "Never",
-            "summary": "Physics spectra fitting routines",
-            "log": ["[No log]"]
+            "summary": "Minuit physics fitting and validation",
+            "log": ["[No log]"],
+            "provider": "Minuit"
         })
 
     return agents
@@ -618,19 +680,50 @@ async def manual_sync(project_id: str, _: None = Depends(verify_token)):
     log_activity(project_id, "Manual Sync", "User", f"Re-synced Evidence and Tasks for project {project_id}.")
     return {"status": "ok", "message": "Synced from evidence-ledger.md and next-actions.md"}
 
+@app.post("/api/projects/{project_id}/review-requests/{decision_id}/approve")
+def approve_review_decision(project_id: str, decision_id: str, _: None = Depends(verify_token)):
+    conn = get_db()
+    conn.execute("UPDATE ReviewDecisions SET status = 'Approved' WHERE id = ? AND project_id = ?", (decision_id, project_id))
+    conn.commit()
+    conn.close()
+    return {"status": "ok"}
+
+@app.post("/api/projects/{project_id}/review-requests/{decision_id}/reject")
+def reject_review_decision(project_id: str, decision_id: str, _: None = Depends(verify_token)):
+    conn = get_db()
+    conn.execute("UPDATE ReviewDecisions SET status = 'Rejected' WHERE id = ? AND project_id = ?", (decision_id, project_id))
+    conn.commit()
+    conn.close()
+    return {"status": "ok"}
+
 @app.post("/api/projects/{project_id}/materialize")
 async def materialize_decisions(project_id: str, _: None = Depends(verify_token)):
-    """Apply all 'Proposed' review decisions to the canonical Markdown files safely."""
+    """Apply all 'Approved' review decisions to the canonical Markdown files safely."""
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(None, sync_markdown.materialize_approved_decisions, project_id)
     return {"status": "ok", "message": "Materialized approved decisions to canonical files."}
 
 
+@app.post("/api/projects/{project_id}/pipelines/{pipeline_id}/dry-run")
+async def dry_run_pipeline(project_id: str, pipeline_id: str, _: None = Depends(verify_token)):
+    spec = registry.get_project(project_id)
+    pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
+    
+    try:
+        res = pipeline_spec.dry_run()
+        return {"status": "ok", "dry_run": res}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/api/projects/{project_id}/pipelines/{pipeline_id}/run")
 async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(verify_token)):
     spec = registry.get_project(project_id)
     pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
+    
+    try:
+        pipeline_spec.validate_safety()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     
     if pipeline_spec.requires_input:
         input_path = os.path.join(pipeline_spec.working_dir, pipeline_spec.requires_input)

@@ -32,7 +32,17 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchLiterature } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { fetchProjects } from "@/lib/api";
+import { redirect } from "@tanstack/react-router";
+
 export const Route = createFileRoute("/projects/$projectId/literature")({
+  beforeLoad: async ({ params }) => {
+    const projects = await fetchProjects();
+    const p = projects.find((p) => p.id === params.projectId);
+    if (!p || !p.capabilities.includes("literature")) {
+      throw redirect({ to: `/projects/${params.projectId}` as any });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Literature Intake — AiSci" },
@@ -203,11 +213,18 @@ function LiteraturePage() {
                   >
                     <TableCell>
                       {p.provenance ? (
-                        <Badge variant="outline" className="border-border text-[10px] font-mono max-w-[120px] truncate block" title={p.provenance}>
+                        <Badge
+                          variant="outline"
+                          className="border-border text-[10px] font-mono max-w-[120px] truncate block"
+                          title={p.provenance}
+                        >
                           {p.provenance}
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="border-border text-[10px] font-mono max-w-[120px] truncate block">
+                        <Badge
+                          variant="outline"
+                          className="border-border text-[10px] font-mono max-w-[120px] truncate block"
+                        >
                           {p.source}
                         </Badge>
                       )}
@@ -288,8 +305,14 @@ function LiteraturePage() {
               <SheetHeader>
                 <SheetTitle className="pr-4 text-base leading-snug">{selected.title}</SheetTitle>
                 <SheetDescription>
-                  {selected.provenance || selected.source} · {selected.category} · {selected.published}
-                  {selected.source_hash && <><br/>Hash: <span className="font-mono text-[10px]">{selected.source_hash}</span></>}
+                  {selected.provenance || selected.source} · {selected.category} ·{" "}
+                  {selected.published}
+                  {selected.source_hash && (
+                    <>
+                      <br />
+                      Hash: <span className="font-mono text-[10px]">{selected.source_hash}</span>
+                    </>
+                  )}
                 </SheetDescription>
               </SheetHeader>
               <div className="mt-4 space-y-5 px-1 text-sm">
@@ -304,7 +327,13 @@ function LiteraturePage() {
                         key={i}
                         className="flex items-start gap-2 rounded-md border border-border bg-muted/30 p-2"
                       >
-                        <Badge className={confidenceStyles[c.confidence]}>{c.confidence}</Badge>
+                        <Badge
+                          className={
+                            confidenceStyles[c.confidence as keyof typeof confidenceStyles]
+                          }
+                        >
+                          {c.confidence}
+                        </Badge>
                         <span className="flex-1">{c.text}</span>
                       </li>
                     ))}

@@ -10,7 +10,6 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
@@ -18,21 +17,19 @@ import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+    <div className="flex min-h-[70vh] items-center justify-center px-4">
+      <div className="text-center">
+        <div className="font-mono text-sm text-primary">ERR_ROUTE_404</div>
+        <h1 className="mt-3 text-4xl font-semibold">Instrument not connected</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          This route isn't part of the AiSci dashboard.
+          This control-plane module has not been deployed yet.
         </p>
-        <div className="mt-6">
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Back to Overview
-          </a>
-        </div>
+        <a
+          href="/"
+          className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        >
+          Return to overview
+        </a>
       </div>
     </div>
   );
@@ -47,30 +44,20 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
+      <div className="text-center">
+        <h1 className="text-xl font-semibold">Telemetry interrupted</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong. You can try again or head back to the overview.
+          The interface could not complete this request.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Try again
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
-          </a>
-        </div>
+        <button
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
+          className="mt-5 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"
+        >
+          Reconnect
+        </button>
       </div>
     </div>
   );
@@ -116,7 +103,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark bg-background">
       <head>
         <HeadContent />
       </head>
@@ -133,10 +120,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full bg-background text-foreground">
-          <AppSidebar />
-          <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen w-full bg-background text-foreground">
+        <AppSidebar />
+        <div className="relative flex min-h-screen min-w-0 flex-1 flex-col">
+          <div className="grid-backdrop pointer-events-none absolute inset-0 opacity-30" />
+          <div className="relative flex min-h-screen flex-1 flex-col">
             <AppHeader />
             <main className="flex-1">
               <Outlet />
@@ -144,8 +132,8 @@ function RootComponent() {
             <AppFooter />
           </div>
         </div>
-        <Toaster />
-      </SidebarProvider>
+      </div>
+      <Toaster theme="dark" position="bottom-right" richColors />
     </QueryClientProvider>
   );
 }

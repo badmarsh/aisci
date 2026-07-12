@@ -9,13 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
-export function LogDrawer({
-  target,
-  onClose,
-}: {
-  target: string | null;
-  onClose: () => void;
-}) {
+export function LogDrawer({ target, onClose }: { target: string | null; onClose: () => void }) {
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const [lines, setLines] = useState<string[]>([]);
   const [done, setDone] = useState(false);
@@ -27,7 +21,7 @@ export function LogDrawer({
     setDone(false);
 
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8001/api";
-    
+
     // map target to pipeline_id
     const pipelineId = target === "ingest" ? "ingest-validation" : "fit-validation";
     const eventSource = new EventSource(`${API_BASE}/projects/${projectId}/logs/${pipelineId}`);

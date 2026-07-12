@@ -26,9 +26,7 @@ function PortfolioOverview() {
     <PageShell>
       <div className="mb-6">
         <h2 className="text-2xl font-bold tracking-tight">Research Portfolio</h2>
-        <p className="text-muted-foreground mt-1">
-          Select a project to enter its control plane.
-        </p>
+        <p className="text-muted-foreground mt-1">Select a project to enter its control plane.</p>
       </div>
 
       {isLoading ? (
@@ -43,9 +41,10 @@ function PortfolioOverview() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project: any) => (
-            <Link 
-              key={project.id} 
-              to={`/projects/${project.id}`} 
+            <Link
+              key={project.id}
+              to="/projects/$projectId"
+              params={{ projectId: project.id }}
               className="group block"
             >
               <Card className="h-full glass-card transition hover:border-primary/50 hover:shadow-md cursor-pointer">
@@ -71,7 +70,11 @@ function PortfolioOverview() {
                       {project.sensitivity}
                     </Badge>
                     {project.capabilities.map((cap: string) => (
-                      <Badge key={cap} variant="secondary" className="bg-muted text-muted-foreground">
+                      <Badge
+                        key={cap}
+                        variant="secondary"
+                        className="bg-muted text-muted-foreground"
+                      >
                         {cap}
                       </Badge>
                     ))}

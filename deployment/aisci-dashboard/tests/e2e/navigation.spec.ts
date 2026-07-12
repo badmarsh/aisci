@@ -2,10 +2,10 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Dashboard Navigation", () => {
   test("should navigate to all primary routes from sidebar", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects/robert-boson-manuscript");
 
     // Check Overview
-    await expect(page).toHaveTitle(/Overview/);
+    await expect(page).toHaveTitle(/Overview — AiSci/);
 
     // Navigate to Literature
     await page.getByRole("link", { name: /Literature/i }).click();

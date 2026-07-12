@@ -1,6 +1,6 @@
 # v0 Dashboard Redesign Megaprompt
 
-**Instructions:** Copy and paste the prompt below into your v0.dev chat. Since you've configured the v0 MCP server, you can also ask your agent to "Run this prompt through v0" and it can fetch the context directly!
+**Instructions:** Run the `deployment/helper/v0-tooling/v0_upload.js` script to initialize a new v0 chat with this prompt and the files from `deployment/aisci-dashboard` automatically attached. Alternatively, you can copy and paste the prompt below into your v0.dev chat and use your MCP integration to read the codebase.
 
 ---
 
@@ -10,7 +10,7 @@
 I am building the frontend for "AiSci" - an advanced agentic scientific research platform. The stack is TanStack Start (React 19), Tailwind CSS 4, shadcn/ui, Recharts, and Lucide React. 
 
 **Codebase Context:**
-The current workspace context is the `aisci` repository. Use your MCP tools to inspect and start from the existing frontend codebase located in the `deployment/aisci-dashboard` directory. Read the existing components, layout, and routing configuration, and build the redesign directly on top of this foundation instead of starting from scratch.
+The relevant files from the `deployment/aisci-dashboard` frontend codebase are provided in this chat (either via attached files or MCP). Read the existing components, layout, and routing configuration from these files, and build the redesign directly on top of this foundation instead of starting from scratch.
 
 **Objective ($5 Premium Redesign):**
 I want you to spend the maximum compute necessary to generate a highly premium, state-of-the-art "Scientific Aesthetic" redesign of our main dashboard, starting from the existing `deployment/aisci-dashboard` codebase. It should feel like a next-generation control plane for AI physics research. Do NOT give me a basic MVP; use micro-animations, glassmorphism, high-density data views, and a sophisticated dark mode palette (deep slate backgrounds with vibrant, legible neon data accents like cyan, amber, and violet). 

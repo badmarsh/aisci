@@ -7,8 +7,7 @@ repository-backed research projects and requests registered work; it does not
 own scientific truth or replace the reproducible code and artifacts in the
 repository.
 
-The active frontend is a Vite/TanStack Start React application, not a Next.js
-application. The active deployment directory contains no Docker Compose file,
+The active frontend is a Vite + TanStack Router React application. The active deployment directory contains no Docker Compose file,
 Onyx stack, DeerFlow stack, LiteLLM proxy, MCP proxy, or model-provider stack.
 Those integrations are historical records only and are not part of the current
 runtime.
@@ -85,7 +84,7 @@ shown fitting controls merely because Robert's project has them.
 3. Ignition resolves the project through the registry and reads canonical
    Markdown/run artifacts or the project-scoped SQLite projection.
 4. The API returns an explicit project-scoped result, empty state, or error.
-
+5. The frontend enforces strict capability gating via route `beforeLoad` functions, ensuring users cannot access views (like fits or evidence) that the project lacks capabilities for.
 ### Review requests
 
 The dashboard creates a project-scoped review decision rather than directly

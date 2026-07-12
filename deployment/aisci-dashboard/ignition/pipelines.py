@@ -10,6 +10,24 @@ class PipelineSpec(BaseModel):
     working_dir: str
     requires_input: Optional[str] = None
 
+    def validate_safety(self):
+        unsafe_commands = {"rm -rf", "mkfs", "dd", ">", ">>"}
+        cmd_str = " ".join(self.command)
+        for unsafe in unsafe_commands:
+            if unsafe in cmd_str:
+                raise ValueError(f"Unsafe command detected: {unsafe}")
+                
+    def dry_run(self) -> dict:
+        self.validate_safety()
+        return {
+            "id": self.id,
+            "name": self.name,
+            "command": " ".join(self.command),
+            "working_dir": self.working_dir,
+            "requires_input": self.requires_input,
+            "is_safe": True
+        }
+
 class PipelineRegistry:
     def __init__(self):
         pass

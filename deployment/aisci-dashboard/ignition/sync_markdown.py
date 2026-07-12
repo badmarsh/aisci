@@ -44,39 +44,31 @@ def _extract_text(node):
 def parse_evidence_markdown(filepath):
     """
     Parses evidence-ledger.md and returns a list of dictionaries.
-    Looks for the Markdown table starting with '| Claim'.
+    Uses AST to avoid splitting errors on embedded pipes.
     """
     evidence = []
     if not os.path.exists(filepath):
         return evidence
     with open(filepath, 'r') as f:
-        lines = f.readlines()
+        content = f.read()
         
-    in_table = False
-    for line in lines:
-        if line.startswith('| Claim'):
-            in_table = True
-            continue
-        if in_table and line.startswith('|-'):
-            continue
-        if in_table and line.startswith('|'):
-            parts = [p.strip() for p in line.split('|')]
-            if len(parts) >= 6:
-                claim = parts[1]
-                evidence_req = parts[2]
-                narrative = parts[3]
-                status = parts[4]
-                next_gate = parts[5]
-                evidence.append({
-                    "claim": claim,
-                    "status": status,
-                    "nextGate": next_gate,
-                    "run": "—", # Parse this properly if needed
-                    "narrative": narrative
-                })
-        if in_table and not line.strip():
-            # End of table
-            break
+    doc = gfm.parse(content)
+    for child in doc.children:
+        if child.__class__.__name__ == "Table":
+            header = [_extract_text(c).strip() for c in child.children[0].children] if child.children else []
+            if header and len(header) > 0 and "Claim" in header[0]:
+                for i, row in enumerate(child.children):
+                    if i == 0: continue
+                    cells = [_extract_text(cell).strip() for cell in row.children]
+                    if len(cells) >= 5:
+                        evidence.append({
+                            "claim": cells[0],
+                            "status": cells[3],
+                            "nextGate": cells[4],
+                            "run": "—",
+                            "narrative": cells[2]
+                        })
+                break
             
     return evidence
 
@@ -145,7 +137,7 @@ def _update_markdown_table_status(filepath: str, row_identifier: str, new_status
 def materialize_approved_decisions(project_id: str):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, target_id, requested_state FROM ReviewDecisions WHERE status = 'Proposed' AND project_id = ?", (project_id,))
+    cursor.execute("SELECT id, target_id, requested_state FROM ReviewDecisions WHERE status = 'Approved' AND project_id = ?", (project_id,))
     decisions = cursor.fetchall()
     
     if not decisions:

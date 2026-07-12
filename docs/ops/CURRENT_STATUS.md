@@ -51,7 +51,7 @@ in the project workspace Markdown files.
 - Jobs and provenance are now managed by a durable worker process.
 - `artifact_manifest` and `git_commit` are now populated by the worker.
 - Project isolation, pipeline registries, and production mutation authentication are fully implemented.
-
+- Route-by-route capability gating and dynamic model extraction implemented across the frontend.
 ## Current researcher-facing source of truth
 
 | Need | Canonical location |

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Overview Page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.route("**/api/tasks", async (route) => {
+    await page.route("**/api/projects/*/tasks", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -26,7 +26,7 @@ test.describe("Overview Page", () => {
   });
 
   test("should load dynamic KPI cards and Activity feed", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/projects/robert-boson-manuscript");
 
     // Verify KPIs
     await expect(page.locator("text=Papers Ingested")).toBeVisible();
@@ -35,10 +35,9 @@ test.describe("Overview Page", () => {
     await expect(page.locator("text=Open Tasks")).toBeVisible();
 
     // Verify Recent Activity
-    await expect(page.locator("text=Recent Activity")).toBeVisible();
-    await expect(page.locator("ul.space-y-2")).toBeVisible();
+    await expect(page.locator("text=Activity stream")).toBeVisible();
 
     // Verify Chart
-    await expect(page.locator(".recharts-responsive-container")).toBeVisible();
+    await expect(page.locator(".recharts-responsive-container").first()).toBeVisible();
   });
 });

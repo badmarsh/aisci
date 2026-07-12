@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { fetchJobs } from "@/lib/api";
+import { fetchJobs, type JobExecution } from "@/lib/api";
 import { PageShell } from "@/components/PageShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, ChevronRight, ChevronDown, FileCode2 } from "lucide-react";
 import React, { useState } from "react";
-import type { Job } from "@/lib/types";
 import {
   Table,
   TableBody,
@@ -16,9 +15,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { fetchProjects } from "@/lib/api";
+import { redirect } from "@tanstack/react-router";
+
 export const Route = createFileRoute("/projects/$projectId/jobs")({
+  beforeLoad: async ({ params }) => {
+    const projects = await fetchProjects();
+    const p = projects.find((p) => p.id === params.projectId);
+    if (
+      !p ||
+      !(p.capabilities.includes("fit_validation") || p.capabilities.includes("symbolic_validation"))
+    ) {
+      throw redirect({ to: `/projects/${params.projectId}` as any });
+    }
+  },
   head: () => ({
-    meta: [{ title: "Jobs — AiSci" }],
+    meta: [
+      { title: "Jobs Pipeline — AiSci" },
+      { name: "description", content: "Active job executions, logs, and artifacts." },
+    ],
   }),
   component: JobsPage,
 });
@@ -27,7 +42,11 @@ function JobsPage() {
   const { projectId } = Route.useParams();
   const [expandedJob, setExpandedJob] = useState<string | null>(null);
 
-  const { data: jobs, isLoading, isError } = useQuery({
+  const {
+    data: jobs,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["jobs", projectId],
     queryFn: () => fetchJobs(projectId!),
   });
@@ -85,12 +104,13 @@ function JobsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {jobs.map((job: Job) => {
+                  {jobs.map((job: JobExecution) => {
                     const isExpanded = expandedJob === job.id;
                     const statusColors: Record<string, string> = {
                       pending: "bg-muted text-muted-foreground",
                       running: "bg-blue-500/15 text-blue-500 ring-1 ring-blue-500/40",
-                      completed: "bg-emerald-brand/15 text-emerald-brand ring-1 ring-emerald-brand/40",
+                      completed:
+                        "bg-emerald-brand/15 text-emerald-brand ring-1 ring-emerald-brand/40",
                       failed: "bg-rose-brand/15 text-rose-brand ring-1 ring-rose-brand/40",
                     };
                     return (
@@ -131,7 +151,7 @@ function JobsPage() {
                                 </h4>
                                 {job.artifact_manifest && job.artifact_manifest.length > 0 ? (
                                   <div className="space-y-1">
-                                    {job.artifact_manifest.map((art, idx) => (
+                                    {job.artifact_manifest?.map((art: any, idx: number) => (
                                       <div
                                         key={idx}
                                         className="flex items-center justify-between rounded-md bg-background px-3 py-2 text-xs font-mono"

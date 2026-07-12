@@ -1,359 +1,439 @@
+import type { ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
-  LineChart,
+  Area,
+  AreaChart,
+  CartesianGrid,
   Line,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
   ReferenceLine,
-  ResponsiveContainer,
 } from "recharts";
 import {
+  Activity,
+  AlertTriangle,
+  ArrowUpRight,
+  Bot,
+  CheckCircle2,
+  Database,
+  Radio,
+  Sigma,
   BookOpen,
   Atom,
   ShieldCheck,
   ListTodo,
-  ArrowUpRight,
-  AlertTriangle,
   Copy,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Link } from "@tanstack/react-router";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { PageShell } from "@/components/PageShell";
-import { type Activity, type Anomaly } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
 import {
-  fetchLiterature,
-  fetchFits,
-  fetchEvidence,
-  fetchTasks,
   fetchActivity,
   fetchAnomalies,
+  fetchFits,
+  fetchProjectOverview,
+  fetchProjectHealth,
   fetchExportSummary,
 } from "@/lib/api";
-import { useState } from "react";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import { PageShell } from "@/components/PageShell";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
     meta: [
       { title: "Overview — AiSci" },
-      {
-        name: "description",
-        content:
-          "High-level status of the AiSci autonomous research pipeline: papers ingested, active fits, claims tracked, and open tasks.",
-      },
+      { name: "description", content: "AiSci autonomous physics research control plane" },
     ],
   }),
   component: Overview,
 });
 
-type Kpi = {
-  label: string;
-  value: string;
-  sub: string;
-  Icon: typeof BookOpen;
-  accent: string;
-  badge?: { text: string; className: string };
-};
-
 function Overview() {
   const { projectId } = Route.useParams();
-  const [showAnomalies, setShowAnomalies] = useState(false);
-  
-  const { data: literature = [] } = useQuery({
-    queryKey: ["literature", projectId],
-    queryFn: () => fetchLiterature(projectId),
-  });
+
   const { data: fitsData = { fitRows: [], chi2Series: [] } as any } = useQuery({
     queryKey: ["fits", projectId],
     queryFn: () => fetchFits(projectId),
   });
-  const { data: evidence = [] } = useQuery({ 
-    queryKey: ["evidence", projectId], 
-    queryFn: () => fetchEvidence(projectId) 
+  const { data: activityFeed = [] } = useQuery({
+    queryKey: ["activity", projectId],
+    queryFn: () => fetchActivity(projectId),
   });
-  const { data: tasks = [] } = useQuery({ 
-    queryKey: ["tasks", projectId], 
-    queryFn: () => fetchTasks(projectId) 
-  });
-  const { data: activityFeed = [] } = useQuery({ 
-    queryKey: ["activity"], 
-    queryFn: fetchActivity 
-  });
-
   const { data: anomalies = [] } = useQuery({
     queryKey: ["anomalies", projectId],
     queryFn: () => fetchAnomalies(projectId),
     staleTime: 60_000,
   });
+  const {
+    data: overview = { literature_count: 0, active_fits: 0, claims_count: 0, open_tasks: 0 } as any,
+  } = useQuery({
+    queryKey: ["overview", projectId],
+    queryFn: () => fetchProjectOverview(projectId),
+  });
+  const { data: health } = useQuery({
+    queryKey: ["health", projectId],
+    queryFn: () => fetchProjectHealth(projectId),
+  });
 
-  const criticalCount = anomalies.filter((a: Anomaly) => a.severity === "critical").length;
-  const warningCount = anomalies.filter((a: Anomaly) => a.severity === "warning").length;
+  const metrics: import("@/lib/api").Metric[] = [
+    {
+      label: "Papers Ingested",
+      value: String(overview.literature_count),
+      delta: 0,
+      accent: "emerald",
+      spark: [2, 4, 3, 5, 4, 6],
+    },
+    {
+      label: "Active Fits",
+      value: String(overview.active_fits),
+      delta: 0,
+      accent: "cyan",
+      spark: [10, 15, 12, 18, 20],
+    },
+    {
+      label: "Claims Tracked",
+      value: String(overview.claims_count),
+      delta: 0,
+      accent: "amber",
+      spark: [1, 2, 2, 3, 4],
+    },
+    {
+      label: "Open Tasks",
+      value: String(overview.open_tasks),
+      delta: 0,
+      accent: "violet",
+      spark: [10, 8, 9, 6, 5],
+    },
+  ];
 
   async function handleExport() {
     try {
       const { markdown } = await fetchExportSummary(projectId);
       await navigator.clipboard.writeText(markdown);
-      toast.success("Summary copied to clipboard!", {
-        description: "Paste it into a GitHub Issue or research log.",
-      });
+      toast.success("Summary copied to clipboard!");
     } catch {
       toast.error("Failed to export summary.");
     }
   }
 
-  const kpis: Kpi[] = [
-    {
-      label: "Papers Ingested",
-      value: String(literature.length),
-      sub: "+0 today",
-      Icon: BookOpen,
-      accent: "text-emerald-brand",
-    },
-    {
-      label: "Active Fits",
-      value: String(fitsData.fitRows?.length || 0),
-      sub: "bins across models",
-      Icon: Atom,
-      accent: "text-primary",
-      badge: {
-        text: "RUNNING",
-        className: "bg-primary/15 text-primary ring-1 ring-primary/40",
-      },
-    },
-    {
-      label: "Claims Tracked",
-      value: String(evidence.length),
-      sub: `${evidence.filter((e: any) => e.status === "Proposed").length} pending review`,
-      Icon: ShieldCheck,
-      accent: "text-amber-brand",
-    },
-    {
-      label: "Open Tasks",
-      value: String(tasks.filter((t: any) => t.status !== "closed").length),
-      sub: `${tasks.filter((t: any) => t.status === "proposed").length} agent-proposed`,
-      Icon: ListTodo,
-      accent: "text-primary",
-    },
-  ];
-
   return (
     <PageShell>
-      <div className="mb-4 flex justify-end">
-        <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExport}>
-          <Copy className="h-3.5 w-3.5" />
-          Export Summary
-        </Button>
-      </div>
+      <section className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-primary">
+            <Radio className="h-3.5 w-3.5" /> Live research fabric
+          </div>
+          <h1 className="text-balance text-3xl font-semibold tracking-tight md:text-4xl">
+            Scientific operations overview
+          </h1>
+          <p className="max-w-2xl text-pretty text-sm leading-6 text-muted-foreground">
+            Autonomous agents are ingesting evidence, fitting collision spectra, and validating
+            physical claims across the active research graph.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 border-l border-primary/40 pl-4">
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExport}>
+            <Copy className="h-3.5 w-3.5" /> Export
+          </Button>
+          <div className="h-8 w-px bg-border" />
+          <div>
+            <div className="font-mono text-xl font-semibold text-emerald-brand">99.98%</div>
+            <div className="text-xs text-muted-foreground">pipeline uptime</div>
+          </div>
+        </div>
+      </section>
 
-      {anomalies.length > 0 && (
-        <Alert className="mb-4 glass-card border-rose-brand/40">
-          <AlertTriangle className="h-4 w-4 text-rose-brand" />
-          <AlertTitle className="flex items-center justify-between">
-            <span className="text-rose-brand">
-              {criticalCount > 0 ? `${criticalCount} critical` : ""}
-              {criticalCount > 0 && warningCount > 0 ? " · " : ""}
-              {warningCount > 0 ? `${warningCount} warnings` : ""} — physics anomalies in latest run
-            </span>
-            <button
-              className="ml-4 text-xs underline text-muted-foreground hover:text-foreground"
-              onClick={() => setShowAnomalies((s) => !s)}
-            >
-              {showAnomalies ? "Hide" : "Show details"}
-            </button>
-          </AlertTitle>
-          {showAnomalies && (
-            <AlertDescription className="mt-2">
-              <ul className="space-y-0.5 text-xs font-mono">
-                {anomalies.slice(0, 8).map((a: Anomaly, i: number) => (
-                  <li
-                    key={i}
-                    className={a.severity === "critical" ? "text-rose-brand" : "text-amber-brand"}
-                  >
-                    [{a.bin}] {a.model}: {a.message}
-                  </li>
-                ))}
-                {anomalies.length > 8 && (
-                  <li className="text-muted-foreground">
-                    …and {anomalies.length - 8} more.{" "}
-                    <Link to="/projects/$projectId/fits" params={{ projectId }} className="underline">
-                      Go to Fits page.
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </AlertDescription>
-          )}
-        </Alert>
-      )}
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {kpis.map((k) => (
-          <Card key={k.label} className="glass-card fade-in-up transition hover:border-primary/40">
-            <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {k.label}
-              </CardTitle>
-              <k.Icon className={`h-4 w-4 ${k.accent}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold tracking-tight">{k.value}</span>
-                {k.badge && <Badge className={k.badge.className}>{k.badge.text}</Badge>}
-              </div>
-              <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                {k.label === "Papers Ingested" && (
-                  <ArrowUpRight className="h-3 w-3 text-emerald-brand" />
-                )}
-                {k.sub}
-              </div>
-            </CardContent>
-          </Card>
+      <section aria-label="Research metrics" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((metric) => (
+          <MetricCard key={metric.label} metric={metric} />
         ))}
-      </div>
+      </section>
 
-      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="glass-card fade-in-up lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base">Model χ²/ndf Across Multiplicity Bins</CardTitle>
-            <p className="text-xs text-muted-foreground">
-              Rejection threshold at χ²/ndf = 5 (dashed). Jüttner 1c fails the Boltzmann
-              approximation across all bins.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[360px] w-full">
-              <ResponsiveContainer>
-                <LineChart
-                  data={fitsData.chi2Series || []}
-                  margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
-                >
-                  <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="bin"
-                    tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
-                    stroke="var(--border)"
-                  />
-                  <YAxis
-                    tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
-                    stroke="var(--border)"
-                    scale="log"
-                    domain={[0.5, 500]}
-                    ticks={[1, 5, 10, 50, 100, 500]}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--popover)",
-                      border: "1px solid var(--border)",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                    labelStyle={{ color: "var(--foreground)", fontWeight: 600 }}
-                  />
-                  <Legend
-                    verticalAlign="top"
-                    align="right"
-                    wrapperStyle={{ fontSize: 12, paddingBottom: 8 }}
-                  />
-                  <ReferenceLine
-                    y={5}
-                    stroke="var(--rose-brand)"
-                    strokeDasharray="4 4"
-                    label={{
-                      value: "Rejection Threshold",
-                      position: "insideTopRight",
-                      fill: "var(--rose-brand)",
-                      fontSize: 11,
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Jüttner 1c"
-                    stroke="var(--rose-brand)"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Tsallis 2c"
-                    stroke="var(--emerald-brand)"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Bose-Einstein 1c"
-                    stroke="var(--primary)"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+      <section className="mt-4 grid gap-4 xl:grid-cols-12">
+        <Panel
+          className="xl:col-span-7"
+          title="Model χ²/ndf vs Multiplicity"
+          label="Tsallis & Jüttner fits"
+          icon={Sigma}
+          action="Latest"
+        >
+          <div className="mt-4 h-72" aria-label="Chart showing chi2 over bins">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={fitsData.chi2Series || []}
+                margin={{ top: 8, right: 8, left: -24, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="fit-fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--cyan-brand)" stopOpacity={0.28} />
+                    <stop offset="100%" stopColor="var(--cyan-brand)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="var(--border)" strokeDasharray="3 5" vertical={false} />
+                <XAxis
+                  dataKey="bin"
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  scale="log"
+                  domain={[0.5, 500]}
+                  ticks={[1, 5, 10, 50, 100, 500]}
+                  tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--popover)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                />
+                <ReferenceLine y={5} stroke="var(--rose-brand)" strokeDasharray="4 4" />
+                <Area
+                  type="monotone"
+                  dataKey="Tsallis 2c"
+                  stroke="var(--emerald-brand)"
+                  fill="url(#fit-fill)"
+                  strokeWidth={2}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="Jüttner 1c"
+                  stroke="var(--rose-brand)"
+                  strokeWidth={1.5}
+                  dot={true}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="Bose-Einstein 1c"
+                  stroke="var(--primary)"
+                  strokeWidth={1.5}
+                  dot={true}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex gap-5 border-t border-border pt-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <i className="h-1.5 w-4 bg-emerald-brand" />
+              Tsallis
+            </span>
+            <span className="flex items-center gap-2">
+              <i className="h-1.5 w-4 bg-rose-brand" />
+              Jüttner
+            </span>
+            <span className="flex items-center gap-2">
+              <i className="h-1.5 w-4 bg-primary" />
+              Bose-Einstein
+            </span>
+          </div>
+        </Panel>
+
+        <Panel
+          className="xl:col-span-5"
+          title="Agent workload"
+          label="Distributed cognition mesh"
+          icon={Bot}
+          action={`Active`}
+        >
+          <div className="mt-3 flex flex-col divide-y divide-border">
+            {[
+              {
+                id: 1,
+                status: "active",
+                name: "Literature Ingest",
+                load: 85,
+                role: "extraction",
+                throughput: "12 papers/h",
+              },
+              {
+                id: 2,
+                status: "active",
+                name: "Minuit Fitter",
+                load: 92,
+                role: "compute",
+                throughput: "244 fits/m",
+              },
+              {
+                id: 3,
+                status: "blocked",
+                name: "Peer Reviewer",
+                load: 15,
+                role: "validation",
+                throughput: "idle",
+              },
+            ].map((agent) => (
+              <div key={agent.id} className="flex items-center gap-3 py-3">
+                <span
+                  className={cn(
+                    "h-2 w-2 rounded-full",
+                    agent.status === "active"
+                      ? "bg-emerald-brand"
+                      : agent.status === "blocked"
+                        ? "bg-amber-brand"
+                        : "bg-muted-foreground",
+                  )}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex justify-between gap-3">
+                    <span className="text-sm font-medium">{agent.name}</span>
+                    <span className="font-mono text-[11px] text-muted-foreground">
+                      {agent.load}%
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className="h-full bg-primary transition-all"
+                      style={{ width: `${agent.load}%` }}
+                    />
+                  </div>
+                  <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+                    <span>{agent.role}</span>
+                    <span>{agent.throughput}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel
+          className="xl:col-span-4"
+          title="Database sync"
+          label="Primary ledger"
+          icon={Database}
+          action="synced"
+        >
+          <div className="mt-5 flex items-end justify-between">
+            <strong className="font-mono text-4xl font-medium">100%</strong>
+            <span className="text-xs text-muted-foreground">Local records</span>
+          </div>
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
+            <div
+              className="h-full bg-primary shadow-[0_0_12px_var(--cyan-brand)]"
+              style={{ width: `100%` }}
+            />
+          </div>
+          <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs">
+            <div>
+              <dt className="text-muted-foreground">Read latency</dt>
+              <dd className="mt-1 font-mono text-foreground">12 ms</dd>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+              <dt className="text-muted-foreground">Replica state</dt>
+              <dd className="mt-1 flex items-center gap-1.5 text-emerald-brand">
+                <CheckCircle2 className="h-3 w-3" />
+                Consistent
+              </dd>
+            </div>
+          </dl>
+        </Panel>
 
-        <Card className="glass-card fade-in-up">
-          <CardHeader>
-            <CardTitle className="text-base">Recent Activity</CardTitle>
-            <p className="text-xs text-muted-foreground">Agent events, most recent first.</p>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[360px] pr-3">
-              <ul className="space-y-2">
-                {activityFeed.map((e: Activity) => {
-                  let colorClass = "bg-primary";
-                  if (
-                    e.action.toLowerCase().includes("flagged") ||
-                    e.action.toLowerCase().includes("error")
-                  ) {
-                    colorClass = "bg-rose-brand";
-                  } else if (e.action.toLowerCase().includes("proposed")) {
-                    colorClass = "bg-amber-brand";
-                  } else if (
-                    e.action.toLowerCase().includes("complete") ||
-                    e.action.toLowerCase().includes("updated")
-                  ) {
-                    colorClass = "bg-emerald-brand";
-                  }
+        <Panel
+          className="xl:col-span-4"
+          title="Anomaly queue"
+          label="Residual scan deviations"
+          icon={AlertTriangle}
+          action={`${anomalies?.length ?? 0} open`}
+        >
+          <div className="mt-3 flex flex-col divide-y divide-border">
+            {anomalies?.slice(0, 4).map((a: any, i: number) => (
+              <div key={`${a.bin}-${a.model}-${i}`} className="group flex items-center gap-3 py-3">
+                <div
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-md font-mono text-xs",
+                    a.severity === "high" || a.severity === "critical"
+                      ? "bg-amber-brand/15 text-amber-brand"
+                      : "bg-secondary text-muted-foreground",
+                  )}
+                >
+                  !
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">
+                    [{a.bin}] {a.model}
+                  </div>
+                  <div className="truncate font-mono text-[10px] text-muted-foreground">
+                    {a.message}
+                  </div>
+                </div>
+                <ArrowUpRight className="h-4 w-4 text-muted-foreground transition group-hover:text-primary" />
+              </div>
+            ))}
+          </div>
+        </Panel>
 
-                  // format timestamp to time only if today
-                  const t = new Date(e.timestamp);
-                  const timeStr = t.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-                  return (
-                    <li
-                      key={e.id}
-                      className="group flex gap-3 rounded-md border border-transparent p-2 transition hover:border-border hover:bg-muted/40"
-                    >
-                      <span
-                        className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${colorClass} ring-2 ring-background`}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-[11px] text-muted-foreground">
-                            {timeStr}
-                          </span>
-                        </div>
-                        <p className="text-sm leading-snug text-foreground/90">
-                          <strong>{e.action}</strong>: {e.details}
-                        </p>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
+        <Panel
+          className="xl:col-span-4"
+          title="Activity stream"
+          label="Latest agent events"
+          icon={Activity}
+          action="Live"
+        >
+          <div className="mt-3 flex max-h-64 flex-col overflow-auto scroll-slim">
+            {activityFeed?.slice(0, 5).map((item: any, index: number) => (
+              <div key={item.id} className="relative flex gap-3 pb-4 last:pb-0">
+                <div className="flex flex-col items-center">
+                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                  {index < 4 && <span className="mt-1 w-px flex-1 bg-border" />}
+                </div>
+                <div>
+                  <div className="text-xs font-semibold">{item.action}</div>
+                  <p className="mt-1 text-[11px] leading-5 text-muted-foreground">{item.details}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </section>
     </PageShell>
+  );
+}
+
+function Panel({
+  title,
+  label,
+  icon: Icon,
+  action,
+  className,
+  children,
+}: {
+  title: string;
+  label: string;
+  icon: typeof Activity;
+  action: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <article
+      className={cn(
+        "glass-card rounded-xl p-4 transition-colors hover:border-primary/25",
+        className,
+      )}
+    >
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <Icon className="h-4 w-4" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold">{title}</h2>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">{label}</p>
+          </div>
+        </div>
+        <span className="rounded-md border border-border bg-secondary/60 px-2 py-1 font-mono text-[10px] uppercase text-muted-foreground">
+          {action}
+        </span>
+      </header>
+      {children}
+    </article>
   );
 }

@@ -46,7 +46,17 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { fetchProjects } from "@/lib/api";
+import { redirect } from "@tanstack/react-router";
+
 export const Route = createFileRoute("/projects/$projectId/fits")({
+  beforeLoad: async ({ params }) => {
+    const projects = await fetchProjects();
+    const p = projects.find((p) => p.id === params.projectId);
+    if (!p || !p.capabilities.includes("fit_validation")) {
+      throw redirect({ to: `/projects/${params.projectId}` as any });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Physics Fits — AiSci" },
@@ -60,25 +70,22 @@ export const Route = createFileRoute("/projects/$projectId/fits")({
   component: FitsPage,
 });
 
-const filters = ["All Models", "Jüttner 1c", "Tsallis 2c", "Bose-Einstein 1c"] as const;
-type Filter = (typeof filters)[number];
-
 const qualityStyles: Record<FitRow["quality"], string> = {
   POOR: "bg-rose-brand/15 text-rose-brand ring-1 ring-rose-brand/40",
   MARGINAL: "bg-amber-brand/15 text-amber-brand ring-1 ring-amber-brand/40",
   GOOD: "bg-emerald-brand/15 text-emerald-brand ring-1 ring-emerald-brand/40",
 };
 
-const filterStyles: Record<Filter, string> = {
-  "All Models": "data-[on=true]:bg-primary data-[on=true]:text-primary-foreground",
-  "Jüttner 1c": "data-[on=true]:bg-rose-brand data-[on=true]:text-white",
-  "Tsallis 2c": "data-[on=true]:bg-emerald-brand data-[on=true]:text-black",
-  "Bose-Einstein 1c": "data-[on=true]:bg-primary data-[on=true]:text-primary-foreground",
+const getFilterStyle = (f: string) => {
+  if (f === "All Models") return "data-[on=true]:bg-primary data-[on=true]:text-primary-foreground";
+  if (f.includes("Jüttner")) return "data-[on=true]:bg-rose-brand data-[on=true]:text-white";
+  if (f.includes("Tsallis")) return "data-[on=true]:bg-emerald-brand data-[on=true]:text-black";
+  return "data-[on=true]:bg-primary data-[on=true]:text-primary-foreground";
 };
 
 function FitsPage() {
   const { projectId } = useParams({ strict: false }) as { projectId?: string };
-  const [filter, setFilter] = useState<Filter>("All Models");
+  const [filter, setFilter] = useState<string>("All Models");
   const [selected, setSelected] = useState<FitRow | null>(null);
 
   const { data: runsData } = useQuery({
@@ -99,7 +106,7 @@ function FitsPage() {
     for (const job of jobs || []) {
       if (!job.artifact_manifest) continue;
       for (const art of job.artifact_manifest) {
-        const match = art.path.match(/^([^\/]+)\//);
+        const match = art.path.match(/^([^/]+)\//);
         if (match) {
           map[match[1]] = job;
           break;
@@ -115,9 +122,22 @@ function FitsPage() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["fits", projectId, activeRun, compareRun],
-    queryFn: () => fetchFits(projectId as string, activeRun as string, compareRun === "none" ? undefined : compareRun),
+    queryFn: () =>
+      fetchFits(
+        projectId as string,
+        activeRun as string,
+        compareRun === "none" ? undefined : compareRun,
+      ),
     enabled: !!activeRun && !!projectId,
   });
+
+  const dynamicFilters = useMemo(() => {
+    const models = new Set<string>();
+    if (data?.fitRows) {
+      data.fitRows.forEach((r: any) => models.add(r.model));
+    }
+    return ["All Models", ...Array.from(models)];
+  }, [data?.fitRows]);
 
   const rows = useMemo(() => {
     const fitRows: FitRow[] = data?.fitRows || [];
@@ -128,7 +148,7 @@ function FitsPage() {
     if (!data?.fitRows || !data?.bins) return [];
     return data.bins.map((bin: string) => {
       const entry: Record<string, any> = { bin };
-      filters
+      dynamicFilters
         .filter((f) => f !== "All Models")
         .forEach((model) => {
           const row = data.fitRows.find((r: FitRow) => r.bin === bin && r.model === model);
@@ -136,7 +156,7 @@ function FitsPage() {
         });
       return entry;
     });
-  }, [data]);
+  }, [data, dynamicFilters]);
 
   // Derive alerts directly from the live data already fetched
   const dataAlerts = useMemo(() => {
@@ -147,7 +167,7 @@ function FitsPage() {
 
     for (const row of data.fitRows as FitRow[]) {
       // Chi2 alert
-      if (row.chi2 > 10) {
+      if (row.chi2 != null && row.chi2 > 10) {
         chi2Alerts.push({ bin: row.bin, model: row.model, chi2: row.chi2 });
       }
       // Correlation alert — check off-diagonal pairs
@@ -194,7 +214,10 @@ function FitsPage() {
             <SelectContent>
               {runs.map((r: string) => (
                 <SelectItem key={r} value={r} className="font-mono text-xs">
-                  {r} {runToJob[r] && runToJob[r].git_commit ? `· ${runToJob[r].git_commit.slice(0, 8)} (${runToJob[r].artifact_manifest?.length || 0} items)` : ''}
+                  {r}{" "}
+                  {runToJob[r] && runToJob[r].git_commit
+                    ? `· ${runToJob[r].git_commit.slice(0, 8)} (${runToJob[r].artifact_manifest?.length || 0} items)`
+                    : ""}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -211,26 +234,66 @@ function FitsPage() {
               </SelectItem>
               {runs.map((r: string) => (
                 <SelectItem key={r} value={r} className="font-mono text-xs">
-                  {r} {runToJob[r] && runToJob[r].git_commit ? `· ${runToJob[r].git_commit.slice(0, 8)} (${runToJob[r].artifact_manifest?.length || 0} items)` : ''}
+                  {r}{" "}
+                  {runToJob[r] && runToJob[r].git_commit
+                    ? `· ${runToJob[r].git_commit.slice(0, 8)} (${runToJob[r].artifact_manifest?.length || 0} items)`
+                    : ""}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         )}
         <div className="flex flex-wrap gap-2">
-          {filters.map((f) => (
+          {dynamicFilters.map((f) => (
             <Button
               key={f}
               variant="outline"
               size="sm"
               data-on={filter === f}
-              className={`rounded-full border-border transition ${filterStyles[f]}`}
+              className={`rounded-full border-border transition ${getFilterStyle(f)}`}
               onClick={() => setFilter(f)}
             >
               {f}
             </Button>
           ))}
         </div>
+      </div>
+
+      <div className="mb-4 space-y-3">
+        <Alert className="glass-card border-amber-brand/40 bg-amber-brand/5">
+          <AlertTriangle className="h-4 w-4 text-amber-brand" />
+          <AlertTitle>Jacobian Correction Required</AlertTitle>
+          <AlertDescription className="text-muted-foreground">
+            ALICE data uses pseudorapidity (<span className="font-mono">dη</span>), while the
+            manuscript assumes rapidity (<span className="font-mono">dy</span>). A kinematic
+            Jacobian <span className="font-mono">dy/dη</span> is missing from low-
+            <span className="font-mono">pT</span> data, causing up to a 22% correction.
+          </AlertDescription>
+        </Alert>
+
+        {filter.includes("Jüttner 3c") && (
+          <Alert className="glass-card border-rose-brand/40 bg-rose-brand/5">
+            <AlertTriangle className="h-4 w-4 text-rose-brand" />
+            <AlertTitle>Mathematical Singularity</AlertTitle>
+            <AlertDescription className="text-muted-foreground">
+              3-component Jüttner models exhibit a rank-deficient Fisher Information matrix as flow
+              velocity <span className="font-mono">U → 0</span>. Ensure you use the Two-Component
+              Soft/Hard baseline for robust convergence.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {filter.includes("Bose-Einstein 1c") && (
+          <Alert className="glass-card border-amber-brand/40 bg-amber-brand/5">
+            <AlertTriangle className="h-4 w-4 text-amber-brand" />
+            <AlertTitle>Theoretical Limitation</AlertTitle>
+            <AlertDescription className="text-muted-foreground">
+              A single thermal Bose-Einstein source cannot mathematically describe the hard QCD
+              scattering tail at high <span className="font-mono">pT</span>. Expect significant
+              data-model divergence above 3 GeV/c.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       {data?.status === "Incomplete" ? (
@@ -275,16 +338,20 @@ function FitsPage() {
                     >
                       <TableCell className="font-mono text-xs">{r.bin}</TableCell>
                       <TableCell>{r.model}</TableCell>
-                      <TableCell className="text-right font-mono">{r.chi2.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-mono">
+                        {r.chi2 != null ? r.chi2.toFixed(2) : "—"}
+                      </TableCell>
                       <TableCell>
-                        <Badge className={qualityStyles[r.quality]}>
+                        <Badge className={qualityStyles[r.quality] || qualityStyles.POOR}>
                           {r.quality === "POOR" ? "🔴" : r.quality === "MARGINAL" ? "🟡" : "🟢"}{" "}
                           {r.quality}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-mono text-xs">{r.T}</TableCell>
                       <TableCell className="font-mono text-xs">{r.beta}</TableCell>
-                      <TableCell className="text-right font-mono">{r.aic.toFixed(1)}</TableCell>
+                      <TableCell className="text-right font-mono">
+                        {r.aic != null ? r.aic.toFixed(1) : "—"}
+                      </TableCell>
                       <TableCell>
                         <span className="text-xs text-muted-foreground">{r.status}</span>
                       </TableCell>
@@ -525,11 +592,11 @@ function FitDetailSheet({
                   </div>
                   <div className="rounded-md border border-border bg-muted/30 p-2">
                     <div className="text-[10px] uppercase text-muted-foreground">χ²/ndf</div>
-                    <div className="font-mono">{row.chi2.toFixed(3)}</div>
+                    <div className="font-mono">{row.chi2 != null ? row.chi2.toFixed(3) : "—"}</div>
                   </div>
                   <div className="rounded-md border border-border bg-muted/30 p-2">
                     <div className="text-[10px] uppercase text-muted-foreground">AIC</div>
-                    <div className="font-mono">{row.aic.toFixed(1)}</div>
+                    <div className="font-mono">{row.aic != null ? row.aic.toFixed(1) : "—"}</div>
                   </div>
                 </div>
               </section>
