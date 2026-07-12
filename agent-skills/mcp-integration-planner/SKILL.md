@@ -16,13 +16,13 @@ Use this when planning or documenting MCP/API integrations.
 - Prefer project-level shared config over IDE-specific setup.
 - Keep credentials out of git.
 - Document tested endpoints and caveats in `docs/ops/`.
-- Use Onyx for curated source-grounded retrieval.
+- Use project workspaces for curated source-grounded retrieval.
 - Expose direct tools to coding/orchestration agents when they need task-specific evidence.
 
 ## Workflow
 
 1. Identify the tool and use case.
-2. Decide whether it belongs in Onyx, DeerFlow, direct agent tooling, or a shared local proxy.
+2. Decide whether it belongs in direct agent tooling or a shared local proxy.
 3. Document auth needs without writing secret values.
 4. Provide a test plan from inside the relevant container or host context.
 5. Add user-approved actionable tasks to `docs/ops/platform-backlog.md`.

@@ -10,11 +10,11 @@ Use this skill to autonomously brainstorm novel modifications to existing high-e
 ## Read First
 - `AGENTS.md`
 - `research/robert/evidence-ledger.md`
-- `research/literature/` (Access via Onyx RAG)
+- `research/literature/`
 
 ## Rules
 - **Physical Grounding:** Do not invent arbitrary mathematical functions. Modifications must be physically motivated (e.g., collective flow, freeze-out temperature dependencies).
-- **Novelty Verification:** Check Onyx or MCP tools to ensure the hypothesis has not already been ruled out in recent ATLAS 13 TeV papers.
+- **Novelty Verification:** Check MCP tools to ensure the hypothesis has not already been ruled out in recent ATLAS 13 TeV papers.
 - **Workflow:** 
   1. Identify a gap in `evidence-ledger.md`.
   2. Brainstorm a hypothesis to close the gap.

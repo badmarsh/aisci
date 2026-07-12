@@ -23,7 +23,7 @@ Use this for science-facing work under `research/robert/`.
 - Do not interpret fit parameters physically without fit quality, covariance, correlations, residuals, fit-range sensitivity, and baseline comparisons attached.
 - Do not promote a claim beyond `Sanity checked` unless exact manuscript equation/table/figure identifiers, input data, reproducible outputs, and relevant literature are attached.
 - Compare against literature-matched Tsallis/Tsallis-Pareto and Blast-Wave baselines before any novelty or model-quality claims.
-- Keep Onyx, DeerFlow, Docker, MCP, and deployment details out of science files unless needed as execution provenance.
+- Keep Docker, MCP, and deployment details out of science files unless needed as execution provenance.
 - Evidence states are defined in `docs/decisions/2026-04-26-science-evidence-standards.md`: `Open`, `Sanity checked`, `Supported`, `Suggestive`, `Refuted`, `Blocked`.
 
 ## Workflow

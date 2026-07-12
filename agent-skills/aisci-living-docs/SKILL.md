@@ -37,9 +37,8 @@ This skill always writes for three distinct readers:
 - `docs/decisions/*.md` (all ADRs)
 - `agent-skills/README.md`
 - `research/robert/workflow.md`
-- `deployment/onyx/docker-compose.yml` (ground truth for running services)
-- `deployment/onyx/litellm_config.yaml` (model routing ground truth)
-- `mcp_config.yaml`
+- `deployment/aisci-dashboard/package.json` (frontend ground truth)
+- `deployment/aisci-dashboard/ignition/pyproject.toml` (backend ground truth)
 - **`docs/user-manual/USER_MANUAL.md`** (declared skill map, pipelines, daily routines, and physics tools reference — check this last, after all other files, so drift can be assessed against the actual current state)
 
 ---
@@ -59,19 +58,19 @@ This skill always writes for three distinct readers:
 
 Work through these areas in order. For each, check whether the current documentation matches the actual file content.
 
-### 1. Services (ground truth: `docker-compose.yml`)
-- Which containers are defined?
+### 1. Services (ground truth: `deployment/aisci-dashboard/` processes)
+- Which services are defined?
 - Does `docs/ops/deployment-reference.md` list them all correctly?
-- Are pinned image versions in the compose file reflected in the docs?
-- Are any containers defined but known to be non-functional?
+- Are port numbers and host bindings reflected in the docs?
+- Are any services defined but known to be non-functional?
 
-### 2. Models (ground truth: `litellm_config.yaml`, Ollama model list)
-- Which LLM and embedding models are configured vs. actually pulled?
+### 2. Models
+- Which LLM and embedding models are expected by the dashboard?
 - Does `README.md` or any ops doc claim a model is available that is not yet pulled?
-- Are the embedding dimensions consistent across `litellm_config.yaml` and the RAG ADR?
+- Are the models actually available to the active agents?
 
-### 3. MCP Endpoints (ground truth: `mcp_config.yaml`, `nginx_mcp_proxy.conf`, `docs/ops/mcp-endpoints.md`)
-- Does `mcp-endpoints.md` reflect the actual proxy routes?
+### 3. Endpoints (ground truth: `docs/ops/deployment-reference.md`)
+- Does `deployment-reference.md` reflect the actual Ignition and React routes?
 - Are any endpoints now tested that were previously marked Untested?
 - Are any endpoints missing from the table entirely?
 
@@ -109,7 +108,7 @@ Check each declared section against what you found in §1–§6:
 - Have any skill descriptions drifted from what the actual `SKILL.md` files say?
 
 **Pipeline flow accuracy**
-- Does the ops pipeline sequence (`aisci-tech-kickoff → aisci-ops-auditor → onyx-rag-eval-manager → ...`) still reflect the correct recommended order?
+- Does the ops pipeline sequence (`aisci-tech-kickoff → aisci-ops-auditor → ...`) still reflect the correct recommended order?
 - Does the science pipeline sequence still match the intended workflow?
 
 **Daily routine accuracy**

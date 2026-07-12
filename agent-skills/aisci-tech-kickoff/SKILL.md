@@ -17,10 +17,8 @@ Read:
 - `docs/README.md`
 - `docs/ops/platform-backlog.md`
 - Latest relevant `docs/ops/*assessment*.md` and `docs/ops/*audit*.md`
-- Relevant deployment files under `deployment/onyx/` or `deployment/deer-flow/`
+- Relevant deployment files under `deployment/aisci-dashboard/`
 - `docs/decisions/2026-04-26-system-boundaries.md`
-  (reminder: Onyx = curated evidence, DeerFlow = orchestration,
-  Repo = durable record — these are not interchangeable)
 
 Then inspect `git status --short` and preserve unrelated changes.
 Use `agent-skills/git-worktree-guard/SKILL.md` when git status or history affects the task choice.

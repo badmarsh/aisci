@@ -12,6 +12,8 @@ import {
   FolderTree,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProjects } from "@/lib/api";
 import {
   Sidebar,
   SidebarContent,
@@ -42,15 +44,24 @@ export function AppSidebar() {
     else root.classList.remove("dark");
   }, [dark]);
 
+  const { data: projects = [] } = useQuery({
+    queryKey: ["projects"],
+    queryFn: fetchProjects,
+    staleTime: 60_000,
+  });
+
+  const project = projects.find((p: any) => p.id === projectId);
+  const caps = project?.capabilities || [];
+
   const items = projectId ? [
-    { title: "Overview", url: `/projects/${projectId}`, icon: Home },
-    { title: "Physics Fits", url: `/projects/${projectId}/fits`, icon: Atom },
-    { title: "Literature Intake", url: `/projects/${projectId}/literature`, icon: BookOpen },
-    { title: "Evidence Ledger", url: `/projects/${projectId}/evidence`, icon: ShieldCheck },
-    { title: "Task Queue", url: `/projects/${projectId}/tasks`, icon: ListTodo },
-    { title: "Anomalies", url: `/projects/${projectId}/anomalies`, icon: AlertTriangle },
-    { title: "Agents", url: `/projects/${projectId}/agents`, icon: Bot },
-  ] : [];
+    { title: "Overview", url: `/projects/${projectId}`, icon: Home, req: null },
+    { title: "Physics Fits", url: `/projects/${projectId}/fits`, icon: Atom, req: "fit_validation" },
+    { title: "Literature Intake", url: `/projects/${projectId}/literature`, icon: BookOpen, req: "literature" },
+    { title: "Evidence Ledger", url: `/projects/${projectId}/evidence`, icon: ShieldCheck, req: "evidence" },
+    { title: "Task Queue", url: `/projects/${projectId}/tasks`, icon: ListTodo, req: "tasks" },
+    { title: "Anomalies", url: `/projects/${projectId}/anomalies`, icon: AlertTriangle, req: "fit_validation" },
+    { title: "Agents", url: `/projects/${projectId}/agents`, icon: Bot, req: null },
+  ].filter(item => !item.req || caps.includes(item.req)) : [];
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">

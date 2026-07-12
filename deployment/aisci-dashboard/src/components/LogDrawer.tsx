@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useParams } from "@tanstack/react-router";
 import {
   Sheet,
   SheetContent,
@@ -12,23 +13,20 @@ export function LogDrawer({
   target,
   onClose,
 }: {
-  target: "ingest" | "fits" | null;
+  target: string | null;
   onClose: () => void;
 }) {
+  const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const [lines, setLines] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const scrollRef = useRef<HTMLPreElement>(null);
 
   useEffect(() => {
-    if (!target) return;
+    if (!target || !projectId) return;
     setLines([]);
     setDone(false);
 
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8001/api";
-    // Using current location href to extract project ID (hack for non-router context if any, but since it's mounted inside AppHeader, we'll need to pass projectId).
-    // Actually, AppHeader has projectId, so let's parse from URL for now or better, update LogDrawer props to accept projectId
-    const pathParts = window.location.pathname.split('/');
-    const projectId = pathParts[1] === "projects" ? pathParts[2] : "robert-boson-manuscript";
     
     // map target to pipeline_id
     const pipelineId = target === "ingest" ? "ingest-validation" : "fit-validation";

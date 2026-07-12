@@ -35,7 +35,7 @@ Project workspace
 Execution adapters
   ├─ Shared libraries: fitting/model/validation utilities
   ├─ Project-specific pipeline wrappers
-  └─ Local Python, Onyx, DeerFlow, or manual-review runners
+  └─ Local Python or manual-review runners
 ```
 
 ### Read first
@@ -78,8 +78,8 @@ Classify and preserve these boundaries:
 Docs currently have drift about this directory and must be corrected to describe it as archived concept material.
 
 **Integration adapters, not core truth**
-Onyx, DeerFlow, OpenRouter, Scite, and local Python are execution/retrieval adapters.
-The dashboard must work even when one adapter is unavailable and must report that unavailability truthfully.
+Local Python is the execution adapter.
+The dashboard must work even when the adapter is unavailable and must report that unavailability truthfully.
 
 ## Required implementation
 
@@ -154,7 +154,7 @@ Implement a typed `PipelineSpec` that includes:
 - id
 - project ID
 - display name and description
-- runner type: python, onyx, deerflow, manual
+- runner type: python, manual
 - command/entrypoint or adapter configuration
 - typed parameters
 - required inputs and pre-flight gates
@@ -218,7 +218,7 @@ Requirements:
 - Create a database abstraction supporting PostgreSQL via `AISCI_DATABASE_URL` for deployed multi-writer operation.
 - SQLite may remain for local/test mode only, with WAL, foreign keys, transactions, busy timeout, and documented single-worker limitations.
 - Add migrations and avoid committing databases, generated artifacts, logs, virtual environments, or test results.
-- Onyx/DeerFlow runner adapters may initially be “not configured” states, but they must be structured, explicit, and visible to the UI. Do not fake health or results.
+- Runner adapters may initially be “not configured” states, but they must be structured, explicit, and visible to the UI. Do not fake health or results.
 
 ### Phase 5 — Canonical science and review workflow
 The project’s Markdown science files remain canonical.
@@ -360,7 +360,7 @@ Frontend tests must cover:
 - evidence review request flow;
 - meaningful error/empty states.
 
-Playwright tests must use fixtures or isolated test services. They must never launch live ingestion, fitting, OpenRouter, Onyx, DeerFlow, or arbitrary subprocesses.
+Playwright tests must use fixtures or isolated test services. They must never launch live ingestion, fitting, or arbitrary subprocesses.
 
 Verification must pass:
 ```bash

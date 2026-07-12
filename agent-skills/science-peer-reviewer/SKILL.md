@@ -20,7 +20,7 @@ Use this skill when a manuscript draft, referee response, or science report is n
 
 ## Workflow
 1. Read the target draft (e.g., `research/robert/referee-report-draft.md`).
-2. Read the canonical `evidence-ledger.md` and any relevant literature via RAG (Onyx) or MCP tools.
+2. Read the canonical `evidence-ledger.md` and any relevant literature via project workspaces or MCP tools.
 3. Compare every major claim in the draft against the ledger.
 4. If discrepancies are found, write a Review Report detailing exactly which lines are unsupported.
 5. Append required revisions to `research/robert/next-actions.md` under a `## 🤖 Agent-Proposed (Reviewer Blockers)` section.

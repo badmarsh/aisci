@@ -1,4 +1,7 @@
-# RAG Baselines
+# Historical Onyx RAG Baselines
+
+> **Historical integration record.** Onyx and the RAG infrastructure described below
+> are no longer part of the local control-plane deployment.
 
 JSON artifacts produced by `deployment/helper/run_rag_tests.py`. Each artifact captures the full Q1–Q5 evaluation run against a named persona at a point in time, so that retrieval and answer-generation regressions can be diffed across reindexes, model swaps, or LiteLLM config changes.
 

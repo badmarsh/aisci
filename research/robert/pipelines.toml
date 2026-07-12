@@ -1,0 +1,14 @@
+[pipelines.ingest-validation]
+name = "Ingest"
+command = ["python", "scripts/ingest.py"]
+working_dir = "."
+
+[pipelines.fit-validation]
+name = "Run Fits and Validations"
+command = ["python", "run_all_fits.py"]
+working_dir = "."
+
+[pipelines.symbolic-validation]
+name = "Run PySR Symbolic Regression"
+command = ["python", "run_pysr.py"]
+working_dir = "."

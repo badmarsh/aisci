@@ -1,88 +1,46 @@
 # Next Session Prompt
 
-_Last updated: 2026-05-17_
+_Last updated: 2026-07-12_
 
 Two prompts are maintained here: one for **platform/ops** work, one for **science workflow** work. Use whichever matches your session goal.
 
 ---
 
-## Prompt A — Platform / Ops (unchanged from 2026-05-06)
+## Prompt A — Platform / Ops
 
-Use this prompt to continue the AiSci platform repair work in a fresh coding
-agent session.
+Use this prompt to continue the AiSci platform/dashboard development in a fresh coding agent session.
 
 ```text
-You are continuing the AiSci Onyx/DeerFlow platform repair.
+You are continuing the AiSci control-plane platform development.
 Repo: /home/ubuntu/aisci, GitHub: badmarsh/aisci.
 
 Read first:
 - AGENTS.md
-- agent-skills/git-worktree-guard/SKILL.md
-- agent-skills/aisci-ops-auditor/SKILL.md
-- agent-skills/secret-config-auditor/SKILL.md if touching env/config
+- docs/ops/critical-components.md
 - docs/ops/platform-backlog.md
-- docs/ops/onyx-configure.md
-- docs/ops/mcp-endpoints.md
+- docs/ops/architecture-overview.md
 - docs/ops/deployment-reference.md
 
-Current known-good state from 2026-05-06:
-- Onyx health endpoint returned 200.
-- Redis AOF was verified with `aof_enabled:1`.
-- alembic head is `14162713706c`.
-- `search_settings.multilingual_expansion` exists again as `varchar[] not null
-  default '{}'` because the recreated `craft-latest` background image expects
-  it during `check_for_indexing`.
-- Active embedding is `Alibaba-NLP/gte-Qwen2-1.5B-instruct`, 1536 dims,
-  search_settings id 10.
-- `deployment/helper/sitecustomize.py` is required for Transformers 5 / Qwen2.
-- `deployment/onyx/.env` is tracked and secret-free; `.env.local` is ignored.
-- Craft should remain enabled: `ENABLE_CRAFT=true`, `IMAGE_TAG=craft-latest`.
-- Onyx MCP host route is `http://127.0.0.1:8095/...`.
-- DeerFlow container route is `http://onyx-mcp-proxy:80/...`.
-- Onyx MCP submodule URL is `https://github.com/badmarsh/onyx-mcp-server.git`;
-  do not point the parent repo at an unreachable local submodule commit.
-- GitHub Issues are now the active work layer; canonical docs stay in repo.
-  Start with issues #4 (key rotation), #5 (Onyx docs connector monitoring),
-  and #6 (docs/backlog migration).
-- Onyx Documentation connector is CC pair 11 / connector 15. Its
-  `refresh_freq` was reduced to 86400 seconds on 2026-05-06.
-- LiteLLM has RAG routes `qwen-rag-fast`, `qwen-rag-balanced`,
-  `qwen-rag-vision`, and local fallback `qwen-rag-local`. Probe with
-  `deployment/helper/litellm_quota_check.py --timeout 90`.
+Current state as of 2026-07-12:
+- The system is a Project-Based Research Control Plane. Legacy components (Onyx, DeerFlow, MCP proxies) have been removed.
+- Frontend: Vite/TanStack Start React app in `deployment/aisci-dashboard/`.
+- Backend: FastAPI Ignition API in `deployment/aisci-dashboard/ignition/`.
+- Both are launched via `./start_dashboard.sh`.
+- The database is a local SQLite projection in `deployment/aisci-dashboard/data/evidence_graph.db`.
+- Projects are registered in `research/projects.toml`.
+- All background pipeline jobs are run as asyncio processes owned by the FastAPI server, logging to `research/robert/runs/...`.
 
 Hard constraints:
-- Do not restart `onyx-db`.
-- Do not print secrets or modify `.env.local` unless explicitly asked.
-- Do not change embedding dimensions or switch active search_settings id 10.
-- Keep platform details out of science files.
-- Preserve unrelated user changes.
+- Do not add features that break project isolation; all API calls must be scoped to `{project_id}`.
+- Do not write scientific conclusions into the dashboard SQLite database; the database is a read-model of the markdown files.
+- Ensure the Playwright tests mock the API layer correctly (no live jobs).
 
 Next highest-value work:
-1. Rotate provider/tool API keys listed in issue #4 and the 2026-05-06
-   secret-history audits, then update only ignored private env/config. Do not
-   commit key values.
-2. Monitor the next Onyx Documentation connector run from issue #5. Confirm it
-   does not retry every 30 minutes, does not hit heartbeat timeout, and does not
-   produce repeated DashScope 429s.
-3. Start issue #6 by migrating only active open backlog rows to GitHub Issues,
-   then shrink `docs/ops/platform-backlog.md` instead of adding new reports.
-4. Fix the `onyx-mcp-server` full Jest failures around `send-chat-message`
-   nock expectations, then remove the need for `--no-verify` pushes.
-5. Rebuild `onyx-python-webdeps:3.11` reproducibly once Docker buildx and PyPI
-   DNS are healthy.
-6. Verify real DeerFlow MCP tool calls after the `extensions_config.json` route
-   update. The gateway was restarted on 2026-05-06 and basic connectivity to
-   `onyx-mcp-proxy:80` passed, but an authenticated end-to-end tool call should
-   still be exercised.
-7. Add monitoring for `onyx-background` errors, Redis queue depth, and Alembic
-   version drift.
-8. Decide whether OpenSearch retrieval is worth the memory cost or whether a
-   measured Vespa-only fallback should reclaim RAM.
+- See `docs/ops/platform-backlog.md` for active tasks.
 
 Before closing:
-- Run `git status -sb`.
-- Run `docker compose config --quiet` from `deployment/onyx`.
-- Check `curl -fsS http://127.0.0.1:3000/api/health`.
+- Run `./start_dashboard.sh` to ensure both services boot successfully.
+- Check `curl -fsS http://127.0.0.1:8001/api/health`.
 - Report what was changed, what was pushed, and any remaining test gaps.
 ```
 
@@ -104,7 +62,7 @@ Read first (in this order):
 - physics/README.md
 - docs/ops/critical-components.md
 
-Current state as of 2026-05-17:
+Current state as of 2026-07-12:
 - Physics scripts are ready but blocked on data:
   - `libs/physics-core/src/fitting_pipeline.py`        ready; awaiting `libs/physics-core/data/fit_input.csv`
   - `libs/physics-core/src/tsallis_physics_validation.py`  ready; awaiting data
@@ -177,7 +135,7 @@ Hard constraints:
 - Keep Bose-Einstein vs Boltzmann/Juttner wording explicit.
 - Do not interpret fit parameters physically until chi2/ndf, covariance,
   correlations, residuals, fit-range sensitivity, and baseline comparisons exist.
-- Keep platform details (Onyx, DeerFlow, Docker) out of science files.
+- Keep platform details (Dashboard, FastAPI, Docker) out of science files.
 - Put temporary helper scripts in `deployment/helper/`, not in `libs/physics-core/src/`.
 - Do not create empty placeholder run files.
 - Preserve unrelated user changes in the working tree.

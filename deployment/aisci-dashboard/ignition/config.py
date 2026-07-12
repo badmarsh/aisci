@@ -11,6 +11,8 @@ DB_PATH = os.path.join(DATA_DIR, 'evidence_graph.db')
 
 # Other Config
 AUTH_TOKEN = os.environ.get("AISCI_DASHBOARD_TOKEN", "")
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 
 # Ensure data directory exists
 os.makedirs(DATA_DIR, exist_ok=True)

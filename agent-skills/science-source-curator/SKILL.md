@@ -15,7 +15,7 @@ Sources include:
 - Literature PDFs and citation context.
 - arXiv, INSPIRE-HEP, HEPData, Scite, Consensus, Semantic Scholar, and OpenAlex outputs.
 - Extracted equations, tables, fit values, and figure/caption evidence.
-- Onyx document-set membership notes when they affect source availability.
+- Document-set membership notes when they affect source availability.
 
 ## Read First
 
@@ -43,22 +43,19 @@ Sources include:
 
 ## MCP Tool: Consensus
 
-Consensus is available as an MCP tool routed via the nginx proxy at `/consensus/`.
+Consensus is available as an MCP tool via direct integration.
 
 ### Auth model
 
 Consensus uses **OAuth Bearer tokens**, not a static API key. The calling agent is
-responsible for supplying the `Authorization: Bearer <token>` header. The nginx
-`mcp_proxy.conf.template` passes this header upstream via `proxy_pass_header Authorization`
-without injecting or overriding it.
+responsible for supplying the `Authorization: Bearer <token>` header.
 
 ### Token setup (one-time, ops task)
 
 1. Complete the Consensus OAuth flow at <https://consensus.app>.
 2. Extract the Bearer token from the resulting session (browser DevTools → Network tab,
    look for `Authorization: Bearer ...` in a request to `consensus.app`).
-3. Add it to your local `.env` file as `CONSENSUS_MCP_BEARER_TOKEN=<token>` (never commit
-   the live value; the template entry is in `deployment/onyx/env.template`).
+   the live value).
 
 ### When to use Consensus vs. Scite
 

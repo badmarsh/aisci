@@ -2,6 +2,13 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8001/api";
 
 import type { Anomaly } from "./types";
 
+export type PipelineSpec = {
+  id: string;
+  name: string;
+  status: string;
+  requires_input?: string;
+};
+
 export async function fetchProjects() {
   const res = await fetch(`${API_URL}/projects`);
   if (!res.ok) throw new Error("Failed to fetch projects");
@@ -67,6 +74,12 @@ export async function fetchAgents() {
 export async function fetchActivity(projectId: string) {
   const res = await fetch(`${API_URL}/projects/${projectId}/activity`);
   if (!res.ok) throw new Error("Failed to fetch activity");
+  return res.json();
+}
+
+export async function fetchPipelines(projectId: string): Promise<PipelineSpec[]> {
+  const res = await fetch(`${API_URL}/projects/${projectId}/pipelines`);
+  if (!res.ok) throw new Error("Failed to fetch pipelines");
   return res.json();
 }
 

@@ -26,7 +26,6 @@ All skills follow the `TEMPLATE.md` schema:
 | `hypothesis-generator` | Brainstorm physically sound extensions to the Tsallis-Pareto and Bose-Einstein models based on literature gaps. | Active | Unknown |
 | `latex-poster-builder` | End-to-end LaTeX poster generation pipeline. | Active | Unknown |
 | `mcp-integration-planner` | Plan shared MCP or direct API integrations for research and citation tools. | Active | Unknown |
-| `onyx-rag-eval-manager` | Manage Onyx RAG evaluation discipline. | Active | Unknown |
 | `physics-auditor` | Act as a strict gatekeeper that rejects fit results violating boundary conditions or fundamental physical constraints. | Active | Unknown |
 | `platform-backlog-manager` | Manage actionable platform, deployment, MCP, Docker, model, security, and tooling tasks in docs/ops/platform-backlog.md. | Active | Unknown |
 | `reproducible-physics-runner` | Run or prepare Robert physics validation scripts, fits, plots, and sanity checks. | Active | Unknown |
@@ -36,7 +35,7 @@ All skills follow the `TEMPLATE.md` schema:
 | `science-report-writer` | Draft or revise referee reports, science summaries, validation reports, and response notes. | Active | Unknown |
 | `science-source-curator` | Manage science source materials such as Robert's manuscript PDF, literature PDFs, arXiv/INSPIRE/HEPData references. | Active | Unknown |
 | `secret-config-auditor` | Review repository config, deployment files, docs, and runtime assumptions for committed secrets. | Active | Unknown |
-| `vendored-runtime-maintainer` | Work safely in vendored or nested runtime trees such as deployment/deer-flow. | Active | Unknown |
+| `vendored-runtime-maintainer` | Work safely in vendored or nested runtime trees. | Active | Unknown |
 
 ## Common Rules
 

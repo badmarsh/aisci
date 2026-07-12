@@ -1,39 +1,52 @@
 import os
+import tomllib
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 class PipelineSpec(BaseModel):
     id: str
     name: str
     command: List[str]
     working_dir: str
+    requires_input: Optional[str] = None
 
 class PipelineRegistry:
     def __init__(self):
-        self._pipelines = {}
-        # Hardcode registered pipelines for Robert's manuscript project
-        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-        robert_root = os.path.join(repo_root, "research", "robert")
-        
-        self.register(PipelineSpec(
-            id="fit-validation",
-            name="Run Fits and Validations",
-            command=["python", "run_all_fits.py"],
-            working_dir=robert_root
-        ))
-        self.register(PipelineSpec(
-            id="symbolic-validation",
-            name="Run PySR Symbolic Regression",
-            command=["python", "run_pysr.py"],
-            working_dir=robert_root
-        ))
+        pass
 
-    def register(self, spec: PipelineSpec):
-        self._pipelines[spec.id] = spec
+    def get_pipelines_for_project(self, project_spec) -> List[PipelineSpec]:
+        pipelines_file = os.path.join(project_spec.get_absolute_root(), "pipelines.toml")
+        if not os.path.exists(pipelines_file):
+            return []
+            
+        with open(pipelines_file, "rb") as f:
+            data = tomllib.load(f)
+            
+        specs = []
+        for p_id, p_data in data.get("pipelines", {}).items():
+            try:
+                # If working_dir is a relative path like ".", resolve to project root
+                wdir = p_data.get("working_dir", ".")
+                if not os.path.isabs(wdir):
+                    wdir = os.path.normpath(os.path.join(project_spec.get_absolute_root(), wdir))
+                
+                spec = PipelineSpec(
+                    id=p_id,
+                    name=p_data.get("name", p_id),
+                    command=p_data.get("command", []),
+                    working_dir=wdir,
+                    requires_input=p_data.get("requires_input")
+                )
+                specs.append(spec)
+            except Exception as e:
+                print(f"Failed to load pipeline {p_id}: {e}")
+        return specs
 
-    def get_pipeline(self, pipeline_id: str) -> PipelineSpec:
-        if pipeline_id not in self._pipelines:
-            raise ValueError(f"Pipeline not found: {pipeline_id}")
-        return self._pipelines[pipeline_id]
+    def get_pipeline(self, project_spec, pipeline_id: str) -> PipelineSpec:
+        pipelines = self.get_pipelines_for_project(project_spec)
+        for p in pipelines:
+            if p.id == pipeline_id:
+                return p
+        raise ValueError(f"Pipeline {pipeline_id} not found for project {project_spec.id}")
 
 registry = PipelineRegistry()

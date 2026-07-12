@@ -12,6 +12,10 @@ echo "Starting Backend (uvicorn)..."
 cd deployment/aisci-dashboard/ignition
 python3 -m uvicorn api:app --reload --port 8001 > ../backend.log 2>&1 &
 BACKEND_PID=$!
+
+echo "Starting Worker..."
+python3 worker.py > ../worker.log 2>&1 &
+WORKER_PID=$!
 cd ../../..
 
 # Start Frontend
@@ -24,12 +28,13 @@ cd ../..
 echo "=========================================="
 echo "✅ Services Started!"
 echo "📡 Backend running on port 8001 (PID: $BACKEND_PID) -> deployment/aisci-dashboard/backend.log"
+echo "⚙️  Worker running (PID: $WORKER_PID) -> deployment/aisci-dashboard/worker.log"
 echo "🖥️  Frontend running on port 5173 (PID: $FRONTEND_PID) -> deployment/aisci-dashboard/frontend.log"
 echo "=========================================="
 echo "Press Ctrl+C to stop all services."
 
-# Trap Ctrl+C and kill both background processes
-trap "echo -e '\nStopping services...'; kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit" SIGINT SIGTERM
+# Trap Ctrl+C and kill all background processes
+trap "echo -e '\nStopping services...'; kill $BACKEND_PID $FRONTEND_PID $WORKER_PID 2>/dev/null; exit" SIGINT SIGTERM
 
 # Wait for background processes
-wait $BACKEND_PID $FRONTEND_PID
+wait $BACKEND_PID $FRONTEND_PID $WORKER_PID

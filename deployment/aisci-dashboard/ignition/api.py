@@ -18,7 +18,7 @@ import sync_markdown
 from datetime import datetime
 
 from database import init_db
-from config import AUTH_TOKEN
+from config import AUTH_TOKEN, ENVIRONMENT, ALLOWED_ORIGINS
 import fit_parser
 from validation_policy import default_policy
 from project_registry import registry, ProjectSpec
@@ -27,6 +27,8 @@ from pipelines import registry as pipeline_registry
 app = FastAPI(title="AiSci Dashboard API")
 
 def verify_token(authorization: Optional[str] = Header(None)):
+    if ENVIRONMENT == "production" and not AUTH_TOKEN:
+        raise HTTPException(status_code=500, detail="Production environment requires AISCI_DASHBOARD_TOKEN to be set")
     if AUTH_TOKEN and authorization != f"Bearer {AUTH_TOKEN}":
         raise HTTPException(status_code=401, detail="Unauthorized")
 
@@ -43,14 +45,12 @@ async def startup():
 # Allow requests from Vite frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust in production
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-from config import AUTH_TOKEN
-from project_registry import registry
 from database import get_connection
 
 def get_latest_run_path(project_id: str) -> str:
@@ -154,6 +154,28 @@ def get_projects():
             "capabilities": spec.capabilities
         })
     return projects
+
+@app.get("/api/projects/{project_id}/pipelines")
+def get_pipelines(project_id: str):
+    spec = registry.get_project(project_id)
+    pipelines = pipeline_registry.get_pipelines_for_project(spec)
+    
+    # Do pre-flight checks and return availability
+    result = []
+    for p in pipelines:
+        status = "available"
+        if p.requires_input:
+            input_path = os.path.join(p.working_dir, p.requires_input)
+            if not os.path.exists(input_path):
+                status = f"unavailable: missing {p.requires_input}"
+        
+        result.append({
+            "id": p.id,
+            "name": p.name,
+            "status": status,
+            "requires_input": p.requires_input
+        })
+    return result
 
 @app.get("/api/projects/{project_id}/literature", response_model=List[Paper])
 def get_literature(project_id: str):
@@ -521,29 +543,17 @@ async def materialize_decisions(project_id: str, _: None = Depends(verify_token)
     await loop.run_in_executor(None, sync_markdown.materialize_approved_decisions, project_id)
     return {"status": "ok", "message": "Materialized approved decisions to canonical files."}
 
-async def run_job_in_background(job_id: str, project_id: str, pipeline_id: str, cmd: list[str], working_dir: str, log_path: str):
-    conn = get_db()
-    conn.execute("UPDATE JobExecutions SET status = 'running', log_path = ? WHERE id = ?", (log_path, job_id))
-    conn.commit()
-    conn.close()
-    
-    with open(log_path, 'w') as f:
-        process = await asyncio.create_subprocess_exec(
-            *cmd, stdout=f, stderr=f, cwd=working_dir
-        )
-        await process.communicate()
-    
-    status = 'completed' if process.returncode == 0 else 'failed'
-    conn = get_db()
-    conn.execute("UPDATE JobExecutions SET status = ?, exit_code = ?, updated_at = ? WHERE id = ?", 
-                 (status, process.returncode, datetime.now().isoformat(), job_id))
-    conn.commit()
-    conn.close()
+
 
 @app.post("/api/projects/{project_id}/pipelines/{pipeline_id}/run")
 async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(verify_token)):
     spec = registry.get_project(project_id)
-    pipeline_spec = pipeline_registry.get_pipeline(pipeline_id)
+    pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
+    
+    if pipeline_spec.requires_input:
+        input_path = os.path.join(pipeline_spec.working_dir, pipeline_spec.requires_input)
+        if not os.path.exists(input_path):
+            raise HTTPException(status_code=400, detail=f"Cannot run pipeline: missing required input '{pipeline_spec.requires_input}'")
     
     job_id = str(uuid.uuid4())
     conn = get_db()
@@ -571,8 +581,8 @@ async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(
     os.makedirs(runs_dir, exist_ok=True)
     log_path = os.path.join(runs_dir, f"{job_id}.log")
     
-    asyncio.create_task(run_job_in_background(job_id, project_id, pipeline_id, pipeline_spec.command, pipeline_spec.working_dir, log_path))
-    return {"status": "accepted", "jobId": job_id, "message": f"Pipeline {pipeline_spec.name} started"}
+    # Removed asyncio.create_task to rely on standalone worker.
+    return {"status": "ok", "message": "Job queued", "job_id": job_id}
 
 @app.get("/api/projects/{project_id}/review-requests")
 def get_review_requests(project_id: str):

@@ -13,3 +13,16 @@ capabilities = [
   "fit_validation",
   "reports"
 ]
+
+[[projects]]
+id = "phd-audit"
+title = "PhD Audit — Literature Review"
+owner = "Reviewer"
+research_type = "audit"
+root = "research/phd-audit"
+sensitivity = "private"
+capabilities = [
+  "evidence",
+  "tasks",
+  "literature"
+]
