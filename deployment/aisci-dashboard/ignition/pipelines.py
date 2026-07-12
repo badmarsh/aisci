@@ -8,6 +8,10 @@ from typing import List, Optional, Dict, Any
 class PipelineSpec(BaseModel):
     id: str
     name: str
+    owner: str = "System"
+    description: Optional[str] = None
+    citation: Optional[str] = None
+    entrypoint: Optional[str] = None
     command: List[str]
     working_dir: str
     requires_input: Optional[str] = None
@@ -72,6 +76,10 @@ class PipelineSpec(BaseModel):
         return {
             "id": self.id,
             "name": self.name,
+            "owner": self.owner,
+            "description": self.description,
+            "citation": self.citation,
+            "entrypoint": self.entrypoint,
             "command": " ".join(self.command),
             "working_dir": self.working_dir,
             "requires_input": self.requires_input,
@@ -113,10 +121,19 @@ class PipelineRegistry:
                     scan_py = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../../libs/physics-core/src/exact_be_fit_range_scan.py"))
                     command = [venv_python, scan_py]
                     wdir = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../.."))
+                elif p_id == "ingest-validation":
+                    venv_python = sys.executable
+                    ingest_py = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../../deployment/aisci-dashboard/ignition/ingest_pipeline.py"))
+                    command = [venv_python, ingest_py]
+                    wdir = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../.."))
 
                 spec = PipelineSpec(
                     id=p_id,
                     name=p_data.get("name", p_id),
+                    owner=p_data.get("owner", "System"),
+                    description=p_data.get("description"),
+                    citation=p_data.get("citation"),
+                    entrypoint=p_data.get("entrypoint"),
                     command=command,
                     working_dir=wdir,
                     requires_input=p_data.get("requires_input")

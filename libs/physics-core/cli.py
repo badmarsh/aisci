@@ -80,7 +80,7 @@ def main():
     # Write run metadata immediately (survives crashes)
     meta = {
         "cli_version": "1.0.0",
-        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.datetime.now(datetime.UTC).isoformat().replace('+00:00', 'Z'),
         "data_path": args.data_path,
         "mass_gev": args.mass_gev,
         "models": args.models,
@@ -119,8 +119,6 @@ def main():
         xi=args.xi,
     )
 
-    # Emit CSV artifacts from results since run_all_fits doesn't save them
-    import pandas as pd
     quality_rows = []
     parameter_rows = []
     correlation_rows = []
@@ -162,12 +160,22 @@ def main():
                                 "correlation": corr[row_idx][col_idx]
                             })
 
+    import csv
     if quality_rows:
-        pd.DataFrame(quality_rows).to_csv(run_dir / "fit_quality.csv", index=False)
+        with open(run_dir / "fit_quality.csv", "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=quality_rows[0].keys())
+            writer.writeheader()
+            writer.writerows(quality_rows)
     if parameter_rows:
-        pd.DataFrame(parameter_rows).to_csv(run_dir / "fit_parameters.csv", index=False)
+        with open(run_dir / "fit_parameters.csv", "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=parameter_rows[0].keys())
+            writer.writeheader()
+            writer.writerows(parameter_rows)
     if correlation_rows:
-        pd.DataFrame(correlation_rows).to_csv(run_dir / "parameter_correlations.csv", index=False)
+        with open(run_dir / "parameter_correlations.csv", "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=correlation_rows[0].keys())
+            writer.writeheader()
+            writer.writerows(correlation_rows)
 
     # Emit machine-readable JSON summary to stdout for agent parsing
     summary = {

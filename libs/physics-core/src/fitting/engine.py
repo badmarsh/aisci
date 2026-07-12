@@ -669,11 +669,23 @@ def run_fits(run_dir: Path, fit_input: pd.DataFrame, mass_gev: float) -> dict[st
         for rank, row in enumerate(successful, start=1):
             comparison_rows.append({"rank_in_group": rank, **row})
 
-    fit_input.to_csv(run_dir / "fit_input.csv", index=False)
-    pd.DataFrame(parameter_rows).to_csv(run_dir / "fit_parameters.csv", index=False)
-    pd.DataFrame(quality_rows).to_csv(run_dir / "fit_quality.csv", index=False)
-    pd.DataFrame(correlation_rows).to_csv(run_dir / "parameter_correlations.csv", index=False)
-    pd.DataFrame(comparison_rows).to_csv(run_dir / "model_comparison.csv", index=False)
+    import csv
+    def write_csv(df, path):
+        records = df.to_dict("records")
+        if not records:
+            with open(path, "w", newline="") as f:
+                pass
+            return
+        with open(path, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=records[0].keys())
+            writer.writeheader()
+            writer.writerows(records)
+
+    write_csv(fit_input, run_dir / "fit_input.csv")
+    write_csv(pd.DataFrame(parameter_rows), run_dir / "fit_parameters.csv")
+    write_csv(pd.DataFrame(quality_rows), run_dir / "fit_quality.csv")
+    write_csv(pd.DataFrame(correlation_rows), run_dir / "parameter_correlations.csv")
+    write_csv(pd.DataFrame(comparison_rows), run_dir / "model_comparison.csv")
 
     return {
         "fit_ready": True,

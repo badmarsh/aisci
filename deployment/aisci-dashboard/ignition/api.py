@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import sqlite3
 import pandas as pd
@@ -23,6 +24,7 @@ from validation_policy import default_policy
 from project_registry import registry, ProjectSpec
 from pipelines import registry as pipeline_registry
 from idea_generator import IdeaGenerator
+from studio_api import studio_router
 
 app = FastAPI(title="AiSci Dashboard API")
 
@@ -52,6 +54,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(studio_router)
+
 from database import get_connection
 
 def get_latest_run_path(project_id: str) -> str:
@@ -62,8 +66,7 @@ def get_latest_run_path(project_id: str) -> str:
         raise FileNotFoundError(f"Runs directory not found for project {project_id}.")
     candidates = [
         d for d in os.listdir(runs_base)
-        if os.path.isdir(os.path.join(runs_base, d))
-        and os.path.exists(os.path.join(runs_base, d, 'fit_quality.csv'))
+        if os.path.isdir(os.path.join(runs_base, d)) and os.path.exists(os.path.join(runs_base, d, "fit_quality.csv"))
     ]
     if not candidates:
         raise FileNotFoundError(f"No completed run directories found for project {project_id}.")
@@ -78,7 +81,7 @@ def list_run_dirs(project_id: str) -> list[str]:
         return []
     candidates = [
         d for d in os.listdir(runs_base)
-        if os.path.isdir(os.path.join(runs_base, d))
+        if os.path.isdir(os.path.join(runs_base, d)) and os.path.exists(os.path.join(runs_base, d, "fit_quality.csv"))
     ]
     candidates.sort(key=lambda d: os.path.getmtime(os.path.join(runs_base, d)), reverse=True)
     return candidates
@@ -410,7 +413,76 @@ def get_fits(project_id: str, run: Optional[str] = None, compare_run: Optional[s
 
 @app.get("/api/projects/{project_id}/fits/runs")
 def get_fit_runs(project_id: str):
-    return {"runs": list_run_dirs(project_id)}
+    spec = registry.get_project(project_id)
+    runs_base = spec.get_runs_dir()
+    run_ids = list_run_dirs(project_id)
+    
+    enriched_runs = []
+    for run_id in run_ids:
+        readme_path = os.path.join(runs_base, run_id, 'README.md')
+        title = None
+        summary = None
+        references = None
+        interpretation = None
+        
+        if os.path.exists(readme_path):
+            try:
+                with open(readme_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                title_match = re.search(r'^#\s+(.+)$', content, re.MULTILINE)
+                if title_match: title = title_match.group(1).strip()
+                
+                summary_match = re.search(r'^##\s+(?:Summary|Purpose|Objective|Inputs|Run Configuration)\s*\n(.*?)(?=\n##\s|\Z)', content, re.IGNORECASE | re.MULTILINE | re.DOTALL)
+                if summary_match: summary = summary_match.group(1).strip()
+                
+                refs_match = re.search(r'^##\s+(?:References|Artifacts|Outputs)\s*\n(.*?)(?=\n##\s|\Z)', content, re.IGNORECASE | re.MULTILINE | re.DOTALL)
+                if refs_match: references = refs_match.group(1).strip()
+
+                interp_match = re.search(r'^##\s+(?:Key Findings|Summary of Findings|Results|Status)\s*\n(.*?)(?=\n##\s|\Z)', content, re.IGNORECASE | re.MULTILINE | re.DOTALL)
+                if interp_match: interpretation = interp_match.group(1).strip()
+
+            except Exception:
+                pass
+
+        if os.path.exists(os.path.join(runs_base, run_id, "cli_summary.json")) and (not summary or not interpretation):
+            try:
+                import json
+                with open(os.path.join(runs_base, run_id, "cli_summary.json"), "r") as f:
+                    summary_data = json.load(f)
+                
+                if not summary:
+                    models = summary_data.get("models_run", [])
+                    bins = summary_data.get("bins", [])
+                    summary = f"Automated run spanning {len(bins)} pT bins and {len(models)} models ({', '.join(models)})."
+                
+                if not interpretation:
+                    interp_lines = []
+                    best_models = summary_data.get("best_model_per_bin", {})
+                    if best_models:
+                        from collections import Counter
+                        best_model_counts = Counter(best_models.values())
+                        top_model = best_model_counts.most_common(1)[0][0]
+                        interp_lines.append(f"**Best Model**: `{top_model}` was the most frequently selected best model across {len(best_models)} bins.")
+                    
+                    anomalies = summary_data.get("anomalies", [])
+                    if anomalies:
+                        interp_lines.append(f"**Anomalies Detected**: {len(anomalies)} fit anomalies flagged during evaluation.")
+                    
+                    if interp_lines:
+                        interpretation = "\n\n".join(interp_lines)
+            except Exception:
+                pass
+                
+        enriched_runs.append({
+            "id": run_id,
+            "name": title if title else run_id,
+            "summary": summary,
+            "references": references,
+            "interpretation": interpretation
+        })
+        
+    return {"runs": enriched_runs}
 
 class AnomalyItem(BaseModel):
     bin: str
@@ -825,7 +897,7 @@ def get_agents(project_id: str):
         "provider": "System"
     }]
 
-    ingest_job = pipelines_status.get("ingest-pipeline")
+    ingest_job = pipelines_status.get("ingest-validation")
     if ingest_job:
         agents.append({
             "name": "Ingest Pipeline",
@@ -845,7 +917,7 @@ def get_agents(project_id: str):
             "provider": "Gemini Pro"
         })
 
-    fit_job = pipelines_status.get("fit-pipeline")
+    fit_job = pipelines_status.get("fit-validation")
     if fit_job:
         agents.append({
             "name": "Fit Pipeline",

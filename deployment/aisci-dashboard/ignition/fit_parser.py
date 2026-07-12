@@ -57,14 +57,15 @@ def parse_fit_artifacts(run_path: str) -> Dict[str, Any]:
     fit_rows = []
 
     for _, row in quality_df.iterrows():
-        bin_label = row['group_label']
-        model_nice = parse_model_name(row['model_name'])
+        bin_label = row.get('group_label', 'unknown')
+        raw_model = row.get('model_name', 'unknown')
+        model_nice = parse_model_name(raw_model)
 
         t_str = "—"
         beta_str = "—"
 
         if not params_df.empty:
-            subset = params_df[(params_df['group_label'] == bin_label) & (params_df['model_name'] == row['model_name'])]
+            subset = params_df[(params_df['group_label'] == bin_label) & (params_df['model_name'] == raw_model)]
 
             t_row = subset[subset['parameter_name'].isin(['temperature_1', 'T_kin', 'T_stat'])]
             if not t_row.empty:
@@ -107,7 +108,7 @@ def parse_fit_artifacts(run_path: str) -> Dict[str, Any]:
 
         if (pd.isna(aic_val) or aic_val is None):
             if absolute_chi2 is not None and not params_df.empty:
-                k = len(params_df[(params_df['group_label'] == bin_label) & (params_df['model_name'] == row['model_name'])])
+                k = len(params_df[(params_df['group_label'] == bin_label) & (params_df['model_name'] == raw_model)])
                 if k > 0:
                     n = row.get('ndf')
                     if not pd.isna(n) and n is not None:
@@ -129,7 +130,7 @@ def parse_fit_artifacts(run_path: str) -> Dict[str, Any]:
         fit_rows.append({
             "bin": bin_label,
             "model": model_nice,
-            "raw_model": row['model_name'],
+            "raw_model": raw_model,
             "chi2_ndf": round(chi2_ndf, 2) if not pd.isna(chi2_ndf) else None,
             "chi2": round(absolute_chi2, 2) if absolute_chi2 is not None else None,
             "feed_down_corrected": feed_down_val,

@@ -9,19 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PipelinesRouteImport } from './routes/pipelines'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PapersPaperIdRouteImport } from './routes/papers.$paperId'
 import { Route as ProjectsProjectIdIndexRouteImport } from './routes/projects.$projectId.index'
 import { Route as ProjectsProjectIdTasksRouteImport } from './routes/projects.$projectId.tasks'
+import { Route as ProjectsProjectIdPipelinesRouteImport } from './routes/projects.$projectId.pipelines'
 import { Route as ProjectsProjectIdLiteratureRouteImport } from './routes/projects.$projectId.literature'
 import { Route as ProjectsProjectIdJobsRouteImport } from './routes/projects.$projectId.jobs'
 import { Route as ProjectsProjectIdFitsRouteImport } from './routes/projects.$projectId.fits'
 import { Route as ProjectsProjectIdEvidenceRouteImport } from './routes/projects.$projectId.evidence'
 import { Route as ProjectsProjectIdAnomaliesRouteImport } from './routes/projects.$projectId.anomalies'
 import { Route as ProjectsProjectIdAgentsRouteImport } from './routes/projects.$projectId.agents'
+import { Route as PapersPaperIdCanvasRouteImport } from './routes/papers_.$paperId.canvas'
 
+const PipelinesRoute = PipelinesRouteImport.update({
+  id: '/pipelines',
+  path: '/pipelines',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PapersPaperIdRoute = PapersPaperIdRouteImport.update({
+  id: '/papers/$paperId',
+  path: '/papers/$paperId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsProjectIdIndexRoute = ProjectsProjectIdIndexRouteImport.update({
@@ -34,6 +48,12 @@ const ProjectsProjectIdTasksRoute = ProjectsProjectIdTasksRouteImport.update({
   path: '/projects/$projectId/tasks',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsProjectIdPipelinesRoute =
+  ProjectsProjectIdPipelinesRouteImport.update({
+    id: '/projects/$projectId/pipelines',
+    path: '/projects/$projectId/pipelines',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProjectsProjectIdLiteratureRoute =
   ProjectsProjectIdLiteratureRouteImport.update({
     id: '/projects/$projectId/literature',
@@ -67,38 +87,55 @@ const ProjectsProjectIdAgentsRoute = ProjectsProjectIdAgentsRouteImport.update({
   path: '/projects/$projectId/agents',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PapersPaperIdCanvasRoute = PapersPaperIdCanvasRouteImport.update({
+  id: '/papers_/$paperId/canvas',
+  path: '/papers/$paperId/canvas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/pipelines': typeof PipelinesRoute
+  '/papers/$paperId': typeof PapersPaperIdRoute
+  '/papers/$paperId/canvas': typeof PapersPaperIdCanvasRoute
   '/projects/$projectId/agents': typeof ProjectsProjectIdAgentsRoute
   '/projects/$projectId/anomalies': typeof ProjectsProjectIdAnomaliesRoute
   '/projects/$projectId/evidence': typeof ProjectsProjectIdEvidenceRoute
   '/projects/$projectId/fits': typeof ProjectsProjectIdFitsRoute
   '/projects/$projectId/jobs': typeof ProjectsProjectIdJobsRoute
   '/projects/$projectId/literature': typeof ProjectsProjectIdLiteratureRoute
+  '/projects/$projectId/pipelines': typeof ProjectsProjectIdPipelinesRoute
   '/projects/$projectId/tasks': typeof ProjectsProjectIdTasksRoute
   '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/pipelines': typeof PipelinesRoute
+  '/papers/$paperId': typeof PapersPaperIdRoute
+  '/papers/$paperId/canvas': typeof PapersPaperIdCanvasRoute
   '/projects/$projectId/agents': typeof ProjectsProjectIdAgentsRoute
   '/projects/$projectId/anomalies': typeof ProjectsProjectIdAnomaliesRoute
   '/projects/$projectId/evidence': typeof ProjectsProjectIdEvidenceRoute
   '/projects/$projectId/fits': typeof ProjectsProjectIdFitsRoute
   '/projects/$projectId/jobs': typeof ProjectsProjectIdJobsRoute
   '/projects/$projectId/literature': typeof ProjectsProjectIdLiteratureRoute
+  '/projects/$projectId/pipelines': typeof ProjectsProjectIdPipelinesRoute
   '/projects/$projectId/tasks': typeof ProjectsProjectIdTasksRoute
   '/projects/$projectId': typeof ProjectsProjectIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/pipelines': typeof PipelinesRoute
+  '/papers/$paperId': typeof PapersPaperIdRoute
+  '/papers_/$paperId/canvas': typeof PapersPaperIdCanvasRoute
   '/projects/$projectId/agents': typeof ProjectsProjectIdAgentsRoute
   '/projects/$projectId/anomalies': typeof ProjectsProjectIdAnomaliesRoute
   '/projects/$projectId/evidence': typeof ProjectsProjectIdEvidenceRoute
   '/projects/$projectId/fits': typeof ProjectsProjectIdFitsRoute
   '/projects/$projectId/jobs': typeof ProjectsProjectIdJobsRoute
   '/projects/$projectId/literature': typeof ProjectsProjectIdLiteratureRoute
+  '/projects/$projectId/pipelines': typeof ProjectsProjectIdPipelinesRoute
   '/projects/$projectId/tasks': typeof ProjectsProjectIdTasksRoute
   '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
 }
@@ -106,57 +143,87 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/pipelines'
+    | '/papers/$paperId'
+    | '/papers/$paperId/canvas'
     | '/projects/$projectId/agents'
     | '/projects/$projectId/anomalies'
     | '/projects/$projectId/evidence'
     | '/projects/$projectId/fits'
     | '/projects/$projectId/jobs'
     | '/projects/$projectId/literature'
+    | '/projects/$projectId/pipelines'
     | '/projects/$projectId/tasks'
     | '/projects/$projectId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/pipelines'
+    | '/papers/$paperId'
+    | '/papers/$paperId/canvas'
     | '/projects/$projectId/agents'
     | '/projects/$projectId/anomalies'
     | '/projects/$projectId/evidence'
     | '/projects/$projectId/fits'
     | '/projects/$projectId/jobs'
     | '/projects/$projectId/literature'
+    | '/projects/$projectId/pipelines'
     | '/projects/$projectId/tasks'
     | '/projects/$projectId'
   id:
     | '__root__'
     | '/'
+    | '/pipelines'
+    | '/papers/$paperId'
+    | '/papers_/$paperId/canvas'
     | '/projects/$projectId/agents'
     | '/projects/$projectId/anomalies'
     | '/projects/$projectId/evidence'
     | '/projects/$projectId/fits'
     | '/projects/$projectId/jobs'
     | '/projects/$projectId/literature'
+    | '/projects/$projectId/pipelines'
     | '/projects/$projectId/tasks'
     | '/projects/$projectId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PipelinesRoute: typeof PipelinesRoute
+  PapersPaperIdRoute: typeof PapersPaperIdRoute
+  PapersPaperIdCanvasRoute: typeof PapersPaperIdCanvasRoute
   ProjectsProjectIdAgentsRoute: typeof ProjectsProjectIdAgentsRoute
   ProjectsProjectIdAnomaliesRoute: typeof ProjectsProjectIdAnomaliesRoute
   ProjectsProjectIdEvidenceRoute: typeof ProjectsProjectIdEvidenceRoute
   ProjectsProjectIdFitsRoute: typeof ProjectsProjectIdFitsRoute
   ProjectsProjectIdJobsRoute: typeof ProjectsProjectIdJobsRoute
   ProjectsProjectIdLiteratureRoute: typeof ProjectsProjectIdLiteratureRoute
+  ProjectsProjectIdPipelinesRoute: typeof ProjectsProjectIdPipelinesRoute
   ProjectsProjectIdTasksRoute: typeof ProjectsProjectIdTasksRoute
   ProjectsProjectIdIndexRoute: typeof ProjectsProjectIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/pipelines': {
+      id: '/pipelines'
+      path: '/pipelines'
+      fullPath: '/pipelines'
+      preLoaderRoute: typeof PipelinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/papers/$paperId': {
+      id: '/papers/$paperId'
+      path: '/papers/$paperId'
+      fullPath: '/papers/$paperId'
+      preLoaderRoute: typeof PapersPaperIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/$projectId/': {
@@ -171,6 +238,13 @@ declare module '@tanstack/react-router' {
       path: '/projects/$projectId/tasks'
       fullPath: '/projects/$projectId/tasks'
       preLoaderRoute: typeof ProjectsProjectIdTasksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$projectId/pipelines': {
+      id: '/projects/$projectId/pipelines'
+      path: '/projects/$projectId/pipelines'
+      fullPath: '/projects/$projectId/pipelines'
+      preLoaderRoute: typeof ProjectsProjectIdPipelinesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/$projectId/literature': {
@@ -215,17 +289,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsProjectIdAgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/papers_/$paperId/canvas': {
+      id: '/papers_/$paperId/canvas'
+      path: '/papers/$paperId/canvas'
+      fullPath: '/papers/$paperId/canvas'
+      preLoaderRoute: typeof PapersPaperIdCanvasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PipelinesRoute: PipelinesRoute,
+  PapersPaperIdRoute: PapersPaperIdRoute,
+  PapersPaperIdCanvasRoute: PapersPaperIdCanvasRoute,
   ProjectsProjectIdAgentsRoute: ProjectsProjectIdAgentsRoute,
   ProjectsProjectIdAnomaliesRoute: ProjectsProjectIdAnomaliesRoute,
   ProjectsProjectIdEvidenceRoute: ProjectsProjectIdEvidenceRoute,
   ProjectsProjectIdFitsRoute: ProjectsProjectIdFitsRoute,
   ProjectsProjectIdJobsRoute: ProjectsProjectIdJobsRoute,
   ProjectsProjectIdLiteratureRoute: ProjectsProjectIdLiteratureRoute,
+  ProjectsProjectIdPipelinesRoute: ProjectsProjectIdPipelinesRoute,
   ProjectsProjectIdTasksRoute: ProjectsProjectIdTasksRoute,
   ProjectsProjectIdIndexRoute: ProjectsProjectIdIndexRoute,
 }

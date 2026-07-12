@@ -91,8 +91,8 @@ def fetch_openalex_papers(search_query, max_results=5):
     return papers
 
 def run_ingest(test_mode=False):
-    init_db()
     project_id = "robert-boson-manuscript"
+    init_db(project_id)
 
     # 1. Physics Literature Radar (HEP)
     hep_query = 'cat:hep-ph+OR+cat:hep-ex'

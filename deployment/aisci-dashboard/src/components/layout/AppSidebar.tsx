@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   FileCode2,
   FolderTree,
+  Network,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -71,6 +72,12 @@ export function AppSidebar() {
           icon: FileCode2,
           req: ["fit_validation", "symbolic_validation"],
         },
+        {
+          title: "Pipelines",
+          url: `/projects/${projectId}/pipelines`,
+          icon: Network,
+          req: null,
+        },
         { title: "Agents", url: `/projects/${projectId}/agents`, icon: Bot, req: null },
       ].filter((item) => !item.req || item.req.some((r: string) => caps.includes(r)))
     : [];
@@ -108,18 +115,36 @@ export function AppSidebar() {
         <nav className="flex flex-col gap-1">
           <Link
             to="/"
-            title="Portfolio"
+            title="Paper Studio"
             className={cn(
               "relative flex h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
-              pathname === "/"
+              pathname === "/" || pathname.startsWith("/papers")
                 ? "bg-sidebar-accent text-foreground before:absolute before:-left-3 before:h-5 before:w-0.5 before:bg-primary"
                 : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
             )}
           >
-            <FolderTree className={cn("h-4 w-4 shrink-0", pathname === "/" && "text-primary")} />
-            {!collapsed && <span className="flex-1">Portfolio</span>}
+            <BookOpen className={cn("h-4 w-4 shrink-0", (pathname === "/" || pathname.startsWith("/papers")) && "text-primary")} />
+            {!collapsed && <span className="flex-1">Paper Studio</span>}
+          </Link>
+          <Link
+            to="/pipelines"
+            title="Pipeline Catalog"
+            className={cn(
+              "relative flex h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors mt-1 mb-2",
+              pathname.startsWith("/pipelines")
+                ? "bg-sidebar-accent text-foreground before:absolute before:-left-3 before:h-5 before:w-0.5 before:bg-primary"
+                : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
+            )}
+          >
+            <Network className={cn("h-4 w-4 shrink-0", pathname.startsWith("/pipelines") && "text-primary")} />
+            {!collapsed && <span className="flex-1">Pipeline Catalog</span>}
           </Link>
 
+          {projectId && !collapsed && (
+             <div className="mt-4 mb-2 text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+               Project Views
+             </div>
+          )}
           {items.map((item) => {
             const active = pathname === item.url || pathname === `${item.url}/`;
             return (

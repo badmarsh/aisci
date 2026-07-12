@@ -5,15 +5,19 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8001/api";
 export const PipelineSpecSchema = z.object({
   id: z.string(),
   name: z.string(),
+  owner: z.string().nullish(),
+  description: z.string().nullish(),
+  citation: z.string().nullish(),
+  entrypoint: z.string().nullish(),
   status: z.string(),
-  requires_input: z.string().optional(),
-  available: z.boolean().optional(),
+  requires_input: z.string().nullish(),
+  available: z.boolean().nullish(),
   checks: z
     .array(
       z.object({
         name: z.string(),
         passed: z.boolean(),
-        message: z.string().optional(),
+        message: z.string().nullish(),
       }),
     )
     .optional(),
@@ -46,7 +50,7 @@ export const ClaimSchema = z.object({
 export type Claim = z.infer<typeof ClaimSchema>;
 
 export const PaperSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().nullish(),
   source: z.string(),
   category: z.string(),
   title: z.string(),
@@ -54,10 +58,10 @@ export const PaperSchema = z.object({
   claims: z.number(),
   bridge: z.boolean(),
   abstract: z.string(),
-  url: z.string().optional(),
+  url: z.string().nullish(),
   claimList: z.array(ClaimSchema),
-  provenance: z.string().optional(),
-  source_hash: z.string().optional(),
+  provenance: z.string().nullish(),
+  source_hash: z.string().nullish(),
 });
 export type Paper = z.infer<typeof PaperSchema>;
 
@@ -68,8 +72,8 @@ export const EvidenceRowSchema = z.object({
   nextGate: z.string(),
   run: z.string(),
   narrative: z.string(),
-  review_status: z.string().optional(),
-  run_id: z.string().optional().nullable(),
+  review_status: z.string().nullish(),
+  run_id: z.string().nullish().nullable(),
   status_history: z.array(z.any()).optional().nullable(),
 });
 export type EvidenceRow = z.infer<typeof EvidenceRowSchema>;
@@ -81,7 +85,7 @@ export const TaskSchema = z.object({
   priority: z.string(),
   assignee: z.string(),
   date: z.string(),
-  citation: z.string().optional(),
+  citation: z.string().nullish(),
   status: z.string(),
 });
 export type Task = z.infer<typeof TaskSchema>;
@@ -93,7 +97,7 @@ export const AgentSchema = z.object({
   last: z.string(),
   summary: z.string(),
   log: z.array(z.string()),
-  provider: z.string().optional(),
+  provider: z.string().nullish(),
 });
 export type Agent = z.infer<typeof AgentSchema>;
 export type AgentModel = Agent;
@@ -126,21 +130,21 @@ export const JobExecutionSchema = z.object({
   requester: z.string(),
   status: z.string(),
   created_at: z.string(),
-  updated_at: z.string().optional(),
-  log_path: z.string().optional(),
-  exit_code: z.number().optional(),
-  error: z.string().optional(),
-  git_commit: z.string().optional(),
+  updated_at: z.string().nullish(),
+  log_path: z.string().nullish(),
+  exit_code: z.number().nullish(),
+  error: z.string().nullish(),
+  git_commit: z.string().nullish(),
   artifact_manifest: z
     .array(
       z.object({
         path: z.string(),
         size: z.union([z.string(), z.number()]),
-        sha256: z.string().optional(),
+        sha256: z.string().nullish(),
       }),
     )
     .optional(),
-  retry_of_job_id: z.string().optional().nullable(),
+  retry_of_job_id: z.string().nullish().nullable(),
 });
 export type JobExecution = z.infer<typeof JobExecutionSchema>;
 
@@ -159,7 +163,7 @@ export const FitRowSchema = z.object({
   bin: z.string(),
   model: z.string(),
   chi2: z.number().nullish(),
-  quality: z.enum(["POOR", "MARGINAL", "GOOD", "UNKNOWN"]).nullish(),
+  quality: z.enum(["POOR", "MARGINAL", "GOOD", "OK", "UNKNOWN", "FAILED"]).nullish(),
   T: z.string().nullish(),
   beta: z.string().nullish(),
   aic: z.number().nullish(),
@@ -178,8 +182,8 @@ export const FitDataSchema = z.object({
   compareSeries: z.array(z.record(z.union([z.number(), z.string()]).nullish())).nullish(),
   bins: z.array(z.string()),
   runId: z.string(),
-  status: z.string().optional(),
-  error: z.string().optional(),
+  status: z.string().nullish(),
+  error: z.string().nullish(),
 });
 export type FitData = z.infer<typeof FitDataSchema>;
 
@@ -188,20 +192,20 @@ export const ProjectOverviewSchema = z.object({
   claims_count: z.number(),
   open_tasks: z.number(),
   active_fits: z.number(),
-  active_jobs: z.number().optional(),
-  completed_jobs: z.number().optional(),
-  failed_jobs: z.number().optional(),
-  anomalies_count: z.number().optional(),
-  worker_health: z.boolean().optional(),
-  recent_activity: z.array(ActivitySchema).optional(),
-  parse_warnings: z.array(z.string()).optional(),
+  active_jobs: z.number().nullish(),
+  completed_jobs: z.number().nullish(),
+  failed_jobs: z.number().nullish(),
+  anomalies_count: z.number().nullish(),
+  worker_health: z.boolean().nullish(),
+  recent_activity: z.array(ActivitySchema).nullish(),
+  parse_warnings: z.array(z.string()).nullish(),
 });
 export type ProjectOverview = z.infer<typeof ProjectOverviewSchema>;
 
 export const ProjectHealthSchema = z.object({
   status: z.string(),
-  runs_dir_exists: z.boolean().optional(),
-  message: z.string().optional(),
+  runs_dir_exists: z.boolean().nullish(),
+  message: z.string().nullish(),
 });
 export type ProjectHealth = z.infer<typeof ProjectHealthSchema>;
 
@@ -302,10 +306,19 @@ export async function fetchFits(
   return FitDataSchema.parse(await res.json());
 }
 
-export async function fetchFitRuns(projectId: string): Promise<{ runs: string[] }> {
+export const FitRunMetadataSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  summary: z.string().nullish(),
+  references: z.string().nullish(),
+  interpretation: z.string().nullish(),
+});
+export type FitRunMetadata = z.infer<typeof FitRunMetadataSchema>;
+
+export async function fetchFitRuns(projectId: string): Promise<{ runs: FitRunMetadata[] }> {
   const res = await fetch(`${API_URL}/projects/${projectId}/fits/runs`);
   if (!res.ok) throw new Error("Failed to fetch run list");
-  return z.object({ runs: z.array(z.string()) }).parse(await res.json());
+  return z.object({ runs: z.array(FitRunMetadataSchema) }).parse(await res.json());
 }
 
 export async function fetchTasks(projectId: string): Promise<Task[]> {

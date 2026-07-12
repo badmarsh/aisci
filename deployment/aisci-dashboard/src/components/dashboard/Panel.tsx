@@ -6,7 +6,7 @@ interface PanelProps {
   title: string;
   label: string;
   icon: LucideIcon;
-  action: string;
+  action: ReactNode;
   className?: string;
   children: ReactNode;
 }

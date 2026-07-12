@@ -22,8 +22,8 @@ export function LogDrawer({ target, onClose }: { target: string | null; onClose:
 
     const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8001/api";
 
-    // map target to pipeline_id
-    const pipelineId = target === "ingest" ? "ingest-validation" : "fit-validation";
+    // Map legacy 'ingest' target to 'ingest-validation', otherwise use target as pipelineId directly
+    const pipelineId = target === "ingest" ? "ingest-validation" : target;
     const eventSource = new EventSource(`${API_BASE}/projects/${projectId}/logs/${pipelineId}`);
 
     eventSource.onmessage = (e) => {
@@ -76,7 +76,10 @@ export function LogDrawer({ target, onClose }: { target: string | null; onClose:
       <SheetContent className="w-full overflow-hidden sm:max-w-xl flex flex-col h-full border-l border-border">
         <SheetHeader className="mb-4 shrink-0">
           <SheetTitle className="flex items-center gap-2">
-            {target === "ingest" ? "Ingest Pipeline" : "Physics Fits"} Logs
+            {target === "ingest" || target === "ingest-validation" ? "Ingest Pipeline" : 
+             target === "fit-validation" ? "Physics Fits" : 
+             target === "symbolic-validation" ? "Symbolic Regression" :
+             target === "sensitivity-scan" ? "Sensitivity Scan" : "Pipeline"} Logs
             {!done ? (
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
             ) : (

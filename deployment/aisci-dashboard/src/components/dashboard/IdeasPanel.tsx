@@ -1,7 +1,9 @@
-import { Lightbulb, Calendar, Send } from "lucide-react";
+import { Lightbulb, Calendar, Send, FileText, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchIdeas } from "@/lib/api";
+import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 
 export function IdeasPanel({ projectId }: { projectId: string }) {
   const { data: ideas, isLoading } = useQuery({
@@ -12,7 +14,7 @@ export function IdeasPanel({ projectId }: { projectId: string }) {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center bg-secondary/10 rounded-xl border border-border">
-        <p className="text-sm text-muted-foreground animate-pulse">Brainstorming with LLM...</p>
+        <p className="text-sm text-muted-foreground animate-pulse">Brainstorming with LLM... [Mock - Not Connected to Engine]</p>
       </div>
     );
   }
@@ -38,6 +40,7 @@ export function IdeasPanel({ projectId }: { projectId: string }) {
                 <Lightbulb className="w-4 h-4 text-primary" />
               </div>
               <h3 className="font-semibold text-sm">Hypothesis #{idea.id}</h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded uppercase border bg-amber-500/10 text-amber-500 border-amber-500/20 ml-2">[Mock - Not Connected to Engine]</span>
             </div>
             <span className={cn(
               "text-[10px] font-mono px-2 py-0.5 rounded-full uppercase border",
@@ -59,14 +62,18 @@ export function IdeasPanel({ projectId }: { projectId: string }) {
               {new Date(idea.timestamp).toLocaleDateString()}
             </div>
 
-            <button
-              disabled
-              className="flex items-center gap-1.5 text-muted-foreground/50 cursor-not-allowed opacity-0 group-hover:opacity-100 focus:opacity-100"
-              title="Not yet implemented"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>Add to Ledger (WIP)</span>
-            </button>
+            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Link to="/projects/$projectId/evidence" params={{ projectId }} search={{ q: idea.hypothesis.slice(0,20) }}>
+                <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 gap-1.5">
+                  <FileText className="w-3 h-3" /> Open related evidence
+                </Button>
+              </Link>
+              <Link to="/projects/$projectId/tasks" params={{ projectId }}>
+                <Button variant="default" size="sm" className="h-7 text-[10px] px-2 gap-1.5">
+                  <Send className="w-3 h-3" /> Send to tasks
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       ))}

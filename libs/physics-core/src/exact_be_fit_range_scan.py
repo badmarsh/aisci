@@ -73,8 +73,13 @@ def main():
             print(f"Cutoff {cutoff} GeV -> MIGRAD failed")
 
     if results:
+        import csv
+        with open(f"{run_dir}/fit_range_scan.csv", "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=results[0].keys())
+            writer.writeheader()
+            writer.writerows(results)
+            
         res_df = pd.DataFrame(results)
-        res_df.to_csv(f"{run_dir}/fit_range_scan.csv", index=False)
         
         plt.figure(figsize=(10, 6))
         plt.plot(res_df["cutoff"], res_df["T_1"], marker='o', label="$T_1$")

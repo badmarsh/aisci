@@ -1,0 +1,338 @@
+[
+  {
+    "type": "chi2_regression",
+    "bin": "101-125",
+    "model": "juttner_1c",
+    "chi2_ndf": 178.09493346562334,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "101-125",
+    "model": "bose_1c",
+    "chi2_ndf": 153.28592801901803,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "101-125",
+    "model": "tsallis_1c",
+    "chi2_ndf": 19.243597076032994,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "101-125",
+    "model": "bgbw",
+    "chi2_ndf": 12.944034765484773,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "101-125",
+    "model": "bose_2c",
+    "chi2_ndf": 37.356834800243874,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "126-150",
+    "model": "juttner_1c",
+    "chi2_ndf": 110.11935750599328,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "126-150",
+    "model": "bose_1c",
+    "chi2_ndf": 92.55132521244413,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "126-150",
+    "model": "tsallis_1c",
+    "chi2_ndf": 12.307039868401368,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "126-150",
+    "model": "juttner_2c",
+    "chi2_ndf": 19.989385592703016,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "126-150",
+    "model": "bose_2c",
+    "chi2_ndf": 17.78090199539561,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "21-30",
+    "model": "juttner_1c",
+    "chi2_ndf": 68.28254358750821,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "21-30",
+    "model": "bose_1c",
+    "chi2_ndf": 65.03183146809224,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "21-30",
+    "model": "bgbw",
+    "chi2_ndf": 18.922697275796423,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "21-30",
+    "model": "bose_2c",
+    "chi2_ndf": 17.55944412237841,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "31-40",
+    "model": "juttner_1c",
+    "chi2_ndf": 165.24971797001558,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "31-40",
+    "model": "bose_1c",
+    "chi2_ndf": 152.5926044681141,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "31-40",
+    "model": "bgbw",
+    "chi2_ndf": 28.840939067352284,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "41-50",
+    "model": "juttner_1c",
+    "chi2_ndf": 162.73320090625293,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "41-50",
+    "model": "bose_1c",
+    "chi2_ndf": 147.9772064061813,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "41-50",
+    "model": "bgbw",
+    "chi2_ndf": 25.461919232276212,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "51-60",
+    "model": "juttner_1c",
+    "chi2_ndf": 159.92317738639605,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "51-60",
+    "model": "bose_1c",
+    "chi2_ndf": 144.0030962927493,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "51-60",
+    "model": "tsallis_1c",
+    "chi2_ndf": 10.627256356845567,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "51-60",
+    "model": "bgbw",
+    "chi2_ndf": 24.067361708202885,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "51-60",
+    "model": "juttner_2c",
+    "chi2_ndf": 49.00423652109135,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "61-70",
+    "model": "juttner_1c",
+    "chi2_ndf": 227.21861071246948,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "61-70",
+    "model": "bose_1c",
+    "chi2_ndf": 202.8235658280699,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "61-70",
+    "model": "tsallis_1c",
+    "chi2_ndf": 18.417977084535714,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "61-70",
+    "model": "bgbw",
+    "chi2_ndf": 29.754685588422216,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "61-70",
+    "model": "juttner_2c",
+    "chi2_ndf": 66.88070870990506,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "71-80",
+    "model": "juttner_1c",
+    "chi2_ndf": 220.44069368846596,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "71-80",
+    "model": "bose_1c",
+    "chi2_ndf": 195.2492781176119,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "71-80",
+    "model": "tsallis_1c",
+    "chi2_ndf": 19.186295173180746,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "71-80",
+    "model": "bgbw",
+    "chi2_ndf": 26.387561059979934,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "71-80",
+    "model": "juttner_2c",
+    "chi2_ndf": 62.74109534511885,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "71-80",
+    "model": "bose_2c",
+    "chi2_ndf": 56.10819946860177,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "81-90",
+    "model": "juttner_1c",
+    "chi2_ndf": 207.20328597407217,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "81-90",
+    "model": "bose_1c",
+    "chi2_ndf": 181.72143039393302,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "81-90",
+    "model": "tsallis_1c",
+    "chi2_ndf": 19.35293392354306,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "81-90",
+    "model": "bgbw",
+    "chi2_ndf": 21.680909707943965,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "81-90",
+    "model": "juttner_2c",
+    "chi2_ndf": 56.02923081731556,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "81-90",
+    "model": "bose_2c",
+    "chi2_ndf": 50.08641992457971,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "91-100",
+    "model": "juttner_1c",
+    "chi2_ndf": 192.84836514622305,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "91-100",
+    "model": "bose_1c",
+    "chi2_ndf": 167.4317063808314,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "91-100",
+    "model": "tsallis_1c",
+    "chi2_ndf": 19.614444907749846,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "91-100",
+    "model": "bgbw",
+    "chi2_ndf": 16.66862253002807,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "91-100",
+    "model": "juttner_2c",
+    "chi2_ndf": 48.28713811655526,
+    "threshold": 10.0
+  },
+  {
+    "type": "chi2_regression",
+    "bin": "91-100",
+    "model": "bose_2c",
+    "chi2_ndf": 43.289747579943814,
+    "threshold": 10.0
+  }
+]

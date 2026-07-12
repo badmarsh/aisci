@@ -1,4 +1,0 @@
-[pipelines.audit-check]
-name = "Run Audit Integrity Check"
-command = ["echo", "Audit checks complete."]
-working_dir = "."

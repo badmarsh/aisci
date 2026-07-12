@@ -4,6 +4,13 @@ from ignition.idea_generator import IdeaGenerator
 from ignition.scheduler import get_run_dir
 
 class ScientistCoordinator:
+    """
+    [MOCK / STUB]
+    This class is a mock implementation of a 6-stage automated research DAG.
+    Every stage currently outputs canned string literals and is NOT wired to 
+    production validation processes. 
+    Do NOT use in real production execution paths.
+    """
     def __init__(self):
         self.generator = IdeaGenerator()
 

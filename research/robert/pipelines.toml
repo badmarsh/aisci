@@ -1,19 +1,32 @@
 [pipelines.ingest-validation]
 name = "Ingest"
-command = ["python", "scripts/ingest.py"]
+owner = "Robert"
+description = "Pulls latest claims from literature sources into evidence ledger."
+entrypoint = "deployment/aisci-dashboard/ignition/ingest_pipeline.py"
+command = ["python", "../../deployment/aisci-dashboard/ignition/ingest_pipeline.py"]
 working_dir = "."
 
 [pipelines.fit-validation]
 name = "Run Fits and Validations"
-command = ["python", "run_all_fits.py"]
+owner = "Robert"
+description = "Runs the differential-evolution global optimization feeding into Minuit local refinement."
+citation = "doi:10.1016/j.physletb.2023.138356"
+entrypoint = "libs/physics-core/cli.py"
+command = ["python", "../../libs/physics-core/cli.py", "--run-dir", "runs/latest-auto", "--data-path", "../../libs/physics-core/data/fit_input_ins1735345.csv"]
 working_dir = "."
 
 [pipelines.symbolic-validation]
 name = "Run PySR Symbolic Regression"
+owner = "Robert"
+description = "Uses genetic algorithms to find symbolic expressions for the spectra."
+entrypoint = "research/robert/run_pysr.py"
 command = ["python", "run_pysr.py"]
 working_dir = "."
 
 [pipelines.sensitivity-scan]
 name = "Run Sensitivity Scan & Bootstrap"
+owner = "Robert"
+description = "Scans fit range sensitivity to check robustness."
+entrypoint = "libs/physics-core/src/exact_be_fit_range_scan.py"
 command = ["python", "exact_be_fit_range_scan.py"]
 working_dir = "."

@@ -1,0 +1,18 @@
+{
+  "cli_version": "1.0.0",
+  "timestamp": "2026-07-12T13:30:36.106466Z",
+  "data_path": "../../libs/physics-core/data/fit_input_ins1735345.csv",
+  "mass_gev": 0.13957,
+  "models": [
+    "bgbw",
+    "tsallis_1c",
+    "tsallis_2c",
+    "juttner_1c",
+    "juttner_2c",
+    "bose_1c",
+    "bose_2c"
+  ],
+  "cov_mode": "diag",
+  "xi": 1.0,
+  "run_dir": "runs/test-cli-auto"
+}
