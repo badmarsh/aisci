@@ -1,16 +1,24 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { Terminal } from "lucide-react";
+import { Terminal, Play, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PageShell } from "@/components/PageShell";
-import { type Agent } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
-import { fetchAgents } from "@/lib/api";
+import { type Agent } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchAgents, fetchPipelines, triggerPipeline } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/projects/$projectId/agents")({
   head: () => ({
@@ -33,15 +41,35 @@ const statusStyles: Record<Agent["status"], string> = {
 };
 
 function AgentsPage() {
+  const { projectId } = useParams({ strict: false }) as { projectId: string };
   const [open, setOpen] = useState<Agent | null>(null);
+  const [selectedPipeline, setSelectedPipeline] = useState<string>("");
+  const queryClient = useQueryClient();
 
   const {
     data: agents = [],
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["agents"],
-    queryFn: fetchAgents,
+    queryKey: ["agents", projectId],
+    queryFn: () => fetchAgents(projectId as string),
+  });
+
+  const { data: pipelines } = useQuery({
+    queryKey: ["pipelines", projectId],
+    queryFn: () => fetchPipelines(projectId as string),
+  });
+
+  const { mutate: runPipeline, isPending: isRunning } = useMutation({
+    mutationFn: () => triggerPipeline(projectId, selectedPipeline),
+    onSuccess: () => {
+      toast.success("Pipeline dispatched successfully");
+      queryClient.invalidateQueries({ queryKey: ["agents", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["jobs", projectId] });
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Failed to trigger pipeline");
+    },
   });
 
   if (isLoading) {
@@ -62,6 +90,31 @@ function AgentsPage() {
 
   return (
     <PageShell>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-card/50 glass-card p-4 rounded-xl border border-border mb-6 shadow-sm">
+        <div className="text-sm font-medium whitespace-nowrap text-foreground/80">Dispatch Pipeline:</div>
+        <div className="flex gap-3 w-full sm:w-auto items-center">
+          <Select value={selectedPipeline} onValueChange={setSelectedPipeline}>
+            <SelectTrigger className="w-[220px] bg-background">
+              <SelectValue placeholder="Select pipeline..." />
+            </SelectTrigger>
+            <SelectContent>
+              {pipelines?.map(p => (
+                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+              ))}
+              {!pipelines?.length && <SelectItem value="none" disabled>No pipelines found</SelectItem>}
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={() => runPipeline()}
+            disabled={!selectedPipeline || selectedPipeline === "none" || isRunning}
+            className="gap-2 bg-gradient-to-r from-primary to-primary/80 shadow-md shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            {isRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}
+            Run
+          </Button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
         {agents.map((a: Agent) => (
           <Card key={a.name} className="glass-card fade-in-up transition hover:border-primary/40">

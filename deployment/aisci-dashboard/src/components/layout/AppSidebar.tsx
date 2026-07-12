@@ -29,7 +29,7 @@ export function AppSidebar() {
     staleTime: 60_000,
   });
 
-  const project = projects.find((p: any) => p.id === projectId);
+  const project = projects.find((p: import("@/lib/api").Project) => p.id === projectId);
   const caps = project?.capabilities || [];
 
   const items = projectId
@@ -125,7 +125,7 @@ export function AppSidebar() {
             return (
               <Link
                 key={item.title}
-                to={item.url as any}
+                to={item.url}
                 title={item.title}
                 className={cn(
                   "relative flex h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",

@@ -7,7 +7,7 @@ client = TestClient(app)
 
 def test_duplicate_pipeline_returns_409():
     # Setup test job directly in DB
-    conn = get_connection()
+    conn = get_connection("robert-boson-manuscript")
     conn.execute("INSERT OR REPLACE INTO JobExecutions (id, project_id, pipeline_id, name, requester, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
                  ("test-job-123", "robert-boson-manuscript", "fit-validation", "Test Fit", "User", "running", "2026-07-09T00:00:00"))
     conn.commit()
@@ -17,7 +17,7 @@ def test_duplicate_pipeline_returns_409():
     response = client.post("/api/projects/robert-boson-manuscript/pipelines/fit-validation/run")
     
     # Clean up DB
-    conn = get_connection()
+    conn = get_connection("robert-boson-manuscript")
     conn.execute("DELETE FROM JobExecutions WHERE id = 'test-job-123'")
     conn.commit()
     conn.close()

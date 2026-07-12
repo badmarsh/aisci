@@ -1,18 +1,22 @@
 import sqlite3
 import os
-from config import DB_PATH
+from project_registry import registry
 
-def get_connection():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
+def get_connection(project_id: str):
+    spec = registry.get_project(project_id)
+    runs_dir = spec.get_runs_dir()
+    os.makedirs(runs_dir, exist_ok=True)
+    db_path = os.path.join(runs_dir, ".aisci.db")
+    
+    conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
     conn.execute("PRAGMA busy_timeout=5000")
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
-    conn = get_connection()
+def init_db(project_id: str):
+    conn = get_connection(project_id)
     cursor = conn.cursor()
     
     # Papers Table
@@ -24,9 +28,15 @@ def init_db():
             abstract TEXT,
             published_date TEXT,
             url TEXT,
-            category TEXT
+            category TEXT,
+            provenance TEXT,
+            source_hash TEXT
         )
     ''')
+    try:
+        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_papers_source_hash ON Papers (project_id, source_hash)")
+    except Exception:
+        pass
     
     # Claims Table
     cursor.execute('''
@@ -150,63 +160,20 @@ def init_db():
     else:
         version = row['version']
 
-    # JobExecutions table uses 'artifact_manifest' and 'git_commit' (intentionally populated by the worker in Phase 3A)
-
+    # Migration 1: Test isolation migration
     if version < 1:
-        # Schema Migrations
+        # We can add an isolation_test_column to prove it works
         try:
-            cursor.execute("ALTER TABLE Papers ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
-        except sqlite3.OperationalError:
-            pass # Column exists
-
-        try:
-            cursor.execute("ALTER TABLE Evidence ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
+            cursor.execute("ALTER TABLE ActivityLogs ADD COLUMN isolation_test_column TEXT")
         except sqlite3.OperationalError:
             pass
-
-        try:
-            cursor.execute("ALTER TABLE Tasks ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
-        except sqlite3.OperationalError:
-            pass
-
-        try:
-            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN project_id TEXT")
-            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN pipeline_id TEXT")
-            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN requester TEXT")
-            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN exit_code INTEGER")
-            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN git_commit TEXT")
-        except sqlite3.OperationalError:
-            pass
-
-        try:
-            cursor.execute("ALTER TABLE ReviewDecisions ADD COLUMN project_id TEXT")
-        except sqlite3.OperationalError:
-            pass
-
-        try:
-            cursor.execute("ALTER TABLE ActivityLogs ADD COLUMN project_id TEXT")
-        except sqlite3.OperationalError:
-            pass
-
-        try:
-            cursor.execute("ALTER TABLE Papers ADD COLUMN provenance TEXT")
-            cursor.execute("ALTER TABLE Papers ADD COLUMN source_hash TEXT")
-            cursor.execute("CREATE UNIQUE INDEX idx_papers_source_hash ON Papers (project_id, source_hash)")
-        except sqlite3.OperationalError:
-            pass
-            
-        # Update default project_id for old records
-        cursor.execute("UPDATE Papers SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
-        cursor.execute("UPDATE Evidence SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
-        cursor.execute("UPDATE Tasks SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
-        
         cursor.execute("UPDATE SchemaVersion SET version = 1")
     
     conn.commit()
     conn.close()
 
 def insert_paper(paper_id, project_id, title, abstract, published_date, url, category, provenance=None, source_hash=None):
-    conn = get_connection()
+    conn = get_connection(project_id)
     cursor = conn.cursor()
     cursor.execute('''
         INSERT OR IGNORE INTO Papers (id, project_id, title, abstract, published_date, url, category, provenance, source_hash)
@@ -215,8 +182,8 @@ def insert_paper(paper_id, project_id, title, abstract, published_date, url, cat
     conn.commit()
     conn.close()
 
-def insert_claim(paper_id, claim_text, confidence, type):
-    conn = get_connection()
+def insert_claim(project_id, paper_id, claim_text, confidence, type):
+    conn = get_connection(project_id)
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO Claims (paper_id, claim_text, confidence, type)
@@ -225,8 +192,8 @@ def insert_claim(paper_id, claim_text, confidence, type):
     conn.commit()
     conn.close()
 
-def insert_dataset(paper_id, dataset_name):
-    conn = get_connection()
+def insert_dataset(project_id, paper_id, dataset_name):
+    conn = get_connection(project_id)
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO Datasets (paper_id, dataset_name)
@@ -235,8 +202,8 @@ def insert_dataset(paper_id, dataset_name):
     conn.commit()
     conn.close()
 
-def get_stats():
-    conn = get_connection()
+def get_stats(project_id):
+    conn = get_connection(project_id)
     cursor = conn.cursor()
     
     cursor.execute('SELECT COUNT(*) FROM Papers')
@@ -257,5 +224,6 @@ def get_stats():
     }
 
 if __name__ == '__main__':
-    init_db()
-    print(f"Database initialized at {DB_PATH}")
+    for p_id in registry.list_projects():
+        init_db(p_id)
+        print(f"Database initialized for {p_id}")

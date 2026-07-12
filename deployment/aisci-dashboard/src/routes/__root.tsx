@@ -1,15 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  Outlet,
-  createRootRouteWithContext,
-  useRouter,
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { Outlet, createRootRouteWithContext, useRouter, redirect } from "@tanstack/react-router";
+import { fetchProjects } from "@/lib/api";
+import { useEffect } from "react";
 
-import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { AppFooter } from "@/components/layout/AppFooter";
@@ -38,9 +31,6 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -63,64 +53,48 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+const CAPABILITY_MAP: Record<string, string> = {
+  fits: "fit_validation",
+  literature: "literature",
+  jobs: "fit_validation",
+  tasks: "tasks",
+  evidence: "evidence",
+  agents: "tasks",
+  anomalies: "fit_validation",
+};
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AiSci — Autonomous Research System" },
-      {
-        name: "description",
-        content:
-          "AiSci dashboard: monitor AI agents running high-energy physics fitting pipelines, literature intake, and evidence ledger.",
-      },
-      { name: "author", content: "AiSci" },
-      { property: "og:title", content: "AiSci — Autonomous Research System" },
-      {
-        property: "og:description",
-        content:
-          "Physics fits, literature intake, and agent-proposed tasks for the AiSci autonomous research pipeline.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
-      },
-    ],
-  }),
-  shellComponent: RootShell,
+  beforeLoad: async ({ location }) => {
+    const match = location.pathname.match(/^\/projects\/([^/]+)\/([^/]+)/);
+    if (match) {
+      const projectId = match[1];
+      const subRoute = match[2];
+      const reqCap = CAPABILITY_MAP[subRoute];
+      if (reqCap) {
+        try {
+          const projects = await fetchProjects();
+          const p = projects.find((p) => p.id === projectId);
+          if (p && !p.capabilities.includes(reqCap)) {
+            throw redirect({ to: `/projects/${projectId}` as any });
+          }
+        } catch (err) {
+          if (err instanceof Error && err.message.includes("redirect")) throw err;
+          console.error("Failed to fetch projects for gating", err);
+        }
+      }
+    }
+  },
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en" className="dark bg-background">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen w-full bg-background text-foreground">
+      <div className="flex min-h-screen w-full bg-background text-foreground dark">
         <AppSidebar />
         <div className="relative flex min-h-screen min-w-0 flex-1 flex-col">
           <div className="grid-backdrop pointer-events-none absolute inset-0 opacity-30" />

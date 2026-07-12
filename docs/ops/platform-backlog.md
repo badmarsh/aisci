@@ -21,6 +21,7 @@ questions and evidence gates remain in each project's canonical workspace.
 | Milestone | Completed | Evidence |
 |---|---|---|
 | Initial project-scoped dashboard/API migration | 2026-07-12 | `research/projects.toml`, project-scoped API routes, and project route files under `deployment/aisci-dashboard/` |
+| Dashboard testing and capability verification | 2026-07-12 | Playwright E2E suite verifies capability-denial and model-filtering |
 | Control-plane documentation reality sync | 2026-07-12 | Current architecture, deployment, status, component, and backlog docs rewritten from the present filesystem |
 
 ## Historical note

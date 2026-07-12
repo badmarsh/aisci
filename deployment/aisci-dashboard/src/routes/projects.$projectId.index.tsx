@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Area,
   AreaChart,
@@ -34,12 +34,15 @@ import {
   fetchProjectOverview,
   fetchProjectHealth,
   fetchExportSummary,
+  fetchAgents,
+  triggerPipeline,
 } from "@/lib/api";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { PageShell } from "@/components/PageShell";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Play, Loader2, BookOpen as BookOpenIcon } from "lucide-react";
 
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
@@ -54,7 +57,14 @@ export const Route = createFileRoute("/projects/$projectId/")({
 function Overview() {
   const { projectId } = Route.useParams();
 
-  const { data: fitsData = { fitRows: [], chi2Series: [] } as any } = useQuery({
+  const {
+    data: fitsData = {
+      fitRows: [],
+      chi2Series: [],
+      bins: [],
+      runId: "",
+    } as import("@/lib/api").FitData,
+  } = useQuery({
     queryKey: ["fits", projectId],
     queryFn: () => fetchFits(projectId),
   });
@@ -68,7 +78,12 @@ function Overview() {
     staleTime: 60_000,
   });
   const {
-    data: overview = { literature_count: 0, active_fits: 0, claims_count: 0, open_tasks: 0 } as any,
+    data: overview = {
+      literature_count: 0,
+      active_fits: 0,
+      claims_count: 0,
+      open_tasks: 0,
+    } as import("@/lib/api").ProjectOverview,
   } = useQuery({
     queryKey: ["overview", projectId],
     queryFn: () => fetchProjectOverview(projectId),
@@ -76,6 +91,31 @@ function Overview() {
   const { data: health } = useQuery({
     queryKey: ["health", projectId],
     queryFn: () => fetchProjectHealth(projectId),
+  });
+  const { data: agents = [] } = useQuery({
+    queryKey: ["agents", projectId],
+    queryFn: () => fetchAgents(projectId),
+    staleTime: 10_000,
+  });
+
+  const queryClient = useQueryClient();
+
+  const { mutate: runFullPipeline, isPending: isRunningFull } = useMutation({
+    mutationFn: () => triggerPipeline(projectId, "full-pipeline"),
+    onSuccess: () => {
+      toast.success("Full pipeline triggered successfully");
+      queryClient.invalidateQueries();
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to trigger full pipeline"),
+  });
+
+  const { mutate: ingestLiterature, isPending: isIngesting } = useMutation({
+    mutationFn: () => triggerPipeline(projectId, "ingest"),
+    onSuccess: () => {
+      toast.success("Literature ingestion triggered successfully");
+      queryClient.invalidateQueries();
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to trigger ingestion"),
   });
 
   const metrics: import("@/lib/api").Metric[] = [
@@ -134,7 +174,27 @@ function Overview() {
             physical claims across the active research graph.
           </p>
         </div>
-        <div className="flex items-center gap-3 border-l border-primary/40 pl-4">
+        <div className="flex flex-wrap items-center gap-3 border-l border-primary/40 pl-4">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => runFullPipeline()}
+            disabled={isRunningFull}
+            className="gap-1.5 bg-gradient-to-r from-primary to-primary/80 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary/20"
+          >
+            {isRunningFull ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5 fill-current" />}
+            Run Full Pipeline
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => ingestLiterature()}
+            disabled={isIngesting}
+            className="gap-1.5 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            {isIngesting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <BookOpenIcon className="h-3.5 w-3.5" />}
+            Ingest Literature
+          </Button>
           <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExport}>
             <Copy className="h-3.5 w-3.5" /> Export
           </Button>
@@ -198,14 +258,14 @@ function Overview() {
                 <ReferenceLine y={5} stroke="var(--rose-brand)" strokeDasharray="4 4" />
                 <Area
                   type="monotone"
-                  dataKey="Tsallis 2c"
+                  dataKey="Tsallis-Pareto 2c"
                   stroke="var(--emerald-brand)"
                   fill="url(#fit-fill)"
                   strokeWidth={2}
                 />
                 <Line
                   type="monotone"
-                  dataKey="Jüttner 1c"
+                  dataKey="Jüttner/Boltzmann 1c"
                   stroke="var(--rose-brand)"
                   strokeWidth={1.5}
                   dot={true}
@@ -244,63 +304,42 @@ function Overview() {
           action={`Active`}
         >
           <div className="mt-3 flex flex-col divide-y divide-border">
-            {[
-              {
-                id: 1,
-                status: "active",
-                name: "Literature Ingest",
-                load: 85,
-                role: "extraction",
-                throughput: "12 papers/h",
-              },
-              {
-                id: 2,
-                status: "active",
-                name: "Minuit Fitter",
-                load: 92,
-                role: "compute",
-                throughput: "244 fits/m",
-              },
-              {
-                id: 3,
-                status: "blocked",
-                name: "Peer Reviewer",
-                load: 15,
-                role: "validation",
-                throughput: "idle",
-              },
-            ].map((agent) => (
-              <div key={agent.id} className="flex items-center gap-3 py-3">
-                <span
-                  className={cn(
-                    "h-2 w-2 rounded-full",
-                    agent.status === "active"
-                      ? "bg-emerald-brand"
-                      : agent.status === "blocked"
-                        ? "bg-amber-brand"
-                        : "bg-muted-foreground",
-                  )}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex justify-between gap-3">
-                    <span className="text-sm font-medium">{agent.name}</span>
-                    <span className="font-mono text-[11px] text-muted-foreground">
-                      {agent.load}%
-                    </span>
-                  </div>
-                  <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-secondary">
-                    <div
-                      className="h-full bg-primary transition-all"
-                      style={{ width: `${agent.load}%` }}
-                    />
-                  </div>
-                  <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
-                    <span>{agent.role}</span>
-                    <span>{agent.throughput}</span>
+            {agents.map((agent: import("@/lib/api").AgentModel, i: number) => {
+              const isActive =
+                agent.status.toLowerCase() === "running" || agent.status.toLowerCase() === "active";
+              const isBlocked =
+                agent.status.toLowerCase() === "failed" || agent.status.toLowerCase() === "blocked";
+              return (
+                <div key={i} className="flex items-center gap-3 py-3">
+                  <span
+                    className={cn(
+                      "h-2 w-2 rounded-full",
+                      isActive
+                        ? "bg-emerald-brand"
+                        : isBlocked
+                          ? "bg-amber-brand"
+                          : "bg-muted-foreground",
+                    )}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex justify-between gap-3">
+                      <span className="text-sm font-medium">{agent.name}</span>
+                      <span className="font-mono text-[11px] text-muted-foreground">
+                        {agent.status}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+                      <span>{agent.summary}</span>
+                      <span>
+                        {agent.last !== "Never"
+                          ? new Date(agent.last).toLocaleTimeString()
+                          : "Never"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Panel>
 
@@ -344,7 +383,7 @@ function Overview() {
           action={`${anomalies?.length ?? 0} open`}
         >
           <div className="mt-3 flex flex-col divide-y divide-border">
-            {anomalies?.slice(0, 4).map((a: any, i: number) => (
+            {anomalies?.slice(0, 4).map((a: import("@/lib/api").Anomaly, i: number) => (
               <div key={`${a.bin}-${a.model}-${i}`} className="group flex items-center gap-3 py-3">
                 <div
                   className={cn(
@@ -378,18 +417,22 @@ function Overview() {
           action="Live"
         >
           <div className="mt-3 flex max-h-64 flex-col overflow-auto scroll-slim">
-            {activityFeed?.slice(0, 5).map((item: any, index: number) => (
-              <div key={item.id} className="relative flex gap-3 pb-4 last:pb-0">
-                <div className="flex flex-col items-center">
-                  <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
-                  {index < 4 && <span className="mt-1 w-px flex-1 bg-border" />}
+            {activityFeed
+              ?.slice(0, 5)
+              .map((item: import("@/lib/api").ActivityModel, index: number) => (
+                <div key={item.id} className="relative flex gap-3 pb-4 last:pb-0">
+                  <div className="flex flex-col items-center">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                    {index < 4 && <span className="mt-1 w-px flex-1 bg-border" />}
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold">{item.action}</div>
+                    <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
+                      {item.details}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs font-semibold">{item.action}</div>
-                  <p className="mt-1 text-[11px] leading-5 text-muted-foreground">{item.details}</p>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </Panel>
       </section>

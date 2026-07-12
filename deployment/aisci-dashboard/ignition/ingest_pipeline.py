@@ -121,11 +121,24 @@ def run_ingest(test_mode=False):
         
         content = p['id'] + p['title'] + p['abstract']
         source_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
-        provenance = "Ingested via ingest_pipeline.py API"
-        
-        # Extract insights (Mock LLM)
-        insights = extract_insights(project_id, p['title'], p['abstract'], p['category'])
-        
+        provider = "mock"
+        if os.environ.get("OPENAI_API_KEY") or os.environ.get("AISCI_AI_PROVIDER") == "openai":
+            provider = "openai"
+            # OpenAI branch logic (placeholder)
+            # insights = call_openai_extraction(p['title'], p['abstract'])
+            insights = extract_insights(project_id, p['title'], p['abstract'], p['category'])
+            provenance = "Ingested via OpenAI API"
+        elif os.environ.get("MCP_SERVER_URL"):
+            provider = "mcp"
+            # MCP branch logic (placeholder)
+            # insights = call_mcp_extraction(...)
+            insights = extract_insights(project_id, p['title'], p['abstract'], p['category'])
+            provenance = "Ingested via MCP Backend"
+        else:
+            # Mock LLM fallback
+            insights = extract_insights(project_id, p['title'], p['abstract'], p['category'])
+            provenance = "Ingested via mock local parser"
+
         payload = {
             "id": p['id'],
             "title": p['title'],

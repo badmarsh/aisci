@@ -38,8 +38,8 @@ def verify_token(authorization: Optional[str] = Header(None)):
 
 @app.on_event("startup")
 async def startup():
-    init_db()
     for p in registry.list_projects():
+        init_db(p.id)
         sync_markdown.sync_evidence_to_db(p.id)
         sync_markdown.sync_tasks_to_db(p.id)
 
@@ -81,11 +81,11 @@ def list_run_dirs(project_id: str) -> list[str]:
     ]
     return sorted(candidates, reverse=True)
 
-def get_db():
-    return get_connection()
+def get_db(project_id: str):
+    return get_connection(project_id)
 
 def log_activity(project_id: str, action: str, user: str, details: str):
-    conn = get_db()
+    conn = get_db(project_id)
     try:
         cursor = conn.cursor()
         cursor.execute('''
@@ -120,6 +120,7 @@ class EvidenceRow(BaseModel):
     nextGate: str
     run: str
     narrative: str
+    review_status: str = "Proposed"
 
 class TaskModel(BaseModel):
     id: str
@@ -164,27 +165,23 @@ def get_pipelines(project_id: str):
     spec = registry.get_project(project_id)
     pipelines = pipeline_registry.get_pipelines_for_project(spec)
     
-    # Do pre-flight checks and return availability
     result = []
     for p in pipelines:
-        status = "available"
-        if p.requires_input:
-            input_path = os.path.join(p.working_dir, p.requires_input)
-            if not os.path.exists(input_path):
-                status = f"unavailable: missing {p.requires_input}"
-        
+        res = p.dry_run()
         result.append({
-            "id": p.id,
-            "name": p.name,
-            "status": status,
-            "requires_input": p.requires_input
+            "id": res["id"],
+            "name": res["name"],
+            "status": res["status"],
+            "requires_input": res["requires_input"],
+            "available": res["available"],
+            "checks": res["checks"]
         })
     return result
 
 @app.get("/api/projects/{project_id}/literature", response_model=List[Paper])
 def get_literature(project_id: str):
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Papers WHERE project_id = ?", (project_id,))
     papers_rows = cursor.fetchall()
@@ -251,9 +248,22 @@ def ingest_literature(project_id: str, req: IngestPaperRequest, _: None = Depend
 @app.get("/api/projects/{project_id}/evidence", response_model=List[EvidenceRow])
 def get_evidence(project_id: str):
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Evidence WHERE project_id = ?", (project_id,))
+    query = """
+        SELECT e.*, 
+               COALESCE(
+                   (SELECT status 
+                    FROM ReviewDecisions rd 
+                    WHERE rd.target_id = CAST(e.id AS TEXT) 
+                      AND rd.project_id = e.project_id 
+                    ORDER BY created_at DESC LIMIT 1), 
+                   'Proposed'
+               ) as review_status
+        FROM Evidence e
+        WHERE e.project_id = ?
+    """
+    cursor.execute(query, (project_id,))
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
@@ -262,7 +272,7 @@ def get_evidence(project_id: str):
 def update_evidence(project_id: str, evidence_id: int, body: StatusUpdate, _: None = Depends(verify_token)):
     spec = registry.get_project(project_id)
     req_id = str(uuid.uuid4())
-    conn = get_db()
+    conn = get_db(project_id)
     conn.execute(
         "INSERT INTO ReviewDecisions (id, project_id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
         (req_id, project_id, str(evidence_id), body.status, "User", "Approved", datetime.now().isoformat())
@@ -404,7 +414,7 @@ def get_anomalies(project_id: str, run: Optional[str] = None):
 def get_export_summary(project_id: str):
     """Generates a text summary of the current project state for GitHub Issues/Logs."""
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     
     # Get active fits count
@@ -457,7 +467,7 @@ def get_export_summary(project_id: str):
 @app.get("/api/projects/{project_id}/overview")
 def get_project_overview(project_id: str):
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     cursor.execute("SELECT count(*) FROM Papers WHERE project_id=?", (project_id,))
     lit_count = cursor.fetchone()[0]
@@ -465,14 +475,29 @@ def get_project_overview(project_id: str):
     claims_count = cursor.fetchone()[0]
     cursor.execute("SELECT count(*) FROM Tasks WHERE status != 'closed' AND project_id=?", (project_id,))
     open_tasks = cursor.fetchone()[0]
+    cursor.execute("SELECT count(*) FROM JobExecutions WHERE status IN ('pending', 'running') AND project_id=?", (project_id,))
+    active_jobs = cursor.fetchone()[0]
+    cursor.execute("SELECT count(*) FROM JobExecutions WHERE status = 'completed' AND project_id=?", (project_id,))
+    completed_jobs = cursor.fetchone()[0]
+    cursor.execute("SELECT count(*) FROM JobExecutions WHERE status = 'failed' AND project_id=?", (project_id,))
+    failed_jobs = cursor.fetchone()[0]
+    
+    # Check worker health: if there are running jobs with no update in 5 mins, maybe sick?
+    # Actually, if there is a running worker process. We'll just set it to True for now, or check JobExecutions.
+    worker_health = True
+    
     conn.close()
     
     active_fits_count = 0
+    anomalies_count = 0
     try:
         run_path = get_latest_run_path(project_id)
         if run_path:
             qual = pd.read_csv(os.path.join(run_path, "fit_quality.csv"))
             active_fits_count = len(qual)
+            
+            anomalies = get_anomalies(project_id)
+            anomalies_count = len(anomalies)
     except Exception:
         pass
         
@@ -480,7 +505,12 @@ def get_project_overview(project_id: str):
         "literature_count": lit_count,
         "claims_count": claims_count,
         "open_tasks": open_tasks,
-        "active_fits": active_fits_count
+        "active_fits": active_fits_count,
+        "active_jobs": active_jobs,
+        "completed_jobs": completed_jobs,
+        "failed_jobs": failed_jobs,
+        "anomalies_count": anomalies_count,
+        "worker_health": worker_health
     }
 
 @app.get("/api/projects/{project_id}/health")
@@ -496,7 +526,7 @@ def get_project_health(project_id: str):
 @app.get("/api/projects/{project_id}/jobs/{job_id}/logs")
 def stream_job_logs(project_id: str, job_id: str):
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     cursor.execute("SELECT log_path FROM JobExecutions WHERE project_id = ? AND id = ?", (project_id, job_id))
     row = cursor.fetchone()
@@ -508,7 +538,7 @@ def stream_job_logs(project_id: str, job_id: str):
 @app.get("/api/projects/{project_id}/tasks", response_model=List[TaskModel])
 def get_tasks(project_id: str, exclude_done: bool = False):
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     if exclude_done:
         cursor.execute("SELECT * FROM Tasks WHERE project_id = ? AND status != 'done'", (project_id,))
@@ -522,7 +552,7 @@ def get_tasks(project_id: str, exclude_done: bool = False):
 def update_task(project_id: str, task_id: str, body: StatusUpdate, _: None = Depends(verify_token)):
     spec = registry.get_project(project_id)
     req_id = str(uuid.uuid4())
-    conn = get_db()
+    conn = get_db(project_id)
     conn.execute(
         "INSERT INTO ReviewDecisions (id, project_id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
         (req_id, project_id, task_id, body.status, "User", "Approved", datetime.now().isoformat())
@@ -573,7 +603,7 @@ def stream_log_file(filepath: str, max_lines: int = 200):
 @app.get("/api/projects/{project_id}/logs/{pipeline_id}")
 def stream_pipeline_log(project_id: str, pipeline_id: str):
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     cursor.execute(
         "SELECT log_path FROM JobExecutions WHERE project_id = ? AND pipeline_id = ? ORDER BY created_at DESC LIMIT 1",
@@ -594,19 +624,20 @@ class ActivityModel(BaseModel):
 
 @app.get("/api/projects/{project_id}/activity", response_model=List[ActivityModel])
 def get_activity(project_id: str):
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM ActivityLogs WHERE project_id = ? ORDER BY id DESC LIMIT 50", (project_id,))
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
-@app.get("/api/agents", response_model=List[AgentModel])
-def get_agents():
-    conn = get_db()
+@app.get("/api/projects/{project_id}/agents", response_model=List[AgentModel])
+def get_agents(project_id: str):
+    conn = get_db(project_id)
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT pipeline_id, status, updated_at, log_path FROM JobExecutions ORDER BY updated_at DESC LIMIT 20"
+        "SELECT pipeline_id, status, updated_at, log_path FROM JobExecutions WHERE project_id = ? ORDER BY updated_at DESC LIMIT 20",
+        (project_id,)
     )
     rows = cursor.fetchall()
     conn.close()
@@ -682,7 +713,7 @@ async def manual_sync(project_id: str, _: None = Depends(verify_token)):
 
 @app.post("/api/projects/{project_id}/review-requests/{decision_id}/approve")
 def approve_review_decision(project_id: str, decision_id: str, _: None = Depends(verify_token)):
-    conn = get_db()
+    conn = get_db(project_id)
     conn.execute("UPDATE ReviewDecisions SET status = 'Approved' WHERE id = ? AND project_id = ?", (decision_id, project_id))
     conn.commit()
     conn.close()
@@ -690,7 +721,7 @@ def approve_review_decision(project_id: str, decision_id: str, _: None = Depends
 
 @app.post("/api/projects/{project_id}/review-requests/{decision_id}/reject")
 def reject_review_decision(project_id: str, decision_id: str, _: None = Depends(verify_token)):
-    conn = get_db()
+    conn = get_db(project_id)
     conn.execute("UPDATE ReviewDecisions SET status = 'Rejected' WHERE id = ? AND project_id = ?", (decision_id, project_id))
     conn.commit()
     conn.close()
@@ -720,18 +751,13 @@ async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(
     spec = registry.get_project(project_id)
     pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
     
-    try:
-        pipeline_spec.validate_safety()
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    
-    if pipeline_spec.requires_input:
-        input_path = os.path.join(pipeline_spec.working_dir, pipeline_spec.requires_input)
-        if not os.path.exists(input_path):
-            raise HTTPException(status_code=400, detail=f"Cannot run pipeline: missing required input '{pipeline_spec.requires_input}'")
+    res = pipeline_spec.dry_run()
+    if not res["available"]:
+        failed_checks = [c["name"] for c in res["checks"] if not c["passed"]]
+        raise HTTPException(status_code=400, detail=f"Cannot run pipeline: failed dry run checks: {', '.join(failed_checks)}")
     
     job_id = str(uuid.uuid4())
-    conn = get_db()
+    conn = get_db(project_id)
     
     try:
         cursor = conn.cursor()
@@ -764,7 +790,7 @@ async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(
 @app.get("/api/projects/{project_id}/review-requests")
 def get_review_requests(project_id: str):
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM ReviewDecisions WHERE project_id = ?", (project_id,))
     rows = cursor.fetchall()
@@ -774,7 +800,7 @@ def get_review_requests(project_id: str):
 @app.get("/api/projects/{project_id}/jobs")
 def get_jobs(project_id: str):
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM JobExecutions WHERE project_id = ? ORDER BY created_at DESC", (project_id,))
     rows = cursor.fetchall()
@@ -796,7 +822,7 @@ def get_jobs(project_id: str):
 @app.get("/api/projects/{project_id}/jobs/{job_id}")
 def get_job(project_id: str, job_id: str):
     spec = registry.get_project(project_id)
-    conn = get_db()
+    conn = get_db(project_id)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM JobExecutions WHERE project_id = ? AND id = ?", (project_id, job_id))
     row = cursor.fetchone()

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Evidence Ledger", () => {
   test.beforeEach(async ({ page }) => {
-    await page.route("**/api/projects/*/evidence", async (route) => {
+    await page.route("**/api/projects/*/evidence/search*", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",

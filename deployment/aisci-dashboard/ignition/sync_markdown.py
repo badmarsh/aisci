@@ -81,7 +81,7 @@ def sync_evidence_to_db(project_id: str):
     if not evidence_list:
         return
         
-    conn = get_connection()
+    conn = get_connection(project_id)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM Evidence WHERE project_id=?", (project_id,))
     
@@ -135,7 +135,7 @@ def _update_markdown_table_status(filepath: str, row_identifier: str, new_status
         _atomic_write(filepath, updated_lines)
 
 def materialize_approved_decisions(project_id: str):
-    conn = get_connection()
+    conn = get_connection(project_id)
     cursor = conn.cursor()
     cursor.execute("SELECT id, target_id, requested_state FROM ReviewDecisions WHERE status = 'Approved' AND project_id = ?", (project_id,))
     decisions = cursor.fetchall()
@@ -162,15 +162,17 @@ def materialize_approved_decisions(project_id: str):
             
         target_claim = row['claim'].strip()
         for i, line in enumerate(lines):
-            if line.strip().startswith('|') and target_claim in line:
-                parts = line.split('|')
-                if len(parts) >= 6:
-                    parts[4] = f" {new_status} "
-                    lines[i] = "|".join(parts)
-                    changed = True
-                break
+            if line.strip().startswith('|'):
+                line_text = _extract_text(gfm.parse(line))
+                if target_claim in line_text:
+                    parts = re.split(r'(?<!\\)\|', line)
+                    if len(parts) >= 6:
+                        parts[4] = f" {new_status} "
+                        lines[i] = "|".join(parts)
+                        changed = True
+                    break
                 
-        cursor.execute("UPDATE ReviewDecisions SET status = 'Applied' WHERE id = ?", (dec['id'],))
+        cursor.execute("UPDATE ReviewDecisions SET status = 'Materialized' WHERE id = ?", (dec['id'],))
         
     if changed:
         with _file_lock:
@@ -268,7 +270,7 @@ def sync_tasks_to_db(project_id: str):
         seen[t["id"]] = t
     tasks = list(seen.values())
 
-    conn = get_connection()
+    conn = get_connection(project_id)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM Tasks WHERE project_id=?", (project_id,))
     for t in tasks:

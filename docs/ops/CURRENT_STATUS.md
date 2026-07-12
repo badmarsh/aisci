@@ -15,7 +15,7 @@ registered project's evidence ledger and task queue.
 |---|---|---|
 | AiSci Dashboard | Listening locally | `http://localhost:5173` |
 | Ignition API | Listening locally | `http://localhost:8001` |
-| Frontend implementation | Vite + TanStack Start + React | `deployment/aisci-dashboard/` |
+| Frontend implementation | Vite + TanStack Router + @tanstack/react-start + React | `deployment/aisci-dashboard/` |
 | Backend implementation | FastAPI | `deployment/aisci-dashboard/ignition/` |
 | Project registry | One registered project | `research/projects.toml` |
 | Shared physics environment | Present in repository | `libs/physics-core/.venv` |

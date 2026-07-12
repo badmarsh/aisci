@@ -7,7 +7,7 @@ repository-backed research projects and requests registered work; it does not
 own scientific truth or replace the reproducible code and artifacts in the
 repository.
 
-The active frontend is a Vite + TanStack Router React application. The active deployment directory contains no Docker Compose file,
+The active frontend is a Vite + TanStack Router + @tanstack/react-start React application. The active deployment directory contains no Docker Compose file,
 Onyx stack, DeerFlow stack, LiteLLM proxy, MCP proxy, or model-provider stack.
 Those integrations are historical records only and are not part of the current
 runtime.
@@ -19,7 +19,7 @@ Browser
   │  http://localhost:5173
   ▼
 AiSci Dashboard
-  Vite + TanStack Start + React
+  Vite + TanStack Router + @tanstack/react-start + React
   deployment/aisci-dashboard/src/
   │  project-scoped API requests
   ▼

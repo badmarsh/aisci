@@ -16,11 +16,6 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  // Optionally run the dev server before testing
-  webServer: {
-    command: "cd ../../ && bash start_dashboard.sh",
-    url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  // Do not use a test launcher that kills unrelated listeners.
+  // Tests will rely on mocked route-loader requests deliberately.
 });

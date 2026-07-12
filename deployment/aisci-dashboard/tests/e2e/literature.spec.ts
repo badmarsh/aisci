@@ -6,7 +6,21 @@ test.describe("Literature Intake", () => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify([{ id: "1", title: "Test Paper", source: "arXiv" }]),
+        body: JSON.stringify([
+          {
+            source: "arXiv",
+            category: "Astrophysics",
+            title: "Test Paper",
+            published: "2023",
+            claims: 2,
+            bridge: true,
+            abstract: "Test abstract",
+            url: "http://arxiv.org/abs/test",
+            claimList: [],
+            provenance: "test",
+            source_hash: "12345",
+          },
+        ]),
       });
     });
   });

@@ -25,7 +25,7 @@ export function EmptyState({
 }: {
   title?: string;
   description?: string;
-  icon?: any;
+  icon?: React.ElementType;
   className?: string;
 }) {
   return (

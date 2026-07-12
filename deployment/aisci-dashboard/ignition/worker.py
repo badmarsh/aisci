@@ -44,8 +44,8 @@ def compute_artifacts(runs_dir, job_start_time):
                 pass
     return json.dumps(manifest)
 
-def startup_recovery():
-    conn = get_db()
+def startup_recovery(project_id: str):
+    conn = get_connection(project_id)
     cursor = conn.cursor()
     timeout_mins = int(os.environ.get("AISCI_WORKER_RECOVERY_MINUTES", "30"))
     cursor.execute('''
@@ -57,76 +57,81 @@ def startup_recovery():
     conn.close()
 
 def poll_and_run():
-    startup_recovery()
+    for p_id in registry.list_projects():
+        startup_recovery(p_id)
     print("Worker started. Polling for jobs...")
     timeout_secs = int(os.environ.get("AISCI_PIPELINE_TIMEOUT_SECONDS", "3600"))
     while True:
         job_id = None
+        project_id = None
+        pipeline_id = None
+        
+        # Poll each project
+        for p_id in registry.list_projects():
+            try:
+                conn = get_connection(p_id)
+                cursor = conn.cursor()
+                cursor.execute("BEGIN IMMEDIATE")
+                cursor.execute("SELECT id, project_id, pipeline_id FROM JobExecutions WHERE status = 'pending' ORDER BY created_at ASC LIMIT 1")
+                job = cursor.fetchone()
+                
+                if job:
+                    job_id = job['id']
+                    project_id = job['project_id']
+                    pipeline_id = job['pipeline_id']
+                    
+                    spec = registry.get_project(project_id)
+                    runs_dir = spec.get_runs_dir()
+                    os.makedirs(runs_dir, exist_ok=True)
+                    log_path = os.path.join(runs_dir, f"{job_id}.log")
+                    
+                    cursor.execute("UPDATE JobExecutions SET status = 'running', log_path = ?, updated_at = ? WHERE id = ?",
+                                   (log_path, datetime.now().isoformat(), job_id))
+                    conn.commit()
+                    conn.close()
+                    break
+                else:
+                    conn.commit()
+                    conn.close()
+            except Exception:
+                pass
+                
+        if not job_id:
+            time.sleep(2)
+            continue
+            
+        print(f"Picked up job {job_id} for pipeline {pipeline_id} in {project_id}")
+        
+        pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
+        
+        job_start_time = time.time()
+        process = None
+        error_msg = None
+        exit_code = None
+        status = 'failed'
+        
+        with open(log_path, 'w') as f:
+            try:
+                process = subprocess.run(
+                    pipeline_spec.command,
+                    cwd=pipeline_spec.working_dir,
+                    stdout=f,
+                    stderr=subprocess.STDOUT,
+                    timeout=timeout_secs
+                )
+                exit_code = process.returncode
+                status = 'completed' if exit_code == 0 else 'failed'
+            except subprocess.TimeoutExpired as e:
+                error_msg = f"Job timed out after {timeout_secs} seconds"
+                exit_code = 124
+                status = 'failed'
+            except Exception as e:
+                error_msg = f"Execution error: {str(e)}"
+                exit_code = 1
+                status = 'failed'
+        
         try:
-            conn = get_db()
-            cursor = conn.cursor()
-            
-            cursor.execute("BEGIN IMMEDIATE")
-            cursor.execute("SELECT id, project_id, pipeline_id FROM JobExecutions WHERE status = 'pending' ORDER BY created_at ASC LIMIT 1")
-            job = cursor.fetchone()
-            
-            if not job:
-                conn.commit()
-                conn.close()
-                time.sleep(2)
-                continue
-                
-            job_id = job['id']
-            project_id = job['project_id']
-            pipeline_id = job['pipeline_id']
-            
-            spec = registry.get_project(project_id)
-            runs_dir = spec.get_runs_dir()
-            os.makedirs(runs_dir, exist_ok=True)
-            log_path = os.path.join(runs_dir, f"{job_id}.log")
-            
-            cursor.execute("UPDATE JobExecutions SET status = 'running', log_path = ?, updated_at = ? WHERE id = ?",
-                           (log_path, datetime.now().isoformat(), job_id))
-            
-            if cursor.rowcount != 1:
-                conn.rollback()
-                conn.close()
-                continue
-                
-            conn.commit()
-            conn.close()
-            
-            print(f"Picked up job {job_id} for pipeline {pipeline_id}")
-            
-            pipeline_spec = pipeline_registry.get_pipeline(spec, pipeline_id)
-            
-            job_start_time = time.time()
-            process = None
-            error_msg = None
-            exit_code = None
-            status = 'failed'
-            
-            with open(log_path, 'w') as f:
-                try:
-                    process = subprocess.run(
-                        pipeline_spec.command,
-                        cwd=pipeline_spec.working_dir,
-                        stdout=f,
-                        stderr=subprocess.STDOUT,
-                        timeout=timeout_secs
-                    )
-                    exit_code = process.returncode
-                    status = 'completed' if exit_code == 0 else 'failed'
-                except subprocess.TimeoutExpired as e:
-                    error_msg = f"Job timed out after {timeout_secs} seconds"
-                    exit_code = 124
-                    status = 'failed'
-                except Exception as e:
-                    error_msg = f"Execution error: {str(e)}"
-                    exit_code = 1
-                    status = 'failed'
-            
-            conn = get_db()
+            conn = get_connection(project_id)
             cursor = conn.cursor()
             
             if status == 'completed':
@@ -147,12 +152,11 @@ def poll_and_run():
             conn.commit()
             conn.close()
             print(f"Job {job_id} {status}")
-            
         except Exception as e:
-            print(f"Worker error: {e}")
+            print(f"Worker db update error: {e}")
             if job_id:
                 try:
-                    conn = get_db()
+                    conn = get_connection(project_id)
                     cursor = conn.cursor()
                     cursor.execute("UPDATE JobExecutions SET status = 'failed', error = ?, updated_at = ? WHERE id = ?",
                                    (f"Worker crash: {str(e)}", datetime.now().isoformat(), job_id))

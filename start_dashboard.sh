@@ -10,7 +10,7 @@ echo "Starting AiSci Dashboard Services..."
 # Start Backend
 echo "Starting Backend (uvicorn)..."
 cd deployment/aisci-dashboard/ignition
-python3 -m uvicorn api:app --reload --port 8001 > ../backend.log 2>&1 &
+python3 -m uvicorn api:app --reload --host 0.0.0.0 --port 8001 > ../backend.log 2>&1 &
 BACKEND_PID=$!
 
 echo "Starting Worker..."
@@ -21,7 +21,7 @@ cd ../../..
 # Start Frontend
 echo "Starting Frontend (npm run dev on port 5173)..."
 cd deployment/aisci-dashboard
-npm run dev -- --port 5173 > frontend.log 2>&1 &
+npm run dev -- --host 0.0.0.0 --port 5173 > frontend.log 2>&1 &
 FRONTEND_PID=$!
 cd ../..
 

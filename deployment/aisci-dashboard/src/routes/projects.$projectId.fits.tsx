@@ -1,665 +1,121 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { AlertTriangle } from "lucide-react";
-import {
-  AreaChart,
-  Area,
-  LineChart,
-  Line,
-  Legend,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchFits, triggerPipeline } from "@/lib/api";
 import { PageShell } from "@/components/PageShell";
-import { type FitRow } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
-import { fetchFits, fetchFitRuns, fetchJobs } from "@/lib/api";
-import { useParams } from "@tanstack/react-router";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-
-import { fetchProjects } from "@/lib/api";
-import { redirect } from "@tanstack/react-router";
+import { Sigma, Play, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/projects/$projectId/fits")({
-  beforeLoad: async ({ params }) => {
-    const projects = await fetchProjects();
-    const p = projects.find((p) => p.id === params.projectId);
-    if (!p || !p.capabilities.includes("fit_validation")) {
-      throw redirect({ to: `/projects/${params.projectId}` as any });
-    }
-  },
-  head: () => ({
-    meta: [
-      { title: "Physics Fits — AiSci" },
-      {
-        name: "description",
-        content:
-          "Fitting pipeline results across multiplicity bins for Jüttner, Tsallis, and Bose-Einstein models.",
-      },
-    ],
-  }),
   component: FitsPage,
 });
 
-const qualityStyles: Record<FitRow["quality"], string> = {
-  POOR: "bg-rose-brand/15 text-rose-brand ring-1 ring-rose-brand/40",
-  MARGINAL: "bg-amber-brand/15 text-amber-brand ring-1 ring-amber-brand/40",
-  GOOD: "bg-emerald-brand/15 text-emerald-brand ring-1 ring-emerald-brand/40",
-};
-
-const getFilterStyle = (f: string) => {
-  if (f === "All Models") return "data-[on=true]:bg-primary data-[on=true]:text-primary-foreground";
-  if (f.includes("Jüttner")) return "data-[on=true]:bg-rose-brand data-[on=true]:text-white";
-  if (f.includes("Tsallis")) return "data-[on=true]:bg-emerald-brand data-[on=true]:text-black";
-  return "data-[on=true]:bg-primary data-[on=true]:text-primary-foreground";
-};
-
 function FitsPage() {
-  const { projectId } = useParams({ strict: false }) as { projectId?: string };
-  const [filter, setFilter] = useState<string>("All Models");
-  const [selected, setSelected] = useState<FitRow | null>(null);
-
-  const { data: runsData } = useQuery({
-    queryKey: ["fitRuns"],
-    queryFn: () => fetchFitRuns(projectId!),
-    enabled: !!projectId,
-  });
-  const runs = runsData?.runs || [];
-
-  const { data: jobs } = useQuery({
-    queryKey: ["jobs", projectId],
-    queryFn: () => fetchJobs(projectId!),
-    enabled: !!projectId,
+  const { projectId } = Route.useParams();
+  const queryClient = useQueryClient();
+  const { data: fitsData, isLoading } = useQuery({
+    queryKey: ["fits", projectId],
+    queryFn: () => fetchFits(projectId),
   });
 
-  const runToJob = useMemo(() => {
-    const map: Record<string, any> = {};
-    for (const job of jobs || []) {
-      if (!job.artifact_manifest) continue;
-      for (const art of job.artifact_manifest) {
-        const match = art.path.match(/^([^/]+)\//);
-        if (match) {
-          map[match[1]] = job;
-          break;
-        }
-      }
-    }
-    return map;
-  }, [jobs]);
-
-  const [selectedRun, setSelectedRun] = useState<string | undefined>();
-  const activeRun = selectedRun || (runs.length > 0 ? runs[0] : undefined);
-  const [compareRun, setCompareRun] = useState<string | undefined>();
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["fits", projectId, activeRun, compareRun],
-    queryFn: () =>
-      fetchFits(
-        projectId as string,
-        activeRun as string,
-        compareRun === "none" ? undefined : compareRun,
-      ),
-    enabled: !!activeRun && !!projectId,
+  const { mutate: runFit, isPending: isRunningFit } = useMutation({
+    mutationFn: () => triggerPipeline(projectId, "fitting"),
+    onSuccess: () => {
+      toast.success("Fitting pipeline triggered successfully");
+      queryClient.invalidateQueries({ queryKey: ["fits", projectId] });
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : "Failed to trigger fitting pipeline");
+    },
   });
-
-  const dynamicFilters = useMemo(() => {
-    const models = new Set<string>();
-    if (data?.fitRows) {
-      data.fitRows.forEach((r: any) => models.add(r.model));
-    }
-    return ["All Models", ...Array.from(models)];
-  }, [data?.fitRows]);
-
-  const rows = useMemo(() => {
-    const fitRows: FitRow[] = data?.fitRows || [];
-    return filter === "All Models" ? fitRows : fitRows.filter((r: FitRow) => r.model === filter);
-  }, [filter, data?.fitRows]);
-
-  const tSeriesData = useMemo(() => {
-    if (!data?.fitRows || !data?.bins) return [];
-    return data.bins.map((bin: string) => {
-      const entry: Record<string, any> = { bin };
-      dynamicFilters
-        .filter((f) => f !== "All Models")
-        .forEach((model) => {
-          const row = data.fitRows.find((r: FitRow) => r.bin === bin && r.model === model);
-          entry[model] = row ? parseFloat(row.T) : null;
-        });
-      return entry;
-    });
-  }, [data, dynamicFilters]);
-
-  // Derive alerts directly from the live data already fetched
-  const dataAlerts = useMemo(() => {
-    if (!data?.fitRows) return { corrAlerts: [], chi2Alerts: [] };
-
-    const corrAlerts: { bin: string; model: string; pair: string; rho: number }[] = [];
-    const chi2Alerts: { bin: string; model: string; chi2: number }[] = [];
-
-    for (const row of data.fitRows as FitRow[]) {
-      // Chi2 alert
-      if (row.chi2 != null && row.chi2 > 10) {
-        chi2Alerts.push({ bin: row.bin, model: row.model, chi2: row.chi2 });
-      }
-      // Correlation alert — check off-diagonal pairs
-      for (const [key, val] of Object.entries(row.correlations || {})) {
-        const [p1, p2] = key.split("|");
-        if (p1 !== p2 && Math.abs(val) > 0.9) {
-          corrAlerts.push({ bin: row.bin, model: row.model, pair: `${p1}, ${p2}`, rho: val });
-        }
-      }
-    }
-    return { corrAlerts, chi2Alerts };
-  }, [data]);
-
-  if (isLoading) {
-    return (
-      <PageShell>
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-[300px]" />
-          <Skeleton className="h-[400px] w-full" />
-        </div>
-      </PageShell>
-    );
-  }
-
-  if (isError) {
-    return (
-      <PageShell>
-        <Alert variant="destructive">
-          <AlertTitle>Error loading fits</AlertTitle>
-          <AlertDescription>Failed to load physics fits from backend.</AlertDescription>
-        </Alert>
-      </PageShell>
-    );
-  }
 
   return (
     <PageShell>
-      <div className="mb-4 flex flex-wrap gap-4 items-center">
-        {runs.length > 0 && (
-          <Select value={activeRun} onValueChange={(val) => setSelectedRun(val)}>
-            <SelectTrigger className="w-[280px] font-mono text-xs">
-              <SelectValue placeholder="Select run..." />
-            </SelectTrigger>
-            <SelectContent>
-              {runs.map((r: string) => (
-                <SelectItem key={r} value={r} className="font-mono text-xs">
-                  {r}{" "}
-                  {runToJob[r] && runToJob[r].git_commit
-                    ? `· ${runToJob[r].git_commit.slice(0, 8)} (${runToJob[r].artifact_manifest?.length || 0} items)`
-                    : ""}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-        {runs.length > 1 && (
-          <Select value={compareRun || "none"} onValueChange={(val) => setCompareRun(val)}>
-            <SelectTrigger className="w-[280px] font-mono text-xs">
-              <SelectValue placeholder="Compare with..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none" className="font-mono text-xs">
-                None
-              </SelectItem>
-              {runs.map((r: string) => (
-                <SelectItem key={r} value={r} className="font-mono text-xs">
-                  {r}{" "}
-                  {runToJob[r] && runToJob[r].git_commit
-                    ? `· ${runToJob[r].git_commit.slice(0, 8)} (${runToJob[r].artifact_manifest?.length || 0} items)`
-                    : ""}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-        <div className="flex flex-wrap gap-2">
-          {dynamicFilters.map((f) => (
-            <Button
-              key={f}
-              variant="outline"
-              size="sm"
-              data-on={filter === f}
-              className={`rounded-full border-border transition ${getFilterStyle(f)}`}
-              onClick={() => setFilter(f)}
-            >
-              {f}
-            </Button>
-          ))}
+      <section className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">Active Fits</h1>
+          <p className="text-muted-foreground mt-2">
+            Latest physics fit data for project: {projectId}
+          </p>
+          <p className="text-sm font-mono text-emerald-brand mt-1">
+            Run ID: {fitsData?.runId || "Loading..."}
+          </p>
         </div>
-      </div>
+        <Button
+          onClick={() => runFit()}
+          disabled={isRunningFit}
+          className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-primary/20"
+        >
+          {isRunningFit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4 fill-current" />}
+          Run New Fit
+        </Button>
+      </section>
 
-      <div className="mb-4 space-y-3">
-        <Alert className="glass-card border-amber-brand/40 bg-amber-brand/5">
-          <AlertTriangle className="h-4 w-4 text-amber-brand" />
-          <AlertTitle>Jacobian Correction Required</AlertTitle>
-          <AlertDescription className="text-muted-foreground">
-            ALICE data uses pseudorapidity (<span className="font-mono">dη</span>), while the
-            manuscript assumes rapidity (<span className="font-mono">dy</span>). A kinematic
-            Jacobian <span className="font-mono">dy/dη</span> is missing from low-
-            <span className="font-mono">pT</span> data, causing up to a 22% correction.
-          </AlertDescription>
-        </Alert>
-
-        {filter.includes("Jüttner 3c") && (
-          <Alert className="glass-card border-rose-brand/40 bg-rose-brand/5">
-            <AlertTriangle className="h-4 w-4 text-rose-brand" />
-            <AlertTitle>Mathematical Singularity</AlertTitle>
-            <AlertDescription className="text-muted-foreground">
-              3-component Jüttner models exhibit a rank-deficient Fisher Information matrix as flow
-              velocity <span className="font-mono">U → 0</span>. Ensure you use the Two-Component
-              Soft/Hard baseline for robust convergence.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {filter.includes("Bose-Einstein 1c") && (
-          <Alert className="glass-card border-amber-brand/40 bg-amber-brand/5">
-            <AlertTriangle className="h-4 w-4 text-amber-brand" />
-            <AlertTitle>Theoretical Limitation</AlertTitle>
-            <AlertDescription className="text-muted-foreground">
-              A single thermal Bose-Einstein source cannot mathematically describe the hard QCD
-              scattering tail at high <span className="font-mono">pT</span>. Expect significant
-              data-model divergence above 3 GeV/c.
-            </AlertDescription>
-          </Alert>
-        )}
-      </div>
-
-      {data?.status === "Incomplete" ? (
-        <Card className="glass-card fade-in-up border-red-500/20 bg-red-500/5 mt-4">
-          <CardHeader>
-            <CardTitle className="text-red-400 flex items-center gap-2 text-base">
-              <AlertTriangle className="w-5 h-5" />
-              Run Incomplete or Failed
-            </CardTitle>
-            <p className="text-sm text-red-400/80">{data.error || "Missing fit quality data"}</p>
-          </CardHeader>
-        </Card>
-      ) : (
-        <>
-          <Card className="glass-card fade-in-up">
-            <CardHeader>
-              <CardTitle className="text-base">Fit Results</CardTitle>
-              <p className="text-xs text-muted-foreground">
-                Click any row to inspect the covariance matrix, residuals, and provenance.
-              </p>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead>Multiplicity Bin</TableHead>
-                    <TableHead>Model</TableHead>
-                    <TableHead className="text-right">χ²/ndf</TableHead>
-                    <TableHead>Quality</TableHead>
-                    <TableHead>T (GeV)</TableHead>
-                    <TableHead>β/U</TableHead>
-                    <TableHead className="text-right">AIC</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((r, i) => (
-                    <TableRow
-                      key={`${r.bin}-${r.model}-${i}`}
-                      onClick={() => setSelected(r)}
-                      className="cursor-pointer border-border transition hover:bg-primary/5"
-                    >
-                      <TableCell className="font-mono text-xs">{r.bin}</TableCell>
-                      <TableCell>{r.model}</TableCell>
-                      <TableCell className="text-right font-mono">
-                        {r.chi2 != null ? r.chi2.toFixed(2) : "—"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={qualityStyles[r.quality] || qualityStyles.POOR}>
-                          {r.quality === "POOR" ? "🔴" : r.quality === "MARGINAL" ? "🟡" : "🟢"}{" "}
-                          {r.quality}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">{r.T}</TableCell>
-                      <TableCell className="font-mono text-xs">{r.beta}</TableCell>
-                      <TableCell className="text-right font-mono">
-                        {r.aic != null ? r.aic.toFixed(1) : "—"}
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs text-muted-foreground">{r.status}</span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <Card className="glass-card fade-in-up delay-75">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Temperature Evolution (T)</CardTitle>
-              </CardHeader>
-              <CardContent className="h-[250px] w-full p-2 pl-0">
-                <ResponsiveContainer>
-                  <LineChart
-                    data={tSeriesData}
-                    margin={{ left: -20, right: 10, top: 10, bottom: 0 }}
-                  >
-                    <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
-                    <XAxis dataKey="bin" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} />
-                    <YAxis
-                      tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
-                      domain={["auto", "auto"]}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: "var(--popover)",
-                        border: "1px solid var(--border)",
-                        fontSize: 11,
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: 11, paddingTop: "10px" }} />
-                    <Line
-                      type="monotone"
-                      dataKey="Jüttner 1c"
-                      stroke="var(--rose-brand)"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="Tsallis 2c"
-                      stroke="var(--emerald-brand)"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="Bose-Einstein 1c"
-                      stroke="var(--primary)"
-                      strokeWidth={2}
-                      dot={{ r: 3 }}
-                    />
-                    {data?.compareSeries && (
-                      <>
-                        <Line
-                          type="monotone"
-                          dataKey="Jüttner 1c (cmp)"
-                          stroke="var(--rose-brand)"
-                          strokeWidth={1.5}
-                          strokeDasharray="4 2"
-                          dot={false}
-                          data={data.compareSeries}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="Tsallis 2c (cmp)"
-                          stroke="var(--emerald-brand)"
-                          strokeWidth={1.5}
-                          strokeDasharray="4 2"
-                          dot={false}
-                          data={data.compareSeries}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="Bose-Einstein 1c (cmp)"
-                          stroke="var(--primary)"
-                          strokeWidth={1.5}
-                          strokeDasharray="4 2"
-                          dot={false}
-                          data={data.compareSeries}
-                        />
-                      </>
-                    )}
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+      <section className="glass-card rounded-xl p-6">
+        <header className="flex items-center gap-3 mb-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <Sigma className="h-4 w-4" />
           </div>
+          <h2 className="text-lg font-semibold">Fit Results</h2>
+        </header>
 
-          <div className="mt-4 space-y-3">
-            {dataAlerts.corrAlerts.length > 0 && (
-              <Alert className="glass-card border-amber-brand/40">
-                <AlertTriangle className="h-4 w-4 text-amber-brand" />
-                <AlertTitle>
-                  {dataAlerts.corrAlerts.length} high-correlation pair
-                  {dataAlerts.corrAlerts.length > 1 ? "s" : ""} detected
-                </AlertTitle>
-                <AlertDescription className="mt-1 space-y-0.5 text-xs font-mono">
-                  {dataAlerts.corrAlerts.slice(0, 5).map((a, i) => (
-                    <div key={i}>
-                      Bin {a.bin} · {a.model}: ρ({a.pair}) = {a.rho.toFixed(3)}
-                    </div>
-                  ))}
-                  {dataAlerts.corrAlerts.length > 5 && (
-                    <div className="text-muted-foreground">
-                      …and {dataAlerts.corrAlerts.length - 5} more
-                    </div>
-                  )}
-                </AlertDescription>
-              </Alert>
-            )}
-            {dataAlerts.chi2Alerts.length > 0 && (
-              <Alert className="glass-card border-rose-brand/40">
-                <AlertTriangle className="h-4 w-4 text-rose-brand" />
-                <AlertTitle>
-                  {dataAlerts.chi2Alerts.length} fit{dataAlerts.chi2Alerts.length > 1 ? "s" : ""}{" "}
-                  exceed χ²/ndf = 10
-                </AlertTitle>
-                <AlertDescription className="mt-1 space-y-0.5 text-xs font-mono">
-                  {dataAlerts.chi2Alerts.slice(0, 5).map((a, i) => (
-                    <div key={i}>
-                      Bin {a.bin} · {a.model}: χ²/ndf = {a.chi2.toFixed(0)}
-                    </div>
-                  ))}
-                  {dataAlerts.chi2Alerts.length > 5 && (
-                    <div className="text-muted-foreground">
-                      …and {dataAlerts.chi2Alerts.length - 5} more
-                    </div>
-                  )}
-                </AlertDescription>
-              </Alert>
-            )}
+        <div className="mb-4 p-4 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-lg">
+          Jacobian Correction Required
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <button className="px-3 py-1 rounded bg-secondary text-sm">Jüttner/Boltzmann 1c</button>
+        </div>
+
+        {isLoading ? (
+          <div className="py-8 text-center text-muted-foreground">Loading fit data...</div>
+        ) : !fitsData?.fitRows?.length ? (
+          <div className="py-8 text-center text-muted-foreground">
+            No fits available for this project.
           </div>
-        </>
-      )}
-
-      <FitDetailSheet row={selected} runId={data?.runId} onClose={() => setSelected(null)} />
-    </PageShell>
-  );
-}
-
-function FitDetailSheet({
-  row,
-  runId,
-  onClose,
-}: {
-  row: FitRow | null;
-  runId?: string;
-  onClose: () => void;
-}) {
-  const boundaryHit = row?.beta.startsWith("0.99") || parseFloat(row?.beta || "0") > 2.99;
-
-  const params = useMemo(() => {
-    if (!row?.correlations) return [];
-    return [...new Set(Object.keys(row.correlations).flatMap((k) => k.split("|")))].sort();
-  }, [row?.correlations]);
-
-  const covMatrix = useMemo(() => {
-    if (!row?.correlations) return [];
-    return params.map((p1) =>
-      params.map(
-        (p2) =>
-          row.correlations[`${p1}|${p2}`] ??
-          row.correlations[`${p2}|${p1}`] ??
-          (p1 === p2 ? 1.0 : 0),
-      ),
-    );
-  }, [params, row?.correlations]);
-
-  const highCorrelations = useMemo(() => {
-    if (!row?.correlations) return [];
-    return Object.entries(row.correlations).filter(([k, v]) => {
-      const [p1, p2] = k.split("|");
-      return p1 !== p2 && Math.abs(v) > 0.9;
-    });
-  }, [row?.correlations]);
-
-  return (
-    <Sheet open={!!row} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-        {row && (
-          <>
-            <SheetHeader>
-              <SheetTitle>
-                {row.model} · bin {row.bin}
-              </SheetTitle>
-              <SheetDescription>Full fit provenance and diagnostics.</SheetDescription>
-            </SheetHeader>
-
-            <div className="mt-6 space-y-6 px-1">
-              <div className="space-y-3">
-                {boundaryHit && (
-                  <Alert className="border-amber-brand/40 bg-amber-brand/10">
-                    <AlertTriangle className="h-4 w-4 text-amber-brand" />
-                    <AlertTitle>Parameter at boundary</AlertTitle>
-                    <AlertDescription>
-                      U_1 = {row.beta} — bound is being hit. Refit with tighter prior.
-                    </AlertDescription>
-                  </Alert>
-                )}
-                {highCorrelations.map(([k, v]) => (
-                  <Alert key={k} className="border-amber-brand/40 bg-amber-brand/10">
-                    <AlertTriangle className="h-4 w-4 text-amber-brand" />
-                    <AlertTitle>High correlation</AlertTitle>
-                    <AlertDescription>
-                      ρ({k.replace("|", ", ")}) = {v.toFixed(3)}
-                    </AlertDescription>
-                  </Alert>
-                ))}
-                {!boundaryHit && highCorrelations.length === 0 && (
-                  <Alert className="border-emerald-brand/40 bg-emerald-brand/10">
-                    <AlertTitle className="text-emerald-brand flex items-center gap-2">
-                      <span className="text-sm">🟢</span> Clean Fit
-                    </AlertTitle>
-                    <AlertDescription className="text-emerald-brand/80">
-                      No parameter boundaries hit and no unphysical correlations detected.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
-
-              <section>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Parameters
-                </h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="rounded-md border border-border bg-muted/30 p-2">
-                    <div className="text-[10px] uppercase text-muted-foreground">T (GeV)</div>
-                    <div className="font-mono">{row.T}</div>
-                  </div>
-                  <div className="rounded-md border border-border bg-muted/30 p-2">
-                    <div className="text-[10px] uppercase text-muted-foreground">β / U</div>
-                    <div className="font-mono">{row.beta}</div>
-                  </div>
-                  <div className="rounded-md border border-border bg-muted/30 p-2">
-                    <div className="text-[10px] uppercase text-muted-foreground">χ²/ndf</div>
-                    <div className="font-mono">{row.chi2 != null ? row.chi2.toFixed(3) : "—"}</div>
-                  </div>
-                  <div className="rounded-md border border-border bg-muted/30 p-2">
-                    <div className="text-[10px] uppercase text-muted-foreground">AIC</div>
-                    <div className="font-mono">{row.aic != null ? row.aic.toFixed(1) : "—"}</div>
-                  </div>
-                </div>
-              </section>
-
-              <section>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Covariance Heatmap
-                </h3>
-                <div
-                  className="grid w-fit gap-1"
-                  style={{ gridTemplateColumns: `repeat(${params.length}, minmax(0, 1fr))` }}
-                >
-                  {covMatrix.flat().map((v, i) => {
-                    const bg =
-                      v > 0
-                        ? `rgba(220, 38, 38, ${Math.abs(v)})`
-                        : `rgba(37, 99, 235, ${Math.abs(v)})`;
-                    const isHigh =
-                      Math.abs(v) > 0.9 && i % params.length !== Math.floor(i / params.length);
-                    return (
-                      <div
-                        key={i}
-                        className={`flex h-14 w-14 items-center justify-center rounded-md border border-border text-xs font-mono transition-all ${isHigh ? "ring-2 ring-amber-brand ring-offset-1 animate-pulse" : ""}`}
-                        style={{ background: bg, color: Math.abs(v) > 0.6 ? "white" : "inherit" }}
-                        title={`ρ = ${v}`}
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="border-b border-border bg-secondary/30">
+                <tr>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">Bin</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">Model</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">χ²/ndf</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">T (GeV)</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">β / U</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {fitsData.fitRows.map((row: any, i: number) => (
+                  <tr key={i} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs">{row.bin}</td>
+                    <td className="px-4 py-3 font-medium">{row.model}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          "px-2 py-1 rounded text-[10px] font-mono uppercase",
+                          row.status === "Clean Fit"
+                            ? "bg-emerald-brand/10 text-emerald-brand border border-emerald-brand/20"
+                            : row.status === "Converged"
+                              ? "bg-amber-brand/10 text-amber-brand border border-amber-brand/20"
+                              : "bg-rose-brand/10 text-rose-brand border border-rose-brand/20",
+                        )}
                       >
-                        {v.toFixed(2)}
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="mt-1 flex gap-2 text-[10px] text-muted-foreground">
-                  <span>rows/cols: {params.join(", ")}</span>
-                </div>
-              </section>
-
-              <section>
-                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Residuals
-                </h3>
-                <div className="rounded-md border border-border bg-muted/20 p-4 text-sm text-muted-foreground text-center italic">
-                  Residual plots require per-point fit data. Re-run fits with{" "}
-                  <code>--save-residuals</code> flag to enable this panel.
-                </div>
-              </section>
-
-              <section className="rounded-md border border-border bg-muted/20 p-3 text-xs">
-                <h3 className="mb-2 font-semibold uppercase tracking-wider text-muted-foreground">
-                  Provenance
-                </h3>
-                <dl className="grid grid-cols-[110px_1fr] gap-y-1 font-mono">
-                  <dt className="text-muted-foreground">Run ID</dt>
-                  <dd>{runId || "—"}</dd>
-                  <dt className="text-muted-foreground">Timestamp</dt>
-                  <dd>{row.runTimestamp || "—"}</dd>
-                  <dt className="text-muted-foreground">Seed</dt>
-                  <dd>{row.seedIndex != null ? `#${row.seedIndex}` : "—"}</dd>
-                </dl>
-              </section>
-            </div>
-          </>
+                        {row.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs">{row.chi2 ?? "—"}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{row.T}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{row.beta}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </SheetContent>
-    </Sheet>
+      </section>
+    </PageShell>
   );
 }

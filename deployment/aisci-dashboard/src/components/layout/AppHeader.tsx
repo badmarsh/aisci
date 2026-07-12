@@ -60,7 +60,7 @@ export function AppHeader() {
     staleTime: 60_000,
   });
 
-  const project = projects.find((p: any) => p.id === projectId);
+  const project = projects.find((p: import("@/lib/api").Project) => p.id === projectId);
   const caps = project?.capabilities || [];
 
   const navItems = projectId
@@ -248,7 +248,7 @@ export function AppHeader() {
               <ScrollArea className="h-72">
                 {recentActivities.length > 0 ? (
                   <div className="flex flex-col">
-                    {recentActivities.map((item: any, i: number) => (
+                    {recentActivities.map((item: import("@/lib/api").ActivityModel, i: number) => (
                       <div
                         key={i}
                         className="flex flex-col gap-1 border-b border-border p-4 text-sm last:border-0 hover:bg-muted/50"
@@ -287,7 +287,7 @@ export function AppHeader() {
           {navItems.map((item) => (
             <Link
               key={item.title}
-              to={item.url as any}
+              to={item.url}
               onClick={() => setMobile(false)}
               className="flex items-center gap-3 rounded-md px-3 py-3 text-sm hover:bg-secondary"
             >

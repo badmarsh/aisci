@@ -6,7 +6,7 @@ _Last verified against the repository and local listeners: 2026-07-12._
 
 | Service | URL | Implementation |
 |---|---|---|
-| AiSci Dashboard | `http://localhost:5173` | Vite/TanStack Start React app in `deployment/aisci-dashboard/` |
+| AiSci Dashboard | `http://localhost:5173` | Vite / TanStack Router / @tanstack/react-start React app in `deployment/aisci-dashboard/` |
 | Ignition API | `http://localhost:8001` | FastAPI app in `deployment/aisci-dashboard/ignition/` |
 
 Start both with:
