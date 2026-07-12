@@ -62,13 +62,19 @@ def parse_evidence_markdown(filepath):
                     cells = [_extract_text(cell).strip() for cell in row.children]
                     if len(cells) >= 5:
                         narrative = cells[2]
+                        # Extract explicit run_id if present (UUID or dated string)
+                        run_id_match = re.search(r'run_id:\s*([a-zA-Z0-9\-]+)', narrative, re.IGNORECASE)
                         run_match = re.search(r'Run:\s*([0-9]{4}-[0-9]{2}-[0-9]{2}-[a-zA-Z0-9-]+)', narrative)
-                        run_id = run_match.group(1) if run_match else "—"
+                        
+                        run_id_val = run_id_match.group(1) if run_id_match else None
+                        run_val = run_match.group(1) if run_match else "—"
+                        
                         evidence.append({
                             "claim": cells[0],
                             "status": cells[3],
                             "nextGate": cells[4],
-                            "run": run_id,
+                            "run": run_val,
+                            "run_id": run_id_val,
                             "narrative": narrative
                         })
                 break
@@ -113,9 +119,9 @@ def sync_evidence_to_db(project_id: str, force: bool = False):
     
     for ev in evidence_list:
         cursor.execute('''
-            INSERT INTO Evidence (project_id, claim, status, nextGate, run, narrative)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (project_id, ev['claim'], ev['status'], ev['nextGate'], ev['run'], ev['narrative']))
+            INSERT INTO Evidence (project_id, claim, status, nextGate, run, run_id, narrative, status_history)
+            VALUES (?, ?, ?, ?, ?, ?, ?, '[]')
+        ''', (project_id, ev['claim'], ev['status'], ev['nextGate'], ev['run'], ev.get('run_id'), ev['narrative']))
         
     conn.commit()
     conn.close()

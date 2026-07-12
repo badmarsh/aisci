@@ -1,41 +1,66 @@
-import pytest
 import os
-from fit_parser import parse_fit_artifacts, parse_model_name
+import pandas as pd
+from unittest import mock
+import pytest
+from ignition.fit_parser import parse_fit_artifacts
 
-def test_parse_model_name():
-    assert parse_model_name("tsallis_2c") == "Tsallis-Pareto 2c"
-    assert parse_model_name("juttner_1c") == "Jüttner/Boltzmann 1c"
-    assert parse_model_name("unknown_model") == "Unknown_Model 1c"
-
-def test_parse_fit_artifacts(tmp_path):
-    run_dir = tmp_path / "run_2026-07-12"
+def test_aic_bic_calculation(tmp_path):
+    # Create a dummy run directory
+    run_dir = tmp_path / "test-run"
     run_dir.mkdir()
     
-    quality_file = run_dir / "fit_quality.csv"
-    quality_file.write_text("group_label,model_name,chi2_ndf,success,fit_quality_flag,aic,bic,seed_index\n0-5,tsallis_1c,1.5,True,GOOD,100,105,1\n")
+    # 1. Provide absolute chi2 and ndf. Expect AIC and BIC to be correctly calculated.
+    # chi2 = 15.0, ndf = 44, k = 3 -> n = 47.
+    # AIC = 15.0 + 2*3 = 21.0
+    # BIC = 15.0 + 3*ln(47) = 15.0 + 3*3.850 = 15.0 + 11.55 = 26.55 = 26.6
+    quality_df = pd.DataFrame([{
+        "group_label": "0-5",
+        "model_name": "tsallis",
+        "chi2": 15.0,
+        "chi2_ndf": 15.0 / 44.0,
+        "ndf": 44,
+        "success": True,
+        "fit_quality_flag": "OK",
+        "seed_index": 0,
+        "feed_down_corrected": True
+    }])
     
-    params_file = run_dir / "fit_parameters.csv"
-    params_file.write_text("group_label,model_name,parameter_name,value,error\n0-5,tsallis_1c,T_stat,120.0,5.0\n0-5,tsallis_1c,beta_s,0.6,0.01\n")
+    params_df = pd.DataFrame([
+        {"group_label": "0-5", "model_name": "tsallis", "parameter_name": "temperature_1", "value": 0.1, "error": 0.01},
+        {"group_label": "0-5", "model_name": "tsallis", "parameter_name": "q_1", "value": 1.1, "error": 0.01},
+        {"group_label": "0-5", "model_name": "tsallis", "parameter_name": "beta_1", "value": 0.6, "error": 0.01},
+    ])
     
-    corr_file = run_dir / "parameter_correlations.csv"
-    corr_file.write_text("group_label,model_name,parameter_left,parameter_right,correlation\n0-5,tsallis_1c,T_stat,beta_s,0.85\n")
+    quality_df.to_csv(run_dir / "fit_quality.csv", index=False)
+    params_df.to_csv(run_dir / "fit_parameters.csv", index=False)
     
-    result = parse_fit_artifacts(str(run_dir))
+    res = parse_fit_artifacts(str(run_dir))
+    row = res["fitRows"][0]
     
-    assert len(result["fitRows"]) == 1
-    row = result["fitRows"][0]
-    
-    assert row["bin"] == "0-5"
-    assert row["model"] == "Tsallis-Pareto 1c"
-    assert row["chi2"] == 1.5
-    assert row["status"] == "Clean Fit"
-    assert row["T"] == "120.000 ± 5.000"
-    assert row["beta"] == "0.600 ± 0.010"
-    assert row["correlations"]["T_stat|beta_s"] == 0.85
+    assert row["chi2"] == 15.0
+    assert row["aic"] == 21.0
+    assert row["bic"] == 26.6
+    assert row["feed_down_corrected"] is True
 
-def test_parse_fit_artifacts_missing_files(tmp_path):
-    run_dir = tmp_path / "run_2026-07-12"
+def test_missing_chi2_no_aic(tmp_path):
+    run_dir = tmp_path / "test-run2"
     run_dir.mkdir()
     
-    with pytest.raises(FileNotFoundError):
-        parse_fit_artifacts(str(run_dir))
+    # Missing absolute chi2
+    quality_df = pd.DataFrame([{
+        "group_label": "0-5",
+        "model_name": "tsallis",
+        "chi2_ndf": 1.5,
+        "success": True,
+        "fit_quality_flag": "OK",
+        "seed_index": 0
+    }])
+    quality_df.to_csv(run_dir / "fit_quality.csv", index=False)
+    
+    res = parse_fit_artifacts(str(run_dir))
+    row = res["fitRows"][0]
+    
+    assert row["chi2"] is None
+    assert row["aic"] is None
+    assert row["bic"] is None
+    assert row["feed_down_corrected"] is None

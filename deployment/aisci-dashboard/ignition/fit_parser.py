@@ -88,10 +88,16 @@ def parse_fit_artifacts(run_path: str) -> Dict[str, Any]:
         is_success = row.get('success', False)
         quality_flag = str(row.get('fit_quality_flag', 'unknown')).upper()
         
-        # Determine "Clean Fit" correctly (must actually converge and have good chi2)
-        chi2 = float(row.get('chi2_ndf', 999.0))
+        # Use explicit absolute chi2, not chi2_ndf!
+        chi2_ndf = float(row.get('chi2_ndf', 999.0))
+        absolute_chi2 = row.get('chi2')
+        if pd.isna(absolute_chi2):
+            absolute_chi2 = None
+        else:
+            absolute_chi2 = float(absolute_chi2)
+            
         status = "Converged" if is_success else "Failed"
-        if is_success and chi2 < 3.0:
+        if is_success and chi2_ndf < 3.0:
             status = "Clean Fit"
         elif not is_success:
             quality_flag = "FAILED"
@@ -99,30 +105,34 @@ def parse_fit_artifacts(run_path: str) -> Dict[str, Any]:
         aic_val = row.get('aic')
         bic_val = row.get('bic')
         
-        if (pd.isna(aic_val) or aic_val is None) and not pd.isna(chi2):
-            k = 3
-            if not params_df.empty:
-                k = len(params_df[(params_df['group_label'] == bin_label) & (params_df['model_name'] == row['model_name'])])
-                if k == 0:
+        if (pd.isna(aic_val) or aic_val is None):
+            if absolute_chi2 is not None:
+                k = 3
+                if not params_df.empty:
+                    k = len(params_df[(params_df['group_label'] == bin_label) & (params_df['model_name'] == row['model_name'])])
+                    if k == 0:
+                        k = 6 if "2c" in row['model_name'] else (4 if "bgbw" in row['model_name'] else 3)
+                else:
                     k = 6 if "2c" in row['model_name'] else (4 if "bgbw" in row['model_name'] else 3)
-            else:
-                k = 6 if "2c" in row['model_name'] else (4 if "bgbw" in row['model_name'] else 3)
-            
-            n = row.get('ndf')
-            if not pd.isna(n) and n is not None:
-                n = float(n) + k
-            else:
-                n = 47 # Default fallback for ALICE spectra
-
-            if n > 0:
-                aic_val = chi2 + 2 * k
-                bic_val = chi2 + k * math.log(n)
+                
+                n = row.get('ndf')
+                if not pd.isna(n) and n is not None:
+                    # n (points) = ndf + k
+                    n = float(n) + k
+                    if n > 0:
+                        aic_val = absolute_chi2 + 2 * k
+                        bic_val = absolute_chi2 + k * math.log(n)
+                else:
+                    # Do not fabricate n=47! Return null.
+                    pass
 
         fit_rows.append({
             "bin": bin_label,
             "model": model_nice,
             "raw_model": row['model_name'],
-            "chi2": round(chi2, 2) if not pd.isna(chi2) else None,
+            "chi2_ndf": round(chi2_ndf, 2) if not pd.isna(chi2_ndf) else None,
+            "chi2": round(absolute_chi2, 2) if absolute_chi2 is not None else None,
+            "feed_down_corrected": bool(row['feed_down_corrected']) if 'feed_down_corrected' in row and not pd.isna(row['feed_down_corrected']) else None,
             "quality": quality_flag,
             "T": t_str,
             "beta": beta_str,

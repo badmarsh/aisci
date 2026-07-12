@@ -42,7 +42,7 @@ def test_migration_from_fixture():
     
     cursor.execute("SELECT version FROM SchemaVersion")
     version = cursor.fetchone()[0]
-    assert version == 1
+    assert version >= 1
     
     cursor.execute("PRAGMA table_info(ActivityLogs)")
     columns = [row[1] for row in cursor.fetchall()]

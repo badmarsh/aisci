@@ -29,7 +29,7 @@ class ValidationPolicy:
     def validate_t_q_degeneracy(self, rho: float, model_name: str, param_left: str, param_right: str) -> tuple[str, str]:
         model_lower = model_name.lower()
         if "tsallis" in model_lower:
-            is_t = param_left in ["temperature_1", "T_kin", "T_stat"] or param_right in ["temperature_1", "T_kin", "T_stat"]
+            is_t = param_left in ["temperature_1", "T_kin", "T_stat", "T", "temperature"] or param_right in ["temperature_1", "T_kin", "T_stat", "T", "temperature"]
             is_q = param_left in ["q_1", "q"] or param_right in ["q_1", "q"]
             if is_t and is_q and abs(rho) > 0.85:
                 return "warning", f"ρ({param_left}, {param_right}) = {rho:.3f} — T-q Degeneracy: parameters in Tsallis model are strongly coupled"
@@ -56,13 +56,19 @@ class ValidationPolicy:
             return "warning", f"U = {u_val:.3f} — extremely high four-velocity (v > 0.995c)"
         return "ok", ""
 
-    def validate_temperature(self, t_val: float, feed_down_corrected: bool = False) -> tuple[str, str]:
-        min_t = 0.05 if feed_down_corrected else 0.06
-        max_t = 0.25 if feed_down_corrected else 0.30
+    def validate_temperature(self, t_val: float, feed_down_corrected: bool | None = None) -> tuple[str, str]:
+        if feed_down_corrected is True:
+            min_t, max_t = 0.05, 0.25
+        elif feed_down_corrected is False:
+            min_t, max_t = 0.06, 0.30
+        else:
+            # If unknown, we don't apply tight constraints but we can still catch completely unphysical numbers.
+            min_t, max_t = 0.05, 0.30
+
         if t_val <= 0.0:
             return "critical", f"T = {t_val:.3f} GeV — unphysical negative temperature"
         elif t_val > max_t:
-            return "warning", f"T = {t_val:.3f} GeV — high temperature > {max_t} GeV, likely numerical instability or uncorrected feed-down"
+            return "warning", f"T = {t_val:.3f} GeV — high temperature > {max_t} GeV"
         elif t_val < min_t:
             return "warning", f"T = {t_val:.3f} GeV — low temperature < {min_t} GeV"
         return "ok", ""

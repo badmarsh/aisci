@@ -81,7 +81,9 @@ def init_db(project_id: str):
             status TEXT,
             nextGate TEXT,
             run TEXT,
-            narrative TEXT
+            run_id TEXT,
+            narrative TEXT,
+            status_history TEXT
         )
     ''')
 
@@ -168,6 +170,18 @@ def init_db(project_id: str):
         except sqlite3.OperationalError:
             pass
         cursor.execute("UPDATE SchemaVersion SET version = 1")
+        
+    # Migration 2: Evidence audit history and run_id
+    if version < 2:
+        try:
+            cursor.execute("ALTER TABLE Evidence ADD COLUMN run_id TEXT")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute("ALTER TABLE Evidence ADD COLUMN status_history TEXT")
+        except sqlite3.OperationalError:
+            pass
+        cursor.execute("UPDATE SchemaVersion SET version = 2")
     
     conn.commit()
     conn.close()

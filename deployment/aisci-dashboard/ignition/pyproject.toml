@@ -14,3 +14,11 @@ dependencies = [
 
 [tool.setuptools]
 py-modules = []
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "pytest-cov"
+]

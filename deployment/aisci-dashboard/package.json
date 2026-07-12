@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:backend": "cd ignition && PYTHONPATH=.. ../../../libs/physics-core/.venv/bin/python -m pytest tests/",
+    "start:backend": "lsof -i :8001 | awk 'NR!=1 {print $2}' | xargs -r kill -9 || true; PYTHONPATH=ignition ../../libs/physics-core/.venv/bin/python -m uvicorn ignition.api:app --host 0.0.0.0 --port 8001"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

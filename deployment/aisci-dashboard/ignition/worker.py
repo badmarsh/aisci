@@ -116,7 +116,8 @@ def poll_and_run():
                     pipeline_spec.command,
                     cwd=pipeline_spec.working_dir,
                     stdout=f,
-                    stderr=subprocess.STDOUT
+                    stderr=subprocess.STDOUT,
+                    preexec_fn=os.setsid
                 )
                 
                 start_wait = time.time()
@@ -128,7 +129,11 @@ def poll_and_run():
                         break
                         
                     if time.time() - start_wait > timeout_secs:
-                        process.terminate()
+                        import signal
+                        try:
+                            os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                        except ProcessLookupError:
+                            pass
                         process.wait()
                         error_msg = f"Job timed out after {timeout_secs} seconds"
                         exit_code = 124
@@ -142,13 +147,17 @@ def poll_and_run():
                         curr_status = cursor_check.fetchone()
                         conn_check.close()
                         if curr_status and curr_status['status'] == 'cancelled':
-                            process.terminate()
+                            import signal
+                            try:
+                                os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                            except ProcessLookupError:
+                                pass
                             process.wait()
                             status = 'cancelled'
                             error_msg = "Job cancelled by user"
                             exit_code = 130
                             break
-                    except Exception:
+                    except Exception as e:
                         pass
                         
                     time.sleep(2)

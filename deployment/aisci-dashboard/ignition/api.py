@@ -105,6 +105,7 @@ class Claim(BaseModel):
     confidence: str
 
 class Paper(BaseModel):
+    id: str
     source: str
     category: str
     title: str
@@ -202,6 +203,7 @@ def get_literature(project_id: str):
         bridge = p['category'] in PHYSICS_BRIDGE_CATEGORIES
         
         result.append({
+            "id": p['id'],
             "source": source,
             "category": p['category'],
             "title": p['title'],
@@ -217,6 +219,48 @@ def get_literature(project_id: str):
     conn.close()
     
     return result
+
+SCITE_CACHE_PATH = os.path.join(os.path.dirname(__file__), ".scite_cache.json")
+
+@app.get("/api/projects/{project_id}/scite")
+async def get_scite_tally(project_id: str, doi: str):
+    token = os.getenv("SCITE_API_TOKEN")
+    if not token:
+        return {"status": "unavailable", "reason": "No credentials"}
+        
+    cache = {}
+    if os.path.exists(SCITE_CACHE_PATH):
+        try:
+            with open(SCITE_CACHE_PATH, "r") as f:
+                cache = json.load(f)
+        except Exception:
+            pass
+            
+    if doi in cache:
+        return {"status": "ok", "tally": cache[doi]}
+        
+    try:
+        import httpx
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                f"https://api.scite.ai/tallies/{doi}", 
+                headers={"Authorization": f"Bearer {token}"}, 
+                timeout=5.0
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                tally_data = data.get("tallies", {}) or data
+                cache[doi] = tally_data
+                try:
+                    with open(SCITE_CACHE_PATH, "w") as f:
+                        json.dump(cache, f)
+                except Exception:
+                    pass
+                return {"status": "ok", "tally": tally_data}
+            else:
+                return {"status": "unavailable", "reason": f"HTTP {resp.status_code}"}
+    except Exception as e:
+        return {"status": "unavailable", "reason": str(e)}
 
 class IngestClaim(BaseModel):
     text: str
@@ -303,7 +347,7 @@ def update_evidence(project_id: str, evidence_id: int, body: StatusUpdate, _: No
     conn = get_db(project_id)
     conn.execute(
         "INSERT INTO ReviewDecisions (id, project_id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (req_id, project_id, str(evidence_id), body.status, "User", "Approved", datetime.now().isoformat())
+        (req_id, project_id, str(evidence_id), body.status, "User", "Pending", datetime.now().isoformat())
     )
     conn.commit()
     conn.close()
@@ -391,19 +435,12 @@ def get_anomalies(project_id: str, run: Optional[str] = None):
         
         ndf_val = row.get('ndf')
         if pd.isna(ndf_val) or ndf_val is None:
-            # Estimate NDF if not directly in the CSV
-            model_raw = row['model_name']
-            bin_label = row['group_label']
-            k = 3
-            if not parsed["params_df"].empty:
-                k = len(parsed["params_df"][(parsed["params_df"]['group_label'] == bin_label) & (parsed["params_df"]['model_name'] == model_raw)])
-                if k == 0:
-                    k = 6 if "2c" in model_raw else (4 if "bgbw" in model_raw else 3)
-            else:
-                k = 6 if "2c" in model_raw else (4 if "bgbw" in model_raw else 3)
-            ndf_val = 47 - k
-            
-        sev, msg = default_policy.validate_chi2(chi2_val, ndf=int(ndf_val))
+            # We must not fabricate ndf = 47 - k. If it's missing, we cannot properly check calibrated thresholds.
+            # But we can still do a basic check on chi2_val if it exists.
+            pass
+        else:
+            ndf_val = int(ndf_val)
+        sev, msg = default_policy.validate_chi2(chi2_val, ndf=ndf_val)
         if sev != "ok":
             anomalies.append(AnomalyItem(
                 bin=row['group_label'], model=m_nice, type="chi2", severity=sev,
@@ -453,8 +490,14 @@ def get_anomalies(project_id: str, run: Optional[str] = None):
                     bin=row['group_label'], model=m_nice, type="boundary", severity=sev,
                     message=msg, value=val
                 ))
-        elif pname in ['temperature_1', 'T_kin', 'T_stat']:
-            feed_down_corrected = "fd" in row['model_name'].lower() or "feed_down" in row['model_name'].lower()
+        elif pname in ['temperature_1', 'T_kin', 'T_stat', 'T', 'temperature']:
+            q_row = parsed["quality_df"][(parsed["quality_df"]['group_label'] == row['group_label']) & (parsed["quality_df"]['model_name'] == row['model_name'])]
+            feed_down_corrected = None
+            if not q_row.empty and 'feed_down_corrected' in q_row.columns:
+                fd_val = q_row.iloc[0]['feed_down_corrected']
+                if pd.notna(fd_val):
+                    feed_down_corrected = bool(fd_val)
+                    
             sev, msg = default_policy.validate_temperature(val, feed_down_corrected=feed_down_corrected)
             if sev != "ok":
                 anomalies.append(AnomalyItem(
@@ -534,12 +577,18 @@ def export_bibtex(project_id: str):
         first_word = "".join(c for c in first_word if c.isalnum())
         cite_key = f"{first_word}{year}{i}"
         
+        # Prevent BibTeX injection by removing or escaping braces
+        safe_title = str(p['title']).replace('{', '\\{').replace('}', '\\}') if p['title'] else ""
+        safe_url = str(p['url']).replace('{', '\\{').replace('}', '\\}') if p['url'] else ""
+        safe_provenance = str(p['provenance'] or p['id']).replace('{', '\\{').replace('}', '\\}')
+        safe_year = str(year).replace('{', '').replace('}', '')
+
         bibtex = f"@article{{{cite_key},\n"
-        bibtex += f"  title = {{{p['title']}}},\n"
-        bibtex += f"  year = {{{year}}},\n"
-        if p['url']:
-            bibtex += f"  url = {{{p['url']}}},\n"
-        bibtex += f"  note = {{Source: {p['provenance'] or p['id']}}}\n"
+        bibtex += f"  title = {{{safe_title}}},\n"
+        bibtex += f"  year = {{{safe_year}}},\n"
+        if safe_url:
+            bibtex += f"  url = {{{safe_url}}},\n"
+        bibtex += f"  note = {{Source: {safe_provenance}}}\n"
         bibtex += "}\n"
         bibtex_entries.append(bibtex)
         
@@ -655,7 +704,7 @@ def update_task(project_id: str, task_id: str, body: StatusUpdate, _: None = Dep
     conn = get_db(project_id)
     conn.execute(
         "INSERT INTO ReviewDecisions (id, project_id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (req_id, project_id, task_id, body.status, "User", "Approved", datetime.now().isoformat())
+        (req_id, project_id, task_id, body.status, "User", "Pending", datetime.now().isoformat())
     )
     conn.commit()
     conn.close()
@@ -688,12 +737,16 @@ def stream_log_file(filepath: str, max_lines: int = 200):
                 if existing:
                     yield f"data: {json.dumps({'lines': existing.splitlines()[-50:]})}\n\n"
                 # Then tail for new lines
+                last_keepalive = time.time()
                 while True:
                     line = f.readline()
                     if line:
                         yield f"data: {json.dumps({'line': line.rstrip()})}\n\n"
                     else:
-                        yield f": keep-alive\n\n"
+                        now = time.time()
+                        if now - last_keepalive > 15:
+                            yield f": keep-alive\n\n"
+                            last_keepalive = now
                         time.sleep(1.0)
         except FileNotFoundError:
             yield f"data: {json.dumps({'error': 'Log file not found: ' + filepath})}\n\n"
@@ -814,7 +867,38 @@ async def manual_sync(project_id: str, _: None = Depends(verify_token)):
 @app.post("/api/projects/{project_id}/review-requests/{decision_id}/approve")
 def approve_review_decision(project_id: str, decision_id: str, _: None = Depends(verify_token)):
     conn = get_db(project_id)
+    cursor = conn.cursor()
+    cursor.execute("SELECT target_id, requested_state FROM ReviewDecisions WHERE id = ? AND project_id = ?", (decision_id, project_id))
+    decision = cursor.fetchone()
+    if not decision:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Decision not found")
+        
     conn.execute("UPDATE ReviewDecisions SET status = 'Approved' WHERE id = ? AND project_id = ?", (decision_id, project_id))
+    
+    try:
+        ev_id = int(decision['target_id'])
+        cursor.execute("SELECT status, status_history FROM Evidence WHERE id = ?", (ev_id,))
+        ev_row = cursor.fetchone()
+        if ev_row:
+            old_status = ev_row['status']
+            history_str = ev_row['status_history']
+            try:
+                history = json.loads(history_str) if history_str else []
+            except Exception:
+                history = []
+            
+            history.append({
+                "from": old_status,
+                "to": decision['requested_state'],
+                "timestamp": datetime.now().isoformat(),
+                "reviewer": "User"
+            })
+            
+            conn.execute("UPDATE Evidence SET status_history = ? WHERE id = ?", (json.dumps(history), ev_id))
+    except ValueError:
+        pass # Not an integer target_id, likely a task
+        
     conn.commit()
     conn.close()
     return {"status": "ok"}
@@ -958,16 +1042,25 @@ def get_job(project_id: str, job_id: str):
 def retry_job(project_id: str, job_id: str, _: None = Depends(verify_token)):
     conn = get_db(project_id)
     cursor = conn.cursor()
-    cursor.execute("SELECT pipeline_id FROM JobExecutions WHERE id = ? AND project_id = ?", (job_id, project_id))
+    cursor.execute("SELECT pipeline_id, name, requester, status FROM JobExecutions WHERE id = ? AND project_id = ?", (job_id, project_id))
     job = cursor.fetchone()
     if not job:
         conn.close()
         raise HTTPException(status_code=404, detail="Job not found")
         
-    cursor.execute("UPDATE JobExecutions SET status = 'pending', error = NULL, log_path = NULL, exit_code = NULL, artifact_manifest = NULL, updated_at = ? WHERE id = ?", (datetime.now().isoformat(), job_id))
+    if job['status'] in ('pending', 'running'):
+        conn.close()
+        raise HTTPException(status_code=400, detail="Cannot retry an active job")
+        
+    new_job_id = str(uuid.uuid4())
+    now = datetime.now().isoformat()
+    cursor.execute(
+        "INSERT INTO JobExecutions (id, project_id, pipeline_id, name, requester, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (new_job_id, project_id, job['pipeline_id'], job['name'], job['requester'], 'pending', now, now)
+    )
     conn.commit()
     conn.close()
-    return {"status": "retrying", "id": job_id}
+    return {"status": "pending", "id": new_job_id}
 
 @app.post("/api/projects/{project_id}/jobs/{job_id}/cancel")
 def cancel_job(project_id: str, job_id: str, _: None = Depends(verify_token)):
