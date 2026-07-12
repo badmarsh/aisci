@@ -33,7 +33,7 @@ jobs:
           cache: 'pip'
 
       - name: Install backend dependencies
-        run: pip install fastapi uvicorn pydantic aiohttp requests marko
+        run: pip install fastapi uvicorn pydantic aiohttp requests marko pandas
 
       - name: Install dependencies
         run: npm ci
