@@ -1,5 +1,7 @@
 # Current System Status
 
+For a standard set of physical parameters and variables, refer to the [Notation Glossary](../decisions/notation-glossary.md).
+
 **Last verified:** 2026-07-12
 **Maintainer:** Platform Operations
 
