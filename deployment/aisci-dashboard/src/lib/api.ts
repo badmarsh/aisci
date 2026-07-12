@@ -380,7 +380,10 @@ export async function triggerPipeline(projectId: string, pipelineId: string) {
   const res = await fetch(`${API_URL}/projects/${projectId}/pipelines/${pipelineId}/run`, {
     method: "POST",
   });
-  if (!res.ok) throw new Error(`Failed to trigger pipeline ${pipelineId}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to trigger pipeline ${pipelineId}`);
+  }
   return res.json();
 }
 

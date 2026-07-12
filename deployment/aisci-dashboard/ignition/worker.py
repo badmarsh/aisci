@@ -57,8 +57,8 @@ def startup_recovery(project_id: str):
     conn.close()
 
 def poll_and_run():
-    for p_id in registry.list_projects():
-        startup_recovery(p_id)
+    for p in registry.list_projects():
+        startup_recovery(p.id)
     print("Worker started. Polling for jobs...")
     timeout_secs = int(os.environ.get("AISCI_PIPELINE_TIMEOUT_SECONDS", "3600"))
     while True:
@@ -67,9 +67,9 @@ def poll_and_run():
         pipeline_id = None
         
         # Poll each project
-        for p_id in registry.list_projects():
+        for p in registry.list_projects():
             try:
-                conn = get_connection(p_id)
+                conn = get_connection(p.id)
                 cursor = conn.cursor()
                 cursor.execute("BEGIN IMMEDIATE")
                 cursor.execute("SELECT id, project_id, pipeline_id FROM JobExecutions WHERE status = 'pending' ORDER BY created_at ASC LIMIT 1")
