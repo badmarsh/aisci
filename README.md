@@ -27,7 +27,7 @@ the manuscript multiplicity bins.
 
 - `research/robert/` — **The Primary Research Hub.** Contains workflow, evidence, next actions, and run reports.
 - `libs/physics-core/src/` — Symbolic and numerical validation scripts (Python/SymPy).
-- `apps/aisci-dashboard/` — **AiSci Dashboard.** The active React (TanStack Start) frontend being developed as part of this repository.
+- `deployment/aisci-dashboard/` — **AiSci Dashboard.** The active React (TanStack Start) frontend being developed as part of this repository.
 - `ignition/` — **Ignition Engine.** Python FastAPI backend for the dashboard.
 - `docs/decisions/` — Methodological and architectural decisions.
 - `docs/ops/` — Infrastructure and deployment details.
