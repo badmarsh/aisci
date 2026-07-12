@@ -89,7 +89,7 @@ class Paper(BaseModel):
     claims: int
     bridge: bool
     abstract: str
-    url: str
+    url: Optional[str] = None
     claimList: List[Claim]
 
 class EvidenceRow(BaseModel):
