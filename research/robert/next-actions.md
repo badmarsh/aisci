@@ -81,7 +81,7 @@ to evidence-ledger.md with a status of Supported or Tension as appropriate.
 
 | Item | Completed | Notes |
 |---|---|---|
-| [A-02] `bose_2c` implementation missing | 2026-07-12 | Registered `bose_2c` in `engine.py` and added to defaults in `cli.py`. |
+| [A-05] `bose_2c` implementation missing | 2026-07-12 | Registered `bose_2c` in `engine.py` and added to defaults in `cli.py`. |
 | [D-01] Investigate Jüttner 3-component singularity | 2026-07-12 | Analysed singularity at U -> 0 using sympy; proposed a Two-Component Soft/Hard Model baseline in `runs/2026-07-12-d01-juttner-singularity-analysis/README.md`. |
 | [D-03] Wire `fitting_pipeline.py` to accept `--input` | 2026-07-12 | Modified script to accept `--input` defaulting to `ins1735345` data file. |
 | [O-10] Dashboard Data Sync & UI Audit | 2026-07-10 | Ran headless Playwright audit to ensure UI syncs perfectly with file system. Fixed bug where `api.py` was limiting the runs dropdown to 5 runs instead of all 34. Verified DB has no missing or incomplete physics runs. |
