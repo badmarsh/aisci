@@ -83,6 +83,12 @@ export async function fetchPipelines(projectId: string): Promise<PipelineSpec[]>
   return res.json();
 }
 
+export async function fetchJobs(projectId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/jobs`);
+  if (!res.ok) throw new Error("Failed to fetch jobs");
+  return res.json();
+}
+
 // Mutations
 export async function triggerPipeline(projectId: string, pipelineId: string) {
   const res = await fetch(`${API_URL}/projects/${projectId}/pipelines/${pipelineId}/run`, { method: "POST" });

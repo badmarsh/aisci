@@ -6,6 +6,13 @@ For open and in-progress tasks see `docs/ops/platform-backlog.md`.
 
 ---
 
+## Completed — July 2026 (Control-Plane Stabilization)
+
+| Priority | System | Issue | Resolution |
+|---|---|---|---|
+| P1 | Dashboard | Science artifacts lacking provenance | Added versioned run and artifact provenance tracking via `worker.py`, schema versions, and UI display in Fits/Jobs. |
+| P2 | Dashboard | Literature ingestion lacking provenance | Extended `database.py`, `api.py` webhook, and `load_legacy_papers.py` with idempotent `source_hash` and provenance tracking; updated UI to display provenance. |
+
 ## Completed — April 2026
 
 | Priority | System | Issue | Resolution |

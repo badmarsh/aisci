@@ -1,5 +1,7 @@
 # Historical MCP Endpoint Record
 
+> Historical record only — not active operational guidance.
+
 **Status: not an active deployment runbook.**
 
 The current checkout contains no MCP proxy or Onyx/DeerFlow deployment under

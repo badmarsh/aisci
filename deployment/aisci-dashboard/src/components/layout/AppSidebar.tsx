@@ -10,6 +10,7 @@ import {
   Sun,
   AlertTriangle,
   FolderTree,
+  FileCode2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -53,15 +54,16 @@ export function AppSidebar() {
   const project = projects.find((p: any) => p.id === projectId);
   const caps = project?.capabilities || [];
 
-  const items = projectId ? [
+  const items: { title: string, url: string, icon: any, req: string[] | null }[] = projectId ? [
     { title: "Overview", url: `/projects/${projectId}`, icon: Home, req: null },
-    { title: "Physics Fits", url: `/projects/${projectId}/fits`, icon: Atom, req: "fit_validation" },
-    { title: "Literature Intake", url: `/projects/${projectId}/literature`, icon: BookOpen, req: "literature" },
-    { title: "Evidence Ledger", url: `/projects/${projectId}/evidence`, icon: ShieldCheck, req: "evidence" },
-    { title: "Task Queue", url: `/projects/${projectId}/tasks`, icon: ListTodo, req: "tasks" },
-    { title: "Anomalies", url: `/projects/${projectId}/anomalies`, icon: AlertTriangle, req: "fit_validation" },
+    { title: "Physics Fits", url: `/projects/${projectId}/fits`, icon: Atom, req: ["fit_validation"] },
+    { title: "Literature Intake", url: `/projects/${projectId}/literature`, icon: BookOpen, req: ["literature"] },
+    { title: "Evidence Ledger", url: `/projects/${projectId}/evidence`, icon: ShieldCheck, req: ["evidence"] },
+    { title: "Task Queue", url: `/projects/${projectId}/tasks`, icon: ListTodo, req: ["tasks"] },
+    { title: "Anomalies", url: `/projects/${projectId}/anomalies`, icon: AlertTriangle, req: ["fit_validation"] },
+    { title: "Jobs", url: `/projects/${projectId}/jobs`, icon: FileCode2, req: ["fit_validation", "symbolic_validation"] },
     { title: "Agents", url: `/projects/${projectId}/agents`, icon: Bot, req: null },
-  ].filter(item => !item.req || caps.includes(item.req)) : [];
+  ].filter((item) => !item.req || item.req.some((r: string) => caps.includes(r))) : [];
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">

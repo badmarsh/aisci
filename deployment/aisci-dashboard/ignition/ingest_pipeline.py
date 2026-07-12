@@ -2,8 +2,9 @@ import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
 import sys, os
+import hashlib
 sys.path.insert(0, os.path.dirname(__file__))
-from database import init_db, insert_paper, insert_claim, insert_dataset
+from database import init_db
 from extraction_engine import extract_insights
 
 def fetch_arxiv_papers(search_query, max_results=5):
@@ -91,6 +92,7 @@ def fetch_openalex_papers(search_query, max_results=5):
 
 def run_ingest(test_mode=False):
     init_db()
+    project_id = "robert-boson-manuscript"
     
     # 1. Physics Literature Radar (HEP)
     hep_query = 'cat:hep-ph+OR+cat:hep-ex'
@@ -116,17 +118,36 @@ def run_ingest(test_mode=False):
     
     for p in all_papers:
         print(f"Processing [{p['category']}]: {p['title']}")
-        # Save to DB
-        insert_paper(p['id'], p['title'], p['abstract'], p['published'], p['url'], p['category'])
+        
+        content = p['id'] + p['title'] + p['abstract']
+        source_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
+        provenance = "Ingested via ingest_pipeline.py API"
         
         # Extract insights (Mock LLM)
         insights = extract_insights(project_id, p['title'], p['abstract'], p['category'])
         
-        for claim in insights['claims']:
-            insert_claim(p['id'], claim['text'], claim['confidence'], claim['type'])
-            
-        for dataset in insights['datasets']:
-            insert_dataset(p['id'], dataset)
+        payload = {
+            "id": p['id'],
+            "title": p['title'],
+            "abstract": p['abstract'],
+            "published": p['published'],
+            "url": p['url'],
+            "category": p['category'],
+            "provenance": provenance,
+            "source_hash": source_hash,
+            "claims": insights['claims'],
+            "datasets": insights['datasets']
+        }
+        
+        try:
+            req = urllib.request.Request(
+                f"http://127.0.0.1:8001/api/projects/{project_id}/literature",
+                data=json.dumps(payload).encode('utf-8'),
+                headers={'Content-Type': 'application/json'}
+            )
+            urllib.request.urlopen(req)
+        except Exception as e:
+            print(f"Failed to post via webhook: {e}")
             
     print(f"Ingest complete. Processed {len(all_papers)} papers.")
 

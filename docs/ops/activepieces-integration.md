@@ -1,5 +1,7 @@
 # Historical Activepieces Integration Record
 
+> Historical record only — not active operational guidance.
+
 > **Not an active deployment.** `deployment/` contains no Activepieces
 > configuration or Compose stack in the current checkout. This record is kept
 > for historical context only; use the current control-plane docs for runtime

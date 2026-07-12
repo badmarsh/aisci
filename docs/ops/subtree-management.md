@@ -1,5 +1,7 @@
 # Historical Vendored-Subtree Management Record
 
+> Historical record only — not active operational guidance.
+
 > **Historical record.** The listed vendored deployments are not present in
 > the current checkout. Do not use these commands as current maintenance steps.
 

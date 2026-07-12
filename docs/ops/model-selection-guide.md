@@ -1,5 +1,7 @@
 # Historical Model Selection Guide
 
+> Historical record only — not active operational guidance.
+
 > **Not current runtime configuration.** The models and routing stack described
 > below are not deployed by this checkout. Retained for historical context only.
 

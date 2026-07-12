@@ -1,5 +1,7 @@
 # K-Dense Skills Quick Reference
 
+> Historical record only — not active operational guidance.
+
 **Location:** `/home/ubuntu/aisci/.agents/skills/`  
 **Repository:** https://github.com/k-dense-ai/scientific-agent-skills  
 **Installed:** 2026-05-31

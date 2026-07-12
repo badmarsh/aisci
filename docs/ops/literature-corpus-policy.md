@@ -1,5 +1,7 @@
 # Literature Corpus Curation Policy
 
+> Historical record only — not active operational guidance.
+
 How a paper enters the Onyx RAG corpus, how it gets refreshed, how duplicates
 are handled, and what to do when a paper is no longer wanted. This is the
 canonical procedure — every literature change should follow it. Drift from

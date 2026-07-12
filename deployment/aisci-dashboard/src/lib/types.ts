@@ -22,6 +22,8 @@ export type Paper = {
   abstract: string;
   url: string;
   claimList: { text: string; confidence: "HIGH" | "MEDIUM" | "LOW" }[];
+  provenance?: string;
+  source_hash?: string;
 };
 
 export type EvidenceRow = {
@@ -67,4 +69,20 @@ export type Anomaly = {
   severity: "critical" | "warning";
   message: string;
   value: number;
+};
+
+export type Job = {
+  id: string;
+  project_id: string;
+  pipeline_id: string;
+  name: string;
+  requester: string;
+  status: "pending" | "running" | "completed" | "failed";
+  created_at: string;
+  updated_at: string | null;
+  log_path: string | null;
+  exit_code: number | null;
+  error: string | null;
+  git_commit: string | null;
+  artifact_manifest: { path: string; sha256: string; size: number }[];
 };

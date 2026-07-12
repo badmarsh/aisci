@@ -1,5 +1,7 @@
 # High Energy Physics (HEP) MCP Servers
 
+> Historical record only — not active operational guidance.
+
 To enhance agent capabilities within the AiSci project, we utilize several specialized Model Context Protocol (MCP) servers. These are configured globally in the agent environment (`~/.gemini/config/mcp_config.json`).
 
 ## Registered Servers

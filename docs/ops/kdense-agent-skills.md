@@ -1,5 +1,7 @@
 # Multica Agent Integration & K-Dense Scientific Skills
 
+> Historical record only — not active operational guidance.
+
 **Date:** 2026-05-31  
 **Status:** Research complete, skills installed, integration wrappers drafted  
 **Related:** MULTICA_SETUP.md, AGENTS.md

@@ -1,5 +1,7 @@
 # Historical Model & Provider Optimization Report
 
+> Historical record only — not active operational guidance.
+
 > **Not current runtime configuration.** The provider-routing stack discussed
 > below is absent from the current checkout. Retained only as historical
 > context; do not use it to configure the active dashboard or Ignition API.

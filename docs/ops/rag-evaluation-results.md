@@ -1,5 +1,7 @@
 # Historical Onyx RAG Evaluation Results
 
+> Historical record only — not active operational guidance.
+
 > **Historical integration record.** No Onyx RAG deployment exists in the
 > current checkout; these results are retained for past-context traceability.
 

@@ -35,7 +35,8 @@ import {
 import { PageShell } from "@/components/PageShell";
 import { type FitRow } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
-import { fetchFits, fetchFitRuns } from "@/lib/api";
+import { fetchFits, fetchFitRuns, fetchJobs } from "@/lib/api";
+import { useParams } from "@tanstack/react-router";
 import {
   Select,
   SelectContent,
@@ -76,23 +77,46 @@ const filterStyles: Record<Filter, string> = {
 };
 
 function FitsPage() {
+  const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const [filter, setFilter] = useState<Filter>("All Models");
   const [selected, setSelected] = useState<FitRow | null>(null);
 
   const { data: runsData } = useQuery({
     queryKey: ["fitRuns"],
-    queryFn: fetchFitRuns,
+    queryFn: () => fetchFitRuns(projectId!),
+    enabled: !!projectId,
   });
   const runs = runsData?.runs || [];
+
+  const { data: jobs } = useQuery({
+    queryKey: ["jobs", projectId],
+    queryFn: () => fetchJobs(projectId!),
+    enabled: !!projectId,
+  });
+
+  const runToJob = useMemo(() => {
+    const map: Record<string, any> = {};
+    for (const job of jobs || []) {
+      if (!job.artifact_manifest) continue;
+      for (const art of job.artifact_manifest) {
+        const match = art.path.match(/^([^\/]+)\//);
+        if (match) {
+          map[match[1]] = job;
+          break;
+        }
+      }
+    }
+    return map;
+  }, [jobs]);
 
   const [selectedRun, setSelectedRun] = useState<string | undefined>();
   const activeRun = selectedRun || (runs.length > 0 ? runs[0] : undefined);
   const [compareRun, setCompareRun] = useState<string | undefined>();
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["fits", activeRun, compareRun],
-    queryFn: () => fetchFits(activeRun, compareRun === "none" ? undefined : compareRun),
-    enabled: !!activeRun,
+    queryKey: ["fits", projectId, activeRun, compareRun],
+    queryFn: () => fetchFits(projectId as string, activeRun as string, compareRun === "none" ? undefined : compareRun),
+    enabled: !!activeRun && !!projectId,
   });
 
   const rows = useMemo(() => {
@@ -170,7 +194,7 @@ function FitsPage() {
             <SelectContent>
               {runs.map((r: string) => (
                 <SelectItem key={r} value={r} className="font-mono text-xs">
-                  {r}
+                  {r} {runToJob[r] && runToJob[r].git_commit ? `· ${runToJob[r].git_commit.slice(0, 8)} (${runToJob[r].artifact_manifest?.length || 0} items)` : ''}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -187,7 +211,7 @@ function FitsPage() {
               </SelectItem>
               {runs.map((r: string) => (
                 <SelectItem key={r} value={r} className="font-mono text-xs">
-                  {r}
+                  {r} {runToJob[r] && runToJob[r].git_commit ? `· ${runToJob[r].git_commit.slice(0, 8)} (${runToJob[r].artifact_manifest?.length || 0} items)` : ''}
                 </SelectItem>
               ))}
             </SelectContent>

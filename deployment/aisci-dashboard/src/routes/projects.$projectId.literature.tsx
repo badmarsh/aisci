@@ -56,13 +56,15 @@ function LiteraturePage() {
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Paper | null>(null);
 
+  const { projectId } = Route.useParams();
+
   const {
     data: papers = [],
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["literature"],
-    queryFn: fetchLiterature,
+    queryKey: ["literature", projectId],
+    queryFn: () => fetchLiterature(projectId),
   });
 
   const rows = useMemo(() => {
@@ -200,13 +202,13 @@ function LiteraturePage() {
                     className="cursor-pointer border-border transition hover:bg-primary/5"
                   >
                     <TableCell>
-                      {p.source === "arXiv" ? (
-                        <Badge className="bg-orange-500/15 font-serif text-orange-400 ring-1 ring-orange-500/40 hover:bg-orange-500/15">
-                          arXiv
+                      {p.provenance ? (
+                        <Badge variant="outline" className="border-border text-[10px] font-mono max-w-[120px] truncate block" title={p.provenance}>
+                          {p.provenance}
                         </Badge>
                       ) : (
-                        <Badge className="bg-teal-500/15 text-teal-300 ring-1 ring-teal-500/40 hover:bg-teal-500/15">
-                          OpenAlex
+                        <Badge variant="outline" className="border-border text-[10px] font-mono max-w-[120px] truncate block">
+                          {p.source}
                         </Badge>
                       )}
                     </TableCell>
@@ -286,7 +288,8 @@ function LiteraturePage() {
               <SheetHeader>
                 <SheetTitle className="pr-4 text-base leading-snug">{selected.title}</SheetTitle>
                 <SheetDescription>
-                  {selected.source} · {selected.category} · {selected.published}
+                  {selected.provenance || selected.source} · {selected.category} · {selected.published}
+                  {selected.source_hash && <><br/>Hash: <span className="font-mono text-[10px]">{selected.source_hash}</span></>}
                 </SheetDescription>
               </SheetHeader>
               <div className="mt-4 space-y-5 px-1 text-sm">

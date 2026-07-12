@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsProjectIdIndexRouteImport } from './routes/projects.$projectId.index'
 import { Route as ProjectsProjectIdTasksRouteImport } from './routes/projects.$projectId.tasks'
 import { Route as ProjectsProjectIdLiteratureRouteImport } from './routes/projects.$projectId.literature'
+import { Route as ProjectsProjectIdJobsRouteImport } from './routes/projects.$projectId.jobs'
 import { Route as ProjectsProjectIdFitsRouteImport } from './routes/projects.$projectId.fits'
 import { Route as ProjectsProjectIdEvidenceRouteImport } from './routes/projects.$projectId.evidence'
 import { Route as ProjectsProjectIdAnomaliesRouteImport } from './routes/projects.$projectId.anomalies'
@@ -39,6 +40,11 @@ const ProjectsProjectIdLiteratureRoute =
     path: '/projects/$projectId/literature',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ProjectsProjectIdJobsRoute = ProjectsProjectIdJobsRouteImport.update({
+  id: '/projects/$projectId/jobs',
+  path: '/projects/$projectId/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectsProjectIdFitsRoute = ProjectsProjectIdFitsRouteImport.update({
   id: '/projects/$projectId/fits',
   path: '/projects/$projectId/fits',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/projects/$projectId/anomalies': typeof ProjectsProjectIdAnomaliesRoute
   '/projects/$projectId/evidence': typeof ProjectsProjectIdEvidenceRoute
   '/projects/$projectId/fits': typeof ProjectsProjectIdFitsRoute
+  '/projects/$projectId/jobs': typeof ProjectsProjectIdJobsRoute
   '/projects/$projectId/literature': typeof ProjectsProjectIdLiteratureRoute
   '/projects/$projectId/tasks': typeof ProjectsProjectIdTasksRoute
   '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/projects/$projectId/anomalies': typeof ProjectsProjectIdAnomaliesRoute
   '/projects/$projectId/evidence': typeof ProjectsProjectIdEvidenceRoute
   '/projects/$projectId/fits': typeof ProjectsProjectIdFitsRoute
+  '/projects/$projectId/jobs': typeof ProjectsProjectIdJobsRoute
   '/projects/$projectId/literature': typeof ProjectsProjectIdLiteratureRoute
   '/projects/$projectId/tasks': typeof ProjectsProjectIdTasksRoute
   '/projects/$projectId': typeof ProjectsProjectIdIndexRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/projects/$projectId/anomalies': typeof ProjectsProjectIdAnomaliesRoute
   '/projects/$projectId/evidence': typeof ProjectsProjectIdEvidenceRoute
   '/projects/$projectId/fits': typeof ProjectsProjectIdFitsRoute
+  '/projects/$projectId/jobs': typeof ProjectsProjectIdJobsRoute
   '/projects/$projectId/literature': typeof ProjectsProjectIdLiteratureRoute
   '/projects/$projectId/tasks': typeof ProjectsProjectIdTasksRoute
   '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/anomalies'
     | '/projects/$projectId/evidence'
     | '/projects/$projectId/fits'
+    | '/projects/$projectId/jobs'
     | '/projects/$projectId/literature'
     | '/projects/$projectId/tasks'
     | '/projects/$projectId/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/anomalies'
     | '/projects/$projectId/evidence'
     | '/projects/$projectId/fits'
+    | '/projects/$projectId/jobs'
     | '/projects/$projectId/literature'
     | '/projects/$projectId/tasks'
     | '/projects/$projectId'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/projects/$projectId/anomalies'
     | '/projects/$projectId/evidence'
     | '/projects/$projectId/fits'
+    | '/projects/$projectId/jobs'
     | '/projects/$projectId/literature'
     | '/projects/$projectId/tasks'
     | '/projects/$projectId/'
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   ProjectsProjectIdAnomaliesRoute: typeof ProjectsProjectIdAnomaliesRoute
   ProjectsProjectIdEvidenceRoute: typeof ProjectsProjectIdEvidenceRoute
   ProjectsProjectIdFitsRoute: typeof ProjectsProjectIdFitsRoute
+  ProjectsProjectIdJobsRoute: typeof ProjectsProjectIdJobsRoute
   ProjectsProjectIdLiteratureRoute: typeof ProjectsProjectIdLiteratureRoute
   ProjectsProjectIdTasksRoute: typeof ProjectsProjectIdTasksRoute
   ProjectsProjectIdIndexRoute: typeof ProjectsProjectIdIndexRoute
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       path: '/projects/$projectId/literature'
       fullPath: '/projects/$projectId/literature'
       preLoaderRoute: typeof ProjectsProjectIdLiteratureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects/$projectId/jobs': {
+      id: '/projects/$projectId/jobs'
+      path: '/projects/$projectId/jobs'
+      fullPath: '/projects/$projectId/jobs'
+      preLoaderRoute: typeof ProjectsProjectIdJobsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/$projectId/fits': {
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProjectsProjectIdAnomaliesRoute: ProjectsProjectIdAnomaliesRoute,
   ProjectsProjectIdEvidenceRoute: ProjectsProjectIdEvidenceRoute,
   ProjectsProjectIdFitsRoute: ProjectsProjectIdFitsRoute,
+  ProjectsProjectIdJobsRoute: ProjectsProjectIdJobsRoute,
   ProjectsProjectIdLiteratureRoute: ProjectsProjectIdLiteratureRoute,
   ProjectsProjectIdTasksRoute: ProjectsProjectIdTasksRoute,
   ProjectsProjectIdIndexRoute: ProjectsProjectIdIndexRoute,

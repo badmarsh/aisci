@@ -16,13 +16,11 @@ belongs in the registered project workspace.
 
 ## Milestones
 
-| Milestone | Status | Current pointer |
-|---|---|---|
-| Initial project-based control plane | Implemented | One registered Robert project, project-scoped API/UI, and local job records |
-| Control-plane reality documentation | Implemented | `docs/ops/architecture-overview.md` and related current runbooks |
-| Second real project onboarding | Planned | Validate a PhD audit or equivalent through the project registry |
-| Durable multi-worker job execution | Planned | See `docs/ops/platform-backlog.md` |
-| Science validation readiness | In progress | `research/robert/next-actions.md`, `fit-plan.md`, and evidence ledger |
+- **Initial project-based control plane**: Implemented
+- **Control-plane reality documentation**: Implemented
+- **Second real project onboarding**: Planned
+- **Durable multi-worker job execution**: Planned
+- **Science validation readiness**: In progress
 
 ## Decision status
 

@@ -1,5 +1,6 @@
 import os
 import sys
+import hashlib
 from database import insert_paper, insert_claim
 
 papers = [
@@ -98,6 +99,10 @@ papers = [
 def load_legacy():
     project_id = "robert-boson-manuscript"
     for p in papers:
+        content = p["id"] + p["title"] + p["abstract"]
+        source_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
+        provenance = "Legacy manual ingest (load_legacy_papers.py)"
+        
         insert_paper(
             paper_id=p["id"],
             project_id=project_id,
@@ -105,7 +110,9 @@ def load_legacy():
             abstract=p["abstract"],
             published_date=p["published_date"],
             url=p["url"],
-            category=p["category"]
+            category=p["category"],
+            provenance=provenance,
+            source_hash=source_hash
         )
         for c in p.get("claims", []):
             insert_claim(
@@ -114,6 +121,31 @@ def load_legacy():
                 confidence=c["confidence"],
                 type="Supporting"
             )
+            
+    # Also look for any literature_*.md files in research/robert/
+    robert_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../research/robert"))
+    if os.path.exists(robert_dir):
+        for f in os.listdir(robert_dir):
+            if f.startswith("literature_") and f.endswith(".md"):
+                path = os.path.join(robert_dir, f)
+                with open(path, "r", encoding="utf-8") as file:
+                    content = file.read()
+                    doc_id = f.replace("literature_", "").replace(".md", "")
+                    title = f"Local Literature: {doc_id}"
+                    source_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
+                    provenance = f"Legacy local file: {f}"
+                    insert_paper(
+                        paper_id=doc_id,
+                        project_id=project_id,
+                        title=title,
+                        abstract=content[:200] + "...",
+                        published_date="Unknown",
+                        url=f"file://{path}",
+                        category="local-notes",
+                        provenance=provenance,
+                        source_hash=source_hash
+                    )
+                    
     print("Legacy papers loaded successfully.")
 
 if __name__ == "__main__":

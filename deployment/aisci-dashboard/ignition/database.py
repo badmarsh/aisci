@@ -136,56 +136,82 @@ def init_db():
         )
     ''')
     
-    # Schema Migrations
-    try:
-        cursor.execute("ALTER TABLE Papers ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
-    except sqlite3.OperationalError:
-        pass # Column exists
+    # SchemaVersion table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS SchemaVersion (
+            version INTEGER
+        )
+    ''')
+    cursor.execute("SELECT version FROM SchemaVersion")
+    row = cursor.fetchone()
+    if not row:
+        cursor.execute("INSERT INTO SchemaVersion (version) VALUES (0)")
+        version = 0
+    else:
+        version = row['version']
 
-    try:
-        cursor.execute("ALTER TABLE Evidence ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
-    except sqlite3.OperationalError:
-        pass
+    # JobExecutions table uses 'artifact_manifest' and 'git_commit' (intentionally populated by the worker in Phase 3A)
 
-    try:
-        cursor.execute("ALTER TABLE Tasks ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
-    except sqlite3.OperationalError:
-        pass
+    if version < 1:
+        # Schema Migrations
+        try:
+            cursor.execute("ALTER TABLE Papers ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
+        except sqlite3.OperationalError:
+            pass # Column exists
 
-    try:
-        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN project_id TEXT")
-        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN pipeline_id TEXT")
-        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN requester TEXT")
-        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN exit_code INTEGER")
-        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN git_commit TEXT")
-    except sqlite3.OperationalError:
-        pass
+        try:
+            cursor.execute("ALTER TABLE Evidence ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
+        except sqlite3.OperationalError:
+            pass
 
-    try:
-        cursor.execute("ALTER TABLE ReviewDecisions ADD COLUMN project_id TEXT")
-    except sqlite3.OperationalError:
-        pass
+        try:
+            cursor.execute("ALTER TABLE Tasks ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
+        except sqlite3.OperationalError:
+            pass
 
-    try:
-        cursor.execute("ALTER TABLE ActivityLogs ADD COLUMN project_id TEXT")
-    except sqlite3.OperationalError:
-        pass
+        try:
+            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN project_id TEXT")
+            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN pipeline_id TEXT")
+            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN requester TEXT")
+            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN exit_code INTEGER")
+            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN git_commit TEXT")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cursor.execute("ALTER TABLE ReviewDecisions ADD COLUMN project_id TEXT")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cursor.execute("ALTER TABLE ActivityLogs ADD COLUMN project_id TEXT")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cursor.execute("ALTER TABLE Papers ADD COLUMN provenance TEXT")
+            cursor.execute("ALTER TABLE Papers ADD COLUMN source_hash TEXT")
+            cursor.execute("CREATE UNIQUE INDEX idx_papers_source_hash ON Papers (project_id, source_hash)")
+        except sqlite3.OperationalError:
+            pass
+            
+        # Update default project_id for old records
+        cursor.execute("UPDATE Papers SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
+        cursor.execute("UPDATE Evidence SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
+        cursor.execute("UPDATE Tasks SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
         
-    # Update default project_id for old records
-    cursor.execute("UPDATE Papers SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
-    cursor.execute("UPDATE Evidence SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
-    cursor.execute("UPDATE Tasks SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
+        cursor.execute("UPDATE SchemaVersion SET version = 1")
     
     conn.commit()
     conn.close()
 
-def insert_paper(paper_id, project_id, title, abstract, published_date, url, category):
+def insert_paper(paper_id, project_id, title, abstract, published_date, url, category, provenance=None, source_hash=None):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT OR REPLACE INTO Papers (id, project_id, title, abstract, published_date, url, category)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (paper_id, project_id, title, abstract, published_date, url, category))
+        INSERT OR IGNORE INTO Papers (id, project_id, title, abstract, published_date, url, category, provenance, source_hash)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (paper_id, project_id, title, abstract, published_date, url, category, provenance, source_hash))
     conn.commit()
     conn.close()
 

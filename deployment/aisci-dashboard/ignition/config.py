@@ -12,6 +12,8 @@ DB_PATH = os.path.join(DATA_DIR, 'evidence_graph.db')
 # Other Config
 AUTH_TOKEN = os.environ.get("AISCI_DASHBOARD_TOKEN", "")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+# In local development, ALLOWED_ORIGINS defaults to localhost:5173 to permit Vite UI connections.
+# In production, this must not be a wildcard.
 ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 
 # Ensure data directory exists

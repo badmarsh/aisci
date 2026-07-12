@@ -1,5 +1,7 @@
 # Historical Onyx RAG Evaluation Set
 
+> Historical record only — not active operational guidance.
+
 > **Historical integration record.** This evaluation set belongs to a removed
 > Onyx RAG deployment and is not a current test or operational gate.
 

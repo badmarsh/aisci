@@ -1,5 +1,7 @@
 # Historical Semantic Scholar & Asta API Record
 
+> Historical record only — not active operational guidance.
+
 > **Not active control-plane configuration.** The proxy route described below
 > is absent from the current checkout. Retained for historical context only.
 

@@ -27,6 +27,10 @@ from pipelines import registry as pipeline_registry
 app = FastAPI(title="AiSci Dashboard API")
 
 def verify_token(authorization: Optional[str] = Header(None)):
+    """
+    Security contract: In production, AISCI_DASHBOARD_TOKEN must be set to ensure mutations are authenticated.
+    In local development, the token is optional but enforced if provided.
+    """
     if ENVIRONMENT == "production" and not AUTH_TOKEN:
         raise HTTPException(status_code=500, detail="Production environment requires AISCI_DASHBOARD_TOKEN to be set")
     if AUTH_TOKEN and authorization != f"Bearer {AUTH_TOKEN}":
@@ -82,13 +86,15 @@ def get_db():
 
 def log_activity(project_id: str, action: str, user: str, details: str):
     conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO ActivityLogs (project_id, timestamp, action, user, details)
-        VALUES (?, datetime('now'), ?, ?, ?)
-    ''', (project_id, action, user, details))
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO ActivityLogs (project_id, timestamp, action, user, details)
+            VALUES (?, datetime('now'), ?, ?, ?)
+        ''', (project_id, action, user, details))
+        conn.commit()
+    finally:
+        conn.close()
 
 # --- Pydantic Models ---
 
@@ -194,19 +200,50 @@ def get_literature(project_id: str):
         
         result.append({
             "source": source,
-            "category": p["category"],
-            "title": p["title"],
-            "published": p["published_date"],
+            "category": p['category'],
+            "title": p['title'],
+            "published": p['published_date'],
             "claims": len(claim_list),
             "bridge": bridge,
-            "abstract": p["abstract"],
-            "url": p["url"],
-            "claimList": claim_list
+            "abstract": p['abstract'],
+            "url": p['url'],
+            "claimList": claim_list,
+            "provenance": p['provenance'],
+            "source_hash": p['source_hash']
         })
     conn.close()
     
-    # If DB is empty, return a fallback just for demonstration, otherwise return results
     return result
+
+class IngestClaim(BaseModel):
+    text: str
+    confidence: str = "LOW"
+    type: str = "Supporting"
+
+class IngestPaperRequest(BaseModel):
+    id: str
+    title: str
+    abstract: str
+    published: str
+    url: str
+    category: str
+    provenance: Optional[str] = None
+    source_hash: Optional[str] = None
+    claims: Optional[List[IngestClaim]] = None
+    datasets: Optional[List[str]] = None
+
+@app.post("/api/projects/{project_id}/literature")
+def ingest_literature(project_id: str, req: IngestPaperRequest, _: None = Depends(verify_token)):
+    from database import insert_paper, insert_claim, insert_dataset
+    insert_paper(req.id, project_id, req.title, req.abstract, req.published, req.url, req.category, req.provenance, req.source_hash)
+    if req.claims:
+        for claim in req.claims:
+            insert_claim(req.id, claim.text, claim.confidence, claim.type)
+    if req.datasets:
+        for dataset in req.datasets:
+            insert_dataset(req.id, dataset)
+    log_activity(project_id, "Ingested Literature", "System", f"Ingested paper: {req.title}")
+    return {"status": "success", "id": req.id}
 
 @app.get("/api/projects/{project_id}/evidence", response_model=List[EvidenceRow])
 def get_evidence(project_id: str):
@@ -441,7 +478,11 @@ def tail_log(filepath: str, lines: int = 10) -> list[str]:
         return [f"[Error reading log: {e}]"]
 
 def stream_log_file(filepath: str, max_lines: int = 200):
-    """Generator that yields new lines from a log file as they are written."""
+    """
+    Generator that yields new lines from a log file as they are written.
+    Note: The time.sleep() call is safe here because this synchronous generator 
+    is automatically run in a thread pool by FastAPI, so it won't block the main event loop.
+    """
     def generate():
         try:
             with open(filepath, 'r') as f:
@@ -555,21 +596,23 @@ async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(
     job_id = str(uuid.uuid4())
     conn = get_db()
     
-    # Check for duplicate running jobs
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM JobExecutions WHERE project_id = ? AND pipeline_id = ? AND status IN ('pending', 'running')", 
-                   (project_id, pipeline_id))
-    active = cursor.fetchone()
-    if active:
+    try:
+        cursor = conn.cursor()
+        cursor.execute("BEGIN IMMEDIATE")
+        cursor.execute("SELECT id FROM JobExecutions WHERE project_id = ? AND pipeline_id = ? AND status IN ('pending', 'running')", 
+                       (project_id, pipeline_id))
+        active = cursor.fetchone()
+        if active:
+            conn.rollback()
+            raise HTTPException(status_code=409, detail=f"Job {active['id']} is already running for pipeline {pipeline_id}.")
+            
+        cursor.execute(
+            "INSERT INTO JobExecutions (id, project_id, pipeline_id, name, requester, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (job_id, project_id, pipeline_id, pipeline_spec.name, "User", "pending", datetime.now().isoformat())
+        )
+        conn.commit()
+    finally:
         conn.close()
-        raise HTTPException(status_code=409, detail=f"Job {active['id']} is already running for pipeline {pipeline_id}.")
-        
-    conn.execute(
-        "INSERT INTO JobExecutions (id, project_id, pipeline_id, name, requester, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (job_id, project_id, pipeline_id, pipeline_spec.name, "User", "pending", datetime.now().isoformat())
-    )
-    conn.commit()
-    conn.close()
     
     log_activity(project_id, f"Started Pipeline: {pipeline_spec.name}", "User", f"Triggered {pipeline_id} via dashboard")
     
@@ -589,3 +632,45 @@ def get_review_requests(project_id: str):
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+@app.get("/api/projects/{project_id}/jobs")
+def get_jobs(project_id: str):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM JobExecutions WHERE project_id = ? ORDER BY created_at DESC", (project_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    
+    results = []
+    for r in rows:
+        d = dict(r)
+        if d.get('artifact_manifest'):
+            try:
+                d['artifact_manifest'] = json.loads(d['artifact_manifest'])
+            except Exception:
+                d['artifact_manifest'] = []
+        else:
+            d['artifact_manifest'] = []
+        results.append(d)
+    return results
+
+@app.get("/api/projects/{project_id}/jobs/{job_id}")
+def get_job(project_id: str, job_id: str):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM JobExecutions WHERE project_id = ? AND id = ?", (project_id, job_id))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    d = dict(row)
+    if d.get('artifact_manifest'):
+        try:
+            d['artifact_manifest'] = json.loads(d['artifact_manifest'])
+        except Exception:
+            d['artifact_manifest'] = []
+    else:
+        d['artifact_manifest'] = []
+    return d
