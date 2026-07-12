@@ -20,8 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd physics
+          cd libs/physics-core
           pip install -r requirements.txt
 
       - name: Run physics tests
-        run: cd physics && python -m pytest tests/ -v
+        run: cd libs/physics-core && python -m pytest tests/ -v

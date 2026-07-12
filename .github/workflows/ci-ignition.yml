@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ignition
+        working-directory: deployment/aisci-dashboard/ignition
 
     steps:
       - name: Checkout repository
