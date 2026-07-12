@@ -2,7 +2,7 @@
 
 ## Data Acquisition
 
-**Status:** UNBLOCKED — ins1735345 data loaded 2026-06-14 (physics/data/fit_input_ins1735345.csv)
+**Status:** UNBLOCKED — ins1735345 data loaded 2026-06-14 (libs/physics-core/data/fit_input_ins1735345.csv)
 
 **Resolution Options:**
 a) Robert provides private per-bin pT tables.

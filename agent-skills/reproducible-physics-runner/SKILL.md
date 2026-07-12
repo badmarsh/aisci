@@ -5,7 +5,7 @@ description: Run or prepare Robert physics validation scripts, fits, plots, and 
 
 # Reproducible Physics Runner
 
-Use this when executing or preparing physics validation work in `physics/src/` or `research/robert/runs/`.
+Use this when executing or preparing physics validation work in `libs/physics-core/src/` or `research/robert/runs/`.
 
 ## Read First
 
@@ -14,7 +14,7 @@ Use this when executing or preparing physics validation work in `physics/src/` o
 - `research/robert/fit-plan.md`
 - `research/robert/evidence-ledger.md`
 - `research/robert/next-actions.md`
-- Relevant scripts under `physics/src/`
+- Relevant scripts under `libs/physics-core/src/`
 
 ## Rules
 

@@ -1,0 +1,400 @@
+\section{Measurements of transverse momentum spectra}\label{Sec:Details}
+
+In this section, the procedure for the \pt spectra measurements will be presented. First, the analyses utilizing only primary charged tracks are discussed in Section~\ref{Sec:Prim}, followed in Section~\ref{Sec:Sec} by the analyses which utilize the weak decay topology, reconstructed via secondary tracks. All particle spectra are measured in the exact same pseudorapidity interval ($|\eta|<0.8$) for which the \SOPT is defined, to ensure maximal correlation between event topology and particle production. This allows for a clear, one-to-one comparison between MC generators and data. 
+
+\subsection{Particle identification utilizing primary charged tracks}\label{Sec:Prim}
+This subsection discusses analyses regarding the production of \pikp, and the resonances \PHI and
+\KSTAR. For these analyses, global tracks are reconstructed using the combined information from the ITS and TPC to achieve high precision.  Track selection criteria are applied to limit the contamination from secondary particles, to maximize tracking efficiency and to improve the \dedx and momentum resolution for primary charged particles. The number of crossed pad rows in the TPC is
+required to be at least 70 (out of a maximum of 159); the ratio of
+the number of crossed pad rows to the number of findable clusters $N_{\mathrm{cl}}$ (the number of geometrically possible clusters which can be assigned to a track) is restricted to be greater than 0.8, see Ref.~\cite{ALICE2} for details. The
+goodness-of-fit values $\chi^2$ per cluster ($\chi^2/N_{\rm cl}$) of the track fits in the TPC must be less than 4. Tracks must be associated with at least one cluster in the SPD, and the $\chi^2$ values per cluster in the ITS are restricted in order to select high-quality tracks. The DCA to the primary vertex in the plane perpendicular to the beam axis (DCA$_{xy}$) is required to be less than seven times the resolution of this quantity; this selection is \pt dependent, i.e. DCA$_{xy}$ $< 7\times(0.0015 \pm 0.05\pt) $ cm. A loose selection criterion is also applied for the DCA in the beam direction (DCA$_{z}$), by rejecting tracks with DCA$_{z}>$ 2 cm, to remove tracks from possible residual pileup events. The transverse momentum of each track must be greater than 0.15
+GeV/$c$ and the pseudorapidity is restricted to the range $|\eta|<$ 0.8 to avoid edge effects in the TPC acceptance. Additionally, tracks produced by the reconstructed weak decays of pions and kaons (the “kink" decay topology) are rejected.
+
+The Particle Identification (PID) technique adopted for these analyses is based on a selection on the $n\sigma$ distributions, which are defined as
+\begin{align*}
+    n\sigma = \frac{\text{Signal}_{\textrm{measured}} - \langle
+      \text{Signal}_{\textrm{expected}} \rangle}{\sigma},
+\end{align*}
+where the Signal can be either the measured \dedx in the TPC, or the extracted 1/$\beta$ in the TOF, and $\sigma$ is the corresponding resolution.
+
+\subsubsection{Charged pions, kaons and (anti)protons}
+
+Primary \pikp are measured in the range of 0.3--\gevc{20.0}, and yields are extracted following standard particle identification techniques reported in previous ALICE publications~\cite{ALICE:2023yuk,ALICE:2019hno}. At low \pt the particles are identified with high purity through the TPC \dedx by fitting the $n\sigma$ distributions~\cite{ALICE:2019hno}. In this \pt range,  the large separation power between \PI--K and p--K allows for a particle identification on a track-by-track basis. The relative particle abundances are obtained by fitting the $n\sigma$ distributions in narrow intervals of transverse momentum. For the kaons a two-Gaussian parameterization is used to correct for contamination of electrons.
+
+At intermediate \pt, the TOF detector is used for identification by fitting the $\beta$ distribution~\cite{ALICE:2020nkc}. Particle identification in this \pt range is also performed on a track-by-track basis, by fitting the convolution of a Gaussian parameterization and an exponential function to the $\beta$ distribution. Similarly to low \pt, the identified particle yield is extracted through fitting the $n\sigma$ distributions. 
+
+Finally, the TPC \dedx is used to identify the relativistic high-\pt particles (rTPC), with a technique described in Ref.~\cite{pikp_rtpc}. Unlike the methods used for lower \pt intervals, this technique does not allow for track-by-track identification of \pikp. Instead, the relative particle abundances are measured by fitting a four-Gaussian parameterization to the \dedx distributions, in $\eta$ and momentum intervals, where each Gaussian corresponds to the signal of \pikp and electrons. The fractional yields in each Gaussian are then used to extract the identified particle abundances from the full charged primary particle \pt spectra in $\eta$ and momentum intervals. The explicit momentum intervals for each particle identification technique are found in Table~\ref{Tab:pikpPID}.
+
+
+
+
+\begin{table}[h!]
+\centering
+\caption{A breakdown of the momentum intervals for the different PID techniques used in the \pikp analysis.}\label{Tab:pikpPID}
+
+\begin{tabular}{ccc}
+\hline
+\multicolumn{1}{|c|}{Analysis} & \multicolumn{1}{c|}{PID technique} & \multicolumn{1}{c|}{\pt ranges (\gev)}               \\ \hline
+\multicolumn{1}{l}{}           & \multicolumn{1}{l}{}               & \multicolumn{1}{l}{\hspace{0.4cm}$\pi$\hspace{1.4cm}   K\hspace{1.6cm}   p}                       \\ \hline
+\multicolumn{1}{|c|}{TPC}      & \multicolumn{1}{c|}{n$\sigma$ fits}   & \multicolumn{1}{c|}{0.3--0.7\hspace{0.5cm}   0.3--0.6\hspace{0.5cm}    0.45--1.0} \\
+\multicolumn{1}{|c|}{TOF}      & \multicolumn{1}{c|}{$\beta$ fits}     & \multicolumn{1}{c|}{\hspace{-0.2cm}0.7--3.0\hspace{0.5cm}   0.6--3.0\hspace{0.5cm}    1.0--3.0}                                \\
+\multicolumn{1}{|c|}{rTPC}     & \multicolumn{1}{c|}{\dedx fits}    & \multicolumn{1}{c|}{\hspace{-0.2cm}3.0--20\hspace{0.5cm}   3.0--20\hspace{0.5cm}    3.0--20}                                \\ \hline
+\end{tabular}
+\end{table}
+
+
+\subsubsection{Resonance particles $\phi$ and \KSTAR}
+
+Resonance particles cannot be directly detected by the experimental apparatus, but one can extract their yield by analyzing the invariant mass \Minv distribution, obtained by correlating all pairs of possible decay daughters. For the analyses presented here, the relevant decays are:
+
+\begin{align}
+\label{Eq:Channels1}
+\nonumber\PHI &\rightarrow \rm K^++K^-  & \rm B.R.~= (49.2 \pm 0.5)\%, \\ 
+\KSTAR(\bar{\KSTAR}) &\rightarrow \rm K^+(K^-)+\PI^-(\PI^+)  & \rm B.R.~= (66.503 \pm 0.014)\%.
+\end{align}
+
+The extraction technique summarized in the following is similar to previously published procedures, see for example Ref.~\cite{alice_resonance} for further details.
+
+The \Minv distribution is constructed utilizing \PI and $K$ hadrons,  identified via selections on the TPC and TOF n$\sigma$ distributions. This is critical to reduce the contamination of pions in the kaons sample. The combinatorial background is estimated by creating a mixed-event \Minv sample for each resonance decay channel. For each new event, a continuous interval of the last 9 previous events are utilized for the event-mixing. The \Minv is then calculated for pairs of daughter candidates originating from different events, which is then subtracted from the signal distribution. The precision with which the mixed-event distribution can describe the combinatorial background depends significantly on the event topology. For events with jet-like topologies, this description is very poor, as the mixed events have a completely different event topology if the ``jet axes'' are not aligned. One can easily understand this by expressing the \Minv (with masses $m_{1,2}$ and
+momentum $p_{1,2}$, and energies $E_{1,2}$) in terms of the angle between the two momentum vectors, $\theta$,
+\begin{equation}
+M_{\textrm{inv}}^2 = m_1^2 + m_2^2 + 2E_1E_2 - 2|\vec{p_1}||\vec{p_2}|\cos{(\theta)}.
+\label{Eq1}
+\end{equation} By similar reasoning one can deduce that the description of the combinatorial background in isotropic events is very good. Therefore, one needs significant statistics to precisely estimate the remaining background, so that the yield extraction is accurate. Relative to the other analyses presented in this article, the resonance analyses are consequently limited in terms of how narrow one is able to make \SOPT event selection. This also results in a significant \SOPT dependence of the systematic uncertainty.
+
+ 
+The reconstructed resonance particle yield is extracted, in \pt-differential intervals, using a Voigtian peak function for the signal and a 2nd-degree polynomial for the remaining combinatorial background. The yield extractions for \PHI and \KSTAR are then performed in two separate steps: First, by counting the entries after subtraction of the 2nd-degree polynomial in the invariant mass ranges 0.995--1.07\,\gev and 0.76--1.12\,\gev, respectively. Second, the Voigtian tails are integrated outside the aforementioned counted mass intervals to correct for the missing tails, which represents a minor fraction of the total yield. The final yields are obtained by the summation of the bin counted estimate and the integrated Voigtian tails.                                             
+%V0s
+\subsection{Particle identification utilizing weak decay topology}\label{Sec:Sec}
+
+The details regarding the
+reconstruction of the weakly decaying particles, \kzero, \LA, and \XI,
+which utilize secondary tracks, are reported here. The relevant decays are:
+
+\begin{align}
+\label{Eq:Channel2}
+\nonumber\kzero &\rightarrow \rm \PI^+\PI^- & \rm B.R.~= (69.20\pm0.05)\%,\\ 
+\nonumber\LA(\AL) &\rightarrow \rm p(\bar{p}) + \PI^-(\PI^+ ) & \rm B.R.~= (63.9 \pm 0.5)\%,\\
+\XI^-(\overline{\XI}^+) &\rightarrow \rm \LA(\AL)+\PI^-(\PI^+)  & \rm B.R.~= (99.887 \pm 0.035)\%.
+\end{align}
+
+As a substantial fraction of secondary particles from the decays are
+produced outside the ITS, the track criteria are different for these
+secondary tracks than for primary particles:  no ITS information is required, and the tracks are required to \emph{not} point directly back to the collision vertex. The data sample used in these analyses contained a significant contribution of out-of-bunch pile up that had to be accounted for.
+
+The topological constraints, as well as the track quality
+requirements, are summarized in Table~\ref{tab:v0cuts} and Table~\ref{tab:xicuts} for \VZ and \XI candidates, respectively. Topological constraints are applied on the reconstructed decay geometry to reduce background, specifically the distances of the daughters to the PV, the DCA of the daughters to the secondary vertex, and the pointing angle of the \VZ candidate with respect to the PV. The topological identification starts with the formation of \VZ candidates, consisting of two secondary tracks that:
+\begin{itemize}
+\item do not point to the PV (DCA of daughters to PV),
+\item appear to share the same secondary production vertex (\VZ DCA),
+\item do point back to the PV (from the secondary vertex) when
+  the momentum vectors are summed up (pointing angle).
+\end{itemize}
+To calculate the \Minv, the masses of the secondary tracks are assigned based on Eq.~\ref{Eq:Channel2} after testing the PID consistency. This yields up to three different hypotheses, \kzero, \LA, and \AL, for the \Minv of each \VZ. If a \VZ candidate has its invariant mass compatible to other \VZ masses under the respective competing hypotheses, it is rejected. Additionally, for \LA and \AL, a selection on an experimental estimate of the particle's proper lifetime is also used to reduce the background. All selection criteria used are summarized in Table.~\ref{tab:v0cuts}.
+
+
+\begin{table}[h!]
+\begin{center}
+\caption{Topological selection criteria used in the identification of the \Ks , \LA , and \AL particles.}
+\label{tab:v0cuts}
+\begin{tabular}{|l|c|}
+\hline
+ \parbox[b][1.1em]{1em}{}Selection variable & Selection criteria for \Ks (\LA , \AL ) \\ \hline
+ 
+ \multicolumn{2}{l}{\parbox[b][1.2em]{1em}{}Topology} \\ \hline
+DCA between daughters  & $< 1.0~\mathrm{cm}$ \\
+Cosine of pointing angle & $> 0.97 (0.995)$ \\
+Transverse decay radius  $R_{xy}$ & $> 0.5~\mathrm{cm}$ \\ \hline
+
+\multicolumn{2}{l}{\parbox[b][1.2em]{1em}{}Daughter tracks selection} \\ \hline
+\parbox[b][1.1em]{1em}{}DCA of daughters to PV &  $> 0.06$ cm \\
+TPC PID of daughters & $< 5 \, \sigma$\\
+Track pseudorapidity & \etarange 0.8 \\
+TPC crossed rows & $N_\mathrm{cr} > 70$ \\
+TPC crossed rows to findable ratio & $N_\mathrm{cr}/N_\mathrm{f} > 0.8$ \\ \hline
+
+\multicolumn{2}{l}{\parbox[b][1.2em]{1em}{}Candidate selection} \\ \hline
+\parbox[b][1.1em]{1em}{}\VZ pseudorapidity & \etarange 0.8 \\
+Transverse momentum & $1.0 < \pt < 25.0$ \gev \\
+Proper lifetime (transverse) & $( \, R_{xy} \times m_{(\LA , \AL) } / p_\mathrm{T} \,) < 30$~cm  \\
+Competing mass & $ > 4\, \sigma$ \\ \hline
+
+\end{tabular}
+\end{center}
+\end{table}
+
+
+For cascades (\XI), secondary \VZ candidates are matched to secondary bachelor tracks and by assuming the relevant masses one can test the cascade hypothesis for a \XI. Secondary \VZ are identified by means of a selection on the distance of the PV from the pointing direction of the candidate.
+
+\begin{table}[h!]
+  \begin{center}
+    \caption{Summary of the topological selection
+      values used for the \XI candidate selection. All impact parameter
+      requirements on tracks are 2D ($xy$).}\label{tab:xicuts}
+    \begin{tabular}{|l|c|}
+      \hline
+\parbox[b][1.1em]{1em}{}Selection variable & Selection criteria\\ \hline
+\multicolumn{2}{l}{\parbox[b][1.2em]{1em}{}Topology of \XI} \\ \hline
+	\parbox[b][1.1em]{1em}{}DCA between daughters (\VZ and \PI) & $< 1.6$ cm \\
+      Cosine of pointing angle & $ > 0.97$ \\
+      Cascade transverse decay radius & $>0.8$ cm \\
+      DCA of bachelor to PV & $> 0.05$ cm \\
+      \hline 
+\multicolumn{2}{l}{\parbox[b][1.2em]{1em}{}Topology of secondary \LA} \\ \hline
+      \parbox[b][1.1em]{1em}{}DCA between daughters (p and \PI) & $< 1.6$ cm \\
+      \VZ impact parameter & $>0.07$ cm \\
+      \VZ transverse decay radius & $>1.4$ cm \\
+	Window around $\Lambda$ mass & $< 0.006$ (GeV/$c^2$) \\  
+        DCA of daughters to PV & $>0.04$ cm \\     
+      \hline
+      \multicolumn{2}{l}{\parbox[b][1.2em]{1em}{}Common bachelor/daughter track selection} \\ \hline
+      \parbox[b][1.1em]{1em}{}Track pseudorapidity & \etarange 0.8\\
+      TPC clusters & $>$ 70\\
+      TPC PID of daughters & $< 5 \, \sigma$ \\ \hline
+    \end{tabular}
+  \end{center}
+\end{table}
+
+As the TPC is a relatively slow detector with a readout time of
+${\approx}100\,\mu$s, it is possible to accidentally accept secondary tracks from \VZ or cascades produced in earlier or later events. To reject these candidates, we require that at least one decay daughter is either associated to a cluster in the ITS {\em or} is matched to a hit in the TOF detector.
+
+\section{Corrections}\label{Sec:Corr}
+
+The \pt spectra of \PHI, \KSTAR, and \XI are only corrected for acceptance and tracking efficiencies, while the study of \pikp, \LA, and \kzero requires more sophisticated corrections to account for the contamination from secondary particles. The \pt spectra of \pion, \kaon and \pr are corrected for acceptance, reconstruction inefficiency, TPC--TOF matching efficiency (only in the TOF analysis) and secondary particle contamination. The reconstruction efficiencies are obtained from event simulations using the PYTHIA8 (Monash-2013 tune) Monte Carlo event generator~\cite{pythia8}. Then, the propagation of the simulated events through the ALICE apparatus is described with GEANT 3.21~\cite{Geant3}. Finally, the simulated events are reconstructed and analyzed using the same procedure as for data. This study found that the reconstruction efficiencies are independent of the multiplicity and spherocity selections. Thus, the values from the minimum-bias sample were applied. In addition, since low-momentum interactions of $\mathrm{K}^{-}$ and $\mathrm{\overline{p}}$ with the detector material are not completely described by GEANT 3, an additional correction to the reconstruction efficiencies of these two particles is estimated with GEANT 4~\cite{Geant4} and FLUKA~\cite{Fluka}. 
+
+The secondary particle contamination correction takes into account the contamination to the \pt spectra of $\pi$ and $\mathrm{p}$ from weak decays: $\kzero \rightarrow \pi^{+}+\pi^{-}, \lmb \rightarrow \mathrm{p}+\pi^{+},  \Sigma^{+} \rightarrow \mathrm{p}+\pi^{0}$ (and charge conjugates) and material interactions. This correction is estimated from a multi-template fit to data distributions of the transverse distance-of-closest
+approach $(\mathrm{DCA}_{xy})$~\cite{piKp_PbPb_276}. Three templates derived from reconstructed PYTHIA 8 events, which represent the expected shapes of
+$\mathrm{DCA}_{xy}$ distributions of primary and secondary (from weak decays) particles, and of particles from interactions with the detector material are used. The fits are constrained in the interval $\pm 3~\mathrm{cm}$. Variations of this constraint are accounted for as a systematic uncertainty. Since the TPC and TOF analyses employ different track selections, these corrections are estimated separately for the TPC and TOF analyses. At $\pt = 0.45 ~\rm{GeV}/\it{c}$ the contribution from non-primary $\pi^{+} (\rm{p})$ was found to be about $4\% (20\%)$, while at $\pt = 2.0 ~\rm{GeV}/\it{c}$ it decreases to about $1\% (4\%)$. Since this correction decreases asymptotically, an extrapolation from the TOF measurement is applied in the rTPC analysis. At $\pt=10~\mathrm{GeV}/c$ the correction to the pion and proton spectra is about $0.1\%$.
+ 
+Secondary production of \LA(\AL) from $\Xi^\pm$ and $\Xi^0$ baryons were determined from measured $\Xi^\pm$ spectra in data and the feed-down matrix obtained from MC simulations, which gives the probabilities of $\Xi^\pm$ and $\Xi^0$ decaying into \LA(\AL) at given transverse momenta. The feed-down matrix is calculated in minimum bias events and the $\Xi^\pm$ \pt spectra used for the final correction come from the same high-multiplicity and spherocity event selections. The secondary yields do not exceed 25\% of the total yields across the entire \pt-range.
+
+\section{Systematic uncertainties}\label{Sec:Sys}
+The estimation of the total systematic uncertainties for each \SOPT distribution is performed using the methods described in Ref.~\cite{ALICE:2023yuk}. Two sources of systematic uncertainty are considered, and the total uncertainty is given as the sum in quadrature of the two components:
+
+\begin{itemize}
+    \item Monte Carlo non-closure: PYTHIA8 with Monash tune is the default model used to generate the spherocity response matrix and \SOPT distributions with and without the detector efficiency losses. The generated \SOPT distributions are defined as previously described in Sec.~\ref{Sec:SOPT}. The unfolded \SOPT spectrum from the simulation is compared to the generated one. Thus, any statistically significant difference between the generated and unfolded distributions is referred to as MC non-closure and is added in quadrature to the total systematic uncertainty. This uncertainty is within $2\%$. For \PHI, \KSTAR, \kzero, \LA and \XI, the systematic uncertainty comes for variations in how the decay products enters the \SOPT calculation, particle-by-particle, and is driven by the effect that the same particle can decay in different modes (e.g., shorter or longer lifetime for the weakly decaying particles). For this reason, it is expected that, even if the relative abundances of particle species in the MC are not the same as in data, the systematic effect will be similar.
+    
+    \item Dependence on the choice of the MC model: EPOS-LHC is used as the alternative model to generate a different spherocity response matrix. This response matrix is used to unfold the \SOPT distributions. The ratio between the final unfolded distributions using PYTHIA8 and EPOS-LHC was quantified and added to the total systematic uncertainty. This uncertainty has a spherocity dependence. While in the interval $\SOPT > 0.8$ this uncertainty is about $3\%$, for the interval \\$\SOPT < 0.6$ the uncertainty is of about $5.8\%$.
+\end{itemize}
+
+
+Similar to prior sections, the systematic uncertainties for analyses depending on primary charged particles  are discussed in Section~\ref{Sec:SysPrim}. Likewise, the systematic uncertainties for longer-lived particles are discussed in Section~\ref{Sec:SysSec}. We note that in all cases, checks in the spirit of Ref.~\cite{Barlow:2002yb} were performed, comparing measurements of default and alternate criteria in quadrature. This is done in order to remove possible statistical effects, where the default and alternate selections are statistically correlated, from systematic uncertainties. 
+
+\subsection{Systematic uncertainties for analyses utilizing primary charged particles}\label{Sec:SysPrim}
+
+The total systematic uncertainty on the \pt spectra of \pikp is divided into two categories. The first class includes the uncertainties  that are common among the different PID techniques: the track selection criteria, the ITS--TPC and TPC--TOF matching efficiencies. These uncertainties are species and \pt dependent. The second class includes systematic uncertainties that are technique dependent: signal extraction method and the estimation of the secondary particle correction. This study utilizes the same methods used in previous ALICE analyses ~\cite{ALICE:2023yuk,ALICE:2020nkc,ALICE:2019hno,pikp_rtpc}. Most of the systematic uncertainties cancel in the \pt-differential particle ratios $(\mathrm{K}/\pi$ and $\mathrm{p}/\pi)$ except the ones attributed to the signal extraction and feed-down correction. Moreover, at high transverse momentum (rTPC analysis) the procedure described in~\cite{pikp_rtpc} is used to extract the signal extraction systematic uncertainty on the $\mathrm{K}/\pi$ and $\mathrm{p}/\pi$ ratios directly from fits to the \dedx distributions. Table~\ref{tab:systematics_pikp} shows a summary of the relative systematic uncertainties on the \pt spectra of \pion, \kaon, \pr, and the particle ratios. The results are shown for the spherocity classes: Jet-like and Isotropic [0--1]\%, and the \SOPT unbiased case. The multiplicity class corresponds to $N_{\mathrm{tracklets}}^{|\eta|<0.8}\, \mathrm{I{-}III}$. Similar results are obtained for the other multiplicity classes. 
+\iffalse
+\begin{table}[!ht]
+\centering
+\caption{Summary of the relative systematic uncertainties on the \pt spectra of \pion, \kaon, and \pr and the particle ratios. The uncertainty are reported as percentage values. The intervals represent the minimum and maximum values in the respective interval of identification. The values are given for the spherocity classes: Jet-like and Isotropic [0-1]\%, and the \SOPT unbiased case. The multiplicity class corresponds to $N_{\mathrm{tracklets}}^{|\eta|<0.8}\, \mathrm{I-III}$.}
+\begin{tabular}{|l|lll|}
+\hline \parbox[b][1.2em]{1em}{}Source & \pion & \kaon & \pr \\
+\hline
+
+\multicolumn{4}{l}{\parbox[b][1.2em]{1em}{}Common} \\ \hline
+\parbox[b][1.1em]{1em}{}ITS-TPC matching efficiency & 0.7--3\% & 0.7--3\% & 0.7--3\% \\
+Track selection & 0--1.2\% & 0--2\% & 0--3\% \\
+\hline
+
+\multicolumn{4}{l}{\parbox[b][1.2em]{1em}{}TPC Sub-analysis} \\ \hline
+\parbox[b][1.1em]{1em}{}PID &  0--1.3\% & 2.4--6\% & 0--10\% \\
+$N_{\mathrm{cl}}$ & 0.7--1\% & 0.2--0.8\% & 0.8--1.7\% \\
+Feed-down & 0--1\% & -- & 1--10\% \\
+\hline
+
+\multicolumn{4}{l}{\parbox[b][1.2em]{1em}{}TOF Sub-analysis} \\ \hline
+\parbox[b][1.1em]{1em}{}PID & 0--3.2\% & 0--7.4\% & 0--11.4\% \\
+Feed-down & 0--0.3\% & -- & 0--1\% \\
+TPC-TOF matching efficiency & 3\% & 6\% & 4\% \\ \hline
+
+\multicolumn{4}{l}{\parbox[b][1.2em]{1em}{}rTPC Sub-analysis} \\ \hline
+\parbox[b][1.1em]{1em}{}PID & 0.6--2.8\% & 2.5--10\% & 14--4.8\% \\
+$N_{\mathrm{cl}}$ & 0.6--1.5\% & 0--0.7\% & 0--1.4\%\\
+Feed-down & 0\% & -- & 0--0.2\% \\
+\hline
+Total & 1.5 -- 5\% & 3--11\% & 3--15\% \\
+\hline
+\multicolumn{4}{l}{\parbox[b][1.2em]{1em}{}Particle ratios}  \\
+\hline
+\parbox[b][1.1em]{1em}{} &  & $\mathrm{K}/\pi$ & $\mathrm{p}/\pi$ \\
+\hline
+Total &  & 0.4--11\% & 1--14\% \\
+\hline
+\end{tabular}
+\label{tab:systematics_pikp}
+\end{table}
+
+\fi
+
+\begin{sidewaystable}[p!]
+\centering
+\caption{Summary of the relative systematic uncertainties on the \pt spectra of \pion, \kaon, \pr, and the particle ratios. The uncertainties are reported as percentage values. The intervals represent the minimum and maximum values in the respective interval of identification. They are given for the spherocity classes: Jet-like and Isotropic [0-1]\%, and the \SOPT unbiased case. The multiplicity class corresponds to $N_{\mathrm{tracklets}}^{|\eta|<0.8}\, \mathrm{I{-}III}$.}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{c ccc ccc ccc}
+    \toprule
+\multirow{2}{*}{Source} 
+        & \multicolumn{3}{c}{$\pi$} 
+        & \multicolumn{3}{c}{$\mathrm{K}$} 
+        & \multicolumn{3}{c}{$\mathrm{p}$}  \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+        & Jet-like & Isotropic & HM
+        & Jet-like & Isotropic & HM
+        & Jet-like & Isotropic & HM \\
+    \midrule
+    \multirow{1}{*}{Common}  
+    &  &  &  &  &  &  &  &  & \\ 
+    \midrule
+    \addlinespace
+    \multirow{1}{*}{ITS--TPC matching efficiency}  
+    & 0.7 -- 3 & 0.7 -- 3 & 0.7 -- 3 & 0.7 -- 3 & 0.7 -- 3 & 0.7 -- 3 & 0.7 -- 3 & 0.7 -- 3 & 0.7 -- 3 \\
+    \addlinespace
+    \multirow{1}{*}{Track selection}  
+    & 0.13 -- 1 & 0.13 -- 1 & 0.13 -- 1 & 0.13 -- 2 & 0.13 -- 2 & 0.13 -- 2 & 0.13 -- 2.7 & 0.13 -- 2.7 & 0.13 -- 3 \\
+    \midrule
+    \multirow{1}{*}{\textbf{TPC}}
+    &  &  &  &  &  &  &  &  & \\
+    \addlinespace
+    \multirow{1}{*}{PID}  
+    & 0.2 -- 1.8 & 0.2 -- 1.9 & 0.2 -- 1.8 & 2.8 -- 6 & 2.8 -- 6 & 2.8 -- 6 & 1.6 -- 9.8 & 1.6 -- 10 & 1.6 -- 9.9 \\
+    \addlinespace
+    \multirow{1}{*}{$N_{\mathrm{cl}}$}  
+    & 0.5 -- 0.7 & 0.6 -- 0.7 & 0.6 -- 0.7 & 0.02 -- 0.8 & 0.03 -- 0.7 & 0 -- 0.5 & 0.7 -- 1.5 & 0.7 -- 1.4 & 0.7 -- 1.3 \\
+    \addlinespace
+    \multirow{1}{*}{Feed-Down}  
+    & 0.3 -- 0.9 & 0.3 -- 0.9 & 0.3 -- 0.9 &  --  &  --  &  --  & 1.1 -- 10 & 1.1 -- 10 & 1.1 -- 10 \\
+    \addlinespace
+    \multirow{1}{*}{\textbf{TOF}}
+    &  &  &  &  &  &  &  &  & \\
+    \addlinespace
+    \multirow{1}{*}{PID}  
+    & 0.03 -- 2.9 & 0.03 -- 1.8 & 0.02 -- 2.1 & 0.3 -- 8.7 & 0.3 -- 4.2 & 0.2 -- 4.8 & 0.08 -- 4.8 & 0.08 -- 6.9 & 0.09 -- 5.4 \\
+    \addlinespace
+    \multirow{1}{*}{Feed-Down}  
+    & 0 -- 0.2 & 0 -- 0.2 & 0 -- 0.2 &  --  &  --  &  --  & 0.2 -- 0.9 & 0.2 -- 0.9 & 0.2 -- 0.9 \\
+    \addlinespace
+    \multirow{1}{*}{TPC--TOF matching efficiency}  
+    &  3  & 3 &  3 & 6 & 6 & 6 & 4 & 4 & 4 \\
+    \addlinespace
+    \multirow{1}{*}{\textbf{rTPC}}
+    &  &  &  &  &  &  &  &  & \\
+    \addlinespace
+    \multirow{1}{*}{PID}  
+    & 0.65 -- 2.8 & 0.68 -- 2.9 & 0.67 -- 2.8 & 2.7 -- 10.7 & 2.5 -- 10.7 & 2.5 -- 10.3 & 4.6 -- 15.0 & 4.8 -- 14.9 & 4.7 -- 14.1 \\
+    \addlinespace
+    \multirow{1}{*}{$N_{\mathrm{cl}}$}  
+    & 0.5 -- 1.5 & 0.4 -- 1.6 & 0.6 -- 1.5 & 0.04 -- 0.7 & 0.05 -- 0.5 & 0.03 -- 0.7 & 0.08 -- 1.4 & 0.5 -- 1.7 & 0.1 -- 1.4 \\
+    \addlinespace
+    \multirow{1}{*}{Feed-Down}  
+    & Negl. & Negl. & Negl. &  --  &  --  &  --  & 0 -- 0.2 & 0 -- 0.2 & 0 -- 0.2 \\
+    \midrule
+    \addlinespace
+    \multirow{1}{*}{Total}  
+    & 1.2 -- 4.4 & 1.2 -- 4.5 & 1.5 -- 5 & 3.1 -- 10.9 & 3.1 -- 10.9 & 3 -- 11 & 3.1 -- 15.7 & 3 -- 15.3 & 3 -- 15 \\
+    \midrule
+    \addlinespace
+    \multirow{1}{*}{Particle ratios}  
+    &  &  &  &  & $\mathrm{K}/\pi$ &  &  & $\mathrm{p}/\pi$ &  \\
+    \midrule
+    \addlinespace
+    \multirow{1}{*}{Total}  
+    & -- & -- & -- & 0.3 -- 11 & 0.3 -- 11.4 & 0.4 -- 11 & 0.8 -- 15 & 0.7 -- 14.6 & 1 -- 14 \\
+    \bottomrule
+\end{tabular}
+\label{tab:systematics_pikp}
+\end{adjustbox}
+\end{sidewaystable}
+
+
+The main contributions to the systematic uncertainty on the spectra of the resonance particles are listed in Table~\ref{Tab:SysRes}. The uncertainties are evaluated in groups, where each group contains sources of systematic uncertainties that cannot be evaluated individually. The systematic uncertainties are \pt-dependent, and the ranges listed in the table represent the minimum and maximum values. The maximum uncertainties for \PHI and \KSTAR are obtained at low \pt ($\pt < 1.5 \gevc$), with the uncertainties reaching local minima at intermediate \pt ($1.5 < \pt < 4.0 \gevc$), and then approaching towards the maximum value at high \pt ($\pt > 4.0 \gevc$). Both the correlated and uncorrelated sources defined in Table~\ref{Tab:SysRes} are used to account for the uncertainty in the \pt-differential particle spectra, but only the uncorrelated sources are considered for the \SOPT-dependent-to-\SOPT-integrated ratios.
+
+The uncertainties related to signal extraction are estimated through variations of the fit range, constraints to the peak fit, and variations of the residual background function. ``Track selection \& PID'' consists of varying the $n\sigma$ requirements for valid resonance daughter candidates, as well as variations in the track quality criteria. This includes variations of the required crossed rows in the TPC, the initial vertex position along the beam axis, and the DCA along the beam axis (DCA$_z$). These variations are performed both in data and simulations, simultaneously.  Finally, the background estimation includes changes in how the combinatorial background is evaluated (event-mixing, reflected mass hypothesis, like-charge pairs). 
+
+
+\begin{table}
+\centering
+\caption{The most relevant systematic uncertainties for the resonance analysis as a function of \SOPT. ``HM'' in this table represents the \SOPT-integrated spectra. The uncertainties are reported as percentage values. Uncertainties are \pt-dependent, and ranges listed represent the minimum and maximum values presented in the final spectra (see text for details). }\label{Tab:SysRes}
+
+\begin{tabular}{|l|lll|lll|} 
+\hline
+\multicolumn{1}{|r|}{\parbox[b][1.1em]{1em}{}Hadron:}                  &       &~\PHI &                           &       & \KSTAR &                       \\
+\multicolumn{1}{|r|}{Topology:}                                 & Jet-like & HM                  & Iso                       & Jet-like & HM                    & Iso                   \\ 
+\hline
+\multicolumn{1}{l}{\parbox[b][1.2em]{1em}{}Uncorrelated sources}   &       &                     & \multicolumn{1}{l}{}      &       &                       & \multicolumn{1}{l}{}  \\ 
+\hline
+\parbox[b][1.1em]{1em}{}Signal extraction                        & 1--3 & 1--2           & 1.5--2.5                   & 3--7 & 2--4                 & 1--5                 \\
+Track selection \& PID                      & 2--6 & 1--5             & 1--5                     & 1--5 & 1--4                 & 1--4                 \\
+Background estimation                    & 1--3 & 0--1             & 1--2                   & 1--3 & 1--4                 & 1--4                 \\ 
+\hline
+\multicolumn{1}{l}{\parbox[b][1.2em]{1em}{}Correlated sources} &       &                     & \multicolumn{1}{l}{}      &       &                       & \multicolumn{1}{l}{}  \\ 
+\hline
+\parbox[b][1.1em]{1em}{}Tracking efficiency                      &    & 2                 &                        &    & 2                   &                   \\
+Branching ratio                          &    & 1                 &                        &    & 2                   &                    \\
+Hadronic interaction                     &  & 2--3               &                     &  & 0--2                 &                  \\
+Material budget                          &  & 0--5               &                      &  & 0--5                 &                  \\ 
+\hline
+\multicolumn{7}{l}{\parbox[b][0.2em]{1em}{}} \\ \hline
+\parbox[b][1.1em]{1em}{}Total uncertainty                        & 5--9 & 5--8               & 5--8 & 5--9 & 4--8                 & 4--8                 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{The most relevant systematic uncertainties for the long-lived particles \kzero, \LA(\AL), and \XI, as a function of \SOPT. ``HM'' in this table represents the \SOPT-unbiased spectra. The uncertainties are reported as percentage values. Uncertainties are \pt-dependent, and ranges listed represent the minimum and maximum values presented in the final spectra (see text for details). }\label{Tab:SysLong}
+
+\begin{tabular}{|l|lllll|}
+\hline
+\multicolumn{1}{|r|}{Topology:}              & Jet-like     & Iso       & HM        & Jet-like/HM       & Iso/HM      \\ \hline
+
+\multicolumn{6}{l}{\parbox[b][1.2em]{1em}{K$^0_\mathrm{S}$}} \\
+\hline
+Selection cuts        & 3    & 3--4     & 3--4     & Negl.          & 1          \\
+Track pile--up        & 1 & 1--3 & 1 & 0--2 & 0--2   \\
+Signal extraction     & 1--3     & 1--3     & 1--3     & Negl. & Negl. \\
+Efficiency            & 2    & 2    & 2    & 2         & 2         \\
+Material budget       & 4    & 4    & 4    & --              & --              \\
+Experimental bias     & 4    & 1    & --         & 4         & 1         \\ \hline
+Total uncertainty     & 7    & 6--7   & 5--6     & 5         & 2--3          \\ \hline
+\multicolumn{6}{l}{\parbox[b][1.2em]{1em}{$\Lambda$($\overline{\Lambda})$}} \\
+\hline
+Selection cuts & 1--5     & 2--6     & 4--5     & 0--1          & 0--3          \\
+Track pile--up        & 4--5 & 5 & 3--5 & 0--1.5 & 0--1   \\
+Signal extraction     & 2--6     & 2--6     & 2--6     & 0--2          & 0--1          \\
+Feed-down correction   & 1.0--1.5 & 1.0--1.5 & 1.0--1.5 & Negl. & Negl. \\
+Efficiency            & 2    & 2    & 2    & 2         & 2         \\
+Material budget       & 4    & 4    & 4    & --              & --              \\
+Experimental bias     & 4    & 1    & --         & 4         & 1         \\ \hline
+Total uncertainty     & 8--10    & 8--9     & 7--9     & 5         & 3--4          \\ \hline
+\multicolumn{6}{l}{\parbox[b][1.2em]{1em}{$\Xi^\pm$}} \\
+\hline
+Selection cuts  & 0--1         & 0--1         & 0--1     & Negl.          & Negl.  \\
+Track pile--up         & 2--3         & 2--3         & 2--3     & 2         & Negl.    \\
+Signal extraction     & 0--1        & 0--1     & 0--1     & 1         & Negl. \\
+Efficiency             & 2         & 2         & 2    & 2         & 2         \\
+Material budget       & 1--9         & 1--9         & 1--9     & --              & --              \\
+Experimental bias     & 3         & 3         & --    & 3         & 3         \\ \hline
+Total uncertainty     & 5--10         & 5--10         & 4--10    & 4         & 3.5         \\ \hline
+\end{tabular}
+\end{table}
+
+
+The correlated sources apply equally across the different \SOPT selections, and cancel in the ratio. The hadronic interaction and material budget represent the uncertainties in interactions between particles and the ALICE detector, and the uncertainty in the hadronic interaction cross section of particles traversing material in ALICE.
+
+\subsection{Systematic uncertainties on analyses of long-lived particles}\label{Sec:SysSec}
+
+The systematic uncertainties on long-lived weakly decaying particles, \Ks, \LA(\AL), and \XI, are reported in Table~\ref{Tab:SysLong} and have similar components for all particle species:
+\begin{itemize}
+\item Selection criteria: estimated by carrying out the analysis using looser and tighter variations of the selections in Tables~\ref{tab:v0cuts} and~\ref{tab:xicuts}. 
+\item Track pile-up: assigned due to the requirement that at least one daughter (or bachelor track for \XI) has a fast-detector signal (ITS or TOF), see Sec.~\ref{Sec:Sec}. This systematic uncertainty was found by varying the number of required tracks and fast signals, and reflects how well these conditions are modelled in the MC simulation.
+\item Signal extraction: estimated by varying the range in \Minv for signal and background and the shape of the background.
+\item Efficiency: accounts for possible variations of the tracking
+efficiency with multiplicity. The same uncertainty, 2\%, as used in a previous detailed study of multiplicity-dependent strangeness production in \s = 13 TeV pp collisions~\cite{alice_newstrangeness} is assigned here.
+\item Material budget: estimated by varying parameters in the Monte Carlo description of the ALICE apparatus, see Ref.~\cite{ALICE2} for details.
+\item Experimental bias: taken from Table~\ref{Tab:S0bias}. See discussion in Sec.~\ref{Sec:SOPT} for details.
+\end{itemize}
+
+In addition to the above-mentioned uncertainties, there is also a contribution from evaluating the secondary yields for \LA(\AL) particles. It was determined by varying \XI yields within their uncertainties, using an alternative method of constructing the feed-down matrix only from charged \XI baryons, as well as a flat systematic uncertainty to account for the possible multiplicity dependence of the matrix (shown in Table~\ref{Tab:SysLong} as ``Feed-down correction").
+
+Finally, we note that some of the systematic uncertainties cancel when we compare results in the same multiplicity class but with various \SOPT selections. This uncertainty is shown in Table~\ref{Tab:SysLong} as ``jet-like/HM" and ``Iso/HM" and was estimated by doing the systematic variations for a jet-like selection and an unbiased (same multiplicity) selection in parallel and comparing the ratios of \pt spectra with and without the variation. The studies were performed for various \SOPT and multiplicity selections. No strong dependence was found inside the relevant selections (e.g. for tighter or looser jet-like selections). However, one should note that such a dependence is hard to pin down with good precision due to the limited number of candidates for very tight selections. 
+
+

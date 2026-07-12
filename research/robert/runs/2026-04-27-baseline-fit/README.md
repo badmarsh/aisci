@@ -8,8 +8,8 @@ Validate whether HEPData record `ins1419652` provides fit-ready `pT` spectra for
 
 ```bash
 cd /home/ubuntu/aisci
-python3 physics/src/data_loader.py --run-dir research/robert/runs/2026-04-27-baseline-fit
-python3 physics/src/fitting_pipeline.py --run-dir research/robert/runs/2026-04-27-baseline-fit --pdf-path 'research/robert/manuscript/boson-probability-function-moving-system.pdf'
+python3 libs/physics-core/src/data_loader.py --run-dir research/robert/runs/2026-04-27-baseline-fit
+python3 libs/physics-core/src/fitting_pipeline.py --run-dir research/robert/runs/2026-04-27-baseline-fit --pdf-path 'research/robert/manuscript/boson-probability-function-moving-system.pdf'
 ```
 
 ## Formula Confirmation

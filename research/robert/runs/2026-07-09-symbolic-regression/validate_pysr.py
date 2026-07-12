@@ -62,7 +62,7 @@ def fit_bin(df, bin_name, mass_gev=0.13957):
     return chi2_bgbw, chi2_pysr, ndf, res_pysr.x
 
 def main():
-    data_path = "physics/data/fit_input.csv"
+    data_path = "libs/physics-core/data/fit_input.csv"
     df = pd.read_csv(data_path)
     bins = df[df['source_table'] == 'Table 1']['multiplicity_selection'].unique()
     

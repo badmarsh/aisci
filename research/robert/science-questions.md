@@ -24,4 +24,4 @@ The current local checks are sanity checks under explicit assumptions, not final
 
 ## Blocking Input
 
-[RESOLVED 2026-06-14] Data provided in physics/data/fit_input_ins1735345.csv. Active blockers are now C1 (estimator mismatch) and O-11 (BE fit execution). See next-actions.md.
+[RESOLVED 2026-06-14] Data provided in libs/physics-core/data/fit_input_ins1735345.csv. Active blockers are now C1 (estimator mismatch) and O-11 (BE fit execution). See next-actions.md.

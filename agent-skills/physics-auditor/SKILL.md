@@ -9,7 +9,7 @@ Use this skill immediately after `reproducible-physics-runner` produces a fit re
 
 ## Read First
 - `AGENTS.md`
-- `physics/tests/` (to understand baseline physical tests)
+- `libs/physics-core/tests/` (to understand baseline physical tests)
 - `research/robert/evidence-ledger.md`
 
 ## Rules

@@ -6,7 +6,7 @@
 > is integrated over a detector pseudorapidity acceptance η ∈ [−η_max, η_max],
 > is the dy/dη Jacobian correction required, and if so, at what pT scale does it matter?"**
 
-This is what AIS-60 fixed in `physics/src/fitting_pipeline.py`. Use 5 APIs to
+This is what AIS-60 fixed in `libs/physics-core/src/fitting_pipeline.py`. Use 5 APIs to
 cross-check whether the fix was correct. Write the verdict and one evidence-ledger row.
 
 ---

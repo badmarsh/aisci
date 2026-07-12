@@ -24,7 +24,7 @@ The actual commands will be recorded here when the fit run starts.
 
 ```bash
 cd ~/aisci
-python3 physics/src/fitting_pipeline.py
+python3 libs/physics-core/src/fitting_pipeline.py
 ```
 
 ## Results

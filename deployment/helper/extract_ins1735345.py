@@ -16,7 +16,7 @@ This script:
 2. Identifies column headers and maps them to manuscript bins
 3. Emits a long-form CSV in the same format expected by fitting_pipeline.py
 
-Output: physics/data/fit_input_ins1735345.csv
+Output: libs/physics-core/data/fit_input_ins1735345.csv
 """
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ MANUSCRIPT_BINS = [
     "71-80", "81-90", "91-100", "101-125", "126-150",
 ]
 
-OUT_DIR = Path("/home/ubuntu/aisci/physics/data")
+OUT_DIR = Path("/home/ubuntu/aisci/libs/physics-core/data")
 OUT_CSV = OUT_DIR / "fit_input_ins1735345.csv"
 META_JSON = OUT_DIR / "fit_input_ins1735345_meta.json"
 

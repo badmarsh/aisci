@@ -56,7 +56,7 @@ From the RELEVANT papers, draft ONE candidate model modification:
   - Modify FitSpec: <specific change — e.g., "add radial flow profile
     exponent n as free parameter in bgbw_scalar()">
   - Expected effect: <what chi²/ndf change is expected>
-  - Test strategy: run with `python physics/cli.py --models bgbw_nprofile`
+  - Test strategy: run with `python libs/physics-core/cli.py --models bgbw_nprofile`
     and compare AIC vs current BGBW.
 **Literature support:** <citation>
 **Acceptance gate:** AIC improvement > 2 units in ≥ 8/10 bins.

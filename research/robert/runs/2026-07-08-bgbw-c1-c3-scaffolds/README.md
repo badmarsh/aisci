@@ -10,19 +10,19 @@ missing covariance).
 
 | File | Caveat | Status |
 |------|--------|--------|
-| `physics/src/bgbw_covariance.py` | C3 — missing covariance | ✅ Done |
-| `physics/src/nch_response_matrix.py` | C1 — estimator mismatch | ⚠️ Scaffold only |
-| `physics/src/bgbw_fit.py` | C1/C3 — main fit driver | ✅ Done |
-| `physics/src/bgbw_identified_fit.py` | C2 — pion-mass assumption | ✅ Done |
+| `libs/physics-core/src/bgbw_covariance.py` | C3 — missing covariance | ✅ Done |
+| `libs/physics-core/src/nch_response_matrix.py` | C1 — estimator mismatch | ⚠️ Scaffold only |
+| `libs/physics-core/src/bgbw_fit.py` | C1/C3 — main fit driver | ✅ Done |
+| `libs/physics-core/src/bgbw_identified_fit.py` | C2 — pion-mass assumption | ✅ Done |
 
 ---
 
 ## C1 — Estimator mismatch (BLOCKED)
 
-**Script**: `physics/src/nch_response_matrix.py`
+**Script**: `libs/physics-core/src/nch_response_matrix.py`
 
 ### What the scaffold does
-- `load_response_matrix(path)` — loads `physics/data/response_matrix/R_spd_to_nch.npy`.
+- `load_response_matrix(path)` — loads `libs/physics-core/data/response_matrix/R_spd_to_nch.npy`.
   Returns a 10×10 identity matrix with a warning if the file is absent.
 - `apply_response(nch_measured, R)` — applies Moore–Penrose pseudoinverse unfolding.
 - `estimator_delta_table(...)` — formats a per-bin delta table for T_kin, ⟨β⟩.
@@ -41,17 +41,17 @@ When a real R matrix is available:
 ```bash
 # Save the (10, 10) matrix
 import numpy as np
-np.save("physics/data/response_matrix/R_spd_to_nch.npy", R_matrix)
+np.save("libs/physics-core/data/response_matrix/R_spd_to_nch.npy", R_matrix)
 
 # Then run the cross-estimator comparison
-python physics/src/bgbw_fit.py --run-dir research/robert/runs/YYYY-MM-DD-bgbw-estimator-crosscheck
+python libs/physics-core/src/bgbw_fit.py --run-dir research/robert/runs/YYYY-MM-DD-bgbw-estimator-crosscheck
 ```
 
 ---
 
 ## C3 — Missing covariance
 
-**Script**: `physics/src/bgbw_covariance.py`
+**Script**: `libs/physics-core/src/bgbw_covariance.py`
 
 ### What the scaffold does
 
@@ -91,7 +91,7 @@ and correlated, the bias > 1 (diagonal over-counts).
 Use `--cov-mode correlated` to enable GLS envelope reporting:
 
 ```bash
-python physics/src/bgbw_fit.py \
+python libs/physics-core/src/bgbw_fit.py \
   --run-dir research/robert/runs/2026-07-08-bgbw-gls \
   --cov-mode correlated --xi 1.0
 ```
@@ -105,8 +105,8 @@ covariance structure.
 ## Next actions (C1 and C3 remaining)
 
 - [ ] C1: Obtain real R matrix (ALICE internal or published) and populate
-  `physics/data/response_matrix/R_spd_to_nch.npy`. Then run:
-  `python physics/src/bgbw_fit.py --run-dir research/robert/runs/YYYY-MM-DD-bgbw-estimator-crosscheck`
+  `libs/physics-core/data/response_matrix/R_spd_to_nch.npy`. Then run:
+  `python libs/physics-core/src/bgbw_fit.py --run-dir research/robert/runs/YYYY-MM-DD-bgbw-estimator-crosscheck`
   and fill `research/robert/runs/2026-07-08-bgbw-estimator-crosscheck/` with
   the delta table.
 - [ ] C3: Run `bgbw_fit.py --cov-mode correlated` once the per-class fit
@@ -116,7 +116,7 @@ covariance structure.
 ## References
 
 - Issue #27: https://github.com/badmarsh/aisci/issues/27
-- Script: `physics/src/bgbw_fit.py`
-- Script: `physics/src/bgbw_covariance.py`
-- Script: `physics/src/nch_response_matrix.py`
+- Script: `libs/physics-core/src/bgbw_fit.py`
+- Script: `libs/physics-core/src/bgbw_covariance.py`
+- Script: `libs/physics-core/src/nch_response_matrix.py`
 - Related: #26 (RAG corpus gap)

@@ -99,7 +99,7 @@ The user manual is the authoritative description of how AiSci is *intended* to b
 - The 15-skill map and two-pipeline model (ops + science)
 - The daily routine for each session type (kickoff, platform, science, end-of-session)
 - The three idea inlets and their landing zones
-- The physics tools reference (`physics/src/` dependency map, current blocker, script purposes)
+- The physics tools reference (`libs/physics-core/src/` dependency map, current blocker, script purposes)
 
 Check each declared section against what you found in §1–§6:
 
@@ -118,7 +118,7 @@ Check each declared section against what you found in §1–§6:
 
 **Physics tools reference accuracy**
 - Do the five script descriptions (`boson_paper_analysis.py`, `fitting_pipeline.py`, `data_loader.py`, `sympy_validation_agent.py`, `tsallis_physics_validation.py`) still accurately describe what those files do?
-- Has the blocker status changed? (i.e., has `physics/data/fit_input.csv` appeared, meaning the data layer is no longer blocked?)
+- Has the blocker status changed? (i.e., has `libs/physics-core/data/fit_input.csv` appeared, meaning the data layer is no longer blocked?)
 - Has the manuscript been moved to `research/robert/manuscript/` as recommended? If so, update the "Manuscript Location" note.
 
 **Idea inlets accuracy**

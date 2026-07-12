@@ -12,7 +12,7 @@ Use this skill to prevent autonomous runaways when a decision boundary is highly
 
 ## Rules
 - **Triggers:** Invoke this skill when an agent wants to:
-  - Change the base functional form of the model in `physics/src/`.
+  - Change the base functional form of the model in `libs/physics-core/src/`.
   - Overwrite a "Validated" claim in `evidence-ledger.md`.
   - Delete older run data.
 - **Workflow:**

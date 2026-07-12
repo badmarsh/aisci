@@ -1,6 +1,6 @@
 {
   "mode": "identified species (Level 1)",
-  "data": "physics/data/fit_input_ins1682316.csv",
+  "data": "libs/physics-core/data/fit_input_ins1682316.csv",
   "caveat_c2": "Level-1 identified-species refit. Verify against published ALICE results.",
   "n_rows": 3,
   "results": [

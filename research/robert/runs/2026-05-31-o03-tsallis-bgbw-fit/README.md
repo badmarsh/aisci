@@ -6,7 +6,7 @@
 
 ## Run Configuration
 
-- Input: `physics/data/fit_input.csv` (using `fit_input_ins1735345.csv`)
+- Input: `libs/physics-core/data/fit_input.csv` (using `fit_input_ins1735345.csv`)
 - Models: `blast_wave`, `tsallis`, `manuscript_juttner`
 - Component counts: 1, 2, 3
 

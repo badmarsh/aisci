@@ -10,8 +10,8 @@ See issue #27: https://github.com/badmarsh/aisci/issues/27
 
 ## Input
 
-- Data: `physics/data/fit_input_ins1735345.csv` (470 rows, 10 bins × 47 pT points)
-- Script: `physics/src/bgbw_fit.py --cov-mode diag`
+- Data: `libs/physics-core/data/fit_input_ins1735345.csv` (470 rows, 10 bins × 47 pT points)
+- Script: `libs/physics-core/src/bgbw_fit.py --cov-mode diag`
 - Model: BGBW / SSH 1993 (nucl-th/9307020)
 - Mass assumption: m = m_π = 0.13957 GeV (C2 caveat — see below)
 - Estimator: SPD-tracklets (C1 caveat — see below)
@@ -79,10 +79,10 @@ the GLS χ²/ndf envelope over ξ ∈ {0.1, 0.3, 1.0, 3.0}.
 ## References
 
 - Issue #27: https://github.com/badmarsh/aisci/issues/27
-- Script: `physics/src/bgbw_fit.py`
-- Covariance scaffold: `physics/src/bgbw_covariance.py`
-- Response matrix scaffold: `physics/src/nch_response_matrix.py`
-- Identified species: `physics/src/bgbw_identified_fit.py`
+- Script: `libs/physics-core/src/bgbw_fit.py`
+- Covariance scaffold: `libs/physics-core/src/bgbw_covariance.py`
+- Response matrix scaffold: `libs/physics-core/src/nch_response_matrix.py`
+- Identified species: `libs/physics-core/src/bgbw_identified_fit.py`
 - Evidence ledger: `research/robert/evidence-ledger.md` (§ 2026-07-08 BGBW Per-Class Fits)
 - BGBW literature: Schnedermann, Sollfrank, Heinz (1993) nucl-th/9307020
 - Multiplicity dependence: Khuntia+ 2019 (arXiv:1808.02383)

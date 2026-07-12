@@ -17,12 +17,12 @@ To close C1 we need:
    multiplicity classes.
 2. A Nch ↔ SPD-tracklets response matrix R (10×10) from ALICE MC or published
    data.
-3. Run `physics/src/bgbw_fit.py` against both estimators and produce a delta
+3. Run `libs/physics-core/src/bgbw_fit.py` against both estimators and produce a delta
    table for T_kin, ⟨β⟩ per bin.
 
 ## Scaffold available
 
-`physics/src/nch_response_matrix.py` provides:
+`libs/physics-core/src/nch_response_matrix.py` provides:
 - Identity-matrix placeholder (zero correction)
 - `apply_response(nch_measured, R)` for Moore–Penrose unfolding
 - `estimator_delta_table(...)` to format the required delta table
@@ -32,15 +32,15 @@ To close C1 we need:
 ```bash
 # 1. Save real response matrix
 import numpy as np
-np.save("physics/data/response_matrix/R_spd_to_nch.npy", R_matrix)
+np.save("libs/physics-core/data/response_matrix/R_spd_to_nch.npy", R_matrix)
 
 # 2. Obtain V0M or CL1 dataset from HEPData and save as:
-#    physics/data/fit_input_ins<ID>_v0m.csv
+#    libs/physics-core/data/fit_input_ins<ID>_v0m.csv
 
 # 3. Run cross-estimator fit
-python physics/src/bgbw_fit.py \
+python libs/physics-core/src/bgbw_fit.py \
   --run-dir research/robert/runs/2026-07-08-bgbw-estimator-crosscheck \
-  --data-path physics/data/fit_input_ins<ID>_v0m.csv \
+  --data-path libs/physics-core/data/fit_input_ins<ID>_v0m.csv \
   --cov-mode diag
 
 # 4. Compare with SPD-tracklet results from 2026-07-08-bgbw-per-class/
@@ -49,5 +49,5 @@ python physics/src/bgbw_fit.py \
 
 ## References
 - Issue #27: https://github.com/badmarsh/aisci/issues/27
-- Script: `physics/src/nch_response_matrix.py`
+- Script: `libs/physics-core/src/nch_response_matrix.py`
 - SPD-tracklet fit: `research/robert/runs/2026-07-08-bgbw-per-class/`

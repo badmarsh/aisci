@@ -12,7 +12,7 @@ The Onyx retrieval stack (`internal_search`) is for **grounding external literat
 | Active fit parameters, run artifacts | `research/robert/runs/<dated-run>/` (read directly) | `internal_search` |
 | Platform task status, port bindings | `docs/ops/platform-backlog.md` (read directly) | `internal_search` |
 | HEP literature context, paper abstracts | `internal_search` → Scite / Consensus / arXiv / INSPIRE | canonical files |
-| pT spectra, HEPData tables | `hepdata` tool → `physics/data/` | `internal_search` |
+| pT spectra, HEPData tables | `hepdata` tool → `libs/physics-core/data/` | `internal_search` |
 | Formula retrieval from manuscript | `read_file` on manuscript export | `internal_search` |
 
 This boundary is enforced via the **source-routing block** in the HEP validation persona's system prompt (see `onyx-persona-ids.md` for the current persona ID). Re-check the prompt after any persona import or upstream Onyx upgrade.

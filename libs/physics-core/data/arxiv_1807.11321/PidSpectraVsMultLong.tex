@@ -1,0 +1,235 @@
+% ****** Start of file apssamp.tex ******
+%
+%
+%   This file is part of the APS files in the REVTeX 4 distribution.
+%   Version 4.0 of REVTeX, August 2001
+%
+%   Copyright (c) 2001 The American Physical Society.
+%
+%   See the REVTeX 4 README file for restrictions and more information.
+%
+% TeX'ing this file requires that you have AMS-LaTeX 2.0 installed
+% as well as the rest of the prerequisites for REVTeX 4.0
+%
+% See the REVTeX 4 README file
+% It also requires running BibTeX. The commands are as follows:
+%
+%  1)  latex apssamp.tex
+%  2)  bibtex apssamp
+%  3)  latex apssamp.tex
+%  4)  latex apssamp.tex
+%
+\RequirePackage{lineno}
+%\documentclass[aps,floatfix,prc,twocolumn,showpacs,showkeys,amsmath,amssymb,superscriptaddress]{revtex4}
+%\documentclass[ALICE,manyauthors,aps,floatfix,prc,twocolumn,showpacs,showkeys,amsmath,amssymb,superscriptaddress]{cernphprep}
+\documentclass[ALICE,manyauthors]{cernphprep}
+%
+\usepackage[comma,square,numbers,sort&compress]{natbib}
+\usepackage{graphicx}
+\usepackage{dcolumn}% Align table columns on decimal point
+\usepackage{bm}% bold math
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{booktabs}
+\usepackage{epstopdf}
+\usepackage{rotating}
+\usepackage{tabularx}
+\usepackage{epstopdf}
+\usepackage{afterpage}
+
+%\usepackage[utf8]{inputenc}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+%\linenumbers
+%\setlength\linenumbersep{5pt}
+\input{commands.tex}
+\renewcommand*{\thefootnote}{\fnsymbol{footnote}}
+
+
+%
+\begin{document}
+
+%%%%%%%%%%%%%%%  Title page %%%%%%%%%%%%%%%%%%%%%%%%
+\begin{titlepage}
+%
+\PHyear{2018}
+\PHnumber{209}      % required, will be obtained from PH
+ \PHdate{23 July}  % required, will be obtained from PH
+%
+
+
+\title{Multiplicity dependence of light-flavor hadron production \\ in pp collisions at \s\ = 7 TeV}
+\ShortTitle{Multiplicity dependence of identified hadron production in pp}
+%
+%
+\Collaboration{ALICE Collaboration\thanks{See Appendix~\ref{app:collab} for the list of collaboration members}}
+\ShortAuthor{ALICE Collaboration} % appears on left page headers, do not change
+
+%
+%
+\begin{abstract} 
+
+Comprehensive results on the production of unidentified charged particles, \pipm, \kapm, \kzero, K*(892)$^{0}$, \p, \pbar, $\phi$(1020), $\lmb$, $\almb$, \X, \Ix, \Om\ and \Mo hadrons in proton-proton (pp) collisions at \s\ = 7 TeV at midrapidity ($|y| < 0.5$) as a function of charged-particle multiplicity density are presented. In order to avoid auto-correlation biases, the actual transverse momentum (\pt) spectra of the particles under study and the event activity are measured in different rapidity windows. In the highest multiplicity class, the charged-particle density reaches about 3.5 times the value measured in inelastic collisions. While the yield of protons normalized to pions remains approximately constant as a function of multiplicity, the corresponding ratios of strange hadrons to pions show a significant enhancement that increases with increasing strangeness content. Furthermore, all identified particle to pion ratios are shown to depend solely on charged-particle multiplicity density, regardless of system type and collision energy. 
+The evolution of the spectral shapes with multiplicity and hadron mass shows patterns that are similar to those observed in p-Pb and Pb--Pb collisions at LHC energies. The obtained \pt\ distributions and yields are compared to expectations from QCD-based 
+pp event generators as well as to predictions from thermal and hydrodynamic models. These comparisons indicate that 
+traces of a collective, equilibrated system are already present in high-multiplicity pp collisions. 
+
+\end{abstract}
+%
+%\pacs{25.75.-q, 25.75.Dw, 13.85.Ni} \keywords{}
+%
+\end{titlepage}
+\setcounter{page}{2}
+%
+
+% ------------------------
+% Introduction
+% ------------------------
+
+\section{\label{secIntroduction}Introduction}
+
+
+
+Recently, several collective phenomena have been observed in high-multiplicity \pp\ and p-Pb collisions that are reminiscent of observations attributed to the creation of a medium in thermal and kinematic equilibrium in Pb--Pb collisions. In p--Pb collisions, these include the observation of double-ridge structures on the near and away side in two-particle correlation studies~\cite{Abelev:2012ola}, non-vanishing $v_2$ coefficients in multi-particle cumulant studies \cite{Khachatryan:2015waa}, mass dependent hardening of identified particle \pt\ spectra~\cite{ABELEV:2013wsa,Abelev:2013haa,Abelev:2014uua} and consistency of integrated particle yield ratios with thermal model expectations at high multiplicities~\cite{Adam:2015vsf}. 
+
+While double-ridge structures have already been observed in high-multiplicity pp collisions~\cite{Aad:2015gqa}, a comprehensive study of
+identified-particle hadrochemistry as well as of the corresponding kinematics after hadronization has not yet been performed in these
+collisions: such a study is the main topic covered in this paper. The investigation of mass dependent effects as expected within a hydrodynamic 
+evolution scenario requires the measurement of several particle species such as the ones presented here and relies on the excellent particle identification capabilities provided by the ALICE detector.
+
+While similarities in the production of light-flavor hadrons between p-Pb and Pb--Pb collisions at comparable event multiplicities have been discussed previously~\cite{Abelev:2013haa,Adam:2015vsf}, the measurements presented here allow a unique comparison of the observables with several QCD-inspired event generators such as PYTHIA~\cite{Skands:2014pea} and EPOS~\cite{Pierog:2013ria}. Traditionally, bulk particle production in heavy-ion collisions is described on the basis of equilibrium many-body theories such as hydro- and thermodynamics (see for instance \cite{deSouza:2015ena,Andronic:2017pug} and references therein). The continuous transition of light-flavor hadron measurements from pp to p-Pb and Pb--Pb collisions as a function of event multiplicity thus links the dynamic production of particles in individual 2$\rightarrow$2 QCD parton-parton scattering processes and subsequent hadronization as an underlying equilibration mechanism to a thermodynamic description of the system.
+
+In a recent letter \cite{Adam:2016emw}, the ALICE Collaboration reported the multiplicity dependent enhancement of strange (\kzero, $\lmb$ and $\almb$) and multi-strange (\X, \Om, \Ix\ and \Mo) particle production in pp collisions at  \s\ = 7 TeV. In this paper, those results are complemented by the measurement of  \pipm, \kapm, \p, \pbar, K*(892)$^{0}$, and $\phi$(1020), as well as by an extended discussion on \pt-differential and \pt-integrated particle ratios and model comparisons. For the sake of brevity, in this work, ($\pi^{+}+\pi^{-}$) and ($\mathrm{K}^{+}+\mathrm{K}^{-}$) will be denoted by \pipm and \kapm, while \p\ refers to 
+(\p+\pbar) unless otherwise stated. In addition, ($\Xi^{-}+\overline{\Xi}^{+}$) and ($\Omega^{-}+\overline{\Omega}^{+}$) will be denoted by $\Xi$ and $\Omega$, while \lmb\ refers solely to the particle and not the antiparticle unless otherwise stated. 
+Finally, (K*(892)$^{0}$+$\overline{\rm{K}^{*}(892)}^{0}$) and $\phi$(1020) will be denoted simply by \kstar\ and $\phi$ throughout this document. 
+The paper is organized as follows. In section~\ref{secAnalysis}, the details of the analysis techniques and of the event classification are described. The results are given in section~\ref{secResults} in which the transverse momentum spectra as well as the extraction of the \pt-integrated yields and average transverse momenta are presented. Detailed model comparisons and an interpretation of the results are presented and discussed in section~\ref{secDiscussion}.
+
+
+
+
+% ------------------------
+% Analysis
+% ------------------------
+\section{\label{secAnalysis}Analysis}
+
+For this analysis, data collected by ALICE in the LHC pp run of the year 2010 are used. In total, the analysis is based on up to 281 million minimum-bias events, corresponding to an integrated luminosity of 4.5~nb$^{-1}$. 
+A detailed description of the ALICE apparatus and of its performance can be found in \cite{Aamodt:2008zz,Abelev:2014ffa}. The main subdetectors used in this analysis are the Inner Tracking System (ITS)~\cite{its,Aamodt:2010aa}, the Time Projection Chamber (TPC)~\cite{Alme:2010ke}, the Time-Of-Flight detector (TOF)~\cite{Akindinov2013},  and the V0 scintillator hodoscopes~\cite{1748-0221-8-10-P10016}. 
+All tracking detectors are positioned inside a magnetic field $B$~=~0.5~T. 
+
+The innermost barrel detector is the ITS, consisting of six cylindrical layers of high-resolution silicon tracking detectors using three different technologies. The two innermost layers are based on silicon pixel technology (SPD) with digital readout. The four outer layers, made of drift (SDD) and strip (SSD) detectors provide analogue readout and thus allow for particle identification via specific energy loss. The ITS, used as a standalone tracker, enables the reconstruction and identification of low momentum particles down to 100~MeV/$c$ that do not reach the TPC.
+
+The TPC is a large cylindrical drift detector of radial and longitudinal dimensions of approximately 85~cm~$< r <$~250~cm and  $-$250~cm~$< z <$~ 250~cm, respectively. As the main tracking device, it thus provides full azimuthal acceptance for tracks in the pseudorapidity region $|\eta| < 0.9$. In addition, it provides particle identification via the measurement of the specific energy loss d$E$/d$x$. At low transverse momenta (\pt\ $\lesssim$ 1.0~\gevc), the d$E$/d$x$ resolution of 5.2\% for a minimum ionizing particle allows a track-by-track identification, while at high transverse momenta (\pt\ $\gtrsim$ 2.0~\gevc) the overlapping energy losses can still be statistically distinguished using a multi-gaussian fit to the d$E$/d$x$ distributions.
+
+Further outwards in radial direction from the beam-pipe and located at a radius of approximately 4~m, the TOF measures the time-of-flight of the particles, providing particle identification over a broad range at intermediate transverse momenta (0.5 $\lesssim$ \pt\ $\lesssim$ 2.7~\gevc). It is a large-area array of multigap resistive plate chambers with an intrinsic time resolution of 50 ps. The total time resolution includes contributions from the start time determination and amounts to about 120~ps in pp collisions. As described in detail in~\cite{Adam:2016ilk}, the start time contribution to the total time resolution improves with increasing number of hits in the TOF in a given event, thus leading to a slight dependence on the event multiplicity and results in a total time resolution of about 100~ps for the highest multiplicities under study. 
+
+The V0 detectors are two scintillator hodoscopes that are located on either side of the interaction region at $z = 3.3$~m and $z$~=~$-0.9$~m, respectively. They cover the pseudorapidity region 2.8~$< \eta <$~5.1 and $-$3.7~$< \eta <$~$-$1.7 in full azimuth and are employed for triggering, background suppression, and event-class determination.
+
+Measurements of unidentified and identified primary particles are reported. Primary particles are defined as
+any hadron with a mean proper lifetime that is of at least 1~cm/$c$ either produced directly in the interaction or emerging from decays of particles with lifetime shorter than 1~cm/$c$ and excluding particles from interactions with the detector material~\cite{ALICE-PUBLIC-2017-005}. The criteria for the selection of primary tracks for \pipm, \kapm, \p\ and \pbar\ as well as for the decay products of K*$^{0}$ and $\phi$ follow the  procedures described in~\cite{Adam:2015qaa}.
+All measurements  are corrected for detector acceptance and  reconstruction efficiency using Monte Carlo events generated 
+with PYTHIA6 Perugia 0 \cite{Sjostrand:2006za,Skands:2010ak} and propagated through the full ALICE geometry with 
+GEANT3 \cite{Geant:1994zzo}. These events are then reconstructed using the same techniques employed in the case of real data. 
+The corresponding detector acceptance and reconstruction efficiencies are found to be multiplicity-independent within 1\%
+and thus the multiplicity-integrated values are used for all event classes to minimize statistical fluctuations. 
+
+
+\input{PidSpectraVsMultLong_EventSelection}
+
+\input{PidSpectraVsMultLong_Unidentified}
+
+\input{PidSpectraVsMultLong_PiKP}
+
+\input{PidSpectraVsMultLong_WeakDecay}
+
+\input{PidSpectraVsMultLong_Resonances}
+
+% ------------------------
+% Results
+% ------------------------
+\input{PidSpectraVsMultLong_extrapolation_SysTable}
+
+\input{PidSpectraVsMultLong_results}
+
+
+% ------------------------
+% Discussion
+% ------------------------
+
+\section{\label{secDiscussion}Discussion}
+
+\input{PidSpectraVsMultLong_discussion_mc}
+
+\input{PidSpectraVsMultLong_discussion_hydro}
+
+\input{PidSpectraVsMultLong_discussion_shm}
+
+% --------------------------------
+% Summary and Conclusion
+% ---------------------------------
+\section{\label{secConclusion} Summary and conclusions}
+
+A comprehensive set of unidentified and identified \pt-differential particle spectra at mid-rapidity has been measured in \pp\ collisions
+ at \seven\ as a function of charged-particle multiplicity, complementing the existing measurements
+in \pPb\ and \PbPb\ collisions and allowing for a comparison of these different collision systems. 
+In \pp\ collisions, all transverse momentum spectra are observed to become harder with progressively 
+larger charged-particle multiplicity density, with the effect being more pronounced for heavier particles. 
+In addition, the modification of spectra with respect to the inclusive measurement follows a different
+pattern for mesons and baryons, except for resonances, which follow baryons at a low-\pt\ of up to approximately 2~\gevc and tend to 
+be modified similarly to mesons above a \pt\ of 2~\gevc. Furthermore, it has been 
+demonstrated that the evolution of the baryon/meson ratios as a function of \avdNdeta\ exhibits
+a universal pattern for all collision systems. This behavior might indicate a common mechanism at work that 
+depends solely on final-state multiplicity density. A similar statement can 
+also be made for integrated particle ratios, which are observed to depend on \avdNdeta\ in approximately the
+same way for any colliding system despite crucial differences in the initial states as well as colliding 
+energies. The simplest interpretation of this similarity is that in both cases the final state is a thermalized 
+system whose volume at hadronization is proportional to the charged-particle multiplicity density. 
+
+In order to test the assertion of equilibration more quantitatively, the Blast-Wave model was employed to check if the 
+hypothesis of kinematic equilibrium can describe \pt-differential particle spectra at low momenta, and a statistical hadronization model 
+employing a strangeness-canonical approach was used to check for chemical equilibrium. In all cases, all particle 
+species except for resonances are 
+described within 10-20\% by these models. It is also interesting to note that, within the
+statistical hadronization model employed here, the correlation volume over which 
+strangeness production is equilibrated extends over approximately 1.35 units of rapidity.
+
+The results are also compared to predictions from event generators, which are only able to describe the
+evolution of \pt-differential particle spectra with \avdNdeta\ if mechanisms such as color reconnection, color ropes or radial flow, as is the
+case for PYTHIA, DIPSY and EPOS-LHC, respectively, were present. 
+To distinguish between these different mechanisms requires more studies, both experimental and theoretical.
+
+%The crucial ability to distinguish between these  
+ %phenomena may require further studies and experimental observables to be measured. 
+
+The multiplicity dependence of 
+relative abundances of identified particles was also compared to several 
+event generators and it was found that no generator is able to fully describe the whole observed dynamics satisfactorily. This comprehensive set of results therefore provides a challenge to 
+the theory community and
+represents an opportunity to study not only \pp\ collisions specifically, but also hadronization at high energies in general. 
+
+%\section*{Appendix} 
+%Leave big tables only to the very end, please 
+
+
+%%%%% acknowledgements
+\newenvironment{acknowledgement}{\relax}{\relax}
+\begin{acknowledgement}
+\section*{Acknowledgements}
+\input{fa_2018-07-21.tex}
+\end{acknowledgement}
+
+%\bibliographystyle{apsrev4-1} 
+\bibliographystyle{utphys} 	
+\bibliography{PidSpectraVsMultLong}
+
+%%%%%%%%% appendix with author list
+\newpage
+\appendix
+
+\newpage
+\section{The ALICE Collaboration}
+\label{app:collab}
+\input{2018-07-12-Alice_Authorlist_2018-Jul-12.tex}
+\end{document}

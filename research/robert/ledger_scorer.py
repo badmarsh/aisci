@@ -121,7 +121,7 @@ def evaluate_claims(claims: list[dict[str, str]], run_dir: Path) -> list[dict[st
         # Claim 1: Lorentz-covariant
         if "lorentz-covariant" in claim_text.lower():
             # Check if symbolic validation pytest passes
-            test_ok = run_pytest("physics/tests/test_boson_paper_analysis.py")
+            test_ok = run_pytest("libs/physics-core/tests/test_boson_paper_analysis.py")
             if test_ok:
                 score = 4
                 reasons.append("Symbolic validation tests passed successfully.")
@@ -149,7 +149,7 @@ def evaluate_claims(claims: list[dict[str, str]], run_dir: Path) -> list[dict[st
 
         # Claim 3: Static limit recovers thermal/Cooper-Frye behavior
         elif "static limit" in claim_text.lower():
-            test_ok = run_pytest("physics/tests/test_boson_paper_analysis.py")
+            test_ok = run_pytest("libs/physics-core/tests/test_boson_paper_analysis.py")
             if test_ok:
                 score = 4
                 reasons.append("Symbolic limit verification passed.")

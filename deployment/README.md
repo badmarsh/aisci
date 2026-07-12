@@ -3,7 +3,6 @@
 This folder contains the Docker Compose stacks, configuration templates, and helper scripts for the local AI infrastructure.
 
 ## Stack Overview
-- `onyx/` - The curated evidence and retrieval (RAG) layer. See `docs/ops/critical-components.md` for current integration status.
 - `deer-flow/` - The orchestration and execution layer for the physics workflow agents.
 - `helper/` - Temporary operational scripts and migration helpers.
 

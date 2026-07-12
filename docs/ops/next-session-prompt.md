@@ -106,41 +106,41 @@ Read first (in this order):
 
 Current state as of 2026-05-17:
 - Physics scripts are ready but blocked on data:
-  - `physics/src/fitting_pipeline.py`        ready; awaiting `physics/data/fit_input.csv`
-  - `physics/src/tsallis_physics_validation.py`  ready; awaiting data
-  - `physics/src/boson_paper_analysis.py`    green (all symbolic sections pass)
-  - `physics/src/sympy_validation_agent.py`  ready
-  - `physics/src/data_loader.py`             ready
-- Virtual environment: `physics/physics_env` — use it for all script runs.
+  - `libs/physics-core/src/fitting_pipeline.py`        ready; awaiting `libs/physics-core/data/fit_input.csv`
+  - `libs/physics-core/src/tsallis_physics_validation.py`  ready; awaiting data
+  - `libs/physics-core/src/boson_paper_analysis.py`    green (all symbolic sections pass)
+  - `libs/physics-core/src/sympy_validation_agent.py`  ready
+  - `libs/physics-core/src/data_loader.py`             ready
+- Virtual environment: `libs/physics-core/.venv` — use it for all script runs.
   It already has matplotlib 3.10.9 installed.
-- Tests in `physics/tests/` — run with `cd physics && pytest` using `physics_env`.
+- Tests in `libs/physics-core/tests/` — run with `cd physics && pytest` using `physics_env`.
 - Science task queue item [B-01] is the primary blocker: Robert must supply the
   per-multiplicity-bin pT spectrum table (bins 21-30 through 126-150) before
   fitting can run. HEPData record `ins1419652` provides only inclusive spectra.
 - Science task [O-02] is open and does not require data: Robert to confirm
   whether U2 ≈ 0.011 ± 0.847 is a known instability at high multiplicity.
 - Science task [O-03] (train and validate fitting pipeline) is defined and
-  ready to execute the moment `physics/data/fit_input.csv` exists.
+  ready to execute the moment `libs/physics-core/data/fit_input.csv` exists.
 
 Step 1 — Data Collection and Preprocessing:
-  If Robert has provided a data table, save it as `physics/data/fit_input.csv`
+  If Robert has provided a data table, save it as `libs/physics-core/data/fit_input.csv`
   following the format spec in `research/robert/archive/data-onboarding.md`.
-  Run `physics/src/data_loader.py` to verify integrity. Clean, normalize, and
+  Run `libs/physics-core/src/data_loader.py` to verify integrity. Clean, normalize, and
   check for missing bins or inconsistent uncertainties. Log outcome to
   `research/robert/runs/YYYY-MM-DD-data-load/README.md`.
 
 Step 2 — Model Training and Validation [O-03]:
   Once `fit_input.csv` exists:
-  1. Activate `physics/physics_env` and run `physics/src/fitting_pipeline.py`.
+  1. Activate `libs/physics-core/.venv` and run `libs/physics-core/src/fitting_pipeline.py`.
   2. Profile execution: time each fitting loop and scipy optimization call;
      save the profile report to `physics/reports/fitting_profile.txt`.
-  3. Run `physics/src/tsallis_physics_validation.py` — verify T, q, n converge
+  3. Run `libs/physics-core/src/tsallis_physics_validation.py` — verify T, q, n converge
      within physical bounds; log chi2/ndf anomalies.
-  4. Run `physics/src/sympy_validation_agent.py` — confirm symbolic derivations
+  4. Run `libs/physics-core/src/sympy_validation_agent.py` — confirm symbolic derivations
      match numerical outputs within floating-point tolerance.
   5. Cross-validate `boson_paper_analysis.py` outputs against reference values
      in `research/robert/evidence-ledger.md`. Flag deviations beyond tolerance.
-  6. Extend `physics/tests/test_fitting_pipeline.py` with:
+  6. Extend `libs/physics-core/tests/test_fitting_pipeline.py` with:
      - Edge-case tests: out-of-bounds parameters, empty dataset inputs.
      - Regression tests: assert chi2/ndf, T, U, n per bin are reproducible.
   7. Save all artifacts (chi2/ndf, covariance, residuals, plots) to
@@ -178,7 +178,7 @@ Hard constraints:
 - Do not interpret fit parameters physically until chi2/ndf, covariance,
   correlations, residuals, fit-range sensitivity, and baseline comparisons exist.
 - Keep platform details (Onyx, DeerFlow, Docker) out of science files.
-- Put temporary helper scripts in `deployment/helper/`, not in `physics/src/`.
+- Put temporary helper scripts in `deployment/helper/`, not in `libs/physics-core/src/`.
 - Do not create empty placeholder run files.
 - Preserve unrelated user changes in the working tree.
 

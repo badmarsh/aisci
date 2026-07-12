@@ -9,7 +9,7 @@ The scientific analysis is blocked by the need for full $p_T$ data tables matchi
 `21-30, 31-40, 41-50, 51-60, 61-70, 71-80, 81-90, 91-100, 101-125, 126-150`.
 
 ## Where to Put Data
-Save all new data files in: `physics/data/`
+Save all new data files in: `libs/physics-core/data/`
 
 ## Expected Format (CSV Preferred)
 
@@ -17,7 +17,7 @@ Save all new data files in: `physics/data/`
 |---|---|---|---|---|---|
 | 21-30 | 21-30 | 0.15 | 1.23e-01 | 0.01e-01 | 0.05e-01 |
 
-*If data is in a different format (JSON, Excel, or raw text), save it to `physics/data/raw/` and note it in `evidence-ledger.md`.*
+*If data is in a different format (JSON, Excel, or raw text), save it to `libs/physics-core/data/raw/` and note it in `evidence-ledger.md`.*
 
 ## How to Validate the Upload
 

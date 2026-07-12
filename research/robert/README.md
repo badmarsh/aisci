@@ -20,4 +20,4 @@ Current local checks are treated as sanity checks until they are tied to exact m
 - `runs/` - dated, reproducible analysis runs.
 
 ## Canonical Scripts
-- **boson_paper_analysis.py**: The canonical analysis script is located at `physics/src/boson_paper_analysis.py`.
+- **boson_paper_analysis.py**: The canonical analysis script is located at `libs/physics-core/src/boson_paper_analysis.py`.

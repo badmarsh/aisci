@@ -17,7 +17,7 @@ Use this table as the source of truth for scientific claim status. Do not promot
 | Bíró/Paić/Serkin two-component soft/hard baseline matches our model decomposition                                                              | DOI 10.48550/arxiv.2510.09692 \cite{Biro:2025clt}; ALICE pp 2.76–13 TeV pT decomposition; figure-level chi2/ndf and shape parameter comparison against our 3-component fit | **Scite check 2026-04-30**: arXiv Oct 2025 (pre-journal); Scite tally = 0 incoming Smart Citations (paper too recent; `contentDenied` = full text not indexed). Abstract-confirmed claims: (1) Boltzmann fit describes soft component at √s = 2.76, 5.02, 13 TeV ALICE pp; (2) residual hard spectra show **no evolution in shape or peak position with multiplicity**; (3) mean pT for both soft and hard components **remains nearly constant across multiplicity classes**; (4) Pythia 8 MC confirms both trends; (5) authors explicitly frame result as "robust alternative to hydrodynamical interpretations". Third author confirmed: Leonid Serkin. Paper cites Trainor TCM lineage and supports `10.1016/j.physletb.2024.138937` in its methods section.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Sanity checked                                                                                                   | (1) Obtain digitised figure data (Figs. 2–4) for direct shape comparison; (2) compute chi2/ndf of Boltzmann soft fit vs our Jüttner soft component per multiplicity bin; (3) check whether their multiplicity-independence result survives at the highest bins (101–125, 126–150) where our fit shows largest parameter uncertainties |
 | BGBW freeze-out temperature and flow velocity in ALICE pp multiplicity classes                                                                 | DOI 10.1140/epja/i2019-12669-6 (Khuntia+2019) and DOI 10.1088/1361-6471/ab783b (Rath+2020)                                                             | Literature retrieved via Scite 2026-04-29. **2026-06-14 Update**: Ran `blast_wave/1c` baseline fit across 10 multiplicity classes. Extracted values perfectly match expected literature trends: at low multiplicity (21-30), $T_{kin} = 132$ MeV and $\langle \beta \rangle = 0.31$. At high multiplicity (126-150), $T_{kin} = 87$ MeV and $\langle \beta \rangle = 0.66$. $T_{kin}$ decreases and flow velocity increases in denser systems.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Validated                                                                                                             | N/A                                                                                                                                                                                                                                                 |
 | Boltzmann/Jüttner approximation is valid for pT > 120 MeV at LHC temperatures; $y \approx \eta$ approximation valid for pions above pT~0.5 GeV | Literature consensus; DOI 10.3390/universe9020111 (Gupta+2023); AIS-62 eta→y conversion                                                                | Explicit statement: "B-E and F-D tend to Maxwell-Boltzmann at high T". **AIS-60/62 (2026-06-03):** S2 bulk search finds 13 papers integrating Tsallis over pseudorapidity — these fit dN/dη distributions (a different observable, not requiring Jacobian). Papers fitting dN/dpT dy with η acceptance (our case) apply the conversion. y_max=arcsinh(sinh(η_max)·pT/mT): at pT=0.5 GeV, $\eta_{max}=1.0$ → $y_{max} \approx 0.940$ (~6% correction); at pT=1.0 GeV → $y_{max} \approx 0.985$ (<2%); correction negligible above pT~1 GeV. **2026-06-20 Update**: Fit-range sensitivity scan removing low-pT data up to $p_T > 0.50$ GeV shows extreme sensitivity, with 9/10 bins being FIT-RANGE-DEPENDENT at >7 sigma significance. The $p_T > 0.12$ GeV cutoff is NOT robust. | Tension | Resolve T-beta degeneracy to determine if parameters are stable. |
-| Exact analytical integration of a moving Tsallis source over pseudorapidity | An exact mathematical derivation of $\frac{d^2N}{dp_T d\eta}$ for a non-extensive Tsallis distribution with collective flow | **2026-07-11 SymPy Proof**: SymPy validation complete. The integral diverges without a Taylor expansion, confirming no closed-form analytical solution exists (`physics/src/tsallis_exact_integration.py`). This definitively proves the theoretical gap in the literature. | Validated | N/A |
+| Exact analytical integration of a moving Tsallis source over pseudorapidity | An exact mathematical derivation of $\frac{d^2N}{dp_T d\eta}$ for a non-extensive Tsallis distribution with collective flow | **2026-07-11 SymPy Proof**: SymPy validation complete. The integral diverges without a Taylor expansion, confirming no closed-form analytical solution exists (`libs/physics-core/src/tsallis_exact_integration.py`). This definitively proves the theoretical gap in the literature. | Validated | N/A |
 | 3-component parameterization is mathematically degenerate and Boltzmann approx fails | Fisher Information matrix eigenvalues and exact fractional error calculation vs Bose-Einstein | **2026-07-11 Mathematical Proof**: Exact fractional error analysis shows `(Boltz - BE)/BE = -exp(-E/T)`. At low pT (~100 MeV) for the high-multiplicity thermal component (kT3 ~ 1000 MeV), the Boltzmann approximation causes an 84.2% underestimation of the yield. Furthermore, the 3-component model causes a rank deficiency in the Fisher Information matrix at low radial velocities, resulting in infinite parameter uncertainties. The fit pipeline has been restricted to 2-component exact Bose-Einstein models exclusively. | Validated | N/A |
 ---
 
@@ -101,12 +101,12 @@ Use this table as the source of truth for scientific claim status. Do not promot
 **Manuscript finding**: The kinematic Jacobian `dy/dη = p/(mT cosh η)` is absent from the manuscript. The only Jacobian mentioned (`J = p`) is the 3-momentum space Jacobian for spherical coordinate volume elements.
 
 **Data observable confirmation (2026-06-20)**:
-- HEPData ins1735345 metadata (`physics/data/fit_input_ins1735345_meta.json`): `"eta_range": "-0.8-0.8"`.
+- HEPData ins1735345 metadata (`libs/physics-core/data/fit_input_ins1735345_meta.json`): `"eta_range": "-0.8-0.8"`.
 - Paper is **ALICE** arXiv:1905.07208 — "Charged-particle production as a function of multiplicity and transverse spherocity in pp collisions at √s = 5.02 and 13 TeV".
 - ALICE measures the invariant yield as `(1/2π pT) d²N_ch/(dpT dη)` — **pseudorapidity** (dη), NOT rapidity (dy).
 - `extract_ins1735345.py` hardcodes `"eta_range": "-0.8-0.8"` (line 193) from ALICE detector acceptance |η| < 0.8.
 
-**Quantified impact** (from `physics/tests/test_jacobian.py`, 2026-06-20):
+**Quantified impact** (from `libs/physics-core/tests/test_jacobian.py`, 2026-06-20):
 - At pT = 0.175 GeV (lowest bin center): `dy/dη = 0.782` → **22% correction**
 - At pT = 0.50 GeV: `dy/dη ≈ 0.94` → 6% correction
 - At pT = 1.00 GeV: `dy/dη ≈ 0.985` → <2% correction (negligible)
@@ -224,7 +224,7 @@ From covariance matrices in `covariance/*__blast_wave__1c.csv`:
 
 > Run dir: `research/robert/runs/2026-07-08-bgbw-per-class/`
 > Data: HEPData ins1735345 — pp 13 TeV, SPD-tracklets estimator, |η| < 0.8, 10 multiplicity classes
-> Script: `physics/src/bgbw_fit.py --cov-mode diag`
+> Script: `libs/physics-core/src/bgbw_fit.py --cov-mode diag`
 > Model: Boltzmann-Gibbs Blast-Wave (SSH 1993, nucl-th/9307020)
 > Status: **Substitute-baseline** (pending C1, C2, C3 resolution — see issue #27)
 
@@ -259,21 +259,21 @@ From covariance matrices in `covariance/*__blast_wave__1c.csv`:
 **C1 — Estimator mismatch (OPEN — blocked)**
 - Source: ins1735345 uses SPD-tracklets (|η| < 0.8), not the manuscript Nch.
 - Impact: Rising T_kin trend is partially an estimator artifact.
-- Scaffold: `physics/src/nch_response_matrix.py` (identity placeholder).
+- Scaffold: `libs/physics-core/src/nch_response_matrix.py` (identity placeholder).
 - Unblock: obtain V0M or CL1 dataset + real R matrix from ALICE.
 - Acceptance run: `research/robert/runs/2026-07-08-bgbw-estimator-crosscheck/`
 
 **C2 — Pion-mass assumption (PARTIAL — mass-bias estimate done)**
 - Source: `bgbw_fit.py` uses m = m_π for unidentified hadrons.
 - Impact: Biases T_kin low and ⟨β⟩ high (K/p high-pT tails under-weighted).
-- Scaffold: `physics/src/bgbw_identified_fit.py` (level-2 fallback: mass-varied refit).
+- Scaffold: `libs/physics-core/src/bgbw_identified_fit.py` (level-2 fallback: mass-varied refit).
 - Run dir: `research/robert/runs/2026-07-08-bgbw-identified-species/`
 - Full resolution: obtain ins1682316 (ALICE pp 7 TeV π/K/p) and run level-1.
 
 **C3 — Missing covariance (PARTIAL — GLS scaffold done)**
 - Source: ins1735345 publishes stat + sys in quadrature; full Σ unavailable.
 - Impact: χ²/ndf values are shape-quality proxies only (diagonal weighting).
-- Scaffold: `physics/src/bgbw_covariance.py` — `build_covariance(pt, stat, sys, xi)`.
+- Scaffold: `libs/physics-core/src/bgbw_covariance.py` — `build_covariance(pt, stat, sys, xi)`.
 - Smoke test: PSD ✓ across ξ ∈ {0.1, 0.3, 1.0, 3.0}.
 - Wired: `--cov-mode correlated` in `bgbw_fit.py` reports GLS χ²/ndf envelope.
 - True closure: ALICE publishes covariance → re-run with real Σ.
@@ -317,17 +317,17 @@ Related: issue #27, issue #26 (RAG corpus gap)
 ### [O-14] Phase Space Jacobian Proof
 - **Action**: Used SymPy to calculate the determinant of the Jacobian matrix for the coordinate transformation from Cartesian $(p_x, p_y, p_z)$ to cylindrical $(p_T, \phi, p_z)$ as used on Page 2 of the manuscript.
 - **Finding**: The determinant is exactly $p_T$. The manuscript correctly denotes this as $p$ when establishing the integral boundaries.
-- **Conclusion**: The phase space integration volume element $d^3p = p_T dp_T d\phi dp_z$ is mathematically correct. The proof is persisted in `physics/src/jacobian_proof.py`.
+- **Conclusion**: The phase space integration volume element $d^3p = p_T dp_T d\phi dp_z$ is mathematically correct. The proof is persisted in `libs/physics-core/src/jacobian_proof.py`.
 
 ### [O-15] Bose-Einstein vs Boltzmann Limit Proof (Resolves O-07)
 - **Action**: Used SymPy to calculate the fractional error of the Boltzmann approximation `exp(-E/T)` relative to the true Bose-Einstein distribution `1/(exp(E/T) - 1)`.
 - **Finding**: The fractional error is exactly `-exp(-E/T)`. At $p_T = 100$ MeV for the $T \approx 1000$ MeV high-multiplicity component, the Boltzmann limit causes an 84.2% underestimation.
-- **Conclusion**: The manuscript's core equation is physically invalid for high-temperature fits. The pipeline must switch to the exact Bose-Einstein model. The proof is persisted in `physics/src/be_vs_boltzmann_limit.py`.
+- **Conclusion**: The manuscript's core equation is physically invalid for high-temperature fits. The pipeline must switch to the exact Bose-Einstein model. The proof is persisted in `libs/physics-core/src/be_vs_boltzmann_limit.py`.
 
 ### [O-16] Model Over-parameterization Check (Fisher Information)
 - **Action**: Used SymPy to compute the gradients of the model components to check for linear independence.
 - **Finding**: The first derivative with respect to velocity $\partial f / \partial U$ is exactly $0$ at $U = 0$. This means the Fisher Information Matrix determinant approaches $0$ as $U \to 0$.
-- **Conclusion**: The 3-component model is degenerate (over-parameterized) for components with small radial velocities. The parameter $U$ strongly correlates with $T$, fundamentally explaining why the fitting algorithms fail to converge with bounded uncertainties for the static or near-static components. The proof is persisted in `physics/src/fisher_information.py`.
+- **Conclusion**: The 3-component model is degenerate (over-parameterized) for components with small radial velocities. The parameter $U$ strongly correlates with $T$, fundamentally explaining why the fitting algorithms fail to converge with bounded uncertainties for the static or near-static components. The proof is persisted in `libs/physics-core/src/fisher_information.py`.
 
 ---
 

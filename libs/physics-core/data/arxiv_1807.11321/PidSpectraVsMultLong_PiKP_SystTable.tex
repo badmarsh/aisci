@@ -1,0 +1,61 @@
+\begin{table*}[ph!]
+  \begin{tabularx}{\textwidth}{p{5.3cm}*{3}{Y}*{3}{Y}*{3}{Y}}
+\hline\hline
+    &  \multicolumn{9}{c}{Uncertainty (\%)} \\
+    {\bf Common source}  & \multicolumn{3}{c}{\pipm} & \multicolumn{3}{c}{\kapm} & \multicolumn{3}{c}{\p\ (\pbar)} \\ 
+\hline
+    \pt\ (\GeVc)   &   0.1 & 3.0 & 20.0   &   0.2 & 2.5 & 20.0 &   0.3 & 4.0 & 20.0   \\
+    \cmidrule(l{5pt}){2-4} \cmidrule(l{5pt}){5-7} \cmidrule(l{5pt}){8-10} 
+%%% Common Uncertainties 
+% Not obvious: would we prefer quoting only 2 and not 3 pt ranges here? 
+% --- it might depend on the pT dendence of these systematics 
+    Correction for secondaries & 1  & 1 & 1 & \multicolumn{3}{c}{negl.} & 4 & 1 & 1 \\
+    Material budget & 5 & \multicolumn{2}{c}{negl.} & 2 & \multicolumn{2}{c}{negl.} & 4 & \multicolumn{2}{c}{negl.} \\
+    Hadronic interactions & 2 & 1 & 1 & 3 & 1 & 1 & 4(6) & 1(1) & 1(1) \\
+    Global tracking efficiency \newline (incl. track cut variation) & \multicolumn{3}{c}{\multirow{2}{*}{4}} & \multicolumn{3}{c}{\multirow{2}{*}{4}} & \multicolumn{3}{c}{\multirow{2}{*}{4}} \\
+    TOF matching efficiency \newline (Bayes.,TPC-TOF,TPC-TOF fits) & \multicolumn{3}{c}{\multirow{2}{*}{3}} & \multicolumn{3}{c}{\multirow{2}{*}{6}} & \multicolumn{3}{c}{\multirow{2}{*}{4}} \\
+\hline
+    {\bf Specific source} & \multicolumn{3}{c}{\pipm} & \multicolumn{3}{c}{\kapm} & \multicolumn{3}{c}{\p\ (\pbar)} \\ 
+\hline
+%%% ITS Standalone Analysis Uncertainties 
+    \pt\ (\GeVc)   &   0.1 & & 0.6   &   0.2 & & 0.6 &   0.3 & & 0.6   \\
+    \cmidrule(l{5pt}){2-4} \cmidrule(l{5pt}){5-7} \cmidrule(l{5pt}){8-10} 
+    ITSsa tracking efficiency & 3 &  & 3 & 3 &  & 3 & 3 &  & 3  \\ 
+    $E \times B$ effect & \multicolumn{9}{c}{3} \\
+    ITS PID & 5 & & 1 & 5 & & 9 & 8 & & 6 \\ 
+\hline\hline
+
+    \pt\ (\GeVc)   &   0.2 &  & 2.5   &   0.3 & & 2.5  &   0.5 & & 2.5    \\
+    \cmidrule(l{5pt}){2-4} \cmidrule(l{5pt}){5-7} \cmidrule(l{5pt}){8-10} 
+    Bayesian PID  & \multicolumn{3}{c}{1} & 1 & & 3 & 1 & & 2 \\   %\multicolumn{3}{c}{1.5\%} & \multicolumn{3}{c}{3.5\%} & \multicolumn{3}{c}{2.5\%} \\
+\hline\hline
+    
+    \pt\ (\GeVc)   &   0.25 &  & 1.2   &   0.3 & & 1.2  &   0.45 & & 2.0    \\
+    \cmidrule(l{5pt}){2-4} \cmidrule(l{5pt}){5-7} \cmidrule(l{5pt}){8-10} 
+    TPC-TOF PID & \multicolumn{3}{c}{1} & 1 & & 5 & \multicolumn{3}{c}{1} \\
+\hline\hline
+    
+    \pt\ (\GeVc)   &   0.25 &  & 2.5   &   0.3 & & 2.5  &   0.45 & & 2.7    \\
+    \cmidrule(l{5pt}){2-4} \cmidrule(l{5pt}){5-7} \cmidrule(l{5pt}){8-10} 
+    TPC-TOF fits PID  & 1 & & 5 & 1 & & 10 & 1 & & 8 \\
+\hline\hline
+    
+    \pt\ (\GeVc)   &  2.0 &  & 20.0   &   2.0 & & 20.0  &   2.0 & & 20.0    \\
+    \cmidrule(l{5pt}){2-4} \cmidrule(l{5pt}){5-7} \cmidrule(l{5pt}){8-10} 
+    TPC template fits PID & 4 & & 6 & 10 & & 12  & 8 & & 13 \\
+\hline\hline
+   
+
+   {\bf Total}  & \multicolumn{3}{c}{\pipm} & \multicolumn{3}{c}{\kapm} & \multicolumn{3}{c}{\p\ (\pbar)} \\ 
+\hline
+    \pt\ (\GeVc)   &   0.1 & 3.0 & 20.0   &   0.2 & 2.5 & 20.0 &   0.3 & 4.0 & 20.0   \\
+    \cmidrule(l{5pt}){2-4} \cmidrule(l{5pt}){5-7} \cmidrule(l{5pt}){8-10} 
+    Total & 8.4 & 5.0 & 7.2 & 7.5 & 6.6 & 12.6 & 12.3 & 15.1 & 13.3 \\
+    Total ($N_{ch}$-independent) & 8.1 & 4.4 & 6.9 & 6.7 & 6.1 & 12.2 & 10.5 & 13.5 & 11.5\\
+    \bottomrule
+  \end{tabularx}
+  ~\newline
+    \caption{Main sources and values of the relative systematic uncertainties of the \pt-differential yields of \pipm, \kapm\ and \p (\pbar). The values are reported for low, intermediate and high \pt. The contributions that act differently in the various event classes are removed from the Total (quadratic sum of all contributions), defining the $N_{ch}$-independent ones, which are correlated across different multiplicity intervals. The contribution from the global tracking efficiency is common to all analyses except for the ITS stand-alone (ITSsa). 
+}
+  \label{tab:syspikp}  
+\end{table*}

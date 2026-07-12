@@ -28,7 +28,7 @@ This document records the actual local deployment shape. For current operational
 | `deployment/onyx/Dockerfile.backend` | Live custom backend build layer | Referenced by `api_server` and `background` in compose; do not delete without replacing those build references |
 | `deployment/onyx/Dockerfile.python-webdeps` | Local Python web-dependency image layer | Builds `onyx-python-webdeps:3.11` for `auth_proxy` and `image_bridge`; rebuild is blocked until Docker buildx/DNS are healthy |
 | `deployment/helper/sitecustomize.py` | Runtime compatibility shim | Injected into model-server containers via `PYTHONPATH` for Transformers 5 / Qwen2 embedding compatibility |
-| `deployment/data/nginx/` | Live runtime mount for the main Onyx nginx service | `nginx` mounts `../data/nginx` and copies those templates into `/etc/nginx/conf.d/` at container start |
+| `deployment/nginx/` | Live runtime mount for the main Onyx nginx service | `nginx` mounts `../data/nginx` and copies those templates into `/etc/nginx/conf.d/` at container start |
 | `deployment/onyx/nginx_configs/mcp_proxy.conf.template` | Live MCP proxy template | Mounted by the `mcp_proxy` service; secret-free and env-driven |
 | `deployment/onyx/nginx_mcp_proxy.conf` | Standalone reference copy | Not mounted by current compose; keep only as a documented manual/static example |
 | `mcp_config.yaml` | Repo-local MCP client reference | Not auto-loaded by Onyx compose; documents a project-level client-facing MCP layout and should stay secret-free |

@@ -8,7 +8,7 @@
 
 | Item | Value |
 |---|---|
-| Data file | `physics/data/fit_input_ins1735345.csv` |
+| Data file | `libs/physics-core/data/fit_input_ins1735345.csv` |
 | HEPData record | `ins1735345` (Table 1, DOI `10.17182/hepdata.91996.v2/t1`) |
 | Multiplicity bins | 21-30, 31-40, 41-50, 51-60, 61-70, 71-80, 81-90, 91-100, 101-125, 126-150 |
 | pT gate | 120–5000 MeV |

@@ -8,7 +8,7 @@ def main():
     os.makedirs(run_dir, exist_ok=True)
     
     # Load data
-    data_path = "physics/data/fit_input.csv"
+    data_path = "libs/physics-core/data/fit_input.csv"
     df = pd.read_csv(data_path)
     
     # Filter for Table 1 (Pion) and a specific bin, e.g., '21-30'

@@ -48,7 +48,7 @@ except ImportError:
 # ────────────────────────────────────────────────────
 # Configuration
 # ────────────────────────────────────────────────────
-DATA_CSV = BASE_DIR / "physics/data/fit_input_ins1735345.csv"
+DATA_CSV = BASE_DIR / "libs/physics-core/data/fit_input_ins1735345.csv"
 RUN_DIR  = BASE_DIR / "research/robert/runs/2026-05-31-o03-tsallis-bgbw-fit"
 
 # Manuscript acceptance and mass

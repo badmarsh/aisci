@@ -4,9 +4,9 @@
 Advance the AiSci project by running core physics validation scripts and capturing the current status of the symbolic and numerical layers.
 
 ## Artifacts
-- \`boson_analysis.log\`: Output of \`physics/src/boson_paper_analysis.py\`
-- \`sympy_validation.log\`: Output of \`physics/src/sympy_validation_agent.py\`
-- \`tsallis_validation.log\`: Output of \`physics/src/tsallis_physics_validation.py\`
+- \`boson_analysis.log\`: Output of \`libs/physics-core/src/boson_paper_analysis.py\`
+- \`sympy_validation.log\`: Output of \`libs/physics-core/src/sympy_validation_agent.py\`
+- \`tsallis_validation.log\`: Output of \`libs/physics-core/src/tsallis_physics_validation.py\`
 
 ## Summary of Findings
 - **Symbolic Layer**: All sanity checks passed for Lorentz covariance, eta integration, and U-parameterization.

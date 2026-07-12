@@ -33,7 +33,7 @@ from scipy.special import ive, kve
 # Paths
 # ---------------------------------------------------------------------------
 REPO_ROOT = "/home/ubuntu/aisci"
-DATA_PATH = os.path.join(REPO_ROOT, "physics/data/fit_input.csv")
+DATA_PATH = os.path.join(REPO_ROOT, "libs/physics-core/data/fit_input.csv")
 OUT_PATH  = os.path.join(REPO_ROOT, "research/robert/runs/2026-06-20-phd-level-fits/fit_range_sensitivity.csv")
 
 MASS_PION_GEV = 0.13957  # charged pion

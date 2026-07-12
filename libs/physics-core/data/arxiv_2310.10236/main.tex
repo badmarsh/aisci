@@ -1,0 +1,100 @@
+\documentclass[ALICE,manyauthors]{cernphprep}
+\usepackage[comma,square,numbers,sort&compress]{natbib}
+\usepackage{hyperref}
+\usepackage{lineno}
+\usepackage{xspace}
+\usepackage{color,soul}
+\usepackage{comment}
+\usepackage{scalerel}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{booktabs, multirow}
+%\usepackage{geometry}
+\usepackage{adjustbox}
+\usepackage{rotating}
+\usepackage[T1]{fontenc}
+\usepackage{orcidlink}
+
+%\linenumbers
+
+\begin{document}
+\input{commands.tex}
+
+%%%%%%%%%%%%%%%  Title page %%%%%%%%%%%%%%%%%%%%%%%%
+\begin{titlepage}
+% the dates below correspond to CERN approval
+% please don't touch: EB chairs will take care
+\PHyear{2023}       % required, will be obtained from CERN
+\PHnumber{215}      % required, will be obtained from CERN
+\PHdate{27 September}  % required, will be obtained from CERN
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Put your own title + short title here:
+\title{Light-flavor particle production in high-multiplicity pp collisions at $\mathbf{\sqrt{\textit{s}} = 13}$ \TeV as a function of transverse spherocity}
+\ShortTitle{Particle production in pp at \s = 13 \TeV vs. transverse spherocity}   % appears on left page headers
+
+%%% Do not change the next lines
+\Collaboration{ALICE Collaboration\thanks{See Appendix~\ref{app:collab} for the list of collaboration members}}
+\ShortAuthor{ALICE Collaboration} % appears on right page headers, do not change
+
+\begin{abstract}
+Results on the transverse spherocity dependence of light-flavor particle production ($\pi$, K, p, $\phi$, ${\rm K^{*0}}$, ${\rm K}^{0}_{\rm{S}}$, $\Lambda$, $\Xi$) at midrapidity in high-multiplicity pp collisions at $\sqrt{s} = 13$~TeV were obtained with the ALICE apparatus. The transverse spherocity estimator (\SOPT) categorizes events by their azimuthal topology. Utilizing narrow selections on \SOPT, it is possible to contrast particle production in collisions dominated by many soft initial interactions with that observed in collisions dominated by one or more hard scatterings. 
+Results are reported for two multiplicity estimators covering different pseudorapidity regions.  The \SOPT estimator is found to effectively constrain the hardness of the events when the midrapidity ($\left | \eta \right |< 0.8$) estimator is used. 
+
+The production rates of strange particles are found to be slightly higher for soft isotropic topologies, and severely suppressed in hard jet-like topologies. These effects are more pronounced for hadrons with larger mass and strangeness content, and observed when the topological selection is done within a narrow multiplicity interval. This demonstrates that an important aspect of the universal scaling of strangeness enhancement with final-state multiplicity is that high-multiplicity collisions are dominated by soft, isotropic processes. On the contrary, strangeness production in events with jet-like processes is significantly reduced.
+
+The results presented in this article are compared with several QCD-inspired Monte Carlo event generators. Models that incorporate a two-component phenomenology, either through mechanisms accounting for string density, or thermal production, are able to describe the observed strangeness enhancement as a function of \SOPT. 
+
+\end{abstract}
+\end{titlepage}
+
+\setcounter{page}{2} %please do not remove this line
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% begin main text
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{TeX_Chapters/Introduction} 
+\input{TeX_Chapters/ALICE_v2} 
+\input{TeX_Chapters/Multiplicity_v2} 
+\input{TeX_Chapters/SOPT_v2}
+\input{TeX_Chapters/PID}
+\input{TeX_Chapters/Results_IntroAndMult_v3}
+\input{TeX_Chapters/Results_Spectra_V3}
+\input{TeX_Chapters/Results_Ratios_V2}
+\input{TeX_Chapters/Results_Integrated_V2}
+\input{TeX_Chapters/Results_ExpandMult_V2}
+\input{TeX_Chapters/Summary_and_Conclusions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% end main text 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%% acknowledgements - handled by EB chairs 
+\newenvironment{acknowledgement}{\relax}{\relax}
+\begin{acknowledgement}
+\section*{Acknowledgements}
+% add specific acknowledgements here 
+% ...but please don't remove the line below: funding agencies
+% will be acknowledged with a custom tex file handled by EB chairs after Collab Round 2
+\input{fa_2023-08-09_Opt_C.tex}
+\end{acknowledgement}
+
+%%%%%%%% Bibliography 
+\bibliographystyle{utphys}   % Remember we use title in the biblio
+\bibliography{bibliography}
+%\input {bibliography.tex}  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Appendices: yours (if any) + authorlist
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+
+%
+%\input{} % put your appendices here (if any)
+%
+
+%%%%% Authorlist - please do not touch: handled by EB chairs 
+\section{The ALICE Collaboration}
+\label{app:collab}
+\input{2023-08-09-Alice_Authorlist_2023-08-09_Opt_C.tex}
+\end{document}

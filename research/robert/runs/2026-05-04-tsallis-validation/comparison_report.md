@@ -3,7 +3,7 @@
 # Run: 2026-05-04-tsallis-validation
 
 ## 1. Run Summary
-- **Script**: `physics/src/tsallis_physics_validation.py`
+- **Script**: `libs/physics-core/src/tsallis_physics_validation.py`
 - **Method**: Synthetic data generation followed by Tsallis-like distribution fitting.
 - **Data**: Synthetic ATLAS-like spectra (13 TeV proxy).
 

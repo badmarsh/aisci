@@ -1,0 +1,23 @@
+{
+  "source_record": "ins1735345",
+  "arxiv": "1905.07208",
+  "paper": "Charged-particle production as a function of multiplicity and transverse spherocity in pp collisions at sqrt(s)=5.02 and 13 TeV",
+  "table": "Table 1",
+  "energy_gev": 13000,
+  "eta_range": "-0.8-0.8",
+  "multiplicity_estimator": "SPD_tracklets",
+  "rows": 470,
+  "bins_matched": [
+    "101-125",
+    "126-150",
+    "21-30",
+    "31-40",
+    "41-50",
+    "51-60",
+    "61-70",
+    "71-80",
+    "81-90",
+    "91-100"
+  ],
+  "output_csv": "/home/ubuntu/aisci/libs/physics-core/data/fit_input_ins1735345.csv"
+}

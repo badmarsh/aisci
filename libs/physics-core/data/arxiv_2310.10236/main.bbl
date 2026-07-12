@@ -1,0 +1,293 @@
+\providecommand{\href}[2]{#2}\begingroup\raggedright\begin{thebibliography}{10}
+
+\bibitem{Naturepaper}
+{\bfseries ALICE} Collaboration, J.~Adam {\em et~al.}, ``{Enhanced production
+  of multi-strange hadrons in high-multiplicity proton-proton collisions}'',
+  \href{http://dx.doi.org/10.1038/nphys4111}{{\em Nature Phys.} {\bfseries 13}
+  (2017) 535--539}, \href{http://arxiv.org/abs/1606.07424}{{\ttfamily
+  arXiv:1606.07424 [nucl-ex]}}.
+
+\bibitem{Ref:Flow1}
+{\bfseries ALICE} Collaboration, B.~Abelev {\em et~al.}, ``{Multiplicity
+  Dependence of Pion, Kaon, Proton and Lambda Production in p-Pb Collisions at
+  $\sqrt{s_{NN}}$ = 5.02 TeV}'',
+  \href{http://dx.doi.org/10.1016/j.physletb.2013.11.020}{{\em Phys. Lett. B}
+  {\bfseries 728} (2014) 25--38},
+  \href{http://arxiv.org/abs/1307.6796}{{\ttfamily arXiv:1307.6796 [nucl-ex]}}.
+
+\bibitem{Ref:Flow2}
+{\bfseries CMS} Collaboration, V.~Khachatryan {\em et~al.}, ``{Evidence for
+  collectivity in pp collisions at the LHC}'',
+  \href{http://dx.doi.org/10.1016/j.physletb.2016.12.009}{{\em Phys. Lett. B}
+  {\bfseries 765} (2017) 193--220},
+  \href{http://arxiv.org/abs/1606.06198}{{\ttfamily arXiv:1606.06198
+  [nucl-ex]}}.
+
+\bibitem{Koch:1986ud}
+P.~Koch, B.~Muller, and J.~Rafelski, ``{Strangeness in Relativistic Heavy Ion
+  Collisions}'', \href{http://dx.doi.org/10.1016/0370-1573(86)90096-7}{{\em
+  Phys. Rept.} {\bfseries 142} (1986) 167--262}.
+
+\bibitem{Teaney:2000cw}
+D.~Teaney, J.~Lauret, and E.~V. Shuryak, ``{Flow at the SPS and RHIC as a quark
+  gluon plasma signature}'',
+  \href{http://dx.doi.org/10.1103/PhysRevLett.86.4783}{{\em Phys. Rev. Lett.}
+  {\bfseries 86} (2001) 4783--4786},
+  \href{http://arxiv.org/abs/nucl-th/0011058}{{\ttfamily
+  arXiv:nucl-th/0011058}}.
+
+\bibitem{Kurkela:2018xxd}
+A.~Kurkela and A.~Mazeliauskas, ``{Chemical Equilibration in Hadronic
+  Collisions}'', \href{http://dx.doi.org/10.1103/PhysRevLett.122.142301}{{\em
+  Phys. Rev. Lett.} {\bfseries 122} (2019) 142301},
+  \href{http://arxiv.org/abs/1811.03040}{{\ttfamily arXiv:1811.03040
+  [hep-ph]}}.
+
+\bibitem{Sjostrand:2007gs}
+T.~Sjostrand, S.~Mrenna, and P.~Z. Skands, ``{A Brief Introduction to PYTHIA
+  8.1}'', \href{http://dx.doi.org/10.1016/j.cpc.2008.01.036}{{\em Comput. Phys.
+  Commun.} {\bfseries 178} (2008) 852--867},
+  \href{http://arxiv.org/abs/0710.3820}{{\ttfamily arXiv:0710.3820 [hep-ph]}}.
+
+\bibitem{Herwig}
+J.~Bellm {\em et~al.}, ``{Herwig 7.2 release note}'',
+  \href{http://dx.doi.org/10.1140/epjc/s10052-020-8011-x}{{\em Eur. Phys. J. C}
+  {\bfseries 80} (2020) 452}, \href{http://arxiv.org/abs/1912.06509}{{\ttfamily
+  arXiv:1912.06509 [hep-ph]}}.
+
+\bibitem{Torbjorn}
+T.~Sj\"ostrand, ``{Collective Effects: the viewpoint of HEP MC codes}'',
+  \href{http://dx.doi.org/10.1016/j.nuclphysa.2018.11.010}{{\em Nucl. Phys. A}
+  {\bfseries 982} (2019) 43--49},
+  \href{http://arxiv.org/abs/1808.03117}{{\ttfamily arXiv:1808.03117
+  [hep-ph]}}.
+
+\bibitem{alice_newstrangeness}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{Multiplicity
+  dependence of (multi-)strange hadron production in proton-proton collisions
+  at $\sqrt{s}$ = 13 TeV}'',
+  \href{http://dx.doi.org/10.1140/epjc/s10052-020-7673-8}{{\em Eur. Phys. J. C}
+  {\bfseries 80} (2020) 167}, \href{http://arxiv.org/abs/1908.01861}{{\ttfamily
+  arXiv:1908.01861 [nucl-ex]}}.
+
+\bibitem{ALICE:2020nkc}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{Multiplicity
+  dependence of $\pi $, K, and p production in pp collisions at $\sqrt{s} = 13$
+  TeV}'', \href{http://dx.doi.org/10.1140/epjc/s10052-020-8125-1}{{\em Eur.
+  Phys. J. C} {\bfseries 80} (2020) 693},
+  \href{http://arxiv.org/abs/2003.02394}{{\ttfamily arXiv:2003.02394
+  [nucl-ex]}}.
+
+\bibitem{Ref:SPerc}
+I.~Bautista, A.~F. T\'ellez, and P.~Ghosh, ``{Indication of change of phase in
+  high-multiplicity proton-proton events at LHC in String Percolation Model}'',
+  \href{http://dx.doi.org/10.1103/PhysRevD.92.071504}{{\em Phys. Rev. D}
+  {\bfseries 92} (2015) 071504},
+  \href{http://arxiv.org/abs/1509.02278}{{\ttfamily arXiv:1509.02278
+  [nucl-th]}}.
+
+\bibitem{Ropes}
+C.~Bierlich, G.~Gustafson, L.~L\"onnblad, and A.~Tarasov, ``{Effects of
+  Overlapping Strings in pp Collisions}'',
+  \href{http://dx.doi.org/10.1007/JHEP03(2015)148}{{\em JHEP} {\bfseries 03}
+  (2015) 148}, \href{http://arxiv.org/abs/1412.6259}{{\ttfamily arXiv:1412.6259
+  [hep-ph]}}.
+
+\bibitem{Junctions}
+J.~R. Christiansen and P.~Z. Skands, ``{String Formation Beyond Leading
+  Colour}'', \href{http://dx.doi.org/10.1007/JHEP08(2015)003}{{\em JHEP}
+  {\bfseries 08} (2015) 003}, \href{http://arxiv.org/abs/1505.01681}{{\ttfamily
+  arXiv:1505.01681 [hep-ph]}}.
+
+\bibitem{HerwigStrange}
+S.~Gieseke, P.~Kirchgae\ss{}er, and S.~Pl\"atzer, ``{Baryon production from
+  cluster hadronisation}'',
+  \href{http://dx.doi.org/10.1140/epjc/s10052-018-5585-7}{{\em Eur. Phys. J. C}
+  {\bfseries 78} (2018) 99}, \href{http://arxiv.org/abs/1710.10906}{{\ttfamily
+  arXiv:1710.10906 [hep-ph]}}.
+
+\bibitem{ALICE:2021dhb}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{Charm-quark
+  fragmentation fractions and production cross section at midrapidity in pp
+  collisions at the LHC}'',
+  \href{http://dx.doi.org/10.1103/PhysRevD.105.L011103}{{\em Phys. Rev. D}
+  {\bfseries 105} (2022) L011103},
+  \href{http://arxiv.org/abs/2105.06335}{{\ttfamily arXiv:2105.06335
+  [nucl-ex]}}.
+
+\bibitem{EPOS-LHC}
+T.~Pierog, I.~Karpenko, J.~M. Katzy, E.~Yatsenko, and K.~Werner, ``{EPOS LHC:
+  Test of collective hadronization with data measured at the CERN Large Hadron
+  Collider}'', \href{http://dx.doi.org/10.1103/PhysRevC.92.034906}{{\em Phys.
+  Rev. C} {\bfseries 92} (2015) 034906},
+  \href{http://arxiv.org/abs/1306.0121}{{\ttfamily arXiv:1306.0121 [hep-ph]}}.
+
+\bibitem{13tevvsmultpapers}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{Production of
+  light-flavor hadrons in pp collisions at $\sqrt{s}~=~7\text { and }\sqrt{s} =
+  13 \, \text { TeV} $}'',
+  \href{http://dx.doi.org/10.1140/epjc/s10052-020-08690-5}{{\em Eur. Phys. J.
+  C} {\bfseries 81} (2021) 256},
+  \href{http://arxiv.org/abs/2005.11120}{{\ttfamily arXiv:2005.11120
+  [nucl-ex]}}.
+
+\bibitem{ALICE:2019dfi}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{Charged-particle
+  production as a function of multiplicity and transverse spherocity in pp
+  collisions at $\sqrt{s} =5.02$ and 13 TeV}'',
+  \href{http://dx.doi.org/10.1140/epjc/s10052-019-7350-y}{{\em Eur. Phys. J. C}
+  {\bfseries 79} (2019) 857}, \href{http://arxiv.org/abs/1905.07208}{{\ttfamily
+  arXiv:1905.07208 [nucl-ex]}}.
+
+\bibitem{ALICE:2012cor}
+{\bfseries ALICE} Collaboration, B.~Abelev {\em et~al.}, ``{Transverse
+  sphericity of primary charged particles in minimum bias proton-proton
+  collisions at $\sqrt{s}=0.9$, 2.76 and 7 TeV}'',
+  \href{http://dx.doi.org/10.1140/epjc/s10052-012-2124-9}{{\em Eur. Phys. J. C}
+  {\bfseries 72} (2012) 2124}, \href{http://arxiv.org/abs/1205.3963}{{\ttfamily
+  arXiv:1205.3963 [hep-ex]}}.
+
+\bibitem{Antonio2}
+A.~Ortiz, ``{Experimental results on event shapes at hadron colliders}'',
+  \href{http://dx.doi.org/10.1142/9789813227767_0016}{{\em Adv. Ser. Direct.
+  High Energy Phys.} {\bfseries 29} (2018) 343--357},
+  \href{http://arxiv.org/abs/1705.02056}{{\ttfamily arXiv:1705.02056
+  [hep-ex]}}.
+
+\bibitem{Antonio3}
+A.~Ortiz, G.~Pai\'c, and E.~Cuautle, ``{Mid-rapidity charged hadron transverse
+  spherocity in pp collisions simulated with Pythia}'',
+  \href{http://dx.doi.org/10.1016/j.nuclphysa.2015.05.010}{{\em Nucl. Phys. A}
+  {\bfseries 941} (2015) 78--86},
+  \href{http://arxiv.org/abs/1503.03129}{{\ttfamily arXiv:1503.03129
+  [hep-ph]}}.
+
+\bibitem{ALICE1}
+{\bfseries ALICE} Collaboration, K.~Aamodt {\em et~al.}, ``{The ALICE
+  experiment at the CERN LHC}'',
+  \href{http://dx.doi.org/10.1088/1748-0221/3/08/S08002}{{\em JINST} {\bfseries
+  3} (2008) S08002}.
+
+\bibitem{ALICE2}
+{\bfseries ALICE} Collaboration, B.~Abelev {\em et~al.}, ``{Performance of the
+  ALICE Experiment at the CERN LHC}'',
+  \href{http://dx.doi.org/10.1142/S0217751X14300440}{{\em Int. J. Mod. Phys. A}
+  {\bfseries 29} (2014) 1430044},
+  \href{http://arxiv.org/abs/1402.4476}{{\ttfamily arXiv:1402.4476 [nucl-ex]}}.
+
+\bibitem{INEL}
+{\bfseries ALICE} Collaboration, J.~Adam {\em et~al.}, ``{Charged-particle
+  multiplicities in proton\textendash{}proton collisions at $\sqrt{s} = 0.9$ to
+  8 TeV}'', \href{http://dx.doi.org/10.1140/epjc/s10052-016-4571-1}{{\em Eur.
+  Phys. J. C} {\bfseries 77} (2017) 33},
+  \href{http://arxiv.org/abs/1509.07541}{{\ttfamily arXiv:1509.07541
+  [nucl-ex]}}.
+
+\bibitem{alice_primary}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{The ALICE
+  definition of primary particles}'',.
+  \url{https://cds.cern.ch/record/2270008}. ALICE-PUBLIC-2017-005.
+
+\bibitem{DAgostini:1994fjx}
+G.~D'Agostini, ``{A Multidimensional unfolding method based on Bayes'
+  theorem}'', \href{http://dx.doi.org/10.1016/0168-9002(95)00274-X}{{\em Nucl.
+  Instrum. Meth. A} {\bfseries 362} (1995) 487--498}.
+
+\bibitem{ALICE:2023yuk}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{Production of
+  pions, kaons, and protons as a function of the relative transverse activity
+  classifier in pp collisions at $ \sqrt{s} $ = 13 TeV}'',
+  \href{http://dx.doi.org/10.1007/JHEP06(2023)027}{{\em JHEP} {\bfseries 06}
+  (2023) 027}, \href{http://arxiv.org/abs/2301.10120}{{\ttfamily
+  arXiv:2301.10120 [nucl-ex]}}.
+
+\bibitem{ALICE:2019hno}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{Production of
+  charged pions, kaons, and (anti-)protons in Pb-Pb and inelastic $pp$
+  collisions at $\sqrt {s_{NN}}$ = 5.02 TeV}'',
+  \href{http://dx.doi.org/10.1103/PhysRevC.101.044907}{{\em Phys. Rev. C}
+  {\bfseries 101} (2020) 044907},
+  \href{http://arxiv.org/abs/1910.07678}{{\ttfamily arXiv:1910.07678
+  [nucl-ex]}}.
+
+\bibitem{pikp_rtpc}
+{\bfseries ALICE} Collaboration, J.~Adam {\em et~al.}, ``{Centrality dependence
+  of the nuclear modification factor of charged pions, kaons, and protons in
+  Pb-Pb collisions at $\sqrt{s_{\rm NN}}=2.76$ TeV}'',
+  \href{http://dx.doi.org/10.1103/PhysRevC.93.034913}{{\em Phys. Rev. C}
+  {\bfseries 93} (2016) 034913},
+  \href{http://arxiv.org/abs/1506.07287}{{\ttfamily arXiv:1506.07287
+  [nucl-ex]}}.
+
+\bibitem{alice_resonance}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{Multiplicity
+  dependence of K*(892)$^{0}$ and $\phi$(1020) production in pp collisions at
+  $\sqrt {s}$ =13 TeV}'',
+  \href{http://dx.doi.org/10.1016/j.physletb.2020.135501}{{\em Phys. Lett. B}
+  {\bfseries 807} (2020) 135501},
+  \href{http://arxiv.org/abs/1910.14397}{{\ttfamily arXiv:1910.14397
+  [nucl-ex]}}.
+
+\bibitem{pythia8}
+P.~Skands, S.~Carrazza, and J.~Rojo, ``{Tuning PYTHIA 8.1: the Monash 2013
+  Tune}'', \href{http://dx.doi.org/10.1140/epjc/s10052-014-3024-y}{{\em Eur.
+  Phys. J. C} {\bfseries 74} (2014) 3024},
+  \href{http://arxiv.org/abs/1404.5630}{{\ttfamily arXiv:1404.5630 [hep-ph]}}.
+
+\bibitem{Geant3}
+R.~Brun, F.~Bruyant, M.~Maire, A.~C. McPherson, and P.~Zanarini, {\em {GEANT 3:
+  user's guide Geant 3.10, Geant 3.11; rev. version}}.
+\newblock CERN, Geneva, 1987.
+\newblock \url{https://cds.cern.ch/record/1119728}.
+\newblock CERN-DD-EE-84-01.
+
+\bibitem{Geant4}
+{\bfseries GEANT4} Collaboration, S.~Agostinelli {\em et~al.}, ``{GEANT4--a
+  simulation toolkit}'',
+  \href{http://dx.doi.org/10.1016/S0168-9002(03)01368-8}{{\em Nucl. Instrum.
+  Meth. A} {\bfseries 506} (2003) 250--303}. "SLAC-PUB-9350,
+  FERMILAB-PUB-03-339, CERN-IT-2002-003".
+
+\bibitem{Fluka}
+A.~Ferrari, P.~R. Sala, A.~Fassò, and J.~Ranft,
+  \href{http://dx.doi.org/10.5170/CERN-2005-010}{{\em {FLUKA: A multi-particle
+  transport code (program version 2005)}}}.
+\newblock CERN Yellow Reports: Monographs. CERN, Geneva, 2005.
+\newblock \url{https://cds.cern.ch/record/898301}.
+
+\bibitem{piKp_PbPb_276}
+{\bfseries ALICE} Collaboration, B.~Abelev {\em et~al.}, ``{Centrality
+  dependence of $\pi$, K, p production in Pb-Pb collisions at $\sqrt{s_{NN}}$ =
+  2.76 TeV}'', \href{http://dx.doi.org/10.1103/PhysRevC.88.044910}{{\em Phys.
+  Rev. C} {\bfseries 88} (2013) 044910},
+  \href{http://arxiv.org/abs/1303.0737}{{\ttfamily arXiv:1303.0737 [hep-ex]}}.
+
+\bibitem{Barlow:2002yb}
+R.~Barlow, ``{Systematic errors: Facts and fictions}'', in {\em {Conference on
+  Advanced Statistical Techniques in Particle Physics}}, pp.~134--144.
+\newblock 7, 2002.
+\newblock \href{http://arxiv.org/abs/hep-ex/0207026}{{\ttfamily
+  arXiv:hep-ex/0207026}}.
+
+\bibitem{Bierlich:2016vgw}
+C.~Bierlich, G.~Gustafson, and L.~L\"onnblad, ``{A shoving model for
+  collectivity in hadronic collisions}'',
+  \href{http://arxiv.org/abs/1612.05132}{{\ttfamily arXiv:1612.05132
+  [hep-ph]}}.
+
+\bibitem{MPI}
+P.~Bartalini {\em et~al.}, ``{Multi-Parton Interactions at the LHC}'',
+\newblock 11, 2011.
+\newblock \href{http://arxiv.org/abs/1111.0469}{{\ttfamily arXiv:1111.0469
+  [hep-ph]}}.
+
+\bibitem{alice_UE}
+{\bfseries ALICE} Collaboration, S.~Acharya {\em et~al.}, ``{Production of
+  $\Lambda$ and $K^0_s$ in jets in p\textendash{}Pb collisions at $\sqrt
+  {s_{NN}}$=5.02 TeV and pp collisions at $\sqrt {s}$=7 TeV}'',
+  \href{http://dx.doi.org/10.1016/j.physletb.2022.136984}{{\em Phys. Lett. B}
+  {\bfseries 827} (2022) 136984},
+  \href{http://arxiv.org/abs/2105.04890}{{\ttfamily arXiv:2105.04890
+  [nucl-ex]}}.
+
+\end{thebibliography}\endgroup

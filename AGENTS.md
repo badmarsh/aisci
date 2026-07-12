@@ -74,9 +74,7 @@ These instructions apply to any AI coding or research agent working in this repo
 
 - Prefer shared project-level MCP/tool configuration over IDE-specific duplication.
 - Keep credentials out of git and out of committed MCP config files.
-- Use Onyx for curated document ingestion, document sets, and source-grounded retrieval.
 - Use direct MCP/API tools for task-specific literature or citation lookups when they need fresh external evidence.
-- Do not assume Onyx is a universal MCP gateway unless a working endpoint is documented and tested.
 - If the same external service is needed by multiple agents, document it under `docs/ops/` and route it through the shared local MCP proxy when practical.
 
 ## General Practices
@@ -96,14 +94,14 @@ Before executing any large task, agents must perform a repository health check a
 ## Environment & Execution Protocols
 
 - **Windows/WSL Boundary:** When operating in a Windows environment but the workspace is a WSL UNC path (e.g., `\\wsl.localhost\Ubuntu\...`), avoid running Node/NPM or Python commands directly in Windows `pwsh`. Wrap execution in WSL bash: `wsl bash -c "cd /home/ubuntu/aisci && <command>"`.
-- **Python Virtual Environment Isolation:** The Python environment is nested in `physics/.venv`, not the project root. Agents must explicitly source `physics/.venv/bin/activate` or use `physics/.venv/bin/python` to ensure dependencies like `iminuit` and `pytest` are correctly resolved.
+- **Python Virtual Environment Isolation:** The Python environment is nested in `libs/physics-core/.venv`, not the project root. Agents must explicitly source `libs/physics-core/.venv/bin/activate` or use `libs/physics-core/.venv/bin/python` to ensure dependencies like `iminuit` and `pytest` are correctly resolved.
 
 ## Knowledge Capture & Tagging Taxonomy
 
 When creating GitHub Issues to capture research, decisions, or bugs, always structure them properly:
 - **Use Templates**: Utilize the templates in `.github/ISSUE_TEMPLATE/` (`research.md`, `decision.md`, `bug.md`).
 - **Use Domain Tags**: Apply relevant domain labels (e.g., `physics`, `fitting`).
-- **Use Source Tags**: Apply source labels if the info came from an external tool or agent (e.g., `from-perplexity`, `from-onyx`, `from-claude-code`).
+- **Use Source Tags**: Apply source labels if the info came from an external tool or agent (e.g., `from-perplexity`, `from-mcp`, `from-claude-code`).
 - **Link the Graph**: Proactively link related issues using `AIS-XXX` notation to build a searchable knowledge graph.
 - **Keep GitHub Clean**: In PR descriptions, do not duplicate context. Provide a high-level summary and link to the relevant Issue for the full "why" and "how".
 

@@ -24,7 +24,7 @@ def assert_fit_gate(result, spec, group_label):
     passed = valid and (0.1 <= chi2_ndf <= 5.0)
     return {"gate_passed": passed, "gate_failures": [] if passed else ["failed"]}
 
-DATA_CSV = BASE_DIR / "physics/data/fit_input_ins1735345.csv"
+DATA_CSV = BASE_DIR / "libs/physics-core/data/fit_input_ins1735345.csv"
 RUN_DIR  = BASE_DIR / "research/robert/runs/2026-06-14-juttner-2c-grid-scan"
 
 ETA_MAX  = 0.8

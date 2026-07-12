@@ -106,7 +106,7 @@ to evidence-ledger.md with a status of Supported or Tension as appropriate.
 | Execute Tsallis physics validation run | 2026-05-04 | Captured in `research/robert/runs/2026-05-04-tsallis-validation/`. Comparison against Khuntia (2019) and Rath (2020) suggests model refinement needed. |
 | Fitting pipeline infrastructure built | 2026-04-27 | `fitting_pipeline.py` ready; awaiting `fit_input.csv` |
 | chi2/ndf, covariance, AIC/BIC, residuals, pulls implemented | 2026-04-27 | All computed in `fitting_pipeline.py` `fit_one_spec()` and written to `fit_quality.csv` / `parameter_correlations.csv`. |
-| [B-01] Supply per-multiplicity-bin pT spectrum table | 2026-06-14 | Data provided in `physics/data/fit_input_ins1735345.csv` and copied to `physics/data/fit_input.csv`. |
+| [B-01] Supply per-multiplicity-bin pT spectrum table | 2026-06-14 | Data provided in `libs/physics-core/data/fit_input_ins1735345.csv` and copied to `libs/physics-core/data/fit_input.csv`. |
 
 ---
 

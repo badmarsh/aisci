@@ -5,7 +5,7 @@ Execute the following plan to implement the mathematical conclusions from our st
 Your tasks are:
 
 ## 1. Switch to Exact Bose-Einstein
-Modify the relevant physics fitting scripts (e.g., `physics/src/fitting_pipeline.py`) to use the **exact Bose-Einstein distribution** denominator instead of the Boltzmann approximation. The manuscript's core equation must be corrected for all high-temperature thermal systems.
+Modify the relevant physics fitting scripts (e.g., `libs/physics-core/src/fitting_pipeline.py`) to use the **exact Bose-Einstein distribution** denominator instead of the Boltzmann approximation. The manuscript's core equation must be corrected for all high-temperature thermal systems.
 
 ## 2. Implement 2-Component Constraints
 Since the Fisher Information matrix proved the 3-component model is completely over-parameterized (degenerate), transition the fit pipeline to a 2-component exact Bose-Einstein model. Run the fits for the multiplicity bins and evaluate convergence and parameter uncertainties.

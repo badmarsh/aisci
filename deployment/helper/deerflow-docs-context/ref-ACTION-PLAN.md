@@ -19,7 +19,7 @@
 ### 1.2 Onyx Deployment *(partially done)*
 - [x] `docker-compose.yml` with full stack: Vespa, OpenSearch, Postgres, Redis, LiteLLM, Ollama, Unstructured, Docling, MinIO, MCP proxy, Code-Interpreter
 - [x] GPU reservations for inference/indexing model servers (RTX 3090)
-- [x] Nginx templates copied to `deployment/data/nginx/` → fixes `run-nginx.sh` missing error
+- [x] Nginx templates copied to `deployment/nginx/` → fixes `run-nginx.sh` missing error
 - [x] Nginx container running again ✅
 - [x] Docling removed from active production compose; local Unstructured restored as parser
 - [x] Local Unstructured healthy at `http://localhost:9560`

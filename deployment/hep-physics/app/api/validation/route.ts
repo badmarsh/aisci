@@ -6,7 +6,7 @@ const execPromise = util.promisify(exec);
 
 export async function GET() {
   try {
-    const { stdout, stderr } = await execPromise('wsl python3 /home/ubuntu/aisci/physics/src/run_validation.py');
+    const { stdout, stderr } = await execPromise('wsl python3 /home/ubuntu/aisci/libs/physics-core/src/run_validation.py');
     const data = JSON.parse(stdout.trim());
     return NextResponse.json(data);
   } catch (error) {

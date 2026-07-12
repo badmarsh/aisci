@@ -24,7 +24,7 @@ Phase 1 sanity checks are complete. HEPData source grounding and baseline litera
 ## 📂 Workspace Navigation
 
 - `research/robert/` — **The Primary Research Hub.** Contains workflow, evidence, next actions, and run reports.
-- `physics/src/` — Symbolic and numerical validation scripts (Python/SymPy).
+- `libs/physics-core/src/` — Symbolic and numerical validation scripts (Python/SymPy).
 - `docs/decisions/` — Methodological and architectural decisions.
 - `docs/ops/` — Infrastructure and deployment details.
 
@@ -34,7 +34,7 @@ Phase 1 sanity checks are complete. HEPData source grounding and baseline litera
 
 1. **Review Actions:** Check [`research/robert/next-actions.md`](research/robert/next-actions.md) for current blockers.
 2. **Submit Data:** If you have new $p_T$ tables, follow the [Data Onboarding Guide](research/robert/data-onboarding.md).
-3. **Run Checks:** Use `physics/src/boson_paper_analysis.py` for local covariance and static-limit sanity checks.
+3. **Run Checks:** Use `libs/physics-core/src/boson_paper_analysis.py` for local covariance and static-limit sanity checks.
 
 ---
 

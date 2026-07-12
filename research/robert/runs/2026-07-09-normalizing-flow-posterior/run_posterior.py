@@ -19,7 +19,7 @@ def main():
     os.makedirs(run_dir, exist_ok=True)
     
     bin_name = "21-30"
-    df = pd.read_csv("physics/data/fit_input.csv")
+    df = pd.read_csv("libs/physics-core/data/fit_input.csv")
     df_bin = df[(df['multiplicity_selection'] == bin_name) & (df['source_table'] == 'Table 1')].copy()
     
     pt_data = jnp.array(df_bin['pt_center_gev'].values, dtype=jnp.float64)
