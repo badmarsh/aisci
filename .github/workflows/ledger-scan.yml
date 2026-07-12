@@ -29,7 +29,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Install physics dependencies
-        working-directory: physics
+        working-directory: libs/physics-core
         run: uv sync --frozen || pip install iminuit scipy numpy pandas matplotlib
 
       - name: Run ledger anomaly scan (dry-run, no MCP)

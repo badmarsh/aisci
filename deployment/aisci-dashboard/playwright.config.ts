@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:8082",
+    baseURL: "http://localhost:8081",
     trace: "on-first-retry",
   },
   projects: [
@@ -19,8 +19,8 @@ export default defineConfig({
   ],
   // Optionally run the dev server before testing
   webServer: {
-    command: "npm run dev -- --port 8082",
-    url: "http://localhost:8082",
+    command: "cd ../../ && bash start_dashboard.sh",
+    url: "http://localhost:8081",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

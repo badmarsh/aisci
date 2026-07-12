@@ -9,7 +9,7 @@ on:
     branches: [main]
     paths:
       - ".github/labels.yml"
-      - "scripts/sync_labels.py"
+      - "deployment/helper/sync_labels.py"
       - ".github/workflows/label-sync.yml"
   workflow_dispatch:
 
@@ -32,7 +32,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Sync labels
-        run: uv run --with pyyaml python scripts/sync_labels.py
+        run: uv run --with pyyaml python deployment/helper/sync_labels.py
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}

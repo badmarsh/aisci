@@ -57,8 +57,8 @@ jobs:
               /\.(png|jpe?g|gif|svg|webp|ico)$/i.test(p));
 
             const highRisk = matches(
-              /^backend\/app\/gateway\//) || matches(
-              /^backend\/packages\/harness\/deerflow\/(agents|subagents|sandbox)\//) || matches(
+              /^deployment\/aisci-dashboard\/ignition\//) || matches(
+              /^libs\/physics-core\//) || matches(
               /(^|\/)langgraph\.json$/) || matches(
               /(^|\/)(auth|authz|security)/i) || matches(
               /(pyproject\.toml|uv\.lock|package\.json|pnpm-lock\.yaml)$/) || matches(
@@ -69,10 +69,9 @@ jobs:
 
             // needs-validation: front/back contract surface
             const contractSurface =
-              matches(/^backend\/app\/gateway\//) ||
-              matches(/^backend\/packages\/harness\/deerflow\/(agents|subagents)\//) ||
+              matches(/^deployment\/aisci-dashboard\/ignition\//) ||
               matches(/(^|\/)langgraph\.json$/) ||
-              matches(/^frontend\/src\/core\/(api|threads|messages)\//);
+              matches(/^deployment\/aisci-dashboard\/src\/(api|threads|messages)\//);
 
             const current = (pr.labels || []).map(l => l.name);
             const hasSkip = current.includes('skip-validation');
