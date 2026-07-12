@@ -27,7 +27,7 @@ except ModuleNotFoundError:  # pragma: no cover - guidance for local runs
         "  uv run --with pyyaml python scripts/sync_labels.py"
     )
 
-LABELS_FILE = Path(__file__).resolve().parent.parent / ".github" / "labels.yml"
+LABELS_FILE = Path(__file__).resolve().parent.parent.parent / ".github" / "labels.yml"
 
 
 def load_labels(path: Path) -> list[dict[str, str]]:
