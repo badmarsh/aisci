@@ -135,7 +135,7 @@ def manuscript_fit_spec(component_count: int, eta_max: float, mass_gev: float) -
         for name in parameter_names
     }
     return FitSpec(
-        model_name="manuscript_juttner",
+        model_name=f"juttner_{component_count}c",
         component_count=component_count,
         parameter_names=parameter_names,
         parameter_bounds=parameter_bounds,
@@ -148,7 +148,7 @@ def manuscript_fit_spec(component_count: int, eta_max: float, mass_gev: float) -
             ("norm", "temperature", "U"),
             y,
             temperature_guesses=(0.12, 0.22, 0.45),
-            third_parameter_guesses=(0.2, 0.7, 1.1),
+            third_parameter_guesses=(0.2, 0.6, 1.2),
         ),
     )
 
@@ -167,7 +167,7 @@ def bose_fit_spec(component_count: int, eta_max: float, mass_gev: float) -> FitS
         for name in parameter_names
     }
     return FitSpec(
-        model_name="exact_bose_einstein",
+        model_name=f"bose_{component_count}c",
         component_count=component_count,
         parameter_names=parameter_names,
         parameter_bounds=parameter_bounds,
@@ -197,7 +197,7 @@ def tsallis_fit_spec(component_count: int, eta_max: float, mass_gev: float) -> F
         for name in parameter_names
     }
     return FitSpec(
-        model_name="tsallis",
+        model_name=f"tsallis_{component_count}c",
         component_count=component_count,
         parameter_names=parameter_names,
         parameter_bounds=parameter_bounds,
@@ -231,18 +231,22 @@ def blast_wave_fit_spec(component_count: int, mass_gev: float) -> FitSpec:
             parameter_bounds[name] = DEFAULT_BLAST_WAVE_BOUNDS["n"]
 
     def initial_grid(x: np.ndarray, y: np.ndarray) -> list[tuple[float, ...]]:
-        max_y = float(np.nanmax(y))
-        norm_base = max(max_y, 1e-9)
-        component_scales = {
-            1: (1.0,),
-            2: (0.7, 0.3),
-            3: (0.55, 0.30, 0.15),
-        }[component_count]
-        grids: list[tuple[float, ...]] = []
-        for base_temperature in (0.09, 0.14, 0.20):
-            for base_beta in (0.2, 0.5, 0.75):
-                for base_n in (0.7, 1.0, 2.0):
-                    candidate: list[float] = []
+        grids = []
+        norm_base = float(np.max(y)) if len(y) > 0 else 1.0
+        # 1-component uses simpler logic, multi-component applies scales
+        if component_count == 1:
+            for t_guess in (0.08, 0.12, 0.16):
+                for beta_guess in (0.3, 0.6, 0.8):
+                    for n_guess in (0.5, 1.0, 2.0):
+                        grids.append((norm_base, t_guess, beta_guess, n_guess))
+        else:
+            base_temperature = 0.10
+            base_beta = 0.4
+            base_n = 1.0
+            component_scales = [1.0, 0.1, 0.01][:component_count]
+            for param_idx in range(3):
+                for sub_idx in range(3):
+                    candidate = []
                     for idx in range(component_count):
                         candidate.extend(
                             [
@@ -256,7 +260,7 @@ def blast_wave_fit_spec(component_count: int, mass_gev: float) -> FitSpec:
         return grids
 
     return FitSpec(
-        model_name="blast_wave",
+        model_name="bgbw" if component_count == 1 else f"bgbw_{component_count}c",
         component_count=component_count,
         parameter_names=parameter_names,
         parameter_bounds=parameter_bounds,
@@ -268,6 +272,7 @@ def blast_wave_fit_spec(component_count: int, mass_gev: float) -> FitSpec:
 def build_fit_specs(eta_max: float, mass_gev: float) -> list[FitSpec]:
     specs: list[FitSpec] = []
     for component_count in (1, 2):
+        specs.append(manuscript_fit_spec(component_count, eta_max, mass_gev))
         specs.append(bose_fit_spec(component_count, eta_max, mass_gev))
         specs.append(tsallis_fit_spec(component_count, eta_max, mass_gev))
         specs.append(blast_wave_fit_spec(component_count, mass_gev))

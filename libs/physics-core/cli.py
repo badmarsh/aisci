@@ -42,7 +42,7 @@ def parse_args():
     )
     p.add_argument(
         "--data-path",
-        default="physics/data/fit_input_ins1735345.csv",
+        default="libs/physics-core/data/fit_input_ins1735345.csv",
         help="Path to per-bin pT spectrum CSV (HEPData format)."
     )
     p.add_argument(
@@ -52,7 +52,7 @@ def parse_args():
     p.add_argument(
         "--models", nargs="+",
         default=["bgbw", "tsallis_1c", "tsallis_2c",
-                 "juttner_1c", "juttner_2c", "bose_1c"],
+                 "juttner_1c", "juttner_2c", "bose_1c", "bose_2c"],
         help="Model keys to run. Valid: bgbw tsallis_1c tsallis_2c "
              "juttner_1c juttner_2c bose_1c bose_2c"
     )

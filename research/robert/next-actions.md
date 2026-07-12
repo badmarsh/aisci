@@ -52,9 +52,7 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 **Context:** The pipeline shows severe $\chi^2/\text{ndf}$ for classical models. Lu et al. (arXiv:2407.09207v3) recently used Bayesian inference to quantify the low-$p_T$ pion excess against hydrodynamic frameworks.
 **Action:** Implement a Bayesian parameter estimation pipeline to systematically quantify the model-to-data differences in the high-$p_T$ tail. Instead of rejecting the Jüttner derivation entirely, use Bayesian inference to formally constrain its region of applicability and extract the posterior probability of the exact analytical integration's validity.
 
-- [ ] **D-01 (Analysis):** The Fisher Information matrix shows the 3-component Jüttner parameterization (T_stat, T_kin, β_s) is mathematically singular at U → 0, meaning it cannot be fitted with physical meaning. Execute `fit-anomaly-resolution` skill to recommend a non-singular baseline (e.g., exact Bose-Einstein 2-component) and document the mathematical proof for Robert.
 - [ ] **D-02 (Docs):** The project lacks a central glossary for parameter notation (e.g., T_stat vs T_kin, U vs β_s). Execute `aisci-living-docs` skill to create a `docs/decisions/notation-glossary.md` and link it from `workflow.md`.
-- [ ] **D-03 (Data):** The `ins1735345` data file is loaded but the pipeline script `fitting_pipeline.py` currently hardcodes paths to earlier test tables. Modify the script to accept an `--input` argument, defaulting to the new `ins1735345` file, ensuring the upcoming fits actually use the unblocked data.
 
 
 ### [A-04] Literature Cross-Check: Femtoscopy HBT Source Size vs Thermal Fit Parameters
@@ -83,6 +81,9 @@ to evidence-ledger.md with a status of Supported or Tension as appropriate.
 
 | Item | Completed | Notes |
 |---|---|---|
+| [A-02] `bose_2c` implementation missing | 2026-07-12 | Registered `bose_2c` in `engine.py` and added to defaults in `cli.py`. |
+| [D-01] Investigate Jüttner 3-component singularity | 2026-07-12 | Analysed singularity at U -> 0 using sympy; proposed a Two-Component Soft/Hard Model baseline in `runs/2026-07-12-d01-juttner-singularity-analysis/README.md`. |
+| [D-03] Wire `fitting_pipeline.py` to accept `--input` | 2026-07-12 | Modified script to accept `--input` defaulting to `ins1735345` data file. |
 | [O-10] Dashboard Data Sync & UI Audit | 2026-07-10 | Ran headless Playwright audit to ensure UI syncs perfectly with file system. Fixed bug where `api.py` was limiting the runs dropdown to 5 runs instead of all 34. Verified DB has no missing or incomplete physics runs. |
 | [O-04] Resolve T-beta degeneracy in BGBW fits | 2026-07-08 | Profile scan CSVs and contour plot generated. |
 | [O-06] Investigate Tsallis 2c physical interpretation | 2026-07-08 | Tsallis 2c parameter stability checked, Cleymans-Worku ranges validated. |
