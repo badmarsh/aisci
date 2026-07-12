@@ -1,4 +1,5 @@
 import os
+import math
 import pandas as pd
 from typing import Dict, Any, List
 
@@ -97,6 +98,25 @@ def parse_fit_artifacts(run_path: str) -> Dict[str, Any]:
 
         aic_val = row.get('aic')
         bic_val = row.get('bic')
+        
+        if (pd.isna(aic_val) or aic_val is None) and not pd.isna(chi2):
+            k = 3
+            if not params_df.empty:
+                k = len(params_df[(params_df['group_label'] == bin_label) & (params_df['model_name'] == row['model_name'])])
+                if k == 0:
+                    k = 6 if "2c" in row['model_name'] else (4 if "bgbw" in row['model_name'] else 3)
+            else:
+                k = 6 if "2c" in row['model_name'] else (4 if "bgbw" in row['model_name'] else 3)
+            
+            n = row.get('ndf')
+            if not pd.isna(n) and n is not None:
+                n = float(n) + k
+            else:
+                n = 47 # Default fallback for ALICE spectra
+
+            if n > 0:
+                aic_val = chi2 + 2 * k
+                bic_val = chi2 + k * math.log(n)
 
         fit_rows.append({
             "bin": bin_label,

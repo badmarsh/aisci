@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchFits, triggerPipeline } from "@/lib/api";
 import { PageShell } from "@/components/PageShell";
 import { Sigma, Play, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Suspense, useState, Fragment } from "react";
+import { TableSkeleton } from "@/components/dashboard/SkeletonLoader";
+import { CorrelationHeatmap } from "@/components/dashboard/CorrelationHeatmap";
 
 export const Route = createFileRoute("/projects/$projectId/fits")({
   component: FitsPage,
@@ -14,10 +17,6 @@ export const Route = createFileRoute("/projects/$projectId/fits")({
 function FitsPage() {
   const { projectId } = Route.useParams();
   const queryClient = useQueryClient();
-  const { data: fitsData, isLoading } = useQuery({
-    queryKey: ["fits", projectId],
-    queryFn: () => fetchFits(projectId),
-  });
 
   const { mutate: runFit, isPending: isRunningFit } = useMutation({
     mutationFn: () => triggerPipeline(projectId, "fit-validation"),
@@ -38,9 +37,6 @@ function FitsPage() {
           <p className="text-muted-foreground mt-2">
             Latest physics fit data for project: {projectId}
           </p>
-          <p className="text-sm font-mono text-emerald-brand mt-1">
-            Run ID: {fitsData?.runId || "Loading..."}
-          </p>
         </div>
         <Button
           onClick={() => runFit()}
@@ -51,6 +47,27 @@ function FitsPage() {
           Run New Fit
         </Button>
       </section>
+
+      <Suspense fallback={<TableSkeleton rows={5} cols={9} />}>
+        <FitsContent projectId={projectId} />
+      </Suspense>
+    </PageShell>
+  );
+}
+
+function FitsContent({ projectId }: { projectId: string }) {
+  const { data: fitsData } = useSuspenseQuery({
+    queryKey: ["fits", projectId],
+    queryFn: () => fetchFits(projectId),
+  });
+
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+
+  return (
+    <>
+      <p className="text-sm font-mono text-emerald-brand mb-4">
+        Run ID: {fitsData?.runId || "unknown"}
+      </p>
 
       <section className="glass-card rounded-xl p-6">
         <header className="flex items-center gap-3 mb-4">
@@ -68,9 +85,7 @@ function FitsPage() {
           <button className="px-3 py-1 rounded bg-secondary text-sm">Jüttner/Boltzmann 1c</button>
         </div>
 
-        {isLoading ? (
-          <div className="py-8 text-center text-muted-foreground">Loading fit data...</div>
-        ) : !fitsData?.fitRows?.length ? (
+        {!fitsData?.fitRows?.length ? (
           <div className="py-8 text-center text-muted-foreground">
             No fits available for this project.
           </div>
@@ -83,39 +98,84 @@ function FitsPage() {
                   <th className="px-4 py-3 font-medium text-muted-foreground">Model</th>
                   <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
                   <th className="px-4 py-3 font-medium text-muted-foreground">χ²/ndf</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">AIC</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground">BIC</th>
                   <th className="px-4 py-3 font-medium text-muted-foreground">T (GeV)</th>
                   <th className="px-4 py-3 font-medium text-muted-foreground">β / U</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground text-right">Telemetry</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {fitsData.fitRows.map((row: any, i: number) => (
-                  <tr key={i} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs">{row.bin}</td>
-                    <td className="px-4 py-3 font-medium">{row.model}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          "px-2 py-1 rounded text-[10px] font-mono uppercase",
-                          row.status === "Clean Fit"
-                            ? "bg-emerald-brand/10 text-emerald-brand border border-emerald-brand/20"
-                            : row.status === "Converged"
-                              ? "bg-amber-brand/10 text-amber-brand border border-amber-brand/20"
-                              : "bg-rose-brand/10 text-rose-brand border border-rose-brand/20",
-                        )}
-                      >
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs">{row.chi2 ?? "—"}</td>
-                    <td className="px-4 py-3 font-mono text-xs">{row.T}</td>
-                    <td className="px-4 py-3 font-mono text-xs">{row.beta}</td>
-                  </tr>
-                ))}
+                {fitsData.fitRows.map((row: any, i: number) => {
+                  const rowKey = `${row.bin}|${row.model}`;
+                  const isExpanded = expandedRow === rowKey;
+                  return (
+                    <Fragment key={i}>
+                      <tr className="hover:bg-muted/30 transition-colors">
+                        <td className="px-4 py-3 font-mono text-xs">{row.bin}</td>
+                        <td className="px-4 py-3 font-medium">{row.model}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={cn(
+                              "px-2 py-1 rounded text-[10px] font-mono uppercase",
+                              row.status === "Clean Fit"
+                                ? "bg-emerald-brand/10 text-emerald-brand border border-emerald-brand/20"
+                                : row.status === "Converged"
+                                  ? "bg-amber-brand/10 text-amber-brand border border-amber-brand/20"
+                                  : "bg-rose-brand/10 text-rose-brand border border-rose-brand/20",
+                            )}
+                          >
+                            {row.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs">{row.chi2 ?? "—"}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{row.aic ?? "—"}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{row.bic ?? "—"}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{row.T}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{row.beta}</td>
+                        <td className="px-4 py-3 text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "h-7 px-2.5 font-mono text-[10px] uppercase border transition-all",
+                              isExpanded
+                                ? "bg-primary text-primary-foreground border-primary font-medium"
+                                : "bg-transparent text-muted-foreground border-border hover:text-foreground hover:bg-secondary/40"
+                            )}
+                            onClick={() => setExpandedRow(isExpanded ? null : rowKey)}
+                          >
+                            {isExpanded ? "Hide Matrix" : "Correlations"}
+                          </Button>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={9} className="px-6 py-4 bg-secondary/5 border-l-2 border-primary">
+                            <div className="flex flex-col gap-3">
+                              <div className="flex justify-between items-center">
+                                <h4 className="text-xs font-semibold flex items-center gap-1.5 text-foreground uppercase tracking-wider">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                  Correlation Matrix ({row.model} — Bin: {row.bin})
+                                </h4>
+                                <span className="text-[10px] text-muted-foreground uppercase">
+                                  Fit Quality: {row.quality || "UNKNOWN"}
+                                </span>
+                              </div>
+                              <CorrelationHeatmap correlations={row.correlations || {}} />
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </section>
-    </PageShell>
+    </>
   );
 }
+

@@ -116,6 +116,7 @@ def load_legacy():
         )
         for c in p.get("claims", []):
             insert_claim(
+                project_id=project_id,
                 paper_id=p["id"],
                 claim_text=c["text"],
                 confidence=c["confidence"],

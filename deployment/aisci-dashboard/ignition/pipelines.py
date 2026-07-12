@@ -107,6 +107,12 @@ class PipelineRegistry:
                     cli_py = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../../libs/physics-core/cli.py"))
                     runs_dir = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "runs/latest-auto"))
                     command = [venv_python, cli_py, "--run-dir", runs_dir]
+                    wdir = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../.."))
+                elif p_id == "sensitivity-scan":
+                    venv_python = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../../libs/physics-core/.venv/bin/python"))
+                    scan_py = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../../libs/physics-core/src/exact_be_fit_range_scan.py"))
+                    command = [venv_python, scan_py]
+                    wdir = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../.."))
                 
                 spec = PipelineSpec(
                     id=p_id,

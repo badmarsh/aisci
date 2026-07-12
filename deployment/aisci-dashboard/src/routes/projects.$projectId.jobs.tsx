@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { fetchJobs } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchJobs, retryJob, cancelJob } from "@/lib/api";
 import { PageShell } from "@/components/PageShell";
-import { Activity } from "lucide-react";
+import { Activity, RotateCcw, XCircle } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/projects/$projectId/jobs")({
@@ -11,9 +13,29 @@ export const Route = createFileRoute("/projects/$projectId/jobs")({
 
 function JobsPage() {
   const { projectId } = Route.useParams();
+  const queryClient = useQueryClient();
   const { data: jobs, isLoading } = useQuery({
     queryKey: ["jobs", projectId],
     queryFn: () => fetchJobs(projectId),
+    refetchInterval: 5000,
+  });
+
+  const { mutate: handleRetry } = useMutation({
+    mutationFn: (jobId: string) => retryJob(projectId, jobId),
+    onSuccess: () => {
+      toast.success("Job retry initiated");
+      queryClient.invalidateQueries({ queryKey: ["jobs", projectId] });
+    },
+    onError: () => toast.error("Failed to retry job")
+  });
+
+  const { mutate: handleCancel } = useMutation({
+    mutationFn: (jobId: string) => cancelJob(projectId, jobId),
+    onSuccess: () => {
+      toast.success("Job cancelled");
+      queryClient.invalidateQueries({ queryKey: ["jobs", projectId] });
+    },
+    onError: () => toast.error("Failed to cancel job")
   });
 
   return (
@@ -46,6 +68,7 @@ function JobsPage() {
                   <th className="px-4 py-3 font-medium text-muted-foreground">Status</th>
                   <th className="px-4 py-3 font-medium text-muted-foreground">Created At</th>
                   <th className="px-4 py-3 font-medium text-muted-foreground">Exit Code</th>
+                  <th className="px-4 py-3 font-medium text-muted-foreground text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -72,6 +95,20 @@ function JobsPage() {
                       {new Date(job.created_at).toLocaleString()}
                     </td>
                     <td className="px-4 py-3 font-mono text-xs">{job.exit_code ?? "—"}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        {(job.status === "failed" || job.status === "cancelled" || job.status === "completed") && (
+                          <Button variant="outline" size="sm" onClick={() => handleRetry(job.id)} className="h-7 px-2 text-xs">
+                            <RotateCcw className="w-3 h-3 mr-1" /> Retry
+                          </Button>
+                        )}
+                        {(job.status === "running" || job.status === "pending") && (
+                          <Button variant="destructive" size="sm" onClick={() => handleCancel(job.id)} className="h-7 px-2 text-xs">
+                            <XCircle className="w-3 h-3 mr-1" /> Cancel
+                          </Button>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>

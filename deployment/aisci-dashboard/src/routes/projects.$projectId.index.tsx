@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Area,
   AreaChart,
@@ -21,11 +21,9 @@ import {
   Database,
   Radio,
   Sigma,
-  BookOpen,
-  Atom,
-  ShieldCheck,
-  ListTodo,
   Copy,
+  Github,
+  Lightbulb,
 } from "lucide-react";
 import {
   fetchActivity,
@@ -38,11 +36,14 @@ import {
   triggerPipeline,
 } from "@/lib/api";
 import { MetricCard } from "@/components/dashboard/MetricCard";
+import { Panel } from "@/components/dashboard/Panel";
+import { IdeasPanel } from "@/components/dashboard/IdeasPanel";
 import { PageShell } from "@/components/PageShell";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Play, Loader2, BookOpen as BookOpenIcon } from "lucide-react";
+import { MetricCardSkeleton, PanelSkeleton } from "@/components/dashboard/SkeletonLoader";
 
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
@@ -56,48 +57,6 @@ export const Route = createFileRoute("/projects/$projectId/")({
 
 function Overview() {
   const { projectId } = Route.useParams();
-
-  const {
-    data: fitsData = {
-      fitRows: [],
-      chi2Series: [],
-      bins: [],
-      runId: "",
-    } as import("@/lib/api").FitData,
-  } = useQuery({
-    queryKey: ["fits", projectId],
-    queryFn: () => fetchFits(projectId),
-  });
-  const { data: activityFeed = [] } = useQuery({
-    queryKey: ["activity", projectId],
-    queryFn: () => fetchActivity(projectId),
-  });
-  const { data: anomalies = [] } = useQuery({
-    queryKey: ["anomalies", projectId],
-    queryFn: () => fetchAnomalies(projectId),
-    staleTime: 60_000,
-  });
-  const {
-    data: overview = {
-      literature_count: 0,
-      active_fits: 0,
-      claims_count: 0,
-      open_tasks: 0,
-    } as import("@/lib/api").ProjectOverview,
-  } = useQuery({
-    queryKey: ["overview", projectId],
-    queryFn: () => fetchProjectOverview(projectId),
-  });
-  const { data: health } = useQuery({
-    queryKey: ["health", projectId],
-    queryFn: () => fetchProjectHealth(projectId),
-  });
-  const { data: agents = [] } = useQuery({
-    queryKey: ["agents", projectId],
-    queryFn: () => fetchAgents(projectId),
-    staleTime: 10_000,
-  });
-
   const queryClient = useQueryClient();
 
   const { mutate: runFullPipeline, isPending: isRunningFull } = useMutation({
@@ -118,37 +77,6 @@ function Overview() {
     onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to trigger ingestion"),
   });
 
-  const metrics: import("@/lib/api").Metric[] = [
-    {
-      label: "Papers Ingested",
-      value: String(overview.literature_count),
-      delta: 0,
-      accent: "emerald",
-      spark: [2, 4, 3, 5, 4, 6],
-    },
-    {
-      label: "Active Fits",
-      value: String(overview.active_fits),
-      delta: 0,
-      accent: "cyan",
-      spark: [10, 15, 12, 18, 20],
-    },
-    {
-      label: "Claims Tracked",
-      value: String(overview.claims_count),
-      delta: 0,
-      accent: "amber",
-      spark: [1, 2, 2, 3, 4],
-    },
-    {
-      label: "Open Tasks",
-      value: String(overview.open_tasks),
-      delta: 0,
-      accent: "violet",
-      spark: [10, 8, 9, 6, 5],
-    },
-  ];
-
   async function handleExport() {
     try {
       const { markdown } = await fetchExportSummary(projectId);
@@ -156,6 +84,16 @@ function Overview() {
       toast.success("Summary copied to clipboard!");
     } catch {
       toast.error("Failed to export summary.");
+    }
+  }
+
+  async function handleGitHubIssue() {
+    try {
+      const { markdown } = await fetchExportSummary(projectId);
+      const url = `https://github.com/badmarsh/aisci/issues/new?title=${encodeURIComponent(`Project Update: ${projectId}`)}&body=${encodeURIComponent(markdown)}`;
+      window.open(url, '_blank');
+    } catch {
+      toast.error("Failed to generate GitHub issue.");
     }
   }
 
@@ -198,6 +136,9 @@ function Overview() {
           <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExport}>
             <Copy className="h-3.5 w-3.5" /> Export
           </Button>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={handleGitHubIssue}>
+            <Github className="h-3.5 w-3.5" /> Create Issue
+          </Button>
           <div className="h-8 w-px bg-border" />
           <div>
             <div className="font-mono text-xl font-semibold text-emerald-brand">99.98%</div>
@@ -206,6 +147,89 @@ function Overview() {
         </div>
       </section>
 
+      <Suspense
+        fallback={
+          <div className="flex flex-col gap-6">
+            <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <MetricCardSkeleton />
+              <MetricCardSkeleton />
+              <MetricCardSkeleton />
+              <MetricCardSkeleton />
+            </section>
+            <section className="grid gap-4 xl:grid-cols-12">
+              <div className="xl:col-span-7">
+                <PanelSkeleton rows={4} />
+              </div>
+              <div className="xl:col-span-5">
+                <PanelSkeleton rows={4} />
+              </div>
+            </section>
+          </div>
+        }
+      >
+        <OverviewContent projectId={projectId} />
+      </Suspense>
+    </PageShell>
+  );
+}
+
+function OverviewContent({ projectId }: { projectId: string }) {
+  const { data: fitsData } = useSuspenseQuery({
+    queryKey: ["fits", projectId],
+    queryFn: () => fetchFits(projectId),
+  });
+  const { data: activityFeed = [] } = useSuspenseQuery({
+    queryKey: ["activity", projectId],
+    queryFn: () => fetchActivity(projectId),
+  });
+  const { data: anomalies = [] } = useSuspenseQuery({
+    queryKey: ["anomalies", projectId],
+    queryFn: () => fetchAnomalies(projectId),
+    staleTime: 60_000,
+  });
+  const { data: overview } = useSuspenseQuery({
+    queryKey: ["overview", projectId],
+    queryFn: () => fetchProjectOverview(projectId),
+  });
+  const { data: agents = [] } = useSuspenseQuery({
+    queryKey: ["agents", projectId],
+    queryFn: () => fetchAgents(projectId),
+    staleTime: 10_000,
+  });
+
+  const metrics: import("@/lib/api").Metric[] = [
+    {
+      label: "Papers Ingested",
+      value: String(overview?.literature_count ?? 0),
+      delta: 0,
+      accent: "emerald",
+      spark: [2, 4, 3, 5, 4, 6],
+    },
+    {
+      label: "Active Fits",
+      value: String(overview?.active_fits ?? 0),
+      delta: 0,
+      accent: "cyan",
+      spark: [10, 15, 12, 18, 20],
+    },
+    {
+      label: "Claims Tracked",
+      value: String(overview?.claims_count ?? 0),
+      delta: 0,
+      accent: "amber",
+      spark: [1, 2, 2, 3, 4],
+    },
+    {
+      label: "Open Tasks",
+      value: String(overview?.open_tasks ?? 0),
+      delta: 0,
+      accent: "violet",
+      spark: [10, 8, 9, 6, 5],
+    },
+  ];
+
+  return (
+    <>
       <section aria-label="Research metrics" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
           <MetricCard key={metric.label} metric={metric} />
@@ -223,7 +247,7 @@ function Overview() {
           <div className="mt-4 h-72" aria-label="Chart showing chi2 over bins">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={fitsData.chi2Series || []}
+                data={fitsData?.chi2Series || []}
                 margin={{ top: 8, right: 8, left: -24, bottom: 0 }}
               >
                 <defs>
@@ -435,48 +459,21 @@ function Overview() {
               ))}
           </div>
         </Panel>
+
+        <Panel
+          className="xl:col-span-12"
+          title="Generated Hypotheses"
+          label="Research Ideas"
+          icon={Lightbulb}
+          action="Active"
+        >
+          <div className="mt-4">
+            <IdeasPanel projectId={projectId} />
+          </div>
+        </Panel>
       </section>
-    </PageShell>
+    </>
   );
 }
 
-function Panel({
-  title,
-  label,
-  icon: Icon,
-  action,
-  className,
-  children,
-}: {
-  title: string;
-  label: string;
-  icon: typeof Activity;
-  action: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <article
-      className={cn(
-        "glass-card rounded-xl p-4 transition-colors hover:border-primary/25",
-        className,
-      )}
-    >
-      <header className="flex items-start justify-between gap-3">
-        <div className="flex gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <Icon className="h-4 w-4" />
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold">{title}</h2>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">{label}</p>
-          </div>
-        </div>
-        <span className="rounded-md border border-border bg-secondary/60 px-2 py-1 font-mono text-[10px] uppercase text-muted-foreground">
-          {action}
-        </span>
-      </header>
-      {children}
-    </article>
-  );
-}
+

@@ -61,22 +61,48 @@ def parse_evidence_markdown(filepath):
                     if i == 0: continue
                     cells = [_extract_text(cell).strip() for cell in row.children]
                     if len(cells) >= 5:
+                        narrative = cells[2]
+                        run_match = re.search(r'Run:\s*([0-9]{4}-[0-9]{2}-[0-9]{2}-[a-zA-Z0-9-]+)', narrative)
+                        run_id = run_match.group(1) if run_match else "—"
                         evidence.append({
                             "claim": cells[0],
                             "status": cells[3],
                             "nextGate": cells[4],
-                            "run": "—",
-                            "narrative": cells[2]
+                            "run": run_id,
+                            "narrative": narrative
                         })
                 break
             
     return evidence
 
-def sync_evidence_to_db(project_id: str):
+def sync_evidence_to_db(project_id: str, force: bool = False):
     """Reads evidence-ledger.md and overwrites the Evidence table in SQLite."""
     spec = registry.get_project(project_id)
     filepath = spec.get_canonical_path("evidence-ledger.md")
+    if not os.path.exists(filepath):
+        return
+        
+    hasher = hashlib.sha256()
+    with open(filepath, 'rb') as f:
+        hasher.update(f.read())
+    current_hash = hasher.hexdigest()
     
+    runs_dir = spec.get_runs_dir()
+    cache_path = os.path.join(runs_dir, ".sync_cache")
+    
+    cached_hash = None
+    if not force and os.path.exists(cache_path):
+        try:
+            import json
+            with open(cache_path, 'r') as f:
+                cache_data = json.load(f)
+                cached_hash = cache_data.get("evidence_hash")
+        except Exception:
+            pass
+            
+    if not force and current_hash == cached_hash:
+        return
+        
     evidence_list = parse_evidence_markdown(filepath)
     if not evidence_list:
         return
@@ -93,6 +119,18 @@ def sync_evidence_to_db(project_id: str):
         
     conn.commit()
     conn.close()
+    
+    try:
+        import json
+        cache_data = {}
+        if os.path.exists(cache_path):
+            with open(cache_path, 'r') as f:
+                cache_data = json.load(f)
+        cache_data["evidence_hash"] = current_hash
+        with open(cache_path, 'w') as f:
+            json.dump(cache_data, f)
+    except Exception:
+        pass
 
 def _update_markdown_table_status(filepath: str, row_identifier: str, new_status: str, is_task: bool = False):
     """
@@ -184,10 +222,31 @@ def materialize_approved_decisions(project_id: str):
     if changed:
         sync_evidence_to_db(project_id)
 
-def sync_tasks_to_db(project_id: str):
+def sync_tasks_to_db(project_id: str, force: bool = False):
     spec = registry.get_project(project_id)
     filepath = spec.get_canonical_path("next-actions.md")
     if not os.path.exists(filepath):
+        return
+        
+    hasher = hashlib.sha256()
+    with open(filepath, 'rb') as f:
+        hasher.update(f.read())
+    current_hash = hasher.hexdigest()
+    
+    runs_dir = spec.get_runs_dir()
+    cache_path = os.path.join(runs_dir, ".sync_cache")
+    
+    cached_hash = None
+    if not force and os.path.exists(cache_path):
+        try:
+            import json
+            with open(cache_path, 'r') as f:
+                cache_data = json.load(f)
+                cached_hash = cache_data.get("tasks_hash")
+        except Exception:
+            pass
+            
+    if not force and current_hash == cached_hash:
         return
         
     with open(filepath, 'r') as f:
@@ -278,6 +337,18 @@ def sync_tasks_to_db(project_id: str):
                        (t['id'], project_id, t['title'], t['description'], t['priority'], t['assignee'], t['date'], t['citation'], t['status']))
     conn.commit()
     conn.close()
+
+    try:
+        import json
+        cache_data = {}
+        if os.path.exists(cache_path):
+            with open(cache_path, 'r') as f:
+                cache_data = json.load(f)
+        cache_data["tasks_hash"] = current_hash
+        with open(cache_path, 'w') as f:
+            json.dump(cache_data, f)
+    except Exception:
+        pass
 
 def sync_db_to_tasks(project_id: str, task_id: str, new_status: str):
     spec = registry.get_project(project_id)

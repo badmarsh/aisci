@@ -112,19 +112,46 @@ def poll_and_run():
         
         with open(log_path, 'w') as f:
             try:
-                process = subprocess.run(
+                process = subprocess.Popen(
                     pipeline_spec.command,
                     cwd=pipeline_spec.working_dir,
                     stdout=f,
-                    stderr=subprocess.STDOUT,
-                    timeout=timeout_secs
+                    stderr=subprocess.STDOUT
                 )
-                exit_code = process.returncode
-                status = 'completed' if exit_code == 0 else 'failed'
-            except subprocess.TimeoutExpired as e:
-                error_msg = f"Job timed out after {timeout_secs} seconds"
-                exit_code = 124
-                status = 'failed'
+                
+                start_wait = time.time()
+                while True:
+                    retcode = process.poll()
+                    if retcode is not None:
+                        exit_code = retcode
+                        status = 'completed' if exit_code == 0 else 'failed'
+                        break
+                        
+                    if time.time() - start_wait > timeout_secs:
+                        process.terminate()
+                        process.wait()
+                        error_msg = f"Job timed out after {timeout_secs} seconds"
+                        exit_code = 124
+                        status = 'failed'
+                        break
+                        
+                    try:
+                        conn_check = get_connection(project_id)
+                        cursor_check = conn_check.cursor()
+                        cursor_check.execute("SELECT status FROM JobExecutions WHERE id = ?", (job_id,))
+                        curr_status = cursor_check.fetchone()
+                        conn_check.close()
+                        if curr_status and curr_status['status'] == 'cancelled':
+                            process.terminate()
+                            process.wait()
+                            status = 'cancelled'
+                            error_msg = "Job cancelled by user"
+                            exit_code = 130
+                            break
+                    except Exception:
+                        pass
+                        
+                    time.sleep(2)
             except Exception as e:
                 error_msg = f"Execution error: {str(e)}"
                 exit_code = 1

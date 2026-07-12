@@ -417,3 +417,21 @@ export async function syncFromFiles(projectId: string) {
   if (!res.ok) throw new Error("Failed to sync from files");
   return res.json();
 }
+
+export async function fetchIdeas(projectId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/ideas`);
+  if (!res.ok) throw new Error("Failed to fetch ideas");
+  return res.json();
+}
+
+export async function retryJob(projectId: string, jobId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/jobs/${jobId}/retry`, { method: "POST" });
+  if (!res.ok) throw new Error("Failed to retry job");
+  return res.json();
+}
+
+export async function cancelJob(projectId: string, jobId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/jobs/${jobId}/cancel`, { method: "POST" });
+  if (!res.ok) throw new Error("Failed to cancel job");
+  return res.json();
+}

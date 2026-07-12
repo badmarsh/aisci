@@ -4,7 +4,7 @@ import sqlite3
 import pandas as pd
 from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, HTTPException, Header, Depends
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import subprocess
@@ -12,7 +12,6 @@ import asyncio
 import sys
 import time
 import uuid
-import json
 sys.path.insert(0, os.path.dirname(__file__))
 import sync_markdown
 from datetime import datetime
@@ -23,6 +22,7 @@ import fit_parser
 from validation_policy import default_policy
 from project_registry import registry, ProjectSpec
 from pipelines import registry as pipeline_registry
+from idea_generator import IdeaGenerator
 
 app = FastAPI(title="AiSci Dashboard API")
 
@@ -67,7 +67,8 @@ def get_latest_run_path(project_id: str) -> str:
     ]
     if not candidates:
         raise FileNotFoundError(f"No completed run directories found for project {project_id}.")
-    return os.path.join(runs_base, sorted(candidates)[-1])
+    candidates.sort(key=lambda d: os.path.getmtime(os.path.join(runs_base, d)))
+    return os.path.join(runs_base, candidates[-1])
 
 def list_run_dirs(project_id: str) -> list[str]:
     """Return all run directory names, newest first, for a given project."""
@@ -79,7 +80,8 @@ def list_run_dirs(project_id: str) -> list[str]:
         d for d in os.listdir(runs_base)
         if os.path.isdir(os.path.join(runs_base, d))
     ]
-    return sorted(candidates, reverse=True)
+    candidates.sort(key=lambda d: os.path.getmtime(os.path.join(runs_base, d)), reverse=True)
+    return candidates
 
 def get_db(project_id: str):
     return get_connection(project_id)
@@ -121,6 +123,7 @@ class EvidenceRow(BaseModel):
     run: str
     narrative: str
     review_status: str = "Proposed"
+    status_history: List[Dict[str, Any]] = []
 
 class TaskModel(BaseModel):
     id: str
@@ -178,6 +181,8 @@ def get_pipelines(project_id: str):
         })
     return result
 
+PHYSICS_BRIDGE_CATEGORIES = {"nucl-ex", "nucl-th", "hep-ph", "hep-ex", "cs.AI+nucl", "quant-ph"}
+
 @app.get("/api/projects/{project_id}/literature", response_model=List[Paper])
 def get_literature(project_id: str):
     spec = registry.get_project(project_id)
@@ -193,9 +198,8 @@ def get_literature(project_id: str):
         
         claim_list = [{"text": c["claim_text"], "confidence": c["confidence"]} for c in claims_rows]
         
-        # Hardcoding openalex vs arxiv source based on id format for now, bridge based on category
-        source = "OpenAlex" if p['id'].startswith("W") else "arXiv"
-        bridge = p['category'] in ["cs.CL", "cs.AI"]
+        source = p['provenance'] or ("OpenAlex" if p['id'].startswith("W") else "arXiv")
+        bridge = p['category'] in PHYSICS_BRIDGE_CATEGORIES
         
         result.append({
             "source": source,
@@ -235,13 +239,16 @@ class IngestPaperRequest(BaseModel):
 def ingest_literature(project_id: str, req: IngestPaperRequest, _: None = Depends(verify_token)):
     spec = registry.get_project(project_id)
     from database import insert_paper, insert_claim, insert_dataset
-    insert_paper(req.id, project_id, req.title, req.abstract, req.published, req.url, req.category, req.provenance, req.source_hash)
+    inserted = insert_paper(req.id, project_id, req.title, req.abstract, req.published, req.url, req.category, req.provenance, req.source_hash)
+    if not inserted:
+        log_activity(project_id, "Duplicate Skipped", "System", f"Skipped duplicate paper: {req.title}")
+        return {"status": "skipped", "message": "Duplicate paper skipped", "id": req.id}
     if req.claims:
         for claim in req.claims:
-            insert_claim(req.id, claim.text, claim.confidence, claim.type)
+            insert_claim(project_id, req.id, claim.text, claim.confidence, claim.type)
     if req.datasets:
         for dataset in req.datasets:
-            insert_dataset(req.id, dataset)
+            insert_dataset(project_id, req.id, dataset)
     log_activity(project_id, "Ingested Literature", "System", f"Ingested paper: {req.title}")
     return {"status": "success", "id": req.id}
 
@@ -265,8 +272,29 @@ def get_evidence(project_id: str):
     """
     cursor.execute(query, (project_id,))
     rows = cursor.fetchall()
+    
+    evidence_list = []
+    for r in rows:
+        row_dict = dict(r)
+        # Fetch history
+        cursor.execute("""
+            SELECT requested_state as to_state, reviewer, created_at as timestamp 
+            FROM ReviewDecisions 
+            WHERE target_id = ? AND project_id = ? 
+            ORDER BY created_at ASC
+        """, (str(row_dict['id']), project_id))
+        history_rows = cursor.fetchall()
+        history = [{"to": hr["to_state"], "reviewer": hr["reviewer"], "timestamp": hr["timestamp"]} for hr in history_rows]
+        
+        # We can simulate a 'from' state by looking at the previous row
+        for i, h in enumerate(history):
+            h["from"] = "Proposed" if i == 0 else history[i-1]["to"]
+            
+        row_dict["status_history"] = history
+        evidence_list.append(row_dict)
+        
     conn.close()
-    return [dict(r) for r in rows]
+    return evidence_list
 
 @app.patch("/api/projects/{project_id}/evidence/{evidence_id}")
 def update_evidence(project_id: str, evidence_id: int, body: StatusUpdate, _: None = Depends(verify_token)):
@@ -360,7 +388,22 @@ def get_anomalies(project_id: str, run: Optional[str] = None):
     for _, row in parsed["quality_df"].iterrows():
         m_nice = fit_parser.parse_model_name(row['model_name'])
         chi2_val = float(row.get('chi2_ndf', 0.0))
-        sev, msg = default_policy.validate_chi2(chi2_val)
+        
+        ndf_val = row.get('ndf')
+        if pd.isna(ndf_val) or ndf_val is None:
+            # Estimate NDF if not directly in the CSV
+            model_raw = row['model_name']
+            bin_label = row['group_label']
+            k = 3
+            if not parsed["params_df"].empty:
+                k = len(parsed["params_df"][(parsed["params_df"]['group_label'] == bin_label) & (parsed["params_df"]['model_name'] == model_raw)])
+                if k == 0:
+                    k = 6 if "2c" in model_raw else (4 if "bgbw" in model_raw else 3)
+            else:
+                k = 6 if "2c" in model_raw else (4 if "bgbw" in model_raw else 3)
+            ndf_val = 47 - k
+            
+        sev, msg = default_policy.validate_chi2(chi2_val, ndf=int(ndf_val))
         if sev != "ok":
             anomalies.append(AnomalyItem(
                 bin=row['group_label'], model=m_nice, type="chi2", severity=sev,
@@ -372,9 +415,19 @@ def get_anomalies(project_id: str, run: Optional[str] = None):
         if row['parameter_left'] == row['parameter_right']:
             continue
         rho = float(row['correlation'])
+        m_nice = fit_parser.parse_model_name(row['model_name'])
+        
+        # Check for T-q degeneracy specifically
+        deg_sev, deg_msg = default_policy.validate_t_q_degeneracy(rho, row['model_name'], row['parameter_left'], row['parameter_right'])
+        if deg_sev != "ok":
+            anomalies.append(AnomalyItem(
+                bin=row['group_label'], model=m_nice, type="degeneracy", severity=deg_sev,
+                message=deg_msg, value=abs(rho)
+            ))
+            continue
+            
         sev, msg = default_policy.validate_correlation(rho, row['parameter_left'], row['parameter_right'])
         if sev != "ok":
-            m_nice = fit_parser.parse_model_name(row['model_name'])
             anomalies.append(AnomalyItem(
                 bin=row['group_label'], model=m_nice, type="correlation", severity=sev,
                 message=msg, value=abs(rho)
@@ -401,7 +454,8 @@ def get_anomalies(project_id: str, run: Optional[str] = None):
                     message=msg, value=val
                 ))
         elif pname in ['temperature_1', 'T_kin', 'T_stat']:
-            sev, msg = default_policy.validate_temperature(val)
+            feed_down_corrected = "fd" in row['model_name'].lower() or "feed_down" in row['model_name'].lower()
+            sev, msg = default_policy.validate_temperature(val, feed_down_corrected=feed_down_corrected)
             if sev != "ok":
                 anomalies.append(AnomalyItem(
                     bin=row['group_label'], model=m_nice, type="boundary", severity=sev,
@@ -464,6 +518,33 @@ def get_export_summary(project_id: str):
 {anom_str}
 """
     return {"markdown": markdown}
+
+@app.get("/api/projects/{project_id}/export/bibtex", response_class=PlainTextResponse)
+def export_bibtex(project_id: str):
+    conn = get_db(project_id)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Papers WHERE project_id = ?", (project_id,))
+    papers = cursor.fetchall()
+    conn.close()
+    
+    bibtex_entries = []
+    for i, p in enumerate(papers):
+        year = p["published_date"][:4] if p["published_date"] else "unknown"
+        first_word = p["title"].split()[0].lower() if p["title"] else "unknown"
+        first_word = "".join(c for c in first_word if c.isalnum())
+        cite_key = f"{first_word}{year}{i}"
+        
+        bibtex = f"@article{{{cite_key},\n"
+        bibtex += f"  title = {{{p['title']}}},\n"
+        bibtex += f"  year = {{{year}}},\n"
+        if p['url']:
+            bibtex += f"  url = {{{p['url']}}},\n"
+        bibtex += f"  note = {{Source: {p['provenance'] or p['id']}}}\n"
+        bibtex += "}\n"
+        bibtex_entries.append(bibtex)
+        
+    return "\n".join(bibtex_entries)
+
 @app.get("/api/projects/{project_id}/overview")
 def get_project_overview(project_id: str):
     spec = registry.get_project(project_id)
@@ -515,11 +596,30 @@ def get_project_overview(project_id: str):
 
 @app.get("/api/projects/{project_id}/health")
 def get_project_health(project_id: str):
-    # Simply check if project is registered and runs directory exists
     try:
         spec = registry.get_project(project_id)
         runs_base = spec.get_runs_dir()
-        return {"status": "ok", "runs_dir_exists": os.path.exists(runs_base)}
+        
+        conn = get_db(project_id)
+        cursor = conn.cursor()
+        
+        # Check for stalled jobs (e.g. running for > 1 hour)
+        cursor.execute('''
+            SELECT COUNT(*) FROM JobExecutions 
+            WHERE project_id = ? AND status = 'running' 
+            AND CAST((julianday('now') - julianday(updated_at)) * 24 * 60 AS INTEGER) > 60
+        ''', (project_id,))
+        stalled_jobs = cursor.fetchone()[0]
+        conn.close()
+        
+        worker_health = stalled_jobs == 0
+        
+        return {
+            "status": "ok", 
+            "runs_dir_exists": os.path.exists(runs_base),
+            "worker_health": worker_health,
+            "stalled_jobs": stalled_jobs
+        }
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
@@ -588,13 +688,13 @@ def stream_log_file(filepath: str, max_lines: int = 200):
                 if existing:
                     yield f"data: {json.dumps({'lines': existing.splitlines()[-50:]})}\n\n"
                 # Then tail for new lines
-                for _ in range(60):  # max 60 seconds of streaming
+                while True:
                     line = f.readline()
                     if line:
                         yield f"data: {json.dumps({'line': line.rstrip()})}\n\n"
                     else:
-                        time.sleep(0.5)
-                yield 'data: {"done": true}\n\n'
+                        yield f": keep-alive\n\n"
+                        time.sleep(1.0)
         except FileNotFoundError:
             yield f"data: {json.dumps({'error': 'Log file not found: ' + filepath})}\n\n"
     return StreamingResponse(generate(), media_type="text/event-stream",
@@ -706,8 +806,8 @@ def get_agents(project_id: str):
 async def manual_sync(project_id: str, _: None = Depends(verify_token)):
     """Force a re-sync from canonical Markdown files. Call after external agent writes."""
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, sync_markdown.sync_evidence_to_db, project_id)
-    await loop.run_in_executor(None, sync_markdown.sync_tasks_to_db, project_id)
+    await loop.run_in_executor(None, lambda: sync_markdown.sync_evidence_to_db(project_id, force=True))
+    await loop.run_in_executor(None, lambda: sync_markdown.sync_tasks_to_db(project_id, force=True))
     log_activity(project_id, "Manual Sync", "User", f"Re-synced Evidence and Tasks for project {project_id}.")
     return {"status": "ok", "message": "Synced from evidence-ledger.md and next-actions.md"}
 
@@ -749,6 +849,11 @@ async def dry_run_pipeline(project_id: str, pipeline_id: str, _: None = Depends(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.get("/api/projects/{project_id}/ideas")
+def get_ideas(project_id: str):
+    generator = IdeaGenerator()
+    return generator.brainstorm()
+
 @app.post("/api/projects/{project_id}/pipelines/{pipeline_id}/run")
 async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(verify_token)):
     spec = registry.get_project(project_id)
@@ -768,6 +873,8 @@ async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(
     try:
         cursor = conn.cursor()
         cursor.execute("BEGIN IMMEDIATE")
+
+
         cursor.execute("SELECT id FROM JobExecutions WHERE project_id = ? AND pipeline_id = ? AND status IN ('pending', 'running')", 
                        (project_id, pipeline_id))
         active = cursor.fetchone()
@@ -846,3 +953,37 @@ def get_job(project_id: str, job_id: str):
     else:
         d['artifact_manifest'] = []
     return d
+
+@app.post("/api/projects/{project_id}/jobs/{job_id}/retry")
+def retry_job(project_id: str, job_id: str, _: None = Depends(verify_token)):
+    conn = get_db(project_id)
+    cursor = conn.cursor()
+    cursor.execute("SELECT pipeline_id FROM JobExecutions WHERE id = ? AND project_id = ?", (job_id, project_id))
+    job = cursor.fetchone()
+    if not job:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    cursor.execute("UPDATE JobExecutions SET status = 'pending', error = NULL, log_path = NULL, exit_code = NULL, artifact_manifest = NULL, updated_at = ? WHERE id = ?", (datetime.now().isoformat(), job_id))
+    conn.commit()
+    conn.close()
+    return {"status": "retrying", "id": job_id}
+
+@app.post("/api/projects/{project_id}/jobs/{job_id}/cancel")
+def cancel_job(project_id: str, job_id: str, _: None = Depends(verify_token)):
+    conn = get_db(project_id)
+    cursor = conn.cursor()
+    cursor.execute("SELECT status FROM JobExecutions WHERE id = ? AND project_id = ?", (job_id, project_id))
+    job = cursor.fetchone()
+    if not job:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    if job['status'] in ('completed', 'failed', 'cancelled'):
+        conn.close()
+        raise HTTPException(status_code=400, detail="Cannot cancel a finished job")
+        
+    cursor.execute("UPDATE JobExecutions SET status = 'cancelled', updated_at = ? WHERE id = ?", (datetime.now().isoformat(), job_id))
+    conn.commit()
+    conn.close()
+    return {"status": "cancelled", "id": job_id}

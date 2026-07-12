@@ -175,12 +175,29 @@ def init_db(project_id: str):
 def insert_paper(paper_id, project_id, title, abstract, published_date, url, category, provenance=None, source_hash=None):
     conn = get_connection(project_id)
     cursor = conn.cursor()
+    
+    # Check if paper already exists by ID
+    cursor.execute("SELECT 1 FROM Papers WHERE id = ?", (paper_id,))
+    if cursor.fetchone():
+        conn.close()
+        return False
+        
+    # Check if paper already exists by project_id and source_hash
+    if source_hash:
+        cursor.execute("SELECT 1 FROM Papers WHERE project_id = ? AND source_hash = ?", (project_id, source_hash))
+        if cursor.fetchone():
+            conn.close()
+            return False
+            
     cursor.execute('''
         INSERT OR IGNORE INTO Papers (id, project_id, title, abstract, published_date, url, category, provenance, source_hash)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (paper_id, project_id, title, abstract, published_date, url, category, provenance, source_hash))
+    inserted = cursor.rowcount > 0
     conn.commit()
     conn.close()
+    return inserted
+
 
 def insert_claim(project_id, paper_id, claim_text, confidence, type):
     conn = get_connection(project_id)

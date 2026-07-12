@@ -12,3 +12,8 @@ working_dir = "."
 name = "Run PySR Symbolic Regression"
 command = ["python", "run_pysr.py"]
 working_dir = "."
+
+[pipelines.sensitivity-scan]
+name = "Run Sensitivity Scan & Bootstrap"
+command = ["python", "exact_be_fit_range_scan.py"]
+working_dir = "."
