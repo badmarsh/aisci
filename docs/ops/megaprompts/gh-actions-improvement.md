@@ -16,7 +16,7 @@ Please review all `.yml` and `.yaml` files in `.github/workflows/` and implement
      - All physics logic is in `libs/physics-core/`.
      - The frontend and ignition backend are in `deployment/aisci-dashboard/`.
      - Operational scripts are in `deployment/helper/`.
-   - Update any legacy Dockerfile paths (`backend/Dockerfile` -> `deployment/aisci-dashboard/Dockerfile` etc.).
+   - Fix `container.yaml` legacy Dockerfile paths (`backend/Dockerfile` and `frontend/Dockerfile`). Note: since the unified dashboard Dockerfile may not exist yet, you may need to disable these build jobs or adapt them depending on the current repo state.
    - Fix regex logic in PR triage workflows that references legacy `backend/` and `frontend/` folders.
 
 2. **E2E Testing Architecture (CRITICAL)**:
