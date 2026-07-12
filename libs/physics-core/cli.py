@@ -138,28 +138,29 @@ def main():
     ANOMALY_CORR_THRESHOLD = 0.90
 
     anomalies = []
-    for bin_key, model_results in summary.get("best_model_per_bin", {}).items():
-        for model_key, model_run in results.items() if isinstance(results, dict) else []:
-            if isinstance(model_run, dict):
-                chi2_ndf = model_run.get("chi2_ndf", 0)
-                if chi2_ndf > ANOMALY_CHI2_THRESHOLD:
-                    anomalies.append({
-                        "type": "chi2_regression",
-                        "bin": bin_key,
-                        "model": model_key,
-                        "chi2_ndf": chi2_ndf,
-                        "threshold": ANOMALY_CHI2_THRESHOLD,
-                    })
-                for corr_key, corr_val in model_run.get("correlations", {}).items():
-                    if abs(corr_val) > ANOMALY_CORR_THRESHOLD:
+    if isinstance(results, dict):
+        for bin_key, bin_results in results.items():
+            for model_key, model_run in bin_results.items():
+                if isinstance(model_run, dict) and model_run.get("success"):
+                    chi2_ndf = model_run.get("chi2_ndf", 0)
+                    if chi2_ndf > ANOMALY_CHI2_THRESHOLD:
                         anomalies.append({
-                            "type": "high_correlation",
+                            "type": "chi2_regression",
                             "bin": bin_key,
                             "model": model_key,
-                            "param_pair": corr_key,
-                            "rho": corr_val,
-                            "threshold": ANOMALY_CORR_THRESHOLD,
+                            "chi2_ndf": chi2_ndf,
+                            "threshold": ANOMALY_CHI2_THRESHOLD,
                         })
+                    for corr_key, corr_val in model_run.get("correlations", {}).items():
+                        if abs(corr_val) > ANOMALY_CORR_THRESHOLD:
+                            anomalies.append({
+                                "type": "high_correlation",
+                                "bin": bin_key,
+                                "model": model_key,
+                                "param_pair": corr_key,
+                                "rho": corr_val,
+                                "threshold": ANOMALY_CORR_THRESHOLD,
+                            })
 
     if anomalies:
         anomaly_path = run_dir / "anomalies.json"

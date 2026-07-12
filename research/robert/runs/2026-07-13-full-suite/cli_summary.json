@@ -1,0 +1,37 @@
+{
+  "status": "ok",
+  "run_dir": "research/robert/runs/2026-07-13-full-suite",
+  "models_run": [
+    "bgbw",
+    "tsallis_1c",
+    "tsallis_2c",
+    "juttner_1c",
+    "juttner_2c",
+    "bose_1c",
+    "bose_2c"
+  ],
+  "bins": [
+    "101-125",
+    "126-150",
+    "21-30",
+    "31-40",
+    "41-50",
+    "51-60",
+    "61-70",
+    "71-80",
+    "81-90",
+    "91-100"
+  ],
+  "best_model_per_bin": {
+    "101-125": "tsallis_2c",
+    "126-150": "tsallis_2c",
+    "21-30": "tsallis_2c",
+    "31-40": "tsallis_2c",
+    "41-50": "tsallis_2c",
+    "51-60": "tsallis_2c",
+    "61-70": "tsallis_2c",
+    "71-80": "tsallis_2c",
+    "81-90": "tsallis_2c",
+    "91-100": "tsallis_2c"
+  }
+}
