@@ -61,7 +61,8 @@ class ProjectRegistry:
 
     def get_project(self, project_id: str) -> ProjectSpec:
         if project_id not in self._projects:
-            raise ValueError(f"Project not found: {project_id}")
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail=f"Project '{project_id}' not found")
         return self._projects[project_id]
 
     def list_projects(self) -> List[ProjectSpec]:

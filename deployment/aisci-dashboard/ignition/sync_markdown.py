@@ -2,6 +2,7 @@ import os
 import re
 import sqlite3
 import threading
+import hashlib
 from marko.ext.gfm import gfm
 
 try:
@@ -33,10 +34,12 @@ from project_registry import registry
 
 def _extract_text(node):
     if hasattr(node, 'children') and isinstance(node.children, list):
-        return "".join(_extract_text(c) for c in node.children)
+        text = "".join(_extract_text(c) for c in node.children)
     elif hasattr(node, 'children') and isinstance(node.children, str):
-        return node.children
-    return ""
+        text = node.children
+    else:
+        text = ""
+    return re.sub(r'~~(.*?)~~', '', text)
 
 def parse_evidence_markdown(filepath):
     """
@@ -251,7 +254,7 @@ def sync_tasks_to_db(project_id: str):
                             t_id = m.group(1).strip()
                             t_title = m.group(2).strip()
                         else:
-                            t_id = "c-" + title_str[:10].replace(" ", "-")
+                            t_id = "c-" + hashlib.sha256(title_str.encode()).hexdigest()[:12]
                             t_title = title_str
                             
                         tasks.append({
@@ -268,11 +271,16 @@ def sync_tasks_to_db(project_id: str):
     if current_task:
         tasks.append(current_task)
                     
+    seen = {}
+    for t in tasks:
+        seen[t["id"]] = t
+    tasks = list(seen.values())
+
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM Tasks WHERE project_id=?", (project_id,))
     for t in tasks:
-        cursor.execute("INSERT INTO Tasks (id, project_id, title, description, priority, assignee, date, citation, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        cursor.execute("INSERT OR REPLACE INTO Tasks (id, project_id, title, description, priority, assignee, date, citation, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                        (t['id'], project_id, t['title'], t['description'], t['priority'], t['assignee'], t['date'], t['citation'], t['status']))
     conn.commit()
     conn.close()

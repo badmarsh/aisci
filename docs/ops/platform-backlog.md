@@ -14,6 +14,7 @@ questions and evidence gates remain in each project's canonical workspace.
 | P1 | Science artifacts | Complete versioned run/artifact provenance | Fit and audit outputs need a complete manifest, input hashes, validation-gate results, and links back to canonical claims. | Extend the registered pipelines and artifact readers without promoting science claims automatically. | Done |
 | P2 | Literature | Make literature source/provenance ingestion project-scoped and idempotent | Current paper-source inference and duplicate-claim handling are not sufficient for a portfolio of research projects. | Add explicit provider/provenance fields and idempotent ingestion constraints. | Done |
 | P2 | Archive hygiene | Classify remaining legacy integration records | Historical Onyx/DeerFlow/MCP documents are retained, but must stay visibly separate from current runbooks. | 2026-07-12: Added historical marker to 12 legacy files (activepieces-integration, k-dense-skills-reference, kdense-agent-skills, literature-corpus-policy, mcp-endpoints, mcp-hep-servers, model-optimization-report, model-selection-guide, rag-evaluation-results, rag-evaluation-set, semantic-scholar-asta-api, subtree-management). | Done |
+| P1 | DB Sync | Fix UNIQUE constraint crash in sync_tasks_to_db | Markdown parser produced duplicate Task IDs; second INSERT crashed on UNIQUE constraint. | Use INSERT OR REPLACE, deduplicate in-memory before DB write, harden auto-generated IDs, strip strikethrough text. | Done |
 
 ## Completed architecture milestones
 

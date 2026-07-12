@@ -34,18 +34,19 @@ const priorityStyles: Record<Task["priority"], string> = {
 
 function TasksPage() {
   const queryClient = useQueryClient();
+  const { projectId } = Route.useParams();
 
   const {
     data: tasks = [],
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: fetchTasks,
+    queryKey: ["tasks", projectId],
+    queryFn: () => fetchTasks(projectId),
   });
 
   const mutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) => updateTask(id, status),
+    mutationFn: ({ id, status }: { id: string; status: string }) => updateTask(projectId, id, status),
     onSuccess: (_, { status }) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["activity"] });
@@ -59,10 +60,14 @@ function TasksPage() {
   });
 
   const syncMutation = useMutation({
-    mutationFn: syncFromFiles,
+    mutationFn: () => syncFromFiles(projectId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["evidence"] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Synced from canonical files.");
+    },
+    onError: () => {
+      toast.error("Sync failed. Check the API logs.");
     },
   });
 
@@ -106,6 +111,11 @@ function TasksPage() {
         </div>
 
         <TabsContent value="active">
+          {active.length === 0 && (
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              No active tasks.
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {active.map((t: Task) => (
               <TaskCard key={t.id} t={t} mutation={mutation} />
@@ -113,6 +123,11 @@ function TasksPage() {
           </div>
         </TabsContent>
         <TabsContent value="blocked">
+          {blocked.length === 0 && (
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              No blocked tasks.
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {blocked.map((t: Task) => (
               <TaskCard key={t.id} t={t} mutation={mutation} />
@@ -120,6 +135,11 @@ function TasksPage() {
           </div>
         </TabsContent>
         <TabsContent value="proposed">
+          {proposed.length === 0 && (
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              No proposed tasks.
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {proposed.map((t: Task) => (
               <TaskCard key={t.id} t={t} proposed mutation={mutation} />

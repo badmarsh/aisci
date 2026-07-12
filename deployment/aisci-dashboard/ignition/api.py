@@ -182,6 +182,7 @@ def get_pipelines(project_id: str):
 
 @app.get("/api/projects/{project_id}/literature", response_model=List[Paper])
 def get_literature(project_id: str):
+    spec = registry.get_project(project_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Papers WHERE project_id = ?", (project_id,))
@@ -234,6 +235,7 @@ class IngestPaperRequest(BaseModel):
 
 @app.post("/api/projects/{project_id}/literature")
 def ingest_literature(project_id: str, req: IngestPaperRequest, _: None = Depends(verify_token)):
+    spec = registry.get_project(project_id)
     from database import insert_paper, insert_claim, insert_dataset
     insert_paper(req.id, project_id, req.title, req.abstract, req.published, req.url, req.category, req.provenance, req.source_hash)
     if req.claims:
@@ -247,6 +249,7 @@ def ingest_literature(project_id: str, req: IngestPaperRequest, _: None = Depend
 
 @app.get("/api/projects/{project_id}/evidence", response_model=List[EvidenceRow])
 def get_evidence(project_id: str):
+    spec = registry.get_project(project_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM Evidence WHERE project_id = ?", (project_id,))
@@ -256,6 +259,7 @@ def get_evidence(project_id: str):
 
 @app.patch("/api/projects/{project_id}/evidence/{evidence_id}")
 def update_evidence(project_id: str, evidence_id: int, body: StatusUpdate, _: None = Depends(verify_token)):
+    spec = registry.get_project(project_id)
     req_id = str(uuid.uuid4())
     conn = get_db()
     conn.execute(
@@ -391,6 +395,7 @@ def get_anomalies(project_id: str, run: Optional[str] = None):
 @app.get("/api/projects/{project_id}/export/summary")
 def get_export_summary(project_id: str):
     """Generates a text summary of the current project state for GitHub Issues/Logs."""
+    spec = registry.get_project(project_id)
     conn = get_db()
     cursor = conn.cursor()
     
@@ -444,16 +449,21 @@ def get_export_summary(project_id: str):
 
 
 @app.get("/api/projects/{project_id}/tasks", response_model=List[TaskModel])
-def get_tasks(project_id: str):
+def get_tasks(project_id: str, exclude_done: bool = False):
+    spec = registry.get_project(project_id)
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Tasks WHERE project_id = ?", (project_id,))
+    if exclude_done:
+        cursor.execute("SELECT * FROM Tasks WHERE project_id = ? AND status != 'done'", (project_id,))
+    else:
+        cursor.execute("SELECT * FROM Tasks WHERE project_id = ?", (project_id,))
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
 @app.patch("/api/projects/{project_id}/tasks/{task_id}")
 def update_task(project_id: str, task_id: str, body: StatusUpdate, _: None = Depends(verify_token)):
+    spec = registry.get_project(project_id)
     req_id = str(uuid.uuid4())
     conn = get_db()
     conn.execute(
@@ -506,16 +516,17 @@ def stream_log_file(filepath: str, max_lines: int = 200):
 @app.get("/api/projects/{project_id}/logs/{pipeline_id}")
 def stream_pipeline_log(project_id: str, pipeline_id: str):
     spec = registry.get_project(project_id)
-    if not spec:
-        raise HTTPException(status_code=404, detail="Project not found")
-    
-    runs_dir = spec.get_runs_dir()
-    log_path = os.path.join(runs_dir, f"{pipeline_id}_latest.log")
-    
-    if not os.path.exists(log_path):
-        return StreamingResponse(iter(["data: {\"line\": \"No logs found.\\n\"}\n\n"]), media_type="text/event-stream")
-        
-    return stream_log_file(log_path)
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT log_path FROM JobExecutions WHERE project_id = ? AND pipeline_id = ? ORDER BY created_at DESC LIMIT 1",
+        (project_id, pipeline_id)
+    )
+    row = cursor.fetchone()
+    conn.close()
+    if not row or not row["log_path"]:
+        return StreamingResponse(iter([f'data: {{"line": "No logs found for {pipeline_id}.\\n"}}\n\n']), media_type="text/event-stream")
+    return stream_log_file(row["log_path"])
 
 class ActivityModel(BaseModel):
     id: int
@@ -535,35 +546,68 @@ def get_activity(project_id: str):
 
 @app.get("/api/agents", response_model=List[AgentModel])
 def get_agents():
-    # Read actual tails from the log files
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT pipeline_id, status, updated_at, log_path FROM JobExecutions ORDER BY updated_at DESC LIMIT 20"
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    
+    pipelines_status = {}
+    for r in rows:
+        pid = r['pipeline_id']
+        if pid not in pipelines_status:
+            pipelines_status[pid] = r
+
     log_dir = os.path.join(os.path.dirname(__file__), '..')
     backend_log = os.path.join(log_dir, 'backend.log')
-    ingest_log = os.path.join(log_dir, 'ingest.log')
-    fits_log = os.path.join(log_dir, 'fits.log')
     
-    return [
-        {
-            "name": "FastAPI Backend",
-            "status": "ACTIVE",
-            "last": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "summary": "Main API server process",
-            "log": tail_log(backend_log)
-        },
-        {
+    agents = [{
+        "name": "FastAPI Backend",
+        "status": "ACTIVE",
+        "last": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "summary": "Main API server process",
+        "log": tail_log(backend_log)
+    }]
+
+    ingest_job = pipelines_status.get("ingest-pipeline")
+    if ingest_job:
+        agents.append({
             "name": "Ingest Pipeline",
-            "status": "IDLE" if not os.path.exists(ingest_log) else "ACTIVE",
-            "last": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "status": ingest_job["status"].upper(),
+            "last": ingest_job["updated_at"],
             "summary": "Literature fetch and LLM extraction",
-            "log": tail_log(ingest_log)
-        },
-        {
+            "log": tail_log(ingest_job["log_path"]) if ingest_job["log_path"] else ["[No log]"]
+        })
+    else:
+        agents.append({
+            "name": "Ingest Pipeline",
+            "status": "IDLE",
+            "last": "Never",
+            "summary": "Literature fetch and LLM extraction",
+            "log": ["[No log]"]
+        })
+
+    fit_job = pipelines_status.get("fit-pipeline")
+    if fit_job:
+        agents.append({
             "name": "Fit Pipeline",
-            "status": "IDLE" if not os.path.exists(fits_log) else "ACTIVE",
-            "last": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "status": fit_job["status"].upper(),
+            "last": fit_job["updated_at"],
             "summary": "Physics spectra fitting routines",
-            "log": tail_log(fits_log)
-        }
-    ]
+            "log": tail_log(fit_job["log_path"]) if fit_job["log_path"] else ["[No log]"]
+        })
+    else:
+        agents.append({
+            "name": "Fit Pipeline",
+            "status": "IDLE",
+            "last": "Never",
+            "summary": "Physics spectra fitting routines",
+            "log": ["[No log]"]
+        })
+
+    return agents
 
 @app.post("/api/projects/{project_id}/sync")
 async def manual_sync(project_id: str, _: None = Depends(verify_token)):
@@ -626,6 +670,7 @@ async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(
 
 @app.get("/api/projects/{project_id}/review-requests")
 def get_review_requests(project_id: str):
+    spec = registry.get_project(project_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM ReviewDecisions WHERE project_id = ?", (project_id,))
@@ -635,6 +680,7 @@ def get_review_requests(project_id: str):
 
 @app.get("/api/projects/{project_id}/jobs")
 def get_jobs(project_id: str):
+    spec = registry.get_project(project_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM JobExecutions WHERE project_id = ? ORDER BY created_at DESC", (project_id,))
@@ -656,6 +702,7 @@ def get_jobs(project_id: str):
 
 @app.get("/api/projects/{project_id}/jobs/{job_id}")
 def get_job(project_id: str, job_id: str):
+    spec = registry.get_project(project_id)
     conn = get_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM JobExecutions WHERE project_id = ? AND id = ?", (project_id, job_id))
