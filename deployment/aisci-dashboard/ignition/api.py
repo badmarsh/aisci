@@ -18,9 +18,11 @@ import sync_markdown
 from datetime import datetime
 
 from database import init_db
-from config import RUNS_BASE, AUTH_TOKEN
+from config import AUTH_TOKEN
 import fit_parser
 from validation_policy import default_policy
+from project_registry import registry, ProjectSpec
+from pipelines import registry as pipeline_registry
 
 app = FastAPI(title="AiSci Dashboard API")
 
@@ -47,37 +49,47 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from config import RUNS_BASE
+from config import AUTH_TOKEN
+from project_registry import registry
 from database import get_connection
 
-def get_latest_run_path() -> str:
-    """Return the most recently modified run directory that contains fit_quality.csv."""
+def get_latest_run_path(project_id: str) -> str:
+    """Return the most recently modified run directory that contains fit_quality.csv for a given project."""
+    spec = registry.get_project(project_id)
+    runs_base = spec.get_runs_dir()
+    if not os.path.exists(runs_base):
+        raise FileNotFoundError(f"Runs directory not found for project {project_id}.")
     candidates = [
-        d for d in os.listdir(RUNS_BASE)
-        if os.path.isdir(os.path.join(RUNS_BASE, d))
-        and os.path.exists(os.path.join(RUNS_BASE, d, 'fit_quality.csv'))
+        d for d in os.listdir(runs_base)
+        if os.path.isdir(os.path.join(runs_base, d))
+        and os.path.exists(os.path.join(runs_base, d, 'fit_quality.csv'))
     ]
     if not candidates:
-        raise FileNotFoundError("No completed run directories found.")
-    return os.path.join(RUNS_BASE, sorted(candidates)[-1])
+        raise FileNotFoundError(f"No completed run directories found for project {project_id}.")
+    return os.path.join(runs_base, sorted(candidates)[-1])
 
-def list_run_dirs() -> list[str]:
-    """Return all run directory names, newest first."""
-    if not os.path.exists(RUNS_BASE):
+def list_run_dirs(project_id: str) -> list[str]:
+    """Return all run directory names, newest first, for a given project."""
+    spec = registry.get_project(project_id)
+    runs_base = spec.get_runs_dir()
+    if not os.path.exists(runs_base):
         return []
     candidates = [
-        d for d in os.listdir(RUNS_BASE)
-        if os.path.isdir(os.path.join(RUNS_BASE, d))
+        d for d in os.listdir(runs_base)
+        if os.path.isdir(os.path.join(runs_base, d))
     ]
     return sorted(candidates, reverse=True)
 
 def get_db():
     return get_connection()
 
-def log_activity(action, user, details):
+def log_activity(project_id: str, action: str, user: str, details: str):
     conn = get_db()
-    conn.execute("INSERT INTO ActivityLogs (timestamp, action, user, details) VALUES (?, ?, ?, ?)",
-                 (datetime.now().isoformat() + "Z", action, user, details))
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO ActivityLogs (project_id, timestamp, action, user, details)
+        VALUES (?, datetime('now'), ?, ?, ?)
+    ''', (project_id, action, user, details))
     conn.commit()
     conn.close()
 
@@ -128,11 +140,26 @@ class StatusUpdate(BaseModel):
 
 # --- Endpoints ---
 
-@app.get("/api/literature", response_model=List[Paper])
-def get_literature():
+@app.get("/api/projects")
+def get_projects():
+    # Return all registered projects
+    projects = []
+    for pid, spec in registry._projects.items():
+        projects.append({
+            "id": pid,
+            "title": spec.title,
+            "owner": spec.owner,
+            "research_type": spec.research_type,
+            "sensitivity": spec.sensitivity,
+            "capabilities": spec.capabilities
+        })
+    return projects
+
+@app.get("/api/projects/{project_id}/literature", response_model=List[Paper])
+def get_literature(project_id: str):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Papers")
+    cursor.execute("SELECT * FROM Papers WHERE project_id = ?", (project_id,))
     papers_rows = cursor.fetchall()
     
     result = []
@@ -162,32 +189,34 @@ def get_literature():
     # If DB is empty, return a fallback just for demonstration, otherwise return results
     return result
 
-@app.get("/api/evidence", response_model=List[EvidenceRow])
-def get_evidence():
+@app.get("/api/projects/{project_id}/evidence", response_model=List[EvidenceRow])
+def get_evidence(project_id: str):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Evidence")
+    cursor.execute("SELECT * FROM Evidence WHERE project_id = ?", (project_id,))
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
-@app.patch("/api/evidence/{evidence_id}")
-def update_evidence(evidence_id: int, body: StatusUpdate, _: None = Depends(verify_token)):
+@app.patch("/api/projects/{project_id}/evidence/{evidence_id}")
+def update_evidence(project_id: str, evidence_id: int, body: StatusUpdate, _: None = Depends(verify_token)):
     req_id = str(uuid.uuid4())
     conn = get_db()
     conn.execute(
-        "INSERT INTO ReviewDecisions (id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (req_id, str(evidence_id), body.status, "User", "Proposed", datetime.now().isoformat())
+        "INSERT INTO ReviewDecisions (id, project_id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (req_id, project_id, str(evidence_id), body.status, "User", "Proposed", datetime.now().isoformat())
     )
     conn.commit()
     conn.close()
-    log_activity("Review Requested", "User", f"Requested evidence #{evidence_id} status change to {body.status}")
+    log_activity(project_id, "Review Requested", "User", f"Requested evidence #{evidence_id} status change to {body.status}")
     return {"status": "review_requested", "requestId": req_id}
 
-@app.get("/api/fits")
-def get_fits(run: Optional[str] = None, compare_run: Optional[str] = None):
+@app.get("/api/projects/{project_id}/fits")
+def get_fits(project_id: str, run: Optional[str] = None, compare_run: Optional[str] = None):
     try:
-        run_path = os.path.join(RUNS_BASE, run) if run else get_latest_run_path()
+        spec = registry.get_project(project_id)
+        runs_base = spec.get_runs_dir()
+        run_path = os.path.join(runs_base, run) if run else get_latest_run_path(project_id)
         parsed = fit_parser.parse_fit_artifacts(run_path)
     except Exception as e:
         return {
@@ -211,7 +240,7 @@ def get_fits(run: Optional[str] = None, compare_run: Optional[str] = None):
     compare_series = None
     if compare_run:
         try:
-            cmp_path = os.path.join(RUNS_BASE, compare_run)
+            cmp_path = os.path.join(runs_base, compare_run)
             cmp_parsed = fit_parser.parse_fit_artifacts(cmp_path)
             compare_series = []
             for b in cmp_parsed["bins"]:
@@ -231,9 +260,9 @@ def get_fits(run: Optional[str] = None, compare_run: Optional[str] = None):
         "runId": parsed["runId"]
     }
 
-@app.get("/api/fits/runs")
-def get_fit_runs():
-    return {"runs": list_run_dirs()}
+@app.get("/api/projects/{project_id}/fits/runs")
+def get_fit_runs(project_id: str):
+    return {"runs": list_run_dirs(project_id)}
 
 class AnomalyItem(BaseModel):
     bin: str
@@ -243,11 +272,13 @@ class AnomalyItem(BaseModel):
     message: str
     value: float
 
-@app.get("/api/anomalies", response_model=List[AnomalyItem])
-def get_anomalies(run: Optional[str] = None):
+@app.get("/api/projects/{project_id}/anomalies", response_model=List[AnomalyItem])
+def get_anomalies(project_id: str, run: Optional[str] = None):
     """Scan the latest (or specified) run for physics anomalies using ValidationPolicy."""
     try:
-        run_path = os.path.join(RUNS_BASE, run) if run else get_latest_run_path()
+        spec = registry.get_project(project_id)
+        runs_base = spec.get_runs_dir()
+        run_path = os.path.join(runs_base, run) if run else get_latest_run_path(project_id)
         parsed = fit_parser.parse_fit_artifacts(run_path)
     except FileNotFoundError:
         return []
@@ -301,16 +332,16 @@ def get_anomalies(run: Optional[str] = None):
 
     return anomalies
 
-@app.get("/api/export/summary")
-def get_export_summary():
+@app.get("/api/projects/{project_id}/export/summary")
+def get_export_summary(project_id: str):
     """Generates a text summary of the current project state for GitHub Issues/Logs."""
     conn = get_db()
     cursor = conn.cursor()
     
     # Get active fits count
-    run_path = get_latest_run_path()
     active_fits_count = 0
     try:
+        run_path = get_latest_run_path(project_id)
         if run_path:
             qual = pd.read_csv(os.path.join(run_path, "fit_quality.csv"))
             active_fits_count = len(qual)
@@ -318,7 +349,7 @@ def get_export_summary():
         pass
 
     # Get anomalies
-    anomalies = get_anomalies()
+    anomalies = get_anomalies(project_id)
     anom_str = f"Found {len(anomalies)} anomalies in latest run.\n"
     if anomalies:
         for a in anomalies[:5]:
@@ -329,15 +360,15 @@ def get_export_summary():
         anom_str = "No physics anomalies detected in latest run.\n"
 
     # Get evidence pending review
-    cursor.execute("SELECT count(*) FROM Evidence WHERE status='Proposed'")
+    cursor.execute("SELECT count(*) FROM Evidence WHERE status='Proposed' AND project_id=?", (project_id,))
     evidence_pending = cursor.fetchone()[0]
 
     # Get open tasks
-    cursor.execute("SELECT count(*) FROM Tasks WHERE status != 'closed'")
+    cursor.execute("SELECT count(*) FROM Tasks WHERE status != 'closed' AND project_id=?", (project_id,))
     open_tasks = cursor.fetchone()[0]
 
     # Get latest literature
-    cursor.execute("SELECT count(*) FROM Papers")
+    cursor.execute("SELECT count(*) FROM Papers WHERE project_id=?", (project_id,))
     lit_count = cursor.fetchone()[0]
     
     conn.close()
@@ -356,26 +387,26 @@ def get_export_summary():
     return {"markdown": markdown}
 
 
-@app.get("/api/tasks", response_model=List[TaskModel])
-def get_tasks():
+@app.get("/api/projects/{project_id}/tasks", response_model=List[TaskModel])
+def get_tasks(project_id: str):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM Tasks")
+    cursor.execute("SELECT * FROM Tasks WHERE project_id = ?", (project_id,))
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
-@app.patch("/api/tasks/{task_id}")
-def update_task(task_id: str, body: StatusUpdate, _: None = Depends(verify_token)):
+@app.patch("/api/projects/{project_id}/tasks/{task_id}")
+def update_task(project_id: str, task_id: str, body: StatusUpdate, _: None = Depends(verify_token)):
     req_id = str(uuid.uuid4())
     conn = get_db()
     conn.execute(
-        "INSERT INTO ReviewDecisions (id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (req_id, task_id, body.status, "User", "Proposed", datetime.now().isoformat())
+        "INSERT INTO ReviewDecisions (id, project_id, target_id, requested_state, reviewer, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (req_id, project_id, task_id, body.status, "User", "Proposed", datetime.now().isoformat())
     )
     conn.commit()
     conn.close()
-    log_activity("Review Requested", "User", f"Requested task {task_id} status change to {body.status}")
+    log_activity(project_id, "Review Requested", "User", f"Requested task {task_id} status change to {body.status}")
     return {"status": "review_requested", "requestId": req_id}
 
 def tail_log(filepath: str, lines: int = 10) -> list[str]:
@@ -412,14 +443,18 @@ def stream_log_file(filepath: str, max_lines: int = 200):
     return StreamingResponse(generate(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
-@app.get("/api/logs/ingest")
-def stream_ingest_log():
-    log_path = os.path.join(os.path.dirname(__file__), '..', 'ingest.log')
-    return stream_log_file(log_path)
-
-@app.get("/api/logs/fits")
-def stream_fits_log():
-    log_path = os.path.join(os.path.dirname(__file__), '..', 'fits.log')
+@app.get("/api/projects/{project_id}/logs/{pipeline_id}")
+def stream_pipeline_log(project_id: str, pipeline_id: str):
+    spec = registry.get_project(project_id)
+    if not spec:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    runs_dir = spec.get_runs_dir()
+    log_path = os.path.join(runs_dir, f"{pipeline_id}_latest.log")
+    
+    if not os.path.exists(log_path):
+        return StreamingResponse(iter(["data: {\"line\": \"No logs found.\\n\"}\n\n"]), media_type="text/event-stream")
+        
     return stream_log_file(log_path)
 
 class ActivityModel(BaseModel):
@@ -429,11 +464,11 @@ class ActivityModel(BaseModel):
     user: str
     details: str
 
-@app.get("/api/activity", response_model=List[ActivityModel])
-def get_activity():
+@app.get("/api/projects/{project_id}/activity", response_model=List[ActivityModel])
+def get_activity(project_id: str):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM ActivityLogs ORDER BY id DESC LIMIT 50")
+    cursor.execute("SELECT * FROM ActivityLogs WHERE project_id = ? ORDER BY id DESC LIMIT 50", (project_id,))
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
@@ -470,23 +505,23 @@ def get_agents():
         }
     ]
 
-@app.post("/api/sync")
-async def manual_sync(_: None = Depends(verify_token)):
+@app.post("/api/projects/{project_id}/sync")
+async def manual_sync(project_id: str, _: None = Depends(verify_token)):
     """Force a re-sync from canonical Markdown files. Call after external agent writes."""
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, sync_markdown.sync_evidence_to_db)
-    await loop.run_in_executor(None, sync_markdown.sync_tasks_to_db)
-    log_activity("Manual Sync", "User", "Re-synced Evidence and Tasks from Markdown files.")
+    await loop.run_in_executor(None, sync_markdown.sync_evidence_to_db, project_id)
+    await loop.run_in_executor(None, sync_markdown.sync_tasks_to_db, project_id)
+    log_activity(project_id, "Manual Sync", "User", f"Re-synced Evidence and Tasks for project {project_id}.")
     return {"status": "ok", "message": "Synced from evidence-ledger.md and next-actions.md"}
 
-@app.post("/api/materialize")
-async def materialize_decisions(_: None = Depends(verify_token)):
+@app.post("/api/projects/{project_id}/materialize")
+async def materialize_decisions(project_id: str, _: None = Depends(verify_token)):
     """Apply all 'Proposed' review decisions to the canonical Markdown files safely."""
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, sync_markdown.materialize_approved_decisions)
+    await loop.run_in_executor(None, sync_markdown.materialize_approved_decisions, project_id)
     return {"status": "ok", "message": "Materialized approved decisions to canonical files."}
 
-async def run_job_in_background(job_id: str, name: str, cmd: list[str], log_path: str):
+async def run_job_in_background(job_id: str, project_id: str, pipeline_id: str, cmd: list[str], working_dir: str, log_path: str):
     conn = get_db()
     conn.execute("UPDATE JobExecutions SET status = 'running', log_path = ? WHERE id = ?", (log_path, job_id))
     conn.commit()
@@ -494,45 +529,56 @@ async def run_job_in_background(job_id: str, name: str, cmd: list[str], log_path
     
     with open(log_path, 'w') as f:
         process = await asyncio.create_subprocess_exec(
-            *cmd, stdout=f, stderr=f
+            *cmd, stdout=f, stderr=f, cwd=working_dir
         )
         await process.communicate()
     
     status = 'completed' if process.returncode == 0 else 'failed'
     conn = get_db()
-    conn.execute("UPDATE JobExecutions SET status = ?, updated_at = ? WHERE id = ?", 
-                 (status, datetime.now().isoformat(), job_id))
+    conn.execute("UPDATE JobExecutions SET status = ?, exit_code = ?, updated_at = ? WHERE id = ?", 
+                 (status, process.returncode, datetime.now().isoformat(), job_id))
     conn.commit()
     conn.close()
 
-@app.post("/api/ingest")
-async def trigger_ingest(_: None = Depends(verify_token)):
+@app.post("/api/projects/{project_id}/pipelines/{pipeline_id}/run")
+async def trigger_pipeline(project_id: str, pipeline_id: str, _: None = Depends(verify_token)):
+    spec = registry.get_project(project_id)
+    pipeline_spec = pipeline_registry.get_pipeline(pipeline_id)
+    
     job_id = str(uuid.uuid4())
     conn = get_db()
-    conn.execute("INSERT INTO JobExecutions (id, name, status, created_at) VALUES (?, ?, ?, ?)",
-                 (job_id, "Ingest Pipeline", "pending", datetime.now().isoformat()))
+    
+    # Check for duplicate running jobs
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM JobExecutions WHERE project_id = ? AND pipeline_id = ? AND status IN ('pending', 'running')", 
+                   (project_id, pipeline_id))
+    active = cursor.fetchone()
+    if active:
+        conn.close()
+        raise HTTPException(status_code=409, detail=f"Job {active['id']} is already running for pipeline {pipeline_id}.")
+        
+    conn.execute(
+        "INSERT INTO JobExecutions (id, project_id, pipeline_id, name, requester, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (job_id, project_id, pipeline_id, pipeline_spec.name, "User", "pending", datetime.now().isoformat())
+    )
     conn.commit()
     conn.close()
     
-    log_activity("Started Run Ingest", "AI", "Triggered ingest_pipeline.py via dashboard")
-    script_path = os.path.join(os.path.dirname(__file__), "ingest_pipeline.py")
-    log_path = os.path.join(os.path.dirname(__file__), '..', 'ingest.log')
+    log_activity(project_id, f"Started Pipeline: {pipeline_spec.name}", "User", f"Triggered {pipeline_id} via dashboard")
     
-    asyncio.create_task(run_job_in_background(job_id, "Ingest Pipeline", [sys.executable, "-u", script_path], log_path))
-    return {"status": "accepted", "jobId": job_id, "message": "Ingest pipeline started"}
+    # Use project runs directory for logs
+    runs_dir = spec.get_runs_dir()
+    os.makedirs(runs_dir, exist_ok=True)
+    log_path = os.path.join(runs_dir, f"{job_id}.log")
+    
+    asyncio.create_task(run_job_in_background(job_id, project_id, pipeline_id, pipeline_spec.command, pipeline_spec.working_dir, log_path))
+    return {"status": "accepted", "jobId": job_id, "message": f"Pipeline {pipeline_spec.name} started"}
 
-@app.post("/api/fits/run")
-async def trigger_fits(_: None = Depends(verify_token)):
-    job_id = str(uuid.uuid4())
+@app.get("/api/projects/{project_id}/review-requests")
+def get_review_requests(project_id: str):
     conn = get_db()
-    conn.execute("INSERT INTO JobExecutions (id, name, status, created_at) VALUES (?, ?, ?, ?)",
-                 (job_id, "Fit Pipeline", "pending", datetime.now().isoformat()))
-    conn.commit()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM ReviewDecisions WHERE project_id = ?", (project_id,))
+    rows = cursor.fetchall()
     conn.close()
-    
-    log_activity("Started Fit Pipeline", "AI", "Triggered run_fit_fast.py via dashboard")
-    script_path = os.path.join(os.path.dirname(__file__), '..', '..', 'helper', 'run_fit_fast.py')
-    log_path = os.path.join(os.path.dirname(__file__), '..', 'fits.log')
-    
-    asyncio.create_task(run_job_in_background(job_id, "Fit Pipeline", ["python3", script_path], log_path))
-    return {"status": "accepted", "jobId": job_id, "message": "Fit runs started"}
+    return [dict(r) for r in rows]

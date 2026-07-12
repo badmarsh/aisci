@@ -55,11 +55,13 @@ For operational status and open work, see GitHub Issues. For deployment shape an
 
 ## AiSci Core & Ignition Engine
 
-The AiSci Ignition Engine (FastAPI) acts as the bridge between the Dashboard and the underlying physics core. It relies on a CQRS (Command Query Responsibility Segregation) and background task architecture to execute heavy operations.
+The AiSci Ignition Engine (FastAPI) acts as a project-based research control plane and bridge between the Dashboard and the underlying scientific workflows. It relies on a registry-based CQRS (Command Query Responsibility Segregation) and background task architecture.
 
-- **Queries (Reads)**: Endpoints fetch data directly from canonical research files (e.g., `research/robert/evidence-ledger.md`, `next-actions.md`) or the SQLite database. Path resolution maps accurately to the `research/robert/` namespace.
-- **Commands & Tasks (Writes)**: Modifying operations and long-running jobs (like executing fits or validating hypotheses) are strictly dispatched as safe `asyncio`-based background tasks rather than blocking `subprocess.Popen` calls.
-- **State tracking**: Background tasks provide status and log outputs seamlessly to the React frontend without tying up FastAPI worker threads.
+- **Project Registry**: `ProjectSpec` instances map user projects to their respective repositories, runs directories, and evidence files (e.g., `robert-boson-manuscript`).
+- **Pipeline Abstraction**: Scientific tools (like data ingestion, physical fitting, and LaTeX report building) are registered as `PipelineSpec` jobs available to specific projects.
+- **Queries (Reads)**: Endpoints fetch data directly from canonical project files (e.g., `research/robert/evidence-ledger.md`) or the SQLite database, always scoped to `projectId`.
+- **Commands & Tasks (Writes)**: Modifying operations and long-running jobs (like executing fits) are strictly dispatched as safe `asyncio`-based background tasks rather than blocking subprocess calls.
+- **State tracking**: Background tasks provide status and log outputs seamlessly to the React frontend, partitioned by `projectId`.
 
 ---
 

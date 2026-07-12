@@ -1,53 +1,59 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8001/api";
 
-export async function fetchLiterature() {
-  const res = await fetch(`${API_URL}/literature`);
+import type { Anomaly } from "./types";
+
+export async function fetchProjects() {
+  const res = await fetch(`${API_URL}/projects`);
+  if (!res.ok) throw new Error("Failed to fetch projects");
+  return res.json();
+}
+
+export async function fetchLiterature(projectId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/literature`);
   if (!res.ok) throw new Error("Failed to fetch literature");
   return res.json();
 }
 
-import type { Anomaly } from "./types";
-
-export async function fetchAnomalies(run?: string): Promise<Anomaly[]> {
+export async function fetchAnomalies(projectId: string, run?: string): Promise<Anomaly[]> {
   const params = new URLSearchParams();
   if (run) params.set("run", run);
 
-  const res = await fetch(`${API_URL}/anomalies?${params.toString()}`);
+  const res = await fetch(`${API_URL}/projects/${projectId}/anomalies?${params.toString()}`);
   if (!res.ok) throw new Error("Failed to fetch anomalies");
   return res.json();
 }
 
-export async function fetchExportSummary(): Promise<{ markdown: string }> {
-  const res = await fetch(`${API_URL}/export/summary`);
+export async function fetchExportSummary(projectId: string): Promise<{ markdown: string }> {
+  const res = await fetch(`${API_URL}/projects/${projectId}/export/summary`);
   if (!res.ok) throw new Error("Failed to generate summary");
   return res.json();
 }
 
-export async function fetchEvidence() {
-  const res = await fetch(`${API_URL}/evidence`);
+export async function fetchEvidence(projectId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/evidence`);
   if (!res.ok) throw new Error("Failed to fetch evidence");
   return res.json();
 }
 
-export async function fetchFits(run?: string, compareRun?: string) {
+export async function fetchFits(projectId: string, run?: string, compareRun?: string) {
   const params = new URLSearchParams();
   if (run) params.set("run", run);
   if (compareRun) params.set("compare_run", compareRun);
   const qs = params.toString();
-  const url = `${API_URL}/fits${qs ? `?${qs}` : ""}`;
+  const url = `${API_URL}/projects/${projectId}/fits${qs ? `?${qs}` : ""}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch fits");
   return res.json();
 }
 
-export async function fetchFitRuns(): Promise<{ runs: string[] }> {
-  const res = await fetch(`${API_URL}/fits/runs`);
+export async function fetchFitRuns(projectId: string): Promise<{ runs: string[] }> {
+  const res = await fetch(`${API_URL}/projects/${projectId}/fits/runs`);
   if (!res.ok) throw new Error("Failed to fetch run list");
   return res.json();
 }
 
-export async function fetchTasks() {
-  const res = await fetch(`${API_URL}/tasks`);
+export async function fetchTasks(projectId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/tasks`);
   if (!res.ok) throw new Error("Failed to fetch tasks");
   return res.json();
 }
@@ -58,27 +64,21 @@ export async function fetchAgents() {
   return res.json();
 }
 
-export async function fetchActivity() {
-  const res = await fetch(`${API_URL}/activity`);
+export async function fetchActivity(projectId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/activity`);
   if (!res.ok) throw new Error("Failed to fetch activity");
   return res.json();
 }
 
 // Mutations
-export async function triggerIngest() {
-  const res = await fetch(`${API_URL}/ingest`, { method: "POST" });
-  if (!res.ok) throw new Error("Failed to trigger ingest");
+export async function triggerPipeline(projectId: string, pipelineId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/pipelines/${pipelineId}/run`, { method: "POST" });
+  if (!res.ok) throw new Error(`Failed to trigger pipeline ${pipelineId}`);
   return res.json();
 }
 
-export async function triggerFits() {
-  const res = await fetch(`${API_URL}/fits/run`, { method: "POST" });
-  if (!res.ok) throw new Error("Failed to trigger fits");
-  return res.json();
-}
-
-export async function updateEvidence(id: number, status: string) {
-  const res = await fetch(`${API_URL}/evidence/${id}`, {
+export async function updateEvidence(projectId: string, id: number, status: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/evidence/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status }),
@@ -87,8 +87,8 @@ export async function updateEvidence(id: number, status: string) {
   return res.json();
 }
 
-export async function updateTask(id: string, status: string) {
-  const res = await fetch(`${API_URL}/tasks/${id}`, {
+export async function updateTask(projectId: string, id: string, status: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/tasks/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status }),
@@ -97,8 +97,9 @@ export async function updateTask(id: string, status: string) {
   return res.json();
 }
 
-export async function syncFromFiles() {
-  const res = await fetch(`${API_URL}/sync`, { method: "POST" });
+export async function syncFromFiles(projectId: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/sync`, { method: "POST" });
   if (!res.ok) throw new Error("Failed to sync from files");
   return res.json();
 }
+

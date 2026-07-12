@@ -38,7 +38,7 @@ import {
 import { fetchFitRuns, fetchAnomalies } from "@/lib/api";
 import type { Anomaly } from "@/lib/types";
 
-export const Route = createFileRoute("/anomalies")({
+export const Route = createFileRoute("/projects/$projectId/anomalies")({
   head: () => ({
     meta: [
       { title: "Physics Anomalies — AiSci" },

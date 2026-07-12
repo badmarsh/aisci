@@ -1,9 +1,9 @@
-import { useRouterState } from "@tanstack/react-router";
+import { useRouterState, useParams } from "@tanstack/react-router";
 import { Bell, Loader2, Play, Keyboard } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { triggerIngest, triggerFits, fetchActivity } from "@/lib/api";
+import { triggerPipeline, fetchActivity } from "@/lib/api";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,21 +28,25 @@ export function AppHeader() {
   const queryClient = useQueryClient();
   const [logTarget, setLogTarget] = useState<"ingest" | "fits" | null>(null);
   const [hasReadNotifications, setHasReadNotifications] = useState(false);
+  
+  // Extract projectId if available in the route
+  const { projectId } = useParams({ strict: false }) as { projectId?: string };
 
   const { data: activityFeed = [] } = useQuery({
-    queryKey: ["activity"],
-    queryFn: fetchActivity,
+    queryKey: ["activity", projectId],
+    queryFn: () => projectId ? fetchActivity(projectId) : Promise.resolve([]),
     staleTime: 10_000,
+    enabled: !!projectId,
   });
 
   const recentCount = activityFeed.length;
   const recentActivities = activityFeed.slice(0, 10);
 
   const ingestMutation = useMutation({
-    mutationFn: triggerIngest,
+    mutationFn: () => triggerPipeline(projectId!, "ingest-validation"), // Note: need to register ingest pipeline in pipelines.py if used
     onSuccess: (data) => {
       toast.success("Ingest complete.", { description: data.message });
-      queryClient.invalidateQueries({ queryKey: ["literature"] });
+      queryClient.invalidateQueries({ queryKey: ["literature", projectId] });
     },
     onError: () => {
       toast.error("Ingest failed.");
@@ -50,11 +54,11 @@ export function AppHeader() {
   });
 
   const fitsMutation = useMutation({
-    mutationFn: triggerFits,
+    mutationFn: () => triggerPipeline(projectId!, "fit-validation"),
     onSuccess: (data) => {
       toast.success("Fits complete.", { description: data.message });
-      queryClient.invalidateQueries({ queryKey: ["fits"] });
-      queryClient.invalidateQueries({ queryKey: ["anomalies"] });
+      queryClient.invalidateQueries({ queryKey: ["fits", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["anomalies", projectId] });
     },
     onError: () => {
       toast.error("Fits failed.");
@@ -62,6 +66,7 @@ export function AppHeader() {
   });
 
   function runIngest() {
+    if (!projectId) return;
     toast("Ingest pipeline started.", {
       description: "Fetching from arXiv + OpenAlex...",
     });
@@ -70,6 +75,7 @@ export function AppHeader() {
   }
 
   function runFits() {
+    if (!projectId) return;
     toast("Fits pipeline started.", {
       description: "Running fit_quality script...",
     });
@@ -87,33 +93,37 @@ export function AppHeader() {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <Button
-          onClick={runIngest}
-          disabled={ingestMutation.isPending}
-          size="sm"
-          className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          {ingestMutation.isPending ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Play className="h-3.5 w-3.5" />
-          )}
-          {ingestMutation.isPending ? "Running Ingest…" : "Run Ingest"}
-        </Button>
-        <Button
-          onClick={runFits}
-          disabled={fitsMutation.isPending}
-          size="sm"
-          variant="outline"
-          className="gap-1.5"
-        >
-          {fitsMutation.isPending ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Play className="h-3.5 w-3.5" />
-          )}
-          {fitsMutation.isPending ? "Running Fits…" : "Run Fits"}
-        </Button>
+        {projectId && (
+          <>
+            <Button
+              onClick={runIngest}
+              disabled={ingestMutation.isPending}
+              size="sm"
+              className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {ingestMutation.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Play className="h-3.5 w-3.5" />
+              )}
+              {ingestMutation.isPending ? "Running Ingest…" : "Run Ingest"}
+            </Button>
+            <Button
+              onClick={runFits}
+              disabled={fitsMutation.isPending}
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+            >
+              {fitsMutation.isPending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Play className="h-3.5 w-3.5" />
+              )}
+              {fitsMutation.isPending ? "Running Fits…" : "Run Fits"}
+            </Button>
+          </>
+        )}
         <Popover
           onOpenChange={(open) => {
             if (open) setHasReadNotifications(true);

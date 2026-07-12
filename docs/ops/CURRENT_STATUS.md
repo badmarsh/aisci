@@ -1,5 +1,5 @@
 # Current System Status
-**Last Updated:** 2026-05-30  
+**Last Updated:** 2026-07-12
 **Maintainer:** Platform Operations
 
 > Snapshot only. Durable open work is tracked in GitHub Issues; system state in `docs/ops/platform-status.md`
@@ -11,17 +11,26 @@
 
 | System | Status | Services | Notes |
 |--------|--------|----------|-------|
-| **AiSci Dashboard** | ✅ Operational | Frontend (Vite) + Backend (FastAPI) | Actively developed as part of this repository. Accessible via `start_dashboard.sh`. |
+| **AiSci Dashboard** | ✅ Operational | Frontend (Vite) + Backend (FastAPI) | Re-architected as a project-based research control plane. Accessible via `start_dashboard.sh`. |
 | **Onyx** | ✅ Operational | 18/18 running | All fixes applied, embeddings working |
 
 ---
+
+## 📊 Dashboard Status (Project Control Plane)
+
+**Core Architecture (July 2026 Refactor):**
+- **Project Registry:** Backend and Frontend now use `projectId` for all operations.
+- **Robert's Manuscript:** Migrated from global paths to `robert-boson-manuscript` project.
+- **Pipeline Abstraction:** Pipelines (Ingest, Fit, LaTeX) are dynamically registered per project.
+- **UX Migration:** Multi-project portfolio view implemented at `/`, sidebar and routing are fully `projectId`-aware.
+- **Science Workflows:** Science evidence review loop uses `projectId`.
 
 ## 📊 Onyx Deployment Status
 
 ### Service Health (18/18 Running)
 
 **Core Services:**
-- ✅ onyx-api - API server (31 min uptime)
+- ✅ onyx-api - API server
 - ✅ onyx-web - Web interface (port 80, 3000)
 - ✅ onyx-background - Celery workers
 - ✅ onyx-inference - Embedding model server
@@ -46,42 +55,6 @@
 - ✅ onyx-mcp-server - MCP SSE server
 - ✅ onyx-image-bridge - Image processing (port 8090)
 
-### Recent Fixes (2026-05-30)
-
-1. **Science Persona Stack Rebuilt** ✅
-   - Problem: Personas had missing/invalid model configs and wrong tool IDs (e.g. Scite mapped to coding agent)
-   - Solution: Configured all 4 science personas (`physics-validator`, `evidence-auditor`, `referee-prep`, `arxiv-intake`) with correct model (`qwen-omni-flash`) and correct literature tool mappings (Scite=14, Consensus=13) in `configure_onyx.py`
-   - Result: Science persona chat active, verified via successful smoke test
-   - Details: `docs/ops/onyx-persona-ids.md`
-
-2. **Polluted Document Purge** ✅
-   - Problem: "Robert Corpus" and other doc sets were polluted by local test PDFs (Holocaust denial books, Uncle Fester Meth Guide)
-   - Solution: Cleared blocked index attempts, deleted bad FileConnectors, and purged 4,919 chunks from OpenSearch search index
-   - Result: Core search indexes completely clean, verified index parity
-
-3. **Robert Corpus Privacy Hardened** ✅
-   - Problem: unpublished manuscript data "Robert Corpus" (DS id=2) was public (`is_public=True`)
-   - Solution: Patched doc set in DB and updated configuration scripts to ensure `is_public=False` (Private)
-   - Result: Research data secured, fully closed from public access
-
-4. **Embedding Model Configuration** ✅
-   - Problem: Database had `qwen3-embedding:latest` causing 500 errors
-   - Solution: Updated to `Alibaba-NLP/gte-Qwen2-1.5B-instruct`
-   - Result: Embeddings working at 0.2s per query
-   - Details: `deployment/onyx/FIXES_APPLIED.md`
-
-5. **LLM Model Testing** ✅
-   - Tested: 10 models configured in LiteLLM
-   - Working: 3 models (qwen-omni-flash, llama-3.1-8b, qwen-embedder)
-   - Issues: qwen-max quota exhausted, local-context-model slow first load
-   - Details: `deployment/onyx/LLM_TEST_REPORT.md`
-
-6. **Docker Logs Analysis** ✅
-   - Analyzed: All 18 services
-   - Found: 0 critical issues, 5 non-blocking warnings
-   - Result: All errors historical or expected behavior
-   - Details: `deployment/onyx/DOCKER_LOGS_ANALYSIS.md`
-
 ### Embedding Configuration
 
 ```yaml
@@ -89,7 +62,6 @@ Model: Alibaba-NLP/gte-Qwen2-1.5B-instruct
 Dimensions: 1536
 Index: danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct
 Status: WORKING ✅
-Performance: 0.2s per query (warm), 27s initial load
 ```
 
 ### LLM Models Status
@@ -98,25 +70,6 @@ Performance: 0.2s per query (warm), 27s initial load
 - `qwen-omni-flash` - Fast chat (2-3s) - **PRIMARY**
 - `meta/llama-3.1-8b-instruct` - NVIDIA chat (2-3s)
 - `qwen-embedder` - Local embeddings (Ollama)
-
-**❌ Issues:**
-- `qwen-max` - Quota exhausted (free tier depleted)
-- `local-context-model` - Works but 24s first load
-- `nvidia/nemotron-nano-9b-v2` - Returns reasoning format
-
-**⏭️ Skipped (Need Special Input):**
-- Vision models (need images)
-- Reranker (needs document pairs)
-
-### Performance Metrics
-
-```
-GPU: RTX 3090 (21.5GB available / 24GB total)
-Embedding: 0.2s per query (warm)
-Chat: 2-3s per request (fast models)
-Background queues: All empty (no backlog)
-OpenSearch: 9 active shards, 1,988 documents
-```
 
 ---
 
@@ -160,9 +113,6 @@ Backend API:      http://localhost:8001
 - **Deployment reference:** `docs/ops/deployment-reference.md`
 - **Action plan:** `ACTION_PLAN.md`
 
-### Handoffs
-- **Current handoff:** `HANDOFF.md` (updated 2026-05-30)
-
 ---
 
 ## ⚠️ Known Issues
@@ -183,6 +133,12 @@ Backend API:      http://localhost:8001
 
 ## 🔄 Recent Changes
 
+### 2026-07-12
+- ✅ Dashboard refactored to Project-Based Research Control Plane
+- ✅ Replaced global pathing with registered `ProjectSpec` mappings
+- ✅ Upgraded Dashboard UX (Portfolio view, sidebars) to handle multiple active projects
+- ✅ Extracted pipelines into `pipelines.py`
+
 ### 2026-05-30
 - ✅ Fixed inference model database configuration
 - ✅ Tested all 10 LLM models
@@ -190,9 +146,6 @@ Backend API:      http://localhost:8001
 - ✅ Updated HANDOFF.md with current status
 - ✅ Fixed port numbers in deployment-reference.md
 - ✅ Created this status document
-
-### 2026-05-20
-- ✅ Onyx v4 beta transition completed
 
 ---
 
@@ -211,4 +164,4 @@ Backend API:      http://localhost:8001
 
 **Maintained by:** Platform Operations  
 **Update Frequency:** After significant changes  
-**Last Verified:** 2026-05-30 04:57 UTC
+**Last Verified:** 2026-07-12

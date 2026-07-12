@@ -12,7 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAgents } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const Route = createFileRoute("/agents")({
+export const Route = createFileRoute("/projects/$projectId/agents")({
   head: () => ({
     meta: [
       { title: "Agents — AiSci" },

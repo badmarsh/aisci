@@ -20,7 +20,7 @@ import { fetchEvidence, updateEvidence, syncFromFiles } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/evidence")({
+export const Route = createFileRoute("/projects/$projectId/evidence")({
   head: () => ({
     meta: [
       { title: "Evidence Ledger — AiSci" },

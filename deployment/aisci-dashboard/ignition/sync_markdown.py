@@ -29,10 +29,7 @@ def _atomic_write(path: str, lines: list[str]) -> None:
                 fcntl.flock(f, fcntl.LOCK_UN)
 
 from database import get_connection
-from config import EVIDENCE_FILE, TASKS_FILE
-
-def get_db():
-    return get_connection()
+from project_registry import registry
 
 def _extract_text(node):
     if hasattr(node, 'children') and isinstance(node.children, list):
@@ -41,63 +38,121 @@ def _extract_text(node):
         return node.children
     return ""
 
-def sync_evidence_to_db():
-    if not os.path.exists(EVIDENCE_FILE):
-        return
+def parse_evidence_markdown(filepath):
+    """
+    Parses evidence-ledger.md and returns a list of dictionaries.
+    Looks for the Markdown table starting with '| Claim'.
+    """
+    evidence = []
+    if not os.path.exists(filepath):
+        return evidence
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+        
+    in_table = False
+    for line in lines:
+        if line.startswith('| Claim'):
+            in_table = True
+            continue
+        if in_table and line.startswith('|-'):
+            continue
+        if in_table and line.startswith('|'):
+            parts = [p.strip() for p in line.split('|')]
+            if len(parts) >= 6:
+                claim = parts[1]
+                evidence_req = parts[2]
+                narrative = parts[3]
+                status = parts[4]
+                next_gate = parts[5]
+                evidence.append({
+                    "claim": claim,
+                    "status": status,
+                    "nextGate": next_gate,
+                    "run": "—", # Parse this properly if needed
+                    "narrative": narrative
+                })
+        if in_table and not line.strip():
+            # End of table
+            break
+            
+    return evidence
 
-    with open(EVIDENCE_FILE, 'r') as f:
-        content = f.read()
-
-    doc = gfm.parse(content)
-    rows = []
-    row_id = 1
+def sync_evidence_to_db(project_id: str):
+    """Reads evidence-ledger.md and overwrites the Evidence table in SQLite."""
+    spec = registry.get_project(project_id)
+    filepath = spec.get_canonical_path("evidence-ledger.md")
     
-    for child in doc.children:
-        if child.__class__.__name__ == "Table":
-            # first row is header
-            for i, row in enumerate(child.children):
-                if i == 0: continue # skip header
-                cells = [_extract_text(cell) for cell in row.children]
-                if len(cells) >= 5:
-                    claim_text = cells[0].strip()
-                    current_evidence = cells[2].strip()
-                    status_clean = cells[3].strip()
-                    next_gate = cells[4].strip()
-                    
-                    narrative_clean = re.sub(r'<br\s*/?>', ' | ', current_evidence)
-                    rows.append({
-                        "id": row_id,
-                        "claim": claim_text,
-                        "status": status_clean,
-                        "nextGate": next_gate,
-                        "run": "",
-                        "narrative": narrative_clean[:2000],
-                    })
-                    row_id += 1
-
-    conn = get_db()
+    evidence_list = parse_evidence_markdown(filepath)
+    if not evidence_list:
+        return
+        
+    conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Evidence")
-    for r in rows:
-        cursor.execute(
-            "INSERT INTO Evidence (claim, status, nextGate, run, narrative) VALUES (?, ?, ?, ?, ?)",
-            (r['claim'], r['status'], r['nextGate'], r['run'], r['narrative'])
-        )
+    cursor.execute("DELETE FROM Evidence WHERE project_id=?", (project_id,))
+    
+    for ev in evidence_list:
+        cursor.execute('''
+            INSERT INTO Evidence (project_id, claim, status, nextGate, run, narrative)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (project_id, ev['claim'], ev['status'], ev['nextGate'], ev['run'], ev['narrative']))
+        
     conn.commit()
     conn.close()
 
-def materialize_approved_decisions():
-    conn = get_db()
+def _update_markdown_table_status(filepath: str, row_identifier: str, new_status: str, is_task: bool = False):
+    """
+    Finds a row in a Markdown table containing `row_identifier` and updates its status column.
+    """
+    if not os.path.exists(filepath):
+        return
+
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+
+    updated_lines = []
+    in_table = False
+    
+    if not is_task:
+        for line in lines:
+            if line.startswith('| Claim'):
+                in_table = True
+                updated_lines.append(line)
+                continue
+            if in_table and line.startswith('|'):
+                if row_identifier in line:
+                    parts = line.split('|')
+                    if len(parts) >= 6:
+                        parts[4] = f" {new_status} "
+                        line = '|'.join(parts)
+            updated_lines.append(line)
+            if in_table and not line.strip():
+                in_table = False
+    else:
+        for line in lines:
+            if row_identifier in line:
+                if new_status.lower() in ['done', 'closed', 'completed']:
+                    line = line.replace('[ ]', '[x]').replace('[/]', '[x]')
+                elif new_status.lower() in ['active', 'in progress']:
+                    line = line.replace('[ ]', '[/]').replace('[x]', '[/]')
+            updated_lines.append(line)
+
+    if lines != updated_lines:
+        _atomic_write(filepath, updated_lines)
+
+def materialize_approved_decisions(project_id: str):
+    conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, target_id, requested_state FROM ReviewDecisions WHERE status = 'Proposed'")
+    cursor.execute("SELECT id, target_id, requested_state FROM ReviewDecisions WHERE status = 'Proposed' AND project_id = ?", (project_id,))
     decisions = cursor.fetchall()
     
     if not decisions:
         conn.close()
         return
 
-    # For simplicity, we assume we only update Evidence statuses for now.
-    with open(EVIDENCE_FILE, 'r') as f:
+    spec = registry.get_project(project_id)
+    filepath = spec.get_canonical_path("evidence-ledger.md")
+
+    with open(filepath, 'r') as f:
         lines = f.readlines()
         
     changed = False
@@ -105,7 +160,7 @@ def materialize_approved_decisions():
         evidence_id = dec['target_id']
         new_status = dec['requested_state']
         
-        cursor.execute("SELECT claim FROM Evidence WHERE id = ?", (evidence_id,))
+        cursor.execute("SELECT claim FROM Evidence WHERE id = ? AND project_id = ?", (evidence_id, project_id))
         row = cursor.fetchone()
         if not row:
             continue
@@ -124,19 +179,21 @@ def materialize_approved_decisions():
         
     if changed:
         with _file_lock:
-            _atomic_write(EVIDENCE_FILE, lines)
+            _atomic_write(filepath, lines)
             
     conn.commit()
     conn.close()
     
     if changed:
-        sync_evidence_to_db()
+        sync_evidence_to_db(project_id)
 
-def sync_tasks_to_db():
-    if not os.path.exists(TASKS_FILE):
+def sync_tasks_to_db(project_id: str):
+    spec = registry.get_project(project_id)
+    filepath = spec.get_canonical_path("next-actions.md")
+    if not os.path.exists(filepath):
         return
         
-    with open(TASKS_FILE, 'r') as f:
+    with open(filepath, 'r') as f:
         content = f.read()
 
     doc = gfm.parse(content)
@@ -211,17 +268,20 @@ def sync_tasks_to_db():
     if current_task:
         tasks.append(current_task)
                     
-    conn = get_db()
+    conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Tasks")
+    cursor.execute("DELETE FROM Tasks WHERE project_id=?", (project_id,))
     for t in tasks:
-        cursor.execute("INSERT INTO Tasks (id, title, description, priority, assignee, date, citation, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                       (t['id'], t['title'], t['description'], t['priority'], t['assignee'], t['date'], t['citation'], t['status']))
+        cursor.execute("INSERT INTO Tasks (id, project_id, title, description, priority, assignee, date, citation, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                       (t['id'], project_id, t['title'], t['description'], t['priority'], t['assignee'], t['date'], t['citation'], t['status']))
     conn.commit()
     conn.close()
 
-def sync_db_to_tasks(task_id, new_status):
-    with open(TASKS_FILE, 'r') as f:
+def sync_db_to_tasks(project_id: str, task_id: str, new_status: str):
+    spec = registry.get_project(project_id)
+    filepath = spec.get_canonical_path("next-actions.md")
+
+    with open(filepath, 'r') as f:
         lines = f.readlines()
         
     for i, line in enumerate(lines):
@@ -232,10 +292,10 @@ def sync_db_to_tasks(task_id, new_status):
             break
             
     with _file_lock:
-        _atomic_write(TASKS_FILE, lines)
-        sync_tasks_to_db()
+        _atomic_write(filepath, lines)
+        sync_tasks_to_db(project_id)
 
 if __name__ == '__main__':
-    sync_evidence_to_db()
-    sync_tasks_to_db()
+    sync_evidence_to_db("robert-boson-manuscript")
+    sync_tasks_to_db("robert-boson-manuscript")
     print("Markdown synced to DB using AST parsing.")

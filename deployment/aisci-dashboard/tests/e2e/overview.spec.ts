@@ -9,7 +9,7 @@ test.describe("Overview Page", () => {
         body: JSON.stringify([{ id: "T-1", title: "Test Task", status: "Active" }]),
       });
     });
-    await page.route("**/api/activity", async (route) => {
+    await page.route("**/api/projects/*/activity", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",

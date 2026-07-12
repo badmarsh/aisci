@@ -1,4 +1,4 @@
-import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import { Link, useRouterState, useParams } from "@tanstack/react-router";
 import {
   Home,
   Atom,
@@ -9,6 +9,7 @@ import {
   Moon,
   Sun,
   AlertTriangle,
+  FolderTree,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -27,21 +28,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-const items = [
-  { title: "Overview", url: "/", icon: Home },
-  { title: "Physics Fits", url: "/fits", icon: Atom },
-  { title: "Literature Intake", url: "/literature", icon: BookOpen },
-  { title: "Evidence Ledger", url: "/evidence", icon: ShieldCheck },
-  { title: "Task Queue", url: "/tasks", icon: ListTodo },
-  { title: "Anomalies", url: "/anomalies", icon: AlertTriangle },
-  { title: "Agents", url: "/agents", icon: Bot },
-];
-
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const navigate = useNavigate();
+  
+  const { projectId } = useParams({ strict: false }) as { projectId?: string };
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
@@ -49,6 +41,16 @@ export function AppSidebar() {
     if (dark) root.classList.add("dark");
     else root.classList.remove("dark");
   }, [dark]);
+
+  const items = projectId ? [
+    { title: "Overview", url: `/projects/${projectId}`, icon: Home },
+    { title: "Physics Fits", url: `/projects/${projectId}/fits`, icon: Atom },
+    { title: "Literature Intake", url: `/projects/${projectId}/literature`, icon: BookOpen },
+    { title: "Evidence Ledger", url: `/projects/${projectId}/evidence`, icon: ShieldCheck },
+    { title: "Task Queue", url: `/projects/${projectId}/tasks`, icon: ListTodo },
+    { title: "Anomalies", url: `/projects/${projectId}/anomalies`, icon: AlertTriangle },
+    { title: "Agents", url: `/projects/${projectId}/agents`, icon: Bot },
+  ] : [];
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -81,13 +83,24 @@ export function AppSidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === "/"} tooltip="Portfolio">
+                  <Link to="/" className="flex flex-1 items-center gap-2">
+                    <FolderTree className="h-4 w-4" />
+                    <span>Portfolio</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               {items.map((item) => {
-                const active = pathname === item.url;
+                // Ensure exact match for overview, or prefix match?
+                // Just use simple logic or exact match
+                const active = pathname === item.url || pathname === `${item.url}/`;
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
                       <div className="flex w-full items-center justify-between group">
-                        <Link to={item.url} className="flex flex-1 items-center gap-2">
+                        {/* We use standard a href because Link to dynamic route string might be unhappy with TS unless type is ignored */}
+                        <Link to={item.url as any} className="flex flex-1 items-center gap-2">
                           <item.icon className="h-4 w-4" />
                           <span>{item.title}</span>
                         </Link>

@@ -1,0 +1,15 @@
+[[projects]]
+id = "robert-boson-manuscript"
+title = "Robert — Boson probability function for the moving system"
+owner = "Robert"
+research_type = "manuscript_validation"
+root = "research/robert"
+sensitivity = "private"
+capabilities = [
+  "evidence",
+  "tasks",
+  "literature",
+  "symbolic_validation",
+  "fit_validation",
+  "reports"
+]

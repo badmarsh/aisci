@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const Route = createFileRoute("/fits")({
+export const Route = createFileRoute("/projects/$projectId/fits")({
   head: () => ({
     meta: [
       { title: "Physics Fits — AiSci" },

@@ -32,7 +32,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchLiterature } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const Route = createFileRoute("/literature")({
+export const Route = createFileRoute("/projects/$projectId/literature")({
   head: () => ({
     meta: [
       { title: "Literature Intake — AiSci" },

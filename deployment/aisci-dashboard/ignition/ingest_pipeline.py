@@ -120,7 +120,7 @@ def run_ingest(test_mode=False):
         insert_paper(p['id'], p['title'], p['abstract'], p['published'], p['url'], p['category'])
         
         # Extract insights (Mock LLM)
-        insights = extract_insights(p['title'], p['abstract'], p['category'])
+        insights = extract_insights(project_id, p['title'], p['abstract'], p['category'])
         
         for claim in insights['claims']:
             insert_claim(p['id'], claim['text'], claim['confidence'], claim['type'])

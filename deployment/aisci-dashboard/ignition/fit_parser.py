@@ -95,16 +95,19 @@ def parse_fit_artifacts(run_path: str) -> Dict[str, Any]:
         elif not is_success:
             quality_flag = "FAILED"
 
+        aic_val = row.get('aic')
+        bic_val = row.get('bic')
+
         fit_rows.append({
             "bin": bin_label,
             "model": model_nice,
             "raw_model": row['model_name'],
-            "chi2": round(chi2, 2),
+            "chi2": round(chi2, 2) if not pd.isna(chi2) else None,
             "quality": quality_flag,
             "T": t_str,
             "beta": beta_str,
-            "aic": round(row.get('aic', 0.0), 1),
-            "bic": round(row.get('bic', 0.0), 1),
+            "aic": round(float(aic_val), 1) if aic_val is not None and not pd.isna(aic_val) else None,
+            "bic": round(float(bic_val), 1) if bic_val is not None and not pd.isna(bic_val) else None,
             "status": status,
             "correlations": corr_lookup.get(bin_label, {}).get(model_nice, {}),
             "seedIndex": int(row['seed_index']) if 'seed_index' in row and not pd.isna(row['seed_index']) else None,

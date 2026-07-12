@@ -12,7 +12,7 @@ import { fetchTasks, updateTask, syncFromFiles } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/tasks")({
+export const Route = createFileRoute("/projects/$projectId/tasks")({
   head: () => ({
     meta: [
       { title: "Task Queue — AiSci" },

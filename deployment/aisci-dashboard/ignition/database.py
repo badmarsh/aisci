@@ -19,6 +19,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Papers (
             id TEXT PRIMARY KEY,
+            project_id TEXT,
             title TEXT,
             abstract TEXT,
             published_date TEXT,
@@ -65,6 +66,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Evidence (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id TEXT,
             claim TEXT,
             status TEXT,
             nextGate TEXT,
@@ -77,6 +79,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Tasks (
             id TEXT PRIMARY KEY,
+            project_id TEXT,
             title TEXT,
             description TEXT,
             priority TEXT,
@@ -91,6 +94,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS ActivityLogs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id TEXT,
             timestamp TEXT,
             action TEXT,
             user TEXT,
@@ -102,11 +106,16 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS JobExecutions (
             id TEXT PRIMARY KEY,
+            project_id TEXT,
+            pipeline_id TEXT,
             name TEXT,
+            requester TEXT,
             status TEXT,
             error TEXT,
+            exit_code INTEGER,
             log_path TEXT,
             artifact_manifest TEXT,
+            git_commit TEXT,
             created_at TEXT,
             updated_at TEXT
         )
@@ -116,6 +125,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS ReviewDecisions (
             id TEXT PRIMARY KEY,
+            project_id TEXT,
             target_id TEXT,
             expected_hash TEXT,
             requested_state TEXT,
@@ -126,16 +136,56 @@ def init_db():
         )
     ''')
     
+    # Schema Migrations
+    try:
+        cursor.execute("ALTER TABLE Papers ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
+    except sqlite3.OperationalError:
+        pass # Column exists
+
+    try:
+        cursor.execute("ALTER TABLE Evidence ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE Tasks ADD COLUMN project_id TEXT DEFAULT 'robert-boson-manuscript'")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN project_id TEXT")
+        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN pipeline_id TEXT")
+        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN requester TEXT")
+        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN exit_code INTEGER")
+        cursor.execute("ALTER TABLE JobExecutions ADD COLUMN git_commit TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE ReviewDecisions ADD COLUMN project_id TEXT")
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE ActivityLogs ADD COLUMN project_id TEXT")
+    except sqlite3.OperationalError:
+        pass
+        
+    # Update default project_id for old records
+    cursor.execute("UPDATE Papers SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
+    cursor.execute("UPDATE Evidence SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
+    cursor.execute("UPDATE Tasks SET project_id = 'robert-boson-manuscript' WHERE project_id IS NULL")
+    
     conn.commit()
     conn.close()
 
-def insert_paper(paper_id, title, abstract, published_date, url, category):
+def insert_paper(paper_id, project_id, title, abstract, published_date, url, category):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT OR REPLACE INTO Papers (id, title, abstract, published_date, url, category)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (paper_id, title, abstract, published_date, url, category))
+        INSERT OR REPLACE INTO Papers (id, project_id, title, abstract, published_date, url, category)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (paper_id, project_id, title, abstract, published_date, url, category))
     conn.commit()
     conn.close()
 

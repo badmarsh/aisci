@@ -5,15 +5,15 @@ import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from database import get_connection as get_db
 
-def log_activity(action, user, details):
+def log_activity(project_id, action, user, details):
     conn = get_db()
     from datetime import datetime
-    conn.execute("INSERT INTO ActivityLogs (timestamp, action, user, details) VALUES (?, ?, ?, ?)",
-                 (datetime.now().isoformat() + "Z", action, user, details))
+    conn.execute("INSERT INTO ActivityLogs (project_id, timestamp, action, user, details) VALUES (?, ?, ?, ?, ?)",
+                 (project_id, datetime.now().isoformat() + "Z", action, user, details))
     conn.commit()
     conn.close()
 
-def extract_insights(title, abstract, category):
+def extract_insights(project_id, title, abstract, category):
     insights = {
         "claims": [],
         "datasets": []
@@ -87,7 +87,7 @@ def extract_insights(title, abstract, category):
             
             # Log successful LLM
             try:
-                log_activity("OpenRouter Extraction", "AI", f"Successfully extracted {len(insights['claims'])} claims using OpenRouter.")
+                log_activity(project_id, "OpenRouter Extraction", "AI", f"Successfully extracted {len(insights['claims'])} claims using OpenRouter.")
             except:
                 pass
                 
@@ -99,7 +99,7 @@ def extract_insights(title, abstract, category):
                 continue
             err_body = e.read().decode('utf-8')
             try:
-                log_activity("OpenRouter Failed", "AI", f"Fallback activated. HTTP Error {e.code}: {err_body}")
+                log_activity(project_id, "OpenRouter Failed", "AI", f"Fallback activated. HTTP Error {e.code}: {err_body}")
             except:
                 pass
             print(f"OpenRouter extraction failed: HTTP Error {e.code}: {err_body}. Falling back to keywords.")
@@ -107,7 +107,7 @@ def extract_insights(title, abstract, category):
         except Exception as e:
             # Fallback to mock on connection error or parse error
             try:
-                log_activity("OpenRouter Failed", "AI", f"Fallback activated. Error: {str(e)}")
+                log_activity(project_id, "OpenRouter Failed", "AI", f"Fallback activated. Error: {str(e)}")
             except:
                 pass
             print(f"OpenRouter extraction failed: {e}. Falling back to keywords.")
