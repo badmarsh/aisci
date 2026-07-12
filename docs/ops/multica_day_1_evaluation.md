@@ -1,4 +1,7 @@
-# Multica Day 1: Retrospective & Evaluation
+# Historical Multica Day 1: Retrospective & Evaluation
+
+> **Historical retrospective.** Multica and the integrations described below
+> are not part of the current local control-plane deployment.
 
 Based on an analysis of the ~30 issues processed through Multica in the last 24 hours, the first day of integration has been highly active and productive. Agents have taken on distinct roles, successfully resolving complex DevOps, infrastructure, and configuration tasks. However, the logs also reveal some friction points that will need attention.
 

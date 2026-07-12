@@ -1,4 +1,8 @@
-# Onyx RAG Optimization — 2026-04-27
+# Historical Onyx RAG Optimization — 2026-04-27
+
+> **Historical integration record.** The Onyx RAG stack described below is not
+> present in the current deployment. This file does not define current routing
+> or runbook behavior.
 
 This document captures the RAG-vs-canon source-routing boundary, persona audit findings, and retrieval-stack decisions made on 2026-04-27. It is the live reference for any future persona sync, prompt change, or retrieval-cutover decision. Do not put scientific claim conclusions here; those belong in `research/robert/evidence-ledger.md`.
 

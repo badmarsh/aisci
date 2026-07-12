@@ -1,160 +1,140 @@
-# Architecture Overview
+# AiSci Control-Plane Architecture
 
-This document describes the full AiSci platform: how Onyx, DeerFlow, LiteLLM, MCP, and the model providers fit together.
+_Last verified against the repository and local listeners: 2026-07-12._
 
-For operational status and open work, see GitHub Issues. For deployment shape and commands, see `docs/ops/deployment-reference.md`.
+AiSci is a project-based research control plane. The dashboard monitors
+repository-backed research projects and requests registered work; it does not
+own scientific truth or replace the reproducible code and artifacts in the
+repository.
 
----
+The active frontend is a Vite/TanStack Start React application, not a Next.js
+application. The active deployment directory contains no Docker Compose file,
+Onyx stack, DeerFlow stack, LiteLLM proxy, MCP proxy, or model-provider stack.
+Those integrations are historical records only and are not part of the current
+runtime.
 
-## System Map
+## System map
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│  User / Agent                                                        │
-│  Browser → http://localhost:3000 (Onyx)                             │
-│  Browser → http://localhost:5173 (AiSci Dashboard)                  │
-└────────────────┬────────────────────────────────────────────────────┘
-                 │
-    ┌────────────▼────────────┐      ┌──────────────────────────────┐
-    │  Onyx Stack             │      │  AiSci Core                  │
-    │  (deployment/onyx/)     │      │                              │
-    │                         │      │  AiSci Dashboard :5173       │
-    │  onyx-nginx :80/:3000   │      │  Ignition Engine :8001       │
-    │  onyx-web-server        │◄─────│  (FastAPI + Physics)         │
-    │  onyx-api-server :8080  │      │                              │
-    │  onyx-background        │      └──────────────┬───────────────┘
-    │  onyx-mcp-server :3000  │      AiSci reaches MCP via
-    │  onyx-mcp-proxy :80     │◄──── 127.0.0.1:8095
-    │    (127.0.0.1:8095)     │      
-    └────────────┬────────────┘      
-                 │                   
-    ┌────────────▼────────────┐
-    │  Storage & Search       │
-    │  onyx-opensearch :9200  │  Dense vector retrieval (Alibaba/1536)
-    │  onyx-db (Postgres) :5432│  Document metadata, personas, connectors
-    │  onyx-redis :6379       │  Celery task queue
-    │  onyx-minio :9000       │  File store (S3-compatible)
-    └────────────┬────────────┘
-                 │
-    ┌────────────▼────────────┐
-    │  LiteLLM Proxy          │
-    │  onyx-litellm :4001     │  Routes to DashScope, NVIDIA, Ollama
-    │  (127.0.0.1:4001)       │
-    └────────────┬────────────┘
-                 │
-    ┌────────────▼────────────────────────────────────────────────────┐
-    │  Model Providers                                                 │
-    │  DashScope (Singapore)  qwen3.5-omni-flash, qwen3.5-omni-plus  │
-    │  NVIDIA NIM             llama-3.3-70b, nemotron-super-49b       │
-    │  OpenRouter             gemini-2.5-flash, claude-4.7-opus       │
-    │  Ollama (local)         gemma2:27b, qwen2.5vl:7b (fallback)    │
-    └─────────────────────────────────────────────────────────────────┘
+Browser
+  │  http://localhost:5173
+  ▼
+AiSci Dashboard
+  Vite + TanStack Start + React
+  deployment/aisci-dashboard/src/
+  │  project-scoped API requests
+  ▼
+Ignition Control API
+  FastAPI
+  deployment/aisci-dashboard/ignition/
+  │
+  ├── Project registry ────── research/projects.toml
+  │       │
+  │       └── ProjectSpec ─── research/robert/ (current registered project)
+  │              ├── canonical Markdown
+  │              ├── inputs and manuscript material
+  │              └── dated run artifacts
+  │
+  ├── Operational read model / job records
+  │       └── deployment/aisci-dashboard/data/evidence_graph.db
+  │           (SQLite; WAL, foreign keys, and busy timeout configured)
+  │
+  └── Registered pipeline requests
+          └── project run directory and, when validly configured,
+              libs/physics-core/.venv + reusable physics code
 ```
 
----
+The local development launcher is [`start_dashboard.sh`](../../start_dashboard.sh).
+It starts the frontend on port `5173` and the API on port `8001`; it also stops
+existing listeners on those ports before starting replacements.
 
-## AiSci Core & Ignition Engine
+## Responsibilities and boundaries
 
-The AiSci Ignition Engine (FastAPI) acts as a project-based research control plane and bridge between the Dashboard and the underlying scientific workflows. It relies on a registry-based CQRS (Command Query Responsibility Segregation) and background task architecture.
-
-- **Project Registry**: `ProjectSpec` instances map user projects to their respective repositories, runs directories, and evidence files (e.g., `robert-boson-manuscript`).
-- **Pipeline Abstraction**: Scientific tools (like data ingestion, physical fitting, and LaTeX report building) are registered as `PipelineSpec` jobs available to specific projects.
-- **Queries (Reads)**: Endpoints fetch data directly from canonical project files (e.g., `research/robert/evidence-ledger.md`) or the SQLite database, always scoped to `projectId`.
-- **Commands & Tasks (Writes)**: Modifying operations and long-running jobs (like executing fits) are strictly dispatched as safe `asyncio`-based background tasks rather than blocking subprocess calls.
-- **State tracking**: Background tasks provide status and log outputs seamlessly to the React frontend, partitioned by `projectId`.
-
----
-
-## Onyx
-
-**Role:** Private RAG platform. Indexes documents, serves search, hosts personas (AI assistants with scoped document sets).
-
-**Key components:**
-
-| Container | Role |
-|---|---|
-| `onyx-api-server` | REST API, chat, search, connector management |
-| `onyx-background` | Celery workers — indexing, connector sync, contextual summaries |
-| `onyx-web-server` | Next.js frontend |
-| `onyx-indexing-model-server` | Embedding generation during indexing |
-| `onyx-inference-model-server` | Embedding generation during search |
-| `onyx-opensearch` | Vector + keyword search index |
-| `onyx-litellm` | LLM proxy for RAG generation and contextual summaries |
-| `onyx-mcp-server` | MCP server exposing Onyx search as an MCP tool |
-| `onyx-mcp-proxy` | nginx proxy routing MCP calls to Scite, Consensus, and Onyx |
-
-**Embedding model:** `Alibaba-NLP/gte-Qwen2-1.5B-instruct` (1536 dims). Active index: `danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct`.
-
-**Personas:** Physics-validator (id=2), Evidence-auditor (id=5), Referee-prep (id=6), arXiv-intake (id=3). See `docs/ops/onyx-persona-ids.md`.
-
----
-
-## MCP Proxy
-
-`onyx-mcp-proxy` is an nginx container that routes MCP protocol calls:
-
-| Path | Upstream | Auth |
+| Layer | Responsibility | Source of truth |
 |---|---|---|
-| `/onyx/` | `onyx-mcp-server:3000` | `MCP_PROXY_AUTH_TOKEN` |
-| `/scite/` | `https://api.scite.ai/mcp` | OAuth Bearer (client-supplied) |
-| `/consensus/` | `https://mcp.consensus.app/mcp/` | OAuth Bearer (client-supplied) |
+| Dashboard | Portfolio/project navigation, monitoring, review-request UI, and job controls | API responses; never a scientific authority |
+| Ignition | Project-scoped API, projections of canonical files, job/activity records, and pipeline dispatch | Code in `deployment/aisci-dashboard/ignition/` |
+| Project workspace | Evidence, task queue, sources, inputs, reports, and reproducible runs | Files under the registered project root |
+| Physics core | Reusable model, fit, validation, and data utilities | `libs/physics-core/` |
+| Historical integrations | Prior Onyx, DeerFlow, LiteLLM, MCP, and RAG records | Historical documentation and git history only |
 
-Host binding: `127.0.0.1:8095`. Internal Docker binding: `:80` on `onyx_default`.
+Scientific claims remain governed by the evidence-ledger policy. A successful
+job or fit is not, by itself, a scientific conclusion. See
+[`docs/decisions/2026-04-26-science-evidence-standards.md`](../decisions/2026-04-26-science-evidence-standards.md).
 
-Scite and Consensus OAuth tokens must be completed manually and stored in `.env.local` (not `/tmp/`). See GitHub Issues — "Scite and Consensus OAuth never completed".
+## Projects
 
----
+[`research/projects.toml`](../../research/projects.toml) is the current
+registry. Each `ProjectSpec` supplies an ID, metadata, root directory,
+sensitivity, and enabled capabilities. The presently registered project is:
 
-## LiteLLM
+| ID | Root | Type | Enabled capabilities |
+|---|---|---|---|
+| `robert-boson-manuscript` | `research/robert/` | manuscript validation | evidence, tasks, literature, symbolic validation, fit validation, reports |
 
-Routes all LLM calls for both Onyx and DeerFlow. Config: `deployment/onyx/onyx-litellm_config.yaml`.
+The registry permits a future project—such as a PhD audit—to use a different
+workspace and capability set. A project with no fitting capability must not be
+shown fitting controls merely because Robert's project has them.
 
-**Active model tiers (Onyx):**
+## Data flow
 
-| Alias | Model | Provider |
-|---|---|---|
-| `qwen-fast` | qwen3.5-omni-flash | DashScope SG |
-| `qwen-balanced` | qwen3.5-omni-flash | DashScope SG |
-| `qwen-max` | qwen3.5-omni-plus | DashScope SG |
-| `nvidia-balanced` | llama-3.3-70b-instruct | NVIDIA NIM |
-| `local-chat` | qwen2.5:latest | Ollama |
+### Queries
 
+1. The browser selects a project.
+2. The dashboard requests `/api/projects/{project_id}/…` endpoints.
+3. Ignition resolves the project through the registry and reads canonical
+   Markdown/run artifacts or the project-scoped SQLite projection.
+4. The API returns an explicit project-scoped result, empty state, or error.
 
+### Review requests
 
-## Data Flow: RAG Query
+The dashboard creates a project-scoped review decision rather than directly
+rewriting the evidence ledger or task queue. Controlled materialization and
+sync endpoints are separately authenticated when `AISCI_DASHBOARD_TOKEN` is
+configured. Canonical Markdown remains authoritative.
 
-```
-User message
-  → Onyx chat API
-  → Query rephrasing (qwen-balanced via LiteLLM)
-  → OpenSearch KNN search (Alibaba/1536 embeddings)
-  → Top-k chunks retrieved
-  → LLM generation with context (qwen-balanced)
-  → Streamed response to UI
-```
+### Pipeline requests
 
----
+Ignition records a `JobExecutions` row and starts a registered pipeline command
+as an asynchronous child process. Job logs are written under the project run
+directory and can be streamed by project and pipeline ID.
 
-## Key Files
+This is an initial local control-plane implementation, not a distributed queue:
+job execution is owned by the FastAPI process and operational state is SQLite.
+It must not be documented as Celery-, Redis-, Docker-, or PostgreSQL-backed.
+
+## Current limitations
+
+- The registry contains only Robert's project; adding a real second project is
+  the next proof that project isolation works end-to-end.
+- `ignition/pipelines.py` currently contains two hardcoded Robert pipeline
+  definitions. Their commands must be verified and moved into project
+  configuration before they can be described as a generic pipeline catalogue.
+- The API token check is optional when `AISCI_DASHBOARD_TOKEN` is unset; this
+  is a local-development posture, not a complete access-control system.
+- The SQLite database is suitable for the current local process model. A
+  multi-worker/deployed control plane needs a durable worker and database
+  design before claiming concurrent-agent scalability.
+
+## Key files
 
 | File | Purpose |
 |---|---|
-| `deployment/onyx/docker-compose.yml` | Onyx stack definition |
-| `deployment/onyx/.env` | Tracked defaults (no live secrets) |
-| `deployment/onyx/onyx-litellm_config.yaml` | LiteLLM model routing |
-| `deployment/onyx/monitoring/check_health.sh` | Runtime health checks |
-| `deployment/onyx/preflight_check.sh` | Pre-reindex safety gate |
+| `research/projects.toml` | Registered project metadata and roots |
+| `deployment/aisci-dashboard/ignition/project_registry.py` | `ProjectSpec` loading and path resolution |
+| `deployment/aisci-dashboard/ignition/api.py` | Project-scoped control API |
+| `deployment/aisci-dashboard/ignition/pipelines.py` | Current pipeline registry implementation |
+| `deployment/aisci-dashboard/ignition/database.py` | SQLite read model, activity, review, and job tables |
+| `libs/physics-core/` | Reusable physics and fitting implementation |
+| `research/robert/` | Current project science canon and dated runs |
 
-| `deployment/helper/onyx_opensearch_cutover.py` | OpenSearch parity gate |
-| `docs/ops/deployment-reference.md` | Live service URLs and layout |
-| GitHub Issues | Active tasks and operational work |
-| `docs/ops/troubleshooting.md` | Known failure modes and fixes |
+## Related documents
 
----
-
-## Related Docs
-
-- `docs/ops/deployment-reference.md` — live service URLs, repo layout, operational commands
-- `docs/ops/troubleshooting.md` — failure mode runbook
-- `docs/decisions/2026-04-27-mcp-topology.md` — MCP routing decisions
-- `docs/ops/onyx-rag-optimization-2026-04-27.md` — OpenSearch retrieval stack details
+- [`deployment-reference.md`](deployment-reference.md) — active local service
+  shape and startup instructions.
+- [`CURRENT_STATUS.md`](CURRENT_STATUS.md) — verified operational snapshot and
+  current limitations.
+- [`platform-backlog.md`](platform-backlog.md) — active operational work.
+- [`critical-components.md`](critical-components.md) — current component map.
+- [`docs/decisions/`](../decisions/) — durable decisions; historical decisions
+  are retained without implying that their old deployments remain active.

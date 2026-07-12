@@ -1,4 +1,8 @@
-# Agent Skills Audit Report
+# Historical Agent Skills Audit Report
+
+> **Historical snapshot.** This report predates the current control-plane
+> deployment and references integrations absent from `deployment/`. It is not
+> a current architecture or runbook source.
 
 This report checks all `SKILL.md` files against `TEMPLATE.md` compliance.
 

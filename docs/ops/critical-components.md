@@ -1,61 +1,40 @@
-# Onyx Physics Validation - Critical Components Documentation
+# AiSci Control Plane — Critical Components
 
-Status note: this file is an operational component map. Scientific conclusions must be taken from `research/robert/evidence-ledger.md`, where claims are marked as open, sanity checked, supported, refuted, or blocked.
+Scientific conclusions remain in project evidence ledgers. This document maps
+the current implementation components that make those workflows observable and
+reproducible.
 
-## 1. Physics Validation Scripts
+## 1. Project control plane
 
-### Tsallis Physics Validation (`libs/physics-core/src/tsallis_physics_validation.py`)
-- Prototype Tsallis/Tsallis-like fitting helper for baseline exploration.
-- Uses simplified assumptions and must be replaced or calibrated against literature-matched Tsallis/Tsallis-Pareto formulas before publication-grade comparison.
-- Includes candidate kinematic boundary logic: `limit = min(sqrt(p² - pT_cut²), p * cos(θ_cut))`
-- Provides a configurable safe-fit-range filter, currently using 600 MeV as a working threshold.
-- Provides velocity parameterization validation
+| Component | Location | Responsibility |
+|---|---|---|
+| Dashboard | `deployment/aisci-dashboard/src/` | Project portfolio and capability-scoped research UI |
+| Ignition API | `deployment/aisci-dashboard/ignition/api.py` | Project-scoped queries, review requests, job dispatch, activity, and logs |
+| Project registry | `research/projects.toml`, `ignition/project_registry.py` | Maps a project ID to its repository workspace and capabilities |
+| Pipeline registry | `ignition/pipelines.py` | Current local pipeline definitions; commands require verification before use |
+| Operational store | `ignition/database.py` | SQLite projections, activity, review decisions, and job records |
+| Canonical sync | `ignition/sync_markdown.py` | Projects canonical Markdown into the dashboard read model |
 
-### SymPy Validation Agent (`libs/physics-core/src/sympy_validation_agent.py`)
-- Provides parsing and symbolic sanity-check scaffolding.
-- Current dimensional-analysis logic is not full unit validation; it mainly simplifies expressions and checks for undefined terms.
-- Contains placeholders for kinematic boundary checks.
-- Validates velocity parameterizations (U vs v checks)
-- Flags obvious unphysical velocity expressions where implemented.
+## 2. Current research workspace
 
-### Fitting Pipeline (`libs/physics-core/src/fitting_pipeline.py`)
-- iminuit-based Tsallis/Blast-Wave fitting pipeline.
-- Blocked until Robert provides per-bin pT source table matching manuscript multiplicity bins.
+`research/robert/` is the sole registered project workspace. It contains the
+evidence ledger, next-action queue, manuscript materials, and dated run
+artifacts for Robert's manuscript validation.
 
-### Data Loader (`libs/physics-core/src/data_loader.py`)
-- HEPData loader for boson paper spectra.
-- Handles CSV and JSON table formats.
+## 3. Shared physics core
 
-### Boson Paper Analysis (`libs/physics-core/src/boson_paper_analysis.py`)
-- Phase 1 sanity checks: Lorentz covariance, static limit, massless approximation.
-- Re-run clean as of 2026-04-27.
+| Component | Location | Role |
+|---|---|---|
+| Model functions | `libs/physics-core/src/models/` | Jüttner/Boltzmann, Bose-Einstein, Tsallis, and Blast-Wave functions |
+| Fitting engine | `libs/physics-core/src/fitting/` | Reusable fitting, metrics, and diagnostic artifacts |
+| Project adapters | scripts such as `data_loader.py` and `boson_paper_analysis.py` | Robert-specific data mapping and manuscript validation |
+| Test environment | `libs/physics-core/.venv` | Isolated dependencies for physics tests and execution |
 
-## 2. MCP Services Configuration
+The model/fitting modules are the reusable seed. Manuscript-specific data,
+assumptions, and scientific interpretation remain project-specific.
 
-### MCP Proxy (`deployment/onyx/nginx_configs/mcp_proxy.conf.template`)
-- Endpoint: `http://localhost:8095`
-- Routes: `/consensus/`, `/scite/`
-- Authentication: Required for full access
-- The compose-mounted template is `deployment/onyx/nginx_configs/mcp_proxy.conf.template`.
-- `deployment/onyx/nginx_mcp_proxy.conf` is only a standalone reference copy and is not the live compose mount.
+## 4. Deliberately absent components
 
-## 3. Onyx Persona Configuration
-
-The HEP validation persona and its doc sets/tools are tracked in
-`docs/ops/onyx-persona-ids.md` (current registry). Prompt guardrails require
-evidence-ledger claim status, explicit Bose-Einstein vs Boltzmann/Jüttner
-wording, no causal inference from suggestive fits, and fit-quality/baseline
-gates before physical interpretation.
-
-## 4. GPU Acceleration
-
-Host GPU (RTX 3090), GPU device access per service, and the `nemotron_embed_vl`
-NIM caveat are documented in `docs/ops/onyx-configure.md` (GPU Acceleration).
-
-## 5. Directory Structure
-- `libs/physics-core/src/` — Validation and fitting scripts
-- `research/robert/` — Science canon, evidence, runs
-- `docs/ops/` — Platform and deployment documentation
-- `docs/decisions/` — Architecture decision records
-- `deployment/onyx/` — Onyx Docker stack and config
-- `deployment/deer-flow/` — DeerFlow Docker stack and config
+The repository currently has no deployment directory or Compose definition for
+Onyx, DeerFlow, LiteLLM, MCP proxy, OpenSearch, Celery, or model providers.
+They are not critical components of the active local control plane.

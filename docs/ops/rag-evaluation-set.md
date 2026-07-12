@@ -1,4 +1,7 @@
-# Onyx RAG Evaluation Set
+# Historical Onyx RAG Evaluation Set
+
+> **Historical integration record.** This evaluation set belongs to a removed
+> Onyx RAG deployment and is not a current test or operational gate.
 
 This document maintains the canonical set of retrieval test questions used to evaluate Onyx RAG performance. Run this set before and after any changes to embeddings, rerankers, parsing logic, or chunk size.
 

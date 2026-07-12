@@ -1,4 +1,9 @@
-# Activepieces Integration as Standalone Orchestrator
+# Historical Activepieces Integration Record
+
+> **Not an active deployment.** `deployment/` contains no Activepieces
+> configuration or Compose stack in the current checkout. This record is kept
+> for historical context only; use the current control-plane docs for runtime
+> architecture.
 
 This document outlines how Activepieces is integrated into the AiSci platform as the visual execution engine for platform tasks.
 

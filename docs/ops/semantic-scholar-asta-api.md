@@ -1,4 +1,7 @@
-# Semantic Scholar & Asta API — Ops Reference
+# Historical Semantic Scholar & Asta API Record
+
+> **Not active control-plane configuration.** The proxy route described below
+> is absent from the current checkout. Retained for historical context only.
 
 Added 2026-06-03. Keys approved for Marek; see `.env` for `SEMANTICSCHOLAR_API_KEY` and `ASTA_API_KEY`.
 

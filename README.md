@@ -1,45 +1,70 @@
-# ⚛️ AiSci Research Workspace
+# AiSci Research Workspace
 
-> **Active Project:** Validation of Robert's "Boson probability function for the moving system" paper.
-> **Current Focus:** $p_T$ spectrum analysis against ATLAS 13 TeV data.
+AiSci is a repository-based, project-oriented research control plane. It
+combines a dashboard, a FastAPI control API, reusable physics code, and durable
+project workspaces. The dashboard monitors and requests registered work; the
+repository remains the source of reproducible science.
 
----
+## Current registered project
 
-## 🔍 Research Dashboard
+| Project | Purpose | Canonical workspace |
+|---|---|---|
+| Robert — Boson probability function for the moving system | Manuscript validation against equations, data behavior, fitting stability, and HEP phenomenology literature | [`research/robert/`](research/robert/) |
 
-### Science Status: [![Status](https://img.shields.io/badge/status-Unblocked_via_Synthetic_Data-green)](#)
-Phase 1 sanity checks are complete. Baseline literature (Tsallis, Blast-Wave) is indexed.
-The fitting pipeline is blocked until Robert provides per-bin $p_T$ source tables matching
-the manuscript multiplicity bins.
+Project registration lives in [`research/projects.toml`](research/projects.toml).
+Future work, including a PhD audit, should be added as a separate project with
+its own canonical files, inputs, runs, and enabled capabilities—not as a new
+Robert-specific dashboard branch.
 
+## Active control plane
 
-- **Claim Tracker:** [`research/robert/evidence-ledger.md`](research/robert/evidence-ledger.md)
-- **Active Task Queue:** [`research/robert/next-actions.md`](research/robert/next-actions.md)
-- **Validation Plan:** [`research/robert/validation-plan.md`](research/robert/validation-plan.md)
+```text
+Browser → AiSci Dashboard (:5173) → Ignition API (:8001)
+                                  ├─ project registry
+                                  ├─ project Markdown/read-model data
+                                  └─ registered pipeline requests
+                                          → libs/physics-core/.venv
+```
 
-### 🧪 Core Tools
+The active dashboard is a Vite/TanStack Start React application in
+`deployment/aisci-dashboard/`; Ignition is its FastAPI backend in
+`deployment/aisci-dashboard/ignition/`.
 
-- **[Evidence Ledger](research/robert/evidence-ledger.md):** The source of truth for all scientific claims and validation statuses.
+There is no active Onyx, DeerFlow, LiteLLM, MCP proxy, OpenSearch, Celery, or
+Docker Compose deployment in this checkout. Historical integration documents
+are retained for context and are not current operating instructions.
 
----
+## Workspace navigation
 
-## 📂 Workspace Navigation
+- [`research/projects.toml`](research/projects.toml) — registered research
+  projects and their capability boundaries.
+- [`research/robert/`](research/robert/) — Robert's science canon, manuscript,
+  evidence ledger, task queue, and dated runs.
+- [`libs/physics-core/`](libs/physics-core/) — reusable model, fitting, data,
+  and validation code plus its isolated Python environment.
+- [`deployment/aisci-dashboard/`](deployment/aisci-dashboard/) — active UI and
+  Ignition control API.
+- [`docs/ops/architecture-overview.md`](docs/ops/architecture-overview.md) —
+  current system shape and constraints.
+- [`docs/decisions/`](docs/decisions/) — durable historical and active
+  architecture/process decisions.
 
-- `research/robert/` — **The Primary Research Hub.** Contains workflow, evidence, next actions, and run reports.
-- `libs/physics-core/src/` — Symbolic and numerical validation scripts (Python/SymPy).
-- `deployment/aisci-dashboard/` — **AiSci Dashboard.** The active React (TanStack Start) frontend being developed as part of this repository.
-- `deployment/aisci-dashboard/ignition/` — **Ignition Engine.** Python FastAPI backend serving as the dashboard's Project-Based Research Control Plane.
-- `docs/decisions/` — Methodological and architectural decisions.
-- `docs/ops/` — Infrastructure and deployment details.
+## Local startup
 
----
+```bash
+bash start_dashboard.sh
+```
 
-## 🚀 Getting Started for Researchers
+This starts the dashboard on `http://localhost:5173` and Ignition on
+`http://localhost:8001`. It stops existing listeners on those ports first.
 
-1. **Review Actions:** Check [`research/robert/next-actions.md`](research/robert/next-actions.md) for current blockers.
-2. **Submit Data:** If you have new $p_T$ tables, follow the [Data Onboarding Guide](research/robert/data-onboarding.md).
-3. **Run Checks:** Use `libs/physics-core/src/boson_paper_analysis.py` for local covariance and static-limit sanity checks.
+## Research rules
 
----
+Scientific claim status belongs in each project's evidence ledger. Local
+scripts and completed jobs are sanity checks unless their assumptions, inputs,
+artifacts, fit diagnostics, and literature context satisfy the evidence policy.
+For Robert, use:
 
-*For technical deployment details, port mappings, and Docker logs, see the [Deployment Reference](docs/ops/deployment-reference.md).*
+- [`research/robert/evidence-ledger.md`](research/robert/evidence-ledger.md)
+- [`research/robert/next-actions.md`](research/robert/next-actions.md)
+- [`research/robert/workflow.md`](research/robert/workflow.md)

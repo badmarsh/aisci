@@ -1,4 +1,7 @@
-# Onyx Persona IDs
+# Historical Onyx Persona IDs
+
+> **Not an active registry.** The current checkout has no Onyx deployment or
+> persona service. These identifiers are historical context only.
 
 - physics-validator: 2
 - evidence-auditor: 5

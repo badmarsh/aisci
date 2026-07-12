@@ -1,68 +1,49 @@
-# Troubleshooting
+# Troubleshooting the AiSci Control Plane
 
-Operational runbook for diagnosing and resolving known failure modes across Onyx, MCP, and sandbox services.
+This runbook covers the active Vite/TanStack Start dashboard, FastAPI Ignition
+API, project registry, canonical projections, and local pipeline handling.
 
----
+## Dashboard or API is unavailable
 
-## Onyx / LiteLLM
+1. Check listeners:
 
-### LiteLLM quota exhaustion — contextual RAG indexing stalls
-
-**Symptom:** Celery background workers emit `LLMTimeoutError` or `429 quota exceeded` during contextual-summary indexing; chunk gaps appear in OpenSearch.
-
-**Known instances:**
-- 2026-05-03: `qwen2.5`, `qwen3-omni-flash-2025-09-15`, `qwen3-coder-plus-2025-09-23`, `dashscope-qwen-plus` all hit free-tier quota limits simultaneously.
-- 2026-05-06: `qwen-cloud-fast` returned repeated DashScope `limit_requests` 429s during the Onyx Documentation connector run.
-
-**Fix:**
-1. Check active route status: `deployment/helper/litellm_quota_check.py --timeout 90`.
-2. Keep RAG routes in `deployment/onyx/litellm_config.yaml`: `qwen-rag-fast`, `qwen-rag-balanced`, `qwen-rag-vision`, and local `qwen-rag-local`.
-3. Restart the LiteLLM container after config edits: `docker compose -f deployment/onyx/docker-compose.yml restart litellm`.
-4. If a connector is retrying too often after partial runs, reduce its `refresh_freq` in Postgres rather than repeatedly disabling contextual RAG.
-
-**Prevention:** Check DashScope quota monthly. Keep `gemma2:27b` (Ollama, local) as the final fallback so quota exhaustion on cloud models does not completely block indexing.
-
----
-
-### OpenSearch KNN search returns empty `_source`
-
-**Symptom:** Onyx retrieval returns hits with metadata but empty document text; chunks appear indexed but content is blank.
-
-**Root cause:** OpenSearch 3.4 KNN derived-source search does not populate `_source` inline. The Onyx backend must hydrate `_source` via a secondary document-id lookup.
-
-**Fix:** Keep `deployment/onyx/Dockerfile.backend` building from the patched source that includes `patch_mcp_tool.py`'s OpenSearch source-hydration fix. Do not switch to an upstream Onyx image without re-verifying this patch is present.
-
----
-
-### Index Attempts Hang or Loop Forever (0 Batches Processed)
-
-**Symptom:** The Onyx UI shows a connector indexing attempt indefinitely "In Progress" with 0 batches processed, or repeatedly failing and restarting without processing documents. Background logs may show: `RuntimeError('Index attempt <id> is not running, status IndexingStatus.FAILED')`.
-
-**Root cause:** If the `onyx-background` container is restarted while an attempt is running, Celery loses the memory state but the Postgres `index_attempt` row remains `IN_PROGRESS`. Subsequent worker spawns see a corrupted/orphaned task and fail to resume the Celery chain properly, causing a zombie loop.
-
-**Fix:**
-1. Manually fail the stuck attempt in the DB: `docker exec onyx-db psql -U postgres -d postgres -c "UPDATE index_attempt SET status = 'FAILED' WHERE status = 'IN_PROGRESS';"`
-2. If the connector bypasses Unstructured processing due to cached `document_by_connector_credential_pair` records, force a fresh fetch by clearing the tracking state for that connector ID:
    ```bash
-   docker exec onyx-db psql -U postgres -d postgres -c "DELETE FROM document_by_connector_credential_pair WHERE connector_id = <id>;"
-   docker exec onyx-db psql -U postgres -d postgres -c "DELETE FROM document WHERE id NOT IN (SELECT id FROM document_by_connector_credential_pair);"
+   ss -ltnp '( sport = :5173 or sport = :8001 )'
    ```
-3. Ensure the vision model is configured in the UI, otherwise `unstructured_to_result` will refuse to send images for summarization.
 
-## Regression Gates
+2. Inspect `deployment/aisci-dashboard/frontend.log` and `backend.log`.
+3. Start the local pair only if stopping existing listeners is acceptable:
 
-Run these checks after any container recreate, volume reset, or config change:
+   ```bash
+   bash start_dashboard.sh
+   ```
 
-```bash
-# 1. OpenSearch parity
-python deployment/helper/onyx_opensearch_cutover.py --json
-# Expect: 0 missing, 0 mismatched, 0 extra; active index = danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct
+## A project route returns not found or no data
 
-# 2. Ollama models present
-docker exec onyx-ollama ollama list
-# Expect: gemma2:27b listed
+1. Verify the ID and root in `research/projects.toml`.
+2. Confirm the project root contains the configured canonical files and `runs/`
+   directory.
+3. Inspect `ignition/project_registry.py` path-containment validation.
+4. Trigger the authenticated project sync only after canonical files have been
+   checked; the Markdown files remain authoritative.
 
-# 3. LiteLLM health
-curl -s http://localhost:4000/health | jq .
-# Expect: all active model providers green
+## A pipeline is unavailable or fails immediately
 
+1. Inspect the registered `PipelineSpec` and its command/working directory.
+2. Verify the command exists and its input gates are satisfied before retrying.
+3. Read the job's project-scoped log under the relevant run directory.
+4. Treat a failed command as a failed job, not a scientific anomaly or claim.
+
+## Fits or anomalies are missing
+
+1. Check the selected project's `runs/` directory for the required artifacts.
+2. Confirm `fit_quality.csv` and optional parameter/correlation files conform
+   to the parser contract.
+3. Inspect the run's provenance and validation gates before interpreting any
+   returned metric.
+
+## Historical integrations
+
+This checkout has no active Onyx, DeerFlow, LiteLLM, MCP proxy, OpenSearch, or
+Celery deployment. Do not apply old container/RAG instructions as a fix for a
+current dashboard problem.

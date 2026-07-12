@@ -1,4 +1,7 @@
-# Model Selection Guide
+# Historical Model Selection Guide
+
+> **Not current runtime configuration.** The models and routing stack described
+> below are not deployed by this checkout. Retained for historical context only.
 
 **Purpose:** Help operators choose the right model for each task to optimize cost, performance, and reliability.
 

@@ -1,167 +1,70 @@
 # Current System Status
-**Last Updated:** 2026-07-12
+
+**Last verified:** 2026-07-12  
 **Maintainer:** Platform Operations
 
-> Snapshot only. Durable open work is tracked in GitHub Issues; system state in `docs/ops/platform-status.md`
-> and deployment shape in `docs/ops/deployment-reference.md`.
+This is a repository-and-listener snapshot. Durable open work belongs in
+[`platform-backlog.md`](platform-backlog.md); scientific status belongs in the
+registered project's evidence ledger and task queue.
 
----
+## Verified local runtime
 
-## 🎯 Quick Status
+| Component | Observed state | Location / URL |
+|---|---|---|
+| AiSci Dashboard | Listening locally | `http://localhost:5173` |
+| Ignition API | Listening locally | `http://localhost:8001` |
+| Frontend implementation | Vite + TanStack Start + React | `deployment/aisci-dashboard/` |
+| Backend implementation | FastAPI | `deployment/aisci-dashboard/ignition/` |
+| Project registry | One registered project | `research/projects.toml` |
+| Shared physics environment | Present in repository | `libs/physics-core/.venv` |
 
-| System | Status | Services | Notes |
-|--------|--------|----------|-------|
-| **AiSci Dashboard** | ✅ Operational | Frontend (Vite) + Backend (FastAPI) | Re-architected as a project-based research control plane. Accessible via `start_dashboard.sh`. |
-| **Onyx** | ✅ Operational | 18/18 running | All fixes applied, embeddings working |
+No Docker Compose file was found under `deployment/`. No `deployment/onyx/`
+or `deployment/deer-flow/` directory is present. Onyx, DeerFlow, LiteLLM,
+OpenSearch, Celery, MCP proxy, and model-provider services are therefore not
+current local deployment components.
 
----
+## Control-plane state
 
-## 📊 Dashboard Status (Project Control Plane)
+The current registry contains `robert-boson-manuscript`, rooted at
+`research/robert/`. The dashboard and API use project-scoped paths such as:
 
-**Core Architecture (July 2026 Refactor):**
-- **Project Registry:** Backend and Frontend now use `projectId` for all operations.
-- **Robert's Manuscript:** Migrated from global paths to `robert-boson-manuscript` project.
-- **Pipeline Abstraction:** Pipelines (Ingest, Fit, LaTeX) are dynamically registered per project.
-- **UX Migration:** Multi-project portfolio view implemented at `/`, sidebar and routing are fully `projectId`-aware.
-- **Science Workflows:** Science evidence review loop uses `projectId`.
-
-## 📊 Onyx Deployment Status
-
-### Service Health (18/18 Running)
-
-**Core Services:**
-- ✅ onyx-api - API server
-- ✅ onyx-web - Web interface (port 80, 3000)
-- ✅ onyx-background - Celery workers
-- ✅ onyx-inference - Embedding model server
-- ✅ onyx-indexing - Document indexing
-- ✅ onyx-litellm - LLM routing (port 4001)
-
-**Data Services:**
-- ✅ onyx-db - PostgreSQL 15.2
-- ✅ onyx-opensearch - Search engine (YELLOW status - expected)
-- ✅ onyx-redis - Cache and queues
-- ✅ onyx-minio - S3-compatible storage
-
-**AI Services:**
-- ✅ onyx-ollama - Local LLM serving (RTX 3090)
-- ✅ onyx-unstructured - Document parsing (port 8000)
-- ✅ onyx-code-interpreter - Code execution
-
-**Proxy Services:**
-- ✅ onyx-nginx - Main web proxy
-- ✅ onyx-auth-proxy - Authentication
-- ✅ onyx-mcp-proxy - MCP gateway (port 8095)
-- ✅ onyx-mcp-server - MCP SSE server
-- ✅ onyx-image-bridge - Image processing (port 8090)
-
-### Embedding Configuration
-
-```yaml
-Model: Alibaba-NLP/gte-Qwen2-1.5B-instruct
-Dimensions: 1536
-Index: danswer_chunk_alibaba_nlp_gte_qwen2_1_5b_instruct
-Status: WORKING ✅
+```text
+/api/projects/{project_id}/evidence
+/api/projects/{project_id}/tasks
+/api/projects/{project_id}/fits
+/api/projects/{project_id}/activity
 ```
 
-### LLM Models Status
+Ignition stores projections, activity, review decisions, and job records in
+the dashboard SQLite database. Canonical scientific evidence and tasks remain
+in the project workspace Markdown files.
 
-**✅ Working (Production Ready):**
-- `qwen-omni-flash` - Fast chat (2-3s) - **PRIMARY**
-- `meta/llama-3.1-8b-instruct` - NVIDIA chat (2-3s)
-- `qwen-embedder` - Local embeddings (Ollama)
+## Important limitations
 
----
+- The project registry has only one real project. A second, real project is
+  required to validate multi-project onboarding and UI capability gating.
+- The current pipeline registry is hardcoded for Robert and its command paths
+  require validation before operators use them as a general job catalogue.
+- Job execution currently runs as asynchronous child processes owned by the
+  FastAPI service. It is not an external queue or worker deployment.
+- Authentication for mutations is only enforced when
+  `AISCI_DASHBOARD_TOKEN` is configured.
+- SQLite is the current local operational store. It is not a claim of
+  multi-worker production scalability.
 
-## 🔗 Port Mappings (Canonical)
+## Current researcher-facing source of truth
 
-### Onyx Services
-```
-Web Interface:    http://localhost:80 (also :3000)
-LiteLLM API:      http://localhost:4001
-MCP Proxy:        http://localhost:8095
-Unstructured:     http://localhost:8000
-Image Bridge:     http://localhost:8090
-Ollama:           http://localhost:11434
-```
+| Need | Canonical location |
+|---|---|
+| Project registration | `research/projects.toml` |
+| Robert evidence status | `research/robert/evidence-ledger.md` |
+| Robert science queue | `research/robert/next-actions.md` |
+| Robert reproducible runs | `research/robert/runs/` |
+| Shared physics code and tests | `libs/physics-core/` |
 
-### AiSci Dashboard Services
-```
-Web Interface:    http://localhost:5173
-Backend API:      http://localhost:8001
-```
+## Historical integration records
 
-**Note:** All ports bound to `127.0.0.1` for security (not `0.0.0.0`)
-
----
-
-## 📚 Documentation Index
-
-### Current Status & Fixes
-- **This file:** `docs/ops/CURRENT_STATUS.md`
-- **Drift analysis:** `docs/ops/DRIFT_ANALYSIS.md`
-- **Complete fixes:** `deployment/onyx/COMPLETE_SUMMARY.md`
-- **Fixes applied:** `deployment/onyx/FIXES_APPLIED.md`
-
-### Detailed Reports
-- **LLM testing:** `deployment/onyx/LLM_TEST_REPORT.md`
-- **Docker logs:** `deployment/onyx/DOCKER_LOGS_ANALYSIS.md`
-- **Deployment analysis:** `deployment/onyx/DEPLOYMENT_ANALYSIS.md`
-
-### Operational Docs
-- **Platform status:** `docs/ops/platform-status.md`
-- **Deployment reference:** `docs/ops/deployment-reference.md`
-- **Action plan:** `ACTION_PLAN.md`
-
----
-
-## ⚠️ Known Issues
-
-### P0 - Critical
-1. **API Key Rotation Required** - Keys exposed in git history (see GitHub Issues)
-
-### P1 - Important
-2. **qwen-max Quota Exhausted** - Free tier depleted, using qwen-omni-flash instead
-3. **local-context-model Slow** - 24s first load (then 2-3s cached)
-
-### P2 - Minor
-1. **OpenSearch YELLOW** - Expected for single-node (3 unassigned replicas)
-2. **ChunkCountNotFoundError** - Expected timing issue with auto-retry
-3. **HuggingFace Unauthenticated** - Optional HF_TOKEN for faster downloads
-
----
-
-## 🔄 Recent Changes
-
-### 2026-07-12
-- ✅ Dashboard refactored to Project-Based Research Control Plane
-- ✅ Replaced global pathing with registered `ProjectSpec` mappings
-- ✅ Upgraded Dashboard UX (Portfolio view, sidebars) to handle multiple active projects
-- ✅ Extracted pipelines into `pipelines.py`
-
-### 2026-05-30
-- ✅ Fixed inference model database configuration
-- ✅ Tested all 10 LLM models
-- ✅ Analyzed all Docker logs
-- ✅ Updated HANDOFF.md with current status
-- ✅ Fixed port numbers in deployment-reference.md
-- ✅ Created this status document
-
----
-
-## 🎯 Next Actions
-
-### Immediate (This Session)
-1. [ ] Rotate exposed API keys
-
-### Soon (Next Session)
-1. [ ] Enable paid tier for qwen-max or remove it from the active route set
-
-### Eventually
-1. [ ] Add HF_TOKEN for faster model downloads
-
----
-
-**Maintained by:** Platform Operations  
-**Update Frequency:** After significant changes  
-**Last Verified:** 2026-07-12
+Historical documentation about Onyx, DeerFlow, LiteLLM, MCP, and RAG remains
+in the repository for context and git-history traceability. It does not
+describe services that are present in this checkout or should be used as an
+active runbook.

@@ -1,4 +1,7 @@
-# Managing Vendored Subtrees (Monorepo)
+# Historical Vendored-Subtree Management Record
+
+> **Historical record.** The listed vendored deployments are not present in
+> the current checkout. Do not use these commands as current maintenance steps.
 
 The `aisci` repository previously used Git submodules for external dependencies (`deer-flow`, `multica`, `open-computer-use`, `onyx-mcp-server`, `ppt-master`). 
 To simplify the VS Code experience and track local modifications easily, these have been converted into **Git Subtrees** (vendored code).

@@ -12,7 +12,9 @@ Private deployment notes belong in `docs/ops/private/`, which is gitignored.
 
 ## Exposure Checks
 
-- Confirm DeerFlow is bound only to localhost before enabling MCPs that expose environment-backed tools.
-- Confirm Onyx, LiteLLM, MCP proxy, and DeerFlow do not expose admin or credential-bearing endpoints on LAN.
-- Rotate any token that appears in shell logs, screenshots, copied chat text, or committed history.
-
+- Confirm the Dashboard and Ignition API use only intended local bindings before
+  exposing them beyond development.
+- Confirm `AISCI_DASHBOARD_TOKEN` and allowed origins are configured before
+  enabling mutating control-plane endpoints outside local development.
+- Rotate any token that appears in shell logs, screenshots, copied chat text,
+  or committed history.

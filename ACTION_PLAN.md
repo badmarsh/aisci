@@ -1,28 +1,34 @@
 # AiSci Action Plan
 
-This file is a milestone tracker only. The operational source of truth is [docs/ops/platform-backlog.md](docs/ops/platform-backlog.md). The science task queue is [research/robert/next-actions.md](research/robert/next-actions.md). The science claim-status canon is [research/robert/evidence-ledger.md](research/robert/evidence-ledger.md). `docs/archive/` is preserved as historical-only context.
+This is a high-level milestone tracker. The operational source of truth is
+[`docs/ops/platform-backlog.md`](docs/ops/platform-backlog.md). Scientific work
+belongs in the registered project workspace.
 
-## Canonical Links
+## Canonical links
 
-- Platform operations: [docs/ops/platform-backlog.md](docs/ops/platform-backlog.md)
-- Deployment reference: [docs/ops/deployment-reference.md](docs/ops/deployment-reference.md)
-- Critical component map: [docs/ops/critical-components.md](docs/ops/critical-components.md)
-- Science queue: [research/robert/next-actions.md](research/robert/next-actions.md)
-- Science evidence ledger: [research/robert/evidence-ledger.md](research/robert/evidence-ledger.md)
-- Durable decisions: [docs/decisions/](docs/decisions/)
+- Project registry: [`research/projects.toml`](research/projects.toml)
+- Platform operations: [`docs/ops/platform-backlog.md`](docs/ops/platform-backlog.md)
+- Current architecture: [`docs/ops/architecture-overview.md`](docs/ops/architecture-overview.md)
+- Deployment reference: [`docs/ops/deployment-reference.md`](docs/ops/deployment-reference.md)
+- Robert science queue: [`research/robert/next-actions.md`](research/robert/next-actions.md)
+- Robert evidence ledger: [`research/robert/evidence-ledger.md`](research/robert/evidence-ledger.md)
+- Durable decisions: [`docs/decisions/`](docs/decisions/)
 
 ## Milestones
 
-| Milestone | Status | Current Pointer |
+| Milestone | Status | Current pointer |
 |---|---|---|
-| Infrastructure stabilization | In progress | See `docs/ops/platform-backlog.md` for Docker, MCP, and deployment tasks |
-| MCP research-tool auth | Done | See `docs/ops/platform-backlog.md` |
-| Science validation readiness | In progress | See `research/robert/next-actions.md`, `research/robert/fit-plan.md`, and `research/robert/evidence-ledger.md` |
-| Dashboard Data Sync | Done | Playwright UI audit passed. Found and fixed run filtering bug in API endpoint. |
+| Initial project-based control plane | Implemented | One registered Robert project, project-scoped API/UI, and local job records |
+| Control-plane reality documentation | Implemented | `docs/ops/architecture-overview.md` and related current runbooks |
+| Second real project onboarding | Planned | Validate a PhD audit or equivalent through the project registry |
+| Durable multi-worker job execution | Planned | See `docs/ops/platform-backlog.md` |
+| Science validation readiness | In progress | `research/robert/next-actions.md`, `fit-plan.md`, and evidence ledger |
 
-## Decision Status
+## Decision status
 
-- `2026-04-26-parser-and-rag-choice.md`: active baseline for local Unstructured; updated with the current Alibaba/1536 OpenSearch retrieval direction
-- `2026-04-27-mcp-topology.md`: active MCP topology decision for shared local proxy and project-level config
-- `2026-04-26-system-boundaries.md`: active boundary between science canon, ops docs, and implementation surfaces
-- `2026-04-26-science-evidence-standards.md`: active evidence and claim-promotion rules
+- `2026-04-26-system-boundaries.md`: active boundary between repository science
+  canon, implementation surfaces, and external execution adapters.
+- `2026-04-26-science-evidence-standards.md`: active evidence and
+  claim-promotion rules.
+- Earlier Onyx/DeerFlow/MCP decisions remain historical records; they do not
+  describe an active deployment in the current checkout.

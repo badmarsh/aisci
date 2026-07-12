@@ -1,4 +1,7 @@
-# Onyx RAG Evaluation Results
+# Historical Onyx RAG Evaluation Results
+
+> **Historical integration record.** No Onyx RAG deployment exists in the
+> current checkout; these results are retained for past-context traceability.
 
 Running log of RAG evaluation runs against the canonical question set in
 `rag-evaluation-set.md`. Each entry records the date, persona under test, the

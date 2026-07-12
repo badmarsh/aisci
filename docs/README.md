@@ -1,29 +1,45 @@
 # AiSci Documentation Map
 
-This folder is for project-wide documentation. Keep platform implementation details separate from Robert's science workflow.
+This folder holds project-wide documentation. Scientific claims, validation
+criteria, and reproducible runs belong in the relevant `research/` project
+workspace, not in operational documents.
 
-## Folders
+## Current documentation
 
-- `ops/` - deployment notes, stack assessments, troubleshooting, and platform backlog for Onyx, DeerFlow, Docker, MCP, models, and secrets handling.
-- `decisions/` - short architecture decision records. These explain why the project chose a direction.
-- `archive/` - older brainstorming and historical summaries kept for context.
+- `ops/` — current control-plane architecture, local deployment reference,
+  runbook, component map, and platform backlog.
+- `decisions/` — durable architecture and process decisions. Older decisions
+  remain historical records and do not imply their former services are active.
+- `archive/` — historical-only material.
 
-Science-facing work belongs under `research/`, not here. The `research/robert/` files should describe scientific questions, evidence, validation criteria, fits, reports, and reproducible runs without depending on Onyx or DeerFlow internals.
+## Current platform
 
-## Current Priority
+The active local platform is the AiSci Dashboard (Vite/TanStack Start) and
+Ignition (FastAPI), operating against registered repository projects. Start
+with:
 
-For current project-wide priorities, always refer to the root [`../ACTION_PLAN.md`](../ACTION_PLAN.md).
+- [`ops/architecture-overview.md`](ops/architecture-overview.md)
+- [`ops/deployment-reference.md`](ops/deployment-reference.md)
+- [`ops/CURRENT_STATUS.md`](ops/CURRENT_STATUS.md)
+- [`ops/platform-backlog.md`](ops/platform-backlog.md)
 
-## Work Tracking
+The project registry is [`../research/projects.toml`](../research/projects.toml).
+Robert's current science workspace is [`../research/robert/`](../research/robert/).
 
-Use GitHub Issues and Pull Requests for active implementation, review, and follow-up history. Keep durable current-state facts in the canonical repo docs:
+## Historical integration material
 
-- Platform state and runbooks: `docs/ops/`
-- Architecture and process decisions: `docs/decisions/`
-- Science evidence and tasks: `research/robert/`
+Some dated files retain records of prior Onyx, DeerFlow, LiteLLM, MCP, and RAG
+work. Those services are not present in the current `deployment/` tree. Treat
+such files as historical context unless a current document explicitly restores
+an integration.
 
-Do not create new backlog/status markdown files by default. For accepted work, open or update an Issue and point it at the exact canonical file that should change.
+## Work tracking
 
-## Science Evidence Standard
+Use GitHub Issues and Pull Requests for accepted implementation/review work.
+Keep durable facts in the appropriate canonical location:
 
-Scientific claims should be interpreted through `docs/decisions/2026-04-26-science-evidence-standards.md` and tracked in `research/robert/evidence-ledger.md`. Local scripts are sanity checks until full data, exact manuscript references, reproducible outputs, and literature context are attached.
+- platform state and active runbooks: `docs/ops/`
+- durable decisions: `docs/decisions/`
+- project science evidence and tasks: `research/<project>/`
+
+Do not create new backlog/status files by default.

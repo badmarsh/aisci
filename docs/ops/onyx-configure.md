@@ -1,4 +1,8 @@
-# Onyx Runtime Configuration Reference
+# Historical Onyx Runtime Configuration Reference
+
+> **Not an active runbook.** No `deployment/onyx/` directory or associated
+> Compose stack exists in the current checkout. This record is retained for
+> history; do not use it to operate the active control plane.
 
 _Reflects deployment state as of 2026-05-30. Last config-drift corrections applied 2026-05-30._
 
