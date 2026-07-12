@@ -119,6 +119,56 @@ def main():
         xi=args.xi,
     )
 
+    # Emit CSV artifacts from results since run_all_fits doesn't save them
+    import pandas as pd
+    quality_rows = []
+    parameter_rows = []
+    correlation_rows = []
+    
+    if isinstance(results, dict):
+        for bin_key, model_results in results.items():
+            for model_key, res in model_results.items():
+                if not isinstance(res, dict) or not res.get("success"):
+                    continue
+                
+                quality_rows.append({
+                    "group_label": bin_key,
+                    "model_name": model_key,
+                    "success": res.get("success"),
+                    "chi2_ndf": res.get("chi2_ndf"),
+                    "aic": res.get("aic"),
+                    "bic": res.get("bic"),
+                })
+                
+                param_names = list(res.get("parameter_values", {}).keys())
+                for param_name, val in res.get("parameter_values", {}).items():
+                    parameter_rows.append({
+                        "group_label": bin_key,
+                        "model_name": model_key,
+                        "parameter_name": param_name,
+                        "value": val,
+                        "error": res.get("parameter_errors", {}).get(param_name),
+                    })
+                
+                corr = res.get("correlation_matrix")
+                if corr:
+                    for row_idx, left_name in enumerate(param_names):
+                        for col_idx, right_name in enumerate(param_names):
+                            correlation_rows.append({
+                                "group_label": bin_key,
+                                "model_name": model_key,
+                                "parameter_left": left_name,
+                                "parameter_right": right_name,
+                                "correlation": corr[row_idx][col_idx]
+                            })
+
+    if quality_rows:
+        pd.DataFrame(quality_rows).to_csv(run_dir / "fit_quality.csv", index=False)
+    if parameter_rows:
+        pd.DataFrame(parameter_rows).to_csv(run_dir / "fit_parameters.csv", index=False)
+    if correlation_rows:
+        pd.DataFrame(correlation_rows).to_csv(run_dir / "parameter_correlations.csv", index=False)
+
     # Emit machine-readable JSON summary to stdout for agent parsing
     summary = {
         "status": "ok",

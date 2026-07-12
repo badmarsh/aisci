@@ -31,6 +31,17 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 
 
 ## 🤖 Agent-Proposed
+
+### [HYP-2026-07-12] Test Two-Component Soft/Hard Model (Thermal + Power-Law)
+**Trigger:** Classical thermal models (Jüttner and Bose 1c/2c) show severe chi²/ndf regressions (chi²/ndf > 50-200) across all high-$p_T$ bins, while Tsallis fits successfully (chi²/ndf < 20).
+**Triggering run:** research/robert/runs/2026-07-13-full-suite
+**Literature grounding:** Possible Implication of a Single Nonextensive $p_T$ Distribution for Hadron Production in High-Energy $pp$ Collisions (10.1051/epjconf/20159004002) — 24 supporting citations via INSPIRE-HEP
+**Proposed action:** 
+  - Modify FitSpec: Classical Jüttner/Bose exponential models strictly capture soft thermal emission but inherently fail at high-$p_T$ where hard QCD scattering dominates. We should explicitly add a high-$p_T$ power-law tail component to the exact Jüttner integration to construct a formal 'Two-Component Soft/Hard Model'.
+  - Expected effect: chi²/ndf for classical models in the full range should drastically drop below 10, resolving the catastrophic failure at higher momenta without discarding the exact Jüttner derivation for the thermal bulk.
+  - Test strategy: run with `python libs/physics-core/cli.py --models juttner_powerlaw` and compare AIC vs current Jüttner.
+**Acceptance:** AIC improvement > 2 in ≥ 8/10 bins; chi²/ndf < 10 in all bins.
+
 ### Manuscript Consistency Audit
 1. **Extreme Fit-Range Sensitivity (W-05)**
    - ~~**Draft Claim**: "When excluding the low-pT region (pT < 0.45 GeV), T_kin drifts by up to 43 MeV in certain bins (>7σ deviation). Document this extreme sensitivity..."~~
@@ -52,7 +63,7 @@ Evidence states referenced here are defined in `docs/decisions/2026-04-26-scienc
 **Context:** The pipeline shows severe $\chi^2/\text{ndf}$ for classical models. Lu et al. (arXiv:2407.09207v3) recently used Bayesian inference to quantify the low-$p_T$ pion excess against hydrodynamic frameworks.
 **Action:** Implement a Bayesian parameter estimation pipeline to systematically quantify the model-to-data differences in the high-$p_T$ tail. Instead of rejecting the Jüttner derivation entirely, use Bayesian inference to formally constrain its region of applicability and extract the posterior probability of the exact analytical integration's validity.
 
-- [ ] **D-02 (Docs):** The project lacks a central glossary for parameter notation (e.g., T_stat vs T_kin, U vs β_s). Execute `aisci-living-docs` skill to create a `docs/decisions/notation-glossary.md` and link it from `workflow.md`.
+- [x] **D-02 (Docs):** The project lacks a central glossary for parameter notation (e.g., T_stat vs T_kin, U vs β_s). Execute `aisci-living-docs` skill to create a `docs/decisions/notation-glossary.md` and link it from `workflow.md`.
 
 
 ### [A-04] Literature Cross-Check: Femtoscopy HBT Source Size vs Thermal Fit Parameters
