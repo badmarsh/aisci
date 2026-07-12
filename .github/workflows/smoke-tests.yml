@@ -9,6 +9,9 @@ on:
 jobs:
   smoke:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: libs/physics-core
 
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r physics/requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Run root smoke tests
         run: python -m pytest tests/ -v -m smoke --tb=short
