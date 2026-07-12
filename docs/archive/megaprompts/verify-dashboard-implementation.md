@@ -1,4 +1,4 @@
-# Megaprompt: Comprehensive Dashboard Implementation Verification
+> [!NOTE]\n> Archived on 2026-07-12: Superseded by handoff-2026-07-13.md due to contradictory audit_report.md instruction and completion of dashboard integration.\n\n# Megaprompt: Comprehensive Dashboard Implementation Verification
 
 **Instructions:** Copy and paste the prompt below into a new agent session to perform a final, comprehensive audit of the `aisci-dashboard` application. This ensures the successful integration of the last three major architectural phases: the v0 aesthetic redesign, the physics fits robustness updates, and the full backend/frontend control plane completion.
 

@@ -1,4 +1,4 @@
-# Dashboard Completion Meta-Prompt
+> [!NOTE]\n> Archived on 2026-07-12: Meta-prompt that successfully generated its target prompt.\n\n# Dashboard Completion Meta-Prompt
 
 **Role**: You are a Principal Software Architect and Lead AI Engineer tasked with analyzing an existing codebase and generating a comprehensive set of instructions (a "Megaprompt") for an AI coding agent to finish the application.
 

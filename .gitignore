@@ -97,3 +97,6 @@ physics/data/*.zip
 physics/data/arxiv_*/
 research/robert/runs/**/*.png
 deployment/data/
+
+# Local ide settings
+.gemini/

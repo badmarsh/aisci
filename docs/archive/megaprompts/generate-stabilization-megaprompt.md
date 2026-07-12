@@ -1,4 +1,4 @@
-# AiSci Stabilization & Completion Analysis Prompt
+> [!NOTE]\n> Archived on 2026-07-12: Meta-prompt that successfully generated its target prompt.\n\n# AiSci Stabilization & Completion Analysis Prompt
 
 **Instructions for the User:** Copy everything below the line and paste it into a fresh agent session.
 

@@ -10,7 +10,7 @@ Use this skill immediately after a draft or report has been produced by the Peer
 ## Read First
 - `AGENTS.md`
 - `research/robert/evidence-ledger.md`
-- Dashboard Database (`data/evidence_graph.db`)
+- Dashboard Database (`deployment/aisci-dashboard/data/evidence_graph.db`)
 
 ## Rules
 - **Verification Gate:** Stop immediately if the local parse drifts to generic non-HEP topics (e.g., Neural Networks, Fluid Dynamics).
@@ -20,7 +20,7 @@ Use this skill immediately after a draft or report has been produced by the Peer
 ## Workflow
 1. Parse the target draft (e.g., `research/robert/referee-report-draft.md`).
 2. Extract all physics claims and literature references.
-3. Cross-reference them heavily with the `evidence-ledger.md` and `data/evidence_graph.db`.
+3. Cross-reference them heavily with the `evidence-ledger.md` and `deployment/aisci-dashboard/data/evidence_graph.db`.
 4. If ANY claim lacks a literal quote or ledger backing, halt the pipeline and demand human review.
 
 ## Output

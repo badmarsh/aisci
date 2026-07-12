@@ -1,4 +1,4 @@
-# v0 Dashboard Redesign Megaprompt
+> [!NOTE]\n> Archived on 2026-07-12: This prompt has been fully executed (e.g. via commit dca9f2412 and related).\n\n# v0 Dashboard Redesign Megaprompt
 
 **Instructions:** Run the `deployment/helper/v0-tooling/v0_upload.js` script to initialize a new v0 chat with this prompt and the files from `deployment/aisci-dashboard` automatically attached. Alternatively, you can copy and paste the prompt below into your v0.dev chat and use your MCP integration to read the codebase.
 

@@ -1,0 +1,22 @@
+{
+  "status": "FATAL_ERROR",
+  "reason": "Draft contains claims that lack literal quotes or ledger backing.",
+  "failed_claims": [
+    {
+      "draft_text": "omits the fundamental kinematic Jacobian dy/dη = p/E",
+      "ledger_text": "dy/dη = p/(mT cosh η)",
+      "error": "Mathematical formula mismatch. Draft uses p/E, ledger uses p/(mT cosh η)."
+    },
+    {
+      "draft_text": "excluding the low-pT region (pT < 0.45 GeV)",
+      "ledger_text": "truncated pT in [0.50, 3.0] GeV",
+      "error": "Cutoff threshold mismatch. Draft states 0.45 GeV, ledger states 0.50 GeV."
+    },
+    {
+      "draft_text": "Our verification confirms this reduces \u03c72 by 40-95% while preserving the physical temperature trend.",
+      "ledger_text": "Applying the unfolding matrix shifts the kinetic freeze-out temperature T_{kin} by up to 4.7 MeV... A real ALICE MC-derived response matrix is confirmed necessary",
+      "error": "Hallucination. Ledger never claims a 40-95% reduction in \u03c72."
+    }
+  ],
+  "action_required": "Halt the pipeline and demand human review."
+}
