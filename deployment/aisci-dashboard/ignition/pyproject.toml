@@ -10,3 +10,6 @@ dependencies = [
     "pandas",
     "marko"
 ]
+
+[tool.setuptools]
+py-modules = []
