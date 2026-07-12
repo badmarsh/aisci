@@ -667,18 +667,42 @@ def run_all_fits(
     import pandas as pd
 
     df = pd.read_csv(data_path)
-    all_specs = build_fit_specs(mass_gev=mass_gev)  # existing function
+
+    if "eta_range" not in df.columns:
+        raise ValueError("fit_input.csv must include an eta_range column")
+
+    eta_range_value = str(df["eta_range"].dropna().iloc[0])
+    eta_bounds = [float(v) for v in re.findall(r'[-+]?\d+\.?\d*', eta_range_value)]
+    if len(eta_bounds) < 2:
+        raise ValueError(f"Cannot parse eta_range '{eta_range_value}'")
+
+    eta_max = max(abs(eta_bounds[0]), abs(eta_bounds[1]))
+    _pt_values = df["pt_center_gev"].dropna().to_numpy(dtype=float)
+    _pt_median = float(np.median(_pt_values)) if len(_pt_values) > 0 else 1.0
+    _mt_median = math.sqrt(mass_gev**2 + _pt_median**2)
+    y_max = math.asinh(math.sinh(eta_max) * _pt_median / _mt_median)
+
+    specs_list = build_fit_specs(eta_max=y_max, mass_gev=mass_gev)
+    all_specs = {s.model_name: s for s in specs_list}
 
     if model_keys is not None:
         all_specs = {k: v for k, v in all_specs.items() if k in model_keys}
 
     results: dict = {}
-    for bin_label, bin_df in df.groupby("bin_label"):
+    group_columns = infer_group_columns(df)
+    grouped = [(("all_data",), df)] if not group_columns else df.groupby(group_columns, dropna=False)
+    for bin_tuple, bin_df in grouped:
+        # If group_columns exists, pandas groupby returns a tuple (or scalar if 1 column). Ensure it's a tuple.
+        if not isinstance(bin_tuple, tuple):
+            bin_tuple = (bin_tuple,)
+        bin_label = "-".join(str(x) for x in bin_tuple)
         results[bin_label] = {}
         for model_key, spec in all_specs.items():
             try:
-                res = fit_one_spec(bin_df, spec, cov_mode=cov_mode, xi=xi,
-                                   run_dir=run_dir, bin_label=str(bin_label))
+                x_values = bin_df["pt_center_gev"].to_numpy(dtype=float)
+                y_values = bin_df["yield_value"].to_numpy(dtype=float) if "yield_value" in bin_df.columns else bin_df["yield"].to_numpy(dtype=float)
+                y_errors = bin_df["total_error"].to_numpy(dtype=float) if "total_error" in bin_df.columns else bin_df["stat_error"].to_numpy(dtype=float)
+                res = fit_one_spec(spec, x_values, y_values, y_errors)
                 results[bin_label][model_key] = res
             except Exception as exc:
                 results[bin_label][model_key] = {"status": "failed", "error": str(exc)}

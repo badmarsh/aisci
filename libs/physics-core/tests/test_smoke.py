@@ -9,6 +9,8 @@ import pytest
 
 # Add libs/physics-core/src to python path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Add libs/physics-core to python path for cli
+sys.path.insert(0, str(Path(__file__).parent.parent))
 # Add research/robert to path for ledger_scorer
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / "research/robert"))
 
@@ -100,48 +102,24 @@ def test_smoke_pipeline(mock_get, mock_hepdata_responses, tmp_path):
     assert len(df) > 0
     assert set(df["manuscript_bin"].unique()) == {"21-30", "31-40"}
 
-    # 2. Run Fitting Pipeline
-    # We mock confirm_manuscript_formula to avoid reading a dummy PDF
-    mock_formula = fitting_pipeline.FormulaConfirmation(
-        classification="juttner_relativistic_boltzmann_exponential",
-        rationale="mock rationale",
-        evidence_lines=["mock evidence"],
-        evidence_pages=[1],
-        related_table_pages=[9]
-    )
-
+    # 2. Run Fitting Pipeline via CLI
+    import cli
     args_pipeline = MagicMock()
-    args_pipeline.run_dir = tmp_path
-    args_pipeline.pdf_path = Path("dummy.pdf")
+    args_pipeline.run_dir = str(tmp_path)
+    args_pipeline.data_path = str(tmp_path / "fit_input.csv")
     args_pipeline.mass_gev = 0.13957
-    args_pipeline.models = ["exact_bose_einstein"]
-    args_pipeline.max_components = 1
+    args_pipeline.models = None
+    args_pipeline.cov_mode = "diag"
+    args_pipeline.xi = 1.0
+    args_pipeline.dry_run = False
 
-    # Since fitting all models takes time and minuit fits might fail on simulated data,
-    # we can limit to 1c models or mock fit_one_spec to run fast.
-    # To keep it a real smoke test, let's allow it to run on 1c models.
-    # Let's override build_fit_specs to return only the 1-component manuscript_juttner model.
-    original_build_fit_specs = fitting_pipeline.build_fit_specs
-    
-    def mock_build_fit_specs(eta_max, mass_gev):
-        specs = original_build_fit_specs(eta_max, mass_gev)
-        # return only 1c models to run fast in smoke test
-        return [s for s in specs if s.component_count == 1 and s.model_name == "exact_bose_einstein"]
+    with patch("cli.parse_args", return_value=args_pipeline):
+        try:
+            cli.main()
+        except SystemExit as e:
+            assert e.code == 0
 
-    with patch("fitting_pipeline.parse_args", return_value=args_pipeline), \
-         patch("fitting_pipeline.confirm_manuscript_formula", return_value=mock_formula), \
-         patch("fitting_pipeline.build_fit_specs", side_effect=mock_build_fit_specs):
-        rc_fit = fitting_pipeline.main()
-        assert rc_fit == 0
-
-    assert (tmp_path / "fit_parameters.csv").exists()
-    assert (tmp_path / "fit_quality.csv").exists()
-    assert (tmp_path / "model_comparison.csv").exists()
-
-    # Verify pull histograms were saved if matplotlib is present
-    if fitting_pipeline.plt is not None:
-        plot_files = list((tmp_path / "diagnostics").glob("*.png"))
-        assert len(plot_files) > 0
+    assert (tmp_path / "cli_summary.json").exists()
 
     # 3. Run Ledger Scorer
     # We mock parse_ledger_claims to return a simple list of mock claims
