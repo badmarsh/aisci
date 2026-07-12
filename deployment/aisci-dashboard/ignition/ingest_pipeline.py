@@ -16,7 +16,7 @@ def fetch_arxiv_papers(search_query, max_results=5):
     except Exception as e:
         print(f"arXiv fetch failed: {e}")
         return []
-    
+
     papers = []
     for entry in root.findall('{http://www.w3.org/2005/Atom}entry'):
         paper_id = entry.find('{http://www.w3.org/2005/Atom}id').text.split('/')[-1]
@@ -25,7 +25,7 @@ def fetch_arxiv_papers(search_query, max_results=5):
         published = entry.find('{http://www.w3.org/2005/Atom}published').text
         url_link = entry.find('{http://www.w3.org/2005/Atom}id').text
         category = entry.find('{http://arxiv.org/schemas/atom}primary_category').attrib.get('term', '')
-        
+
         papers.append({
             'id': paper_id,
             'title': title,
@@ -34,7 +34,7 @@ def fetch_arxiv_papers(search_query, max_results=5):
             'url': url_link,
             'category': category
         })
-        
+
     return papers
 
 import json
@@ -62,24 +62,24 @@ def fetch_openalex_papers(search_query, max_results=5):
     except Exception as e:
         print(f"OpenAlex fetch failed: {e}")
         return []
-    
+
     papers = []
     for item in data.get('results', []):
         paper_id = item.get('id', '').split('/')[-1]
         title = item.get('title', 'No Title')
-        
+
         abstract_idx = item.get('abstract_inverted_index')
         abstract = reconstruct_abstract(abstract_idx) if abstract_idx else ""
-        
+
         published = item.get('publication_date', '')
-        
+
         primary_loc = item.get('primary_location') or {}
         url_link = primary_loc.get('landing_page_url') or item.get('doi', '')
-        
+
         # Best guess for category
         concepts = item.get('concepts', [])
         category = concepts[0].get('display_name', '') if concepts else 'OpenAlex-General'
-        
+
         papers.append({
             'id': paper_id,
             'title': title,
@@ -93,32 +93,32 @@ def fetch_openalex_papers(search_query, max_results=5):
 def run_ingest(test_mode=False):
     init_db()
     project_id = "robert-boson-manuscript"
-    
+
     # 1. Physics Literature Radar (HEP)
     hep_query = 'cat:hep-ph+OR+cat:hep-ex'
     oa_hep_query = 'high energy physics'
-    
+
     # 2. Computer Science Radar (CS->HEP Bridge)
     cs_query = 'cat:cs.AI+OR+cat:stat.ML'
     oa_cs_query = 'machine learning in physics'
-    
+
     max_res = 2 if test_mode else 10
-    
+
     print("Fetching HEP papers (arXiv)...")
     hep_papers = fetch_arxiv_papers(hep_query, max_results=max_res)
     print("Fetching HEP papers (OpenAlex)...")
     oa_hep_papers = fetch_openalex_papers(oa_hep_query, max_results=max_res)
-    
+
     print("Fetching CS papers (arXiv)...")
     cs_papers = fetch_arxiv_papers(cs_query, max_results=max_res)
     print("Fetching CS papers (OpenAlex)...")
     oa_cs_papers = fetch_openalex_papers(oa_cs_query, max_results=max_res)
-    
+
     all_papers = hep_papers + oa_hep_papers + cs_papers + oa_cs_papers
-    
+
     for p in all_papers:
         print(f"Processing [{p['category']}]: {p['title']}")
-        
+
         content = p['id'] + p['title'] + p['abstract']
         source_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
         provider = "mock"
@@ -151,7 +151,7 @@ def run_ingest(test_mode=False):
             "claims": insights['claims'],
             "datasets": insights['datasets']
         }
-        
+
         try:
             req = urllib.request.Request(
                 f"http://127.0.0.1:8001/api/projects/{project_id}/literature",
@@ -161,7 +161,7 @@ def run_ingest(test_mode=False):
             urllib.request.urlopen(req)
         except Exception as e:
             print(f"Failed to post via webhook: {e}")
-            
+
     print(f"Ingest complete. Processed {len(all_papers)} papers.")
 
 if __name__ == '__main__':

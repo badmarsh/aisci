@@ -46,6 +46,7 @@ export const ClaimSchema = z.object({
 export type Claim = z.infer<typeof ClaimSchema>;
 
 export const PaperSchema = z.object({
+  id: z.string().optional(),
   source: z.string(),
   category: z.string(),
   title: z.string(),
@@ -68,6 +69,8 @@ export const EvidenceRowSchema = z.object({
   run: z.string(),
   narrative: z.string(),
   review_status: z.string().optional(),
+  run_id: z.string().optional().nullable(),
+  status_history: z.array(z.any()).optional().nullable(),
 });
 export type EvidenceRow = z.infer<typeof EvidenceRowSchema>;
 
@@ -137,6 +140,7 @@ export const JobExecutionSchema = z.object({
       }),
     )
     .optional(),
+  retry_of_job_id: z.string().optional().nullable(),
 });
 export type JobExecution = z.infer<typeof JobExecutionSchema>;
 
@@ -154,24 +158,24 @@ export type ReviewDecision = z.infer<typeof ReviewDecisionSchema>;
 export const FitRowSchema = z.object({
   bin: z.string(),
   model: z.string(),
-  chi2: z.number().optional(),
-  quality: z.enum(["POOR", "MARGINAL", "GOOD"]).optional(),
-  T: z.string().optional(),
-  beta: z.string().optional(),
-  aic: z.number().optional(),
-  ndf: z.number().optional(),
+  chi2: z.number().nullish(),
+  quality: z.enum(["POOR", "MARGINAL", "GOOD", "UNKNOWN"]).nullish(),
+  T: z.string().nullish(),
+  beta: z.string().nullish(),
+  aic: z.number().nullish(),
+  ndf: z.number().nullish(),
   status: z.string(),
-  correlations: z.record(z.number()).optional(),
-  seedIndex: z.number().nullable().optional(),
-  runTimestamp: z.string().optional(),
-  params: z.record(z.number()).optional(),
+  correlations: z.record(z.number()).nullish(),
+  seedIndex: z.number().nullish(),
+  runTimestamp: z.string().nullish(),
+  params: z.record(z.number()).nullish(),
 });
 export type FitRow = z.infer<typeof FitRowSchema>;
 
 export const FitDataSchema = z.object({
   fitRows: z.array(FitRowSchema),
-  chi2Series: z.array(z.record(z.union([z.number(), z.string()]))),
-  compareSeries: z.array(z.record(z.union([z.number(), z.string()]))).optional(),
+  chi2Series: z.array(z.record(z.union([z.number(), z.string()]).nullish())),
+  compareSeries: z.array(z.record(z.union([z.number(), z.string()]).nullish())).nullish(),
   bins: z.array(z.string()),
   runId: z.string(),
   status: z.string().optional(),
@@ -226,6 +230,12 @@ export async function fetchLiterature(projectId: string): Promise<Paper[]> {
   const res = await fetch(`${API_URL}/projects/${projectId}/literature`);
   if (!res.ok) throw new Error("Failed to fetch literature");
   return z.array(PaperSchema).parse(await res.json());
+}
+
+export async function fetchSciteTally(projectId: string, doi: string) {
+  const res = await fetch(`${API_URL}/projects/${projectId}/scite?doi=${encodeURIComponent(doi)}`);
+  if (!res.ok) throw new Error("Failed to fetch scite tally");
+  return res.json();
 }
 
 export async function fetchAnomalies(projectId: string, run?: string): Promise<Anomaly[]> {

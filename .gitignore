@@ -100,3 +100,6 @@ deployment/data/
 
 # Local ide settings
 .gemini/
+deployment/aisci-dashboard/ignition/test.db*
+*.db-shm
+*.db-wal

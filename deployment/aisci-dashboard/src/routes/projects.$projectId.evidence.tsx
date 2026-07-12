@@ -6,6 +6,7 @@ import { FileText, ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { Suspense, useState, Fragment } from "react";
 import { TableSkeleton } from "@/components/dashboard/SkeletonLoader";
 import { cn } from "@/lib/utils";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 
 export const Route = createFileRoute("/projects/$projectId/evidence")({
   component: EvidencePage,
@@ -14,6 +15,8 @@ export const Route = createFileRoute("/projects/$projectId/evidence")({
 function EvidencePage() {
   const { projectId } = Route.useParams();
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [nextGateFilter, setNextGateFilter] = useState<string>("");
+  const [runFilter, setRunFilter] = useState<string>("");
 
   return (
     <PageShell>
@@ -24,37 +27,62 @@ function EvidencePage() {
         </p>
       </section>
 
-      <div className="flex gap-2 mb-6">
-        <button
-          onClick={() => setStatusFilter(null)}
-          className={cn(
-            "px-3 py-1 rounded text-sm transition-colors border",
-            !statusFilter
-              ? "bg-primary text-primary-foreground border-primary font-medium"
-              : "bg-secondary text-muted-foreground border-transparent hover:bg-secondary/80"
-          )}
-        >
-          All
-        </button>
-        {["Supported", "Sanity Checked", "Proposed"].map((status) => (
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex gap-2">
           <button
-            key={status}
-            onClick={() => setStatusFilter(status)}
+            onClick={() => setStatusFilter(null)}
             className={cn(
               "px-3 py-1 rounded text-sm transition-colors border",
-              statusFilter === status
+              !statusFilter
                 ? "bg-primary text-primary-foreground border-primary font-medium"
                 : "bg-secondary text-muted-foreground border-transparent hover:bg-secondary/80"
             )}
           >
-            {status}
+            All Statuses
           </button>
-        ))}
+          {["Supported", "Sanity Checked", "Proposed"].map((status) => (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              className={cn(
+                "px-3 py-1 rounded text-sm transition-colors border",
+                statusFilter === status
+                  ? "bg-primary text-primary-foreground border-primary font-medium"
+                  : "bg-secondary text-muted-foreground border-transparent hover:bg-secondary/80"
+              )}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Filter by Next Gate..."
+            value={nextGateFilter}
+            onChange={(e) => setNextGateFilter(e.target.value)}
+            className="px-3 py-1 bg-secondary text-sm border-transparent rounded focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <input
+            type="text"
+            placeholder="Filter by Run ID..."
+            value={runFilter}
+            onChange={(e) => setRunFilter(e.target.value)}
+            className="px-3 py-1 bg-secondary text-sm border-transparent rounded focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </div>
       </div>
 
-      <Suspense fallback={<TableSkeleton rows={5} cols={3} />}>
-        <EvidenceContent projectId={projectId} statusFilter={statusFilter} />
-      </Suspense>
+      <QueryErrorBoundary>
+        <Suspense fallback={<TableSkeleton rows={5} cols={3} />}>
+          <EvidenceContent
+            projectId={projectId}
+            statusFilter={statusFilter}
+            nextGateFilter={nextGateFilter}
+            runFilter={runFilter}
+          />
+        </Suspense>
+      </QueryErrorBoundary>
     </PageShell>
   );
 }
@@ -62,9 +90,13 @@ function EvidencePage() {
 function EvidenceContent({
   projectId,
   statusFilter,
+  nextGateFilter,
+  runFilter,
 }: {
   projectId: string;
   statusFilter: string | null;
+  nextGateFilter: string;
+  runFilter: string;
 }) {
   const { data: evidence } = useSuspenseQuery({
     queryKey: ["evidence", projectId],
@@ -72,9 +104,16 @@ function EvidenceContent({
   });
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
-  const filteredEvidence = statusFilter
-    ? (evidence || []).filter((e: any) => e.status === statusFilter)
-    : (evidence || []);
+  const filteredEvidence = (evidence || []).filter((e: any) => {
+    if (statusFilter && e.status !== statusFilter) return false;
+    if (nextGateFilter && !e.nextGate?.toLowerCase().includes(nextGateFilter.toLowerCase())) return false;
+    if (runFilter) {
+        const matchesRun = e.run?.toLowerCase().includes(runFilter.toLowerCase());
+        const matchesRunId = e.run_id?.toLowerCase().includes(runFilter.toLowerCase());
+        if (!matchesRun && !matchesRunId) return false;
+    }
+    return true;
+  });
 
   return (
     <section className="glass-card rounded-xl p-6">
@@ -103,7 +142,7 @@ function EvidenceContent({
             <tbody className="divide-y divide-border">
               {filteredEvidence.map((e: any, i: number) => (
                 <Fragment key={i}>
-                  <tr 
+                  <tr
                     className="hover:bg-muted/30 cursor-pointer"
                     onClick={() => setExpandedRow(expandedRow === i ? null : i)}
                   >
@@ -138,10 +177,15 @@ function EvidenceContent({
                             </h4>
                             <p className="text-sm text-muted-foreground">
                               Validated in run: {e.run ? <span className="font-mono text-xs bg-secondary px-1.5 py-0.5 rounded border border-border">{e.run}</span> : "None"}
+                              {e.run_id && (
+                                <span className="ml-2 text-xs bg-blue-500/10 text-blue-500 px-1.5 py-0.5 rounded border border-blue-500/20">
+                                  ID: {e.run_id}
+                                </span>
+                              )}
                             </p>
                           </div>
                           <h4 className="text-sm font-semibold mb-4 flex items-center gap-2 text-foreground">
-                            <Clock className="w-4 h-4 text-primary" /> 
+                            <Clock className="w-4 h-4 text-primary" />
                             Audit Timeline
                           </h4>
                           {e.status_history?.length > 0 ? (

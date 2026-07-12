@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Suspense, useState, Fragment } from "react";
 import { TableSkeleton } from "@/components/dashboard/SkeletonLoader";
 import { CorrelationHeatmap } from "@/components/dashboard/CorrelationHeatmap";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 
 export const Route = createFileRoute("/projects/$projectId/fits")({
   component: FitsPage,
@@ -48,9 +49,11 @@ function FitsPage() {
         </Button>
       </section>
 
-      <Suspense fallback={<TableSkeleton rows={5} cols={9} />}>
-        <FitsContent projectId={projectId} />
-      </Suspense>
+      <QueryErrorBoundary>
+        <Suspense fallback={<TableSkeleton rows={5} cols={9} />}>
+          <FitsContent projectId={projectId} />
+        </Suspense>
+      </QueryErrorBoundary>
     </PageShell>
   );
 }

@@ -18,17 +18,17 @@ def extract_insights(project_id, title, abstract, category):
         "claims": [],
         "datasets": []
     }
-    
+
     # Try OpenRouter
     prompt = f"""
     Analyze the following scientific paper.
     Title: {title}
     Abstract: {abstract}
     Category: {category}
-    
+
     Extract key scientific claims and any datasets used.
     """
-    
+
     schema = {
         "type": "json_schema",
         "json_schema": {
@@ -60,7 +60,7 @@ def extract_insights(project_id, title, abstract, category):
             "strict": True
         }
     }
-    
+
     import time
     for attempt in range(3):
         try:
@@ -80,19 +80,19 @@ def extract_insights(project_id, title, abstract, category):
             response = urllib.request.urlopen(req, timeout=30)
             data = json.loads(response.read())
             resp_text = data.get("choices", [{}])[0].get("message", {}).get("content", "{}")
-            
+
             parsed = json.loads(resp_text)
             insights['claims'] = parsed.get("claims", [])
             insights['datasets'] = parsed.get("datasets", [])
-            
+
             # Log successful LLM
             try:
                 log_activity(project_id, "OpenRouter Extraction", "AI", f"Successfully extracted {len(insights['claims'])} claims using OpenRouter.")
             except:
                 pass
-                
+
             return insights
-            
+
         except urllib.error.HTTPError as e:
             if e.code == 429 and attempt < 2:
                 time.sleep(10)  # Wait 10 seconds before retrying
@@ -112,9 +112,9 @@ def extract_insights(project_id, title, abstract, category):
                 pass
             print(f"OpenRouter extraction failed: {e}. Falling back to keywords.")
             break
-    
+
     abstract_lower = abstract.lower()
-    
+
     if 'dataset' in abstract_lower or 'data' in abstract_lower:
         if 'atlas' in abstract_lower:
             insights['datasets'].append('ATLAS Open Data')
@@ -122,7 +122,7 @@ def extract_insights(project_id, title, abstract, category):
             insights['datasets'].append('CMS Open Data')
         else:
             insights['datasets'].append('Generic arXiv Dataset')
-            
+
     if 'cs.' in category or 'stat.' in category:
         if 'symbolic regression' in abstract_lower:
             insights['claims'].append({
@@ -161,7 +161,7 @@ def extract_insights(project_id, title, abstract, category):
                 "confidence": "MEDIUM",
                 "type": "HEP_LITERATURE"
             })
-            
+
     return insights
 
 if __name__ == '__main__':

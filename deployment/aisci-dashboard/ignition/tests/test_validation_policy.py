@@ -13,27 +13,27 @@ def test_validation_policy_custom():
 
 def test_evaluate_chi2():
     policy = default_policy
-    
+
     sev, msg = policy.validate_chi2(1.5)
     assert sev == "ok"
-    
+
     sev, msg = policy.validate_chi2(5.0)
     assert sev == "warning"
-    
+
     sev, msg = policy.validate_chi2(25.0)
     assert sev == "critical"
 
 def test_evaluate_correlation():
     policy = default_policy
-    
+
     # OK
     sev, msg = policy.validate_correlation(0.5, "q", "T")
     assert sev == "ok"
-    
+
     # Warning
     sev, msg = policy.validate_correlation(0.92, "q", "T")
     assert sev == "warning"
-    
+
     # Critical
     sev, msg = policy.validate_correlation(0.98, "q", "T")
     assert sev == "critical"

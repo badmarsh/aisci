@@ -10,11 +10,11 @@ echo "Starting AiSci Dashboard Services..."
 # Start Backend
 echo "Starting Backend (uvicorn)..."
 cd deployment/aisci-dashboard/ignition
-python3 -m uvicorn api:app --reload --host 0.0.0.0 --port 8001 > ../backend.log 2>&1 &
+PYTHONPATH=. ../../../libs/physics-core/.venv/bin/python -m uvicorn api:app --reload --host 0.0.0.0 --port 8001 > ../backend.log 2>&1 &
 BACKEND_PID=$!
 
 echo "Starting Worker..."
-python3 worker.py > ../worker.log 2>&1 &
+PYTHONPATH=. ../../../libs/physics-core/.venv/bin/python worker.py > ../worker.log 2>&1 &
 WORKER_PID=$!
 cd ../../..
 

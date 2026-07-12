@@ -15,7 +15,7 @@ def test_duplicate_pipeline_returns_409():
 
     # Attempt to trigger same pipeline
     response = client.post("/api/projects/robert-boson-manuscript/pipelines/fit-validation/run")
-    
+
     # Clean up DB
     conn = get_connection("robert-boson-manuscript")
     conn.execute("DELETE FROM JobExecutions WHERE id = 'test-job-123'")

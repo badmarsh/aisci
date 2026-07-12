@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import hashlib
 from project_registry import registry
 
 def get_connection(project_id: str):
@@ -7,7 +8,7 @@ def get_connection(project_id: str):
     runs_dir = spec.get_runs_dir()
     os.makedirs(runs_dir, exist_ok=True)
     db_path = os.path.join(runs_dir, ".aisci.db")
-    
+
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
@@ -18,7 +19,7 @@ def get_connection(project_id: str):
 def init_db(project_id: str):
     conn = get_connection(project_id)
     cursor = conn.cursor()
-    
+
     # Papers Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Papers (
@@ -37,7 +38,7 @@ def init_db(project_id: str):
         cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_papers_source_hash ON Papers (project_id, source_hash)")
     except Exception:
         pass
-    
+
     # Claims Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Claims (
@@ -49,7 +50,7 @@ def init_db(project_id: str):
             FOREIGN KEY (paper_id) REFERENCES Papers (id)
         )
     ''')
-    
+
     # Datasets Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Datasets (
@@ -59,7 +60,7 @@ def init_db(project_id: str):
             FOREIGN KEY (paper_id) REFERENCES Papers (id)
         )
     ''')
-    
+
     # Contradictions Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Contradictions (
@@ -71,7 +72,7 @@ def init_db(project_id: str):
             FOREIGN KEY (counter_claim_id) REFERENCES Claims (id)
         )
     ''')
-    
+
     # Evidence table (canonical status from evidence-ledger.md)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Evidence (
@@ -81,7 +82,10 @@ def init_db(project_id: str):
             status TEXT,
             nextGate TEXT,
             run TEXT,
-            narrative TEXT
+            run_id TEXT REFERENCES JobExecutions(id),
+            narrative TEXT,
+            status_history TEXT NOT NULL DEFAULT '[]',
+            canonical_hash TEXT UNIQUE
         )
     ''')
 
@@ -111,7 +115,7 @@ def init_db(project_id: str):
             details TEXT
         )
     ''')
-    
+
     # JobExecutions table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS JobExecutions (
@@ -127,7 +131,8 @@ def init_db(project_id: str):
             artifact_manifest TEXT,
             git_commit TEXT,
             created_at TEXT,
-            updated_at TEXT
+            updated_at TEXT,
+            retry_of_job_id TEXT REFERENCES JobExecutions(id)
         )
     ''')
 
@@ -137,6 +142,7 @@ def init_db(project_id: str):
             id TEXT PRIMARY KEY,
             project_id TEXT,
             target_id TEXT,
+            target_kind TEXT DEFAULT 'unknown',
             expected_hash TEXT,
             requested_state TEXT,
             reviewer TEXT,
@@ -145,7 +151,18 @@ def init_db(project_id: str):
             created_at TEXT
         )
     ''')
-    
+
+    # SciteCache table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS SciteCache (
+            doi TEXT PRIMARY KEY,
+            project_id TEXT,
+            tallies_json TEXT,
+            updated_at TEXT,
+            status TEXT
+        )
+    ''')
+
     # SchemaVersion table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS SchemaVersion (
@@ -168,27 +185,87 @@ def init_db(project_id: str):
         except sqlite3.OperationalError:
             pass
         cursor.execute("UPDATE SchemaVersion SET version = 1")
-    
+
+    # Migration 2: Evidence audit history and run_id
+    if version < 2:
+        try:
+            cursor.execute("ALTER TABLE Evidence ADD COLUMN run_id TEXT")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            cursor.execute("ALTER TABLE Evidence ADD COLUMN status_history TEXT")
+        except sqlite3.OperationalError:
+            pass
+        cursor.execute("UPDATE SchemaVersion SET version = 2")
+
+    # Migration 3: Proper Evidence history, job retry fk, review targets, scite cache
+    if version < 3:
+        try:
+            cursor.execute("ALTER TABLE JobExecutions ADD COLUMN retry_of_job_id TEXT REFERENCES JobExecutions(id)")
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            cursor.execute("ALTER TABLE ReviewDecisions ADD COLUMN target_kind TEXT DEFAULT 'unknown'")
+            cursor.execute("UPDATE ReviewDecisions SET target_kind = 'evidence'")
+        except sqlite3.OperationalError:
+            pass
+
+        # Migrate Evidence table for foreign keys and unique canonical_hash
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Evidence_old'")
+        if not cursor.fetchone():
+            cursor.execute("ALTER TABLE Evidence RENAME TO Evidence_old")
+            cursor.execute('''
+                CREATE TABLE Evidence (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    project_id TEXT,
+                    claim TEXT,
+                    status TEXT,
+                    nextGate TEXT,
+                    run TEXT,
+                    run_id TEXT REFERENCES JobExecutions(id),
+                    narrative TEXT,
+                    status_history TEXT NOT NULL DEFAULT '[]',
+                    canonical_hash TEXT UNIQUE
+                )
+            ''')
+            cursor.execute("SELECT * FROM Evidence_old")
+            old_rows = cursor.fetchall()
+            for row in old_rows:
+                row_dict = dict(row)
+                chash = hashlib.md5((row_dict['project_id'] + ":" + row_dict['claim']).encode()).hexdigest()
+                status_hist = row_dict.get('status_history')
+                if not status_hist:
+                    status_hist = '[]'
+                r_id = row_dict.get('run_id')
+                cursor.execute('''
+                    INSERT INTO Evidence (id, project_id, claim, status, nextGate, run, run_id, narrative, status_history, canonical_hash)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (row_dict['id'], row_dict['project_id'], row_dict['claim'], row_dict['status'], row_dict['nextGate'], row_dict['run'], r_id, row_dict['narrative'], status_hist, chash))
+            cursor.execute("DROP TABLE Evidence_old")
+
+        cursor.execute("UPDATE SchemaVersion SET version = 3")
+
     conn.commit()
     conn.close()
 
 def insert_paper(paper_id, project_id, title, abstract, published_date, url, category, provenance=None, source_hash=None):
     conn = get_connection(project_id)
     cursor = conn.cursor()
-    
+
     # Check if paper already exists by ID
     cursor.execute("SELECT 1 FROM Papers WHERE id = ?", (paper_id,))
     if cursor.fetchone():
         conn.close()
         return False
-        
+
     # Check if paper already exists by project_id and source_hash
     if source_hash:
         cursor.execute("SELECT 1 FROM Papers WHERE project_id = ? AND source_hash = ?", (project_id, source_hash))
         if cursor.fetchone():
             conn.close()
             return False
-            
+
     cursor.execute('''
         INSERT OR IGNORE INTO Papers (id, project_id, title, abstract, published_date, url, category, provenance, source_hash)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -222,18 +299,18 @@ def insert_dataset(project_id, paper_id, dataset_name):
 def get_stats(project_id):
     conn = get_connection(project_id)
     cursor = conn.cursor()
-    
+
     cursor.execute('SELECT COUNT(*) FROM Papers')
     papers_count = cursor.fetchone()[0]
-    
+
     cursor.execute('SELECT COUNT(*) FROM Claims')
     claims_count = cursor.fetchone()[0]
-    
+
     cursor.execute('SELECT COUNT(*) FROM Contradictions')
     contradictions_count = cursor.fetchone()[0]
-    
+
     conn.close()
-    
+
     return {
         'papers': papers_count,
         'claims': claims_count,

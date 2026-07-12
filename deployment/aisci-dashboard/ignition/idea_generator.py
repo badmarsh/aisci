@@ -16,7 +16,7 @@ class IdeaGenerator:
     def brainstorm(self, base_model="Bose-Einstein"):
         print(f"[IdeaGenerator] Brainstorming extensions to {base_model}...")
         gaps = self._query_literature_gaps()
-        
+
         ideas = []
         for gap in gaps:
             idea_id = str(uuid.uuid4())[:8]
@@ -27,9 +27,9 @@ class IdeaGenerator:
                 "timestamp": datetime.datetime.now().isoformat()
             }
             ideas.append(idea)
-            
+
         return ideas
-    
+
     def propose_to_ledger(self, idea):
         # Format the idea to be appended to next-actions.md
         proposal = f"## 🤖 Agent-Proposed (Hypothesis #{idea['id']})\n- **Trigger:** Literature Gap\n- **Hypothesis:** {idea['hypothesis']}\n"

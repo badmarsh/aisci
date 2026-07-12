@@ -5,7 +5,7 @@ from database import get_connection
 def seed_db():
     conn = get_connection()
     cursor = conn.cursor()
-    
+
     # Seed Tasks
     tasks = [
         ("t1", "Run bose_1c head-to-head vs Tsallis 2c", "Fit the corrected Bose-Einstein formula across all 10 multiplicity bins and compare AIC/BIC against Tsallis 2c baseline.", "HIGH", "AI", "2026-07-09", "", "active"),

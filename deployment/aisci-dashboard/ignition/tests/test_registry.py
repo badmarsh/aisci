@@ -6,7 +6,7 @@ def test_registry_loads_robert_project():
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
     registry_file = os.path.join(repo_root, "research", "projects.toml")
     registry = ProjectRegistry(registry_file)
-    
+
     spec = registry.get_project("robert-boson-manuscript")
     assert spec is not None
     assert spec.owner == "Robert"

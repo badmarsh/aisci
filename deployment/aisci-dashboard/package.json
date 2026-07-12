@@ -11,7 +11,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:backend": "cd ignition && PYTHONPATH=.. ../../../libs/physics-core/.venv/bin/python -m pytest tests/",
+    "start:backend": "if lsof -i :8001 > /dev/null; then echo 'Port 8001 is already in use by:' && lsof -i :8001 && exit 1; fi; PYTHONPATH=ignition ../../libs/physics-core/.venv/bin/python -m uvicorn ignition.api:app --host 0.0.0.0 --port 8001"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

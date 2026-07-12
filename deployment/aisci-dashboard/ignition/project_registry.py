@@ -27,7 +27,7 @@ class ProjectSpec(BaseModel):
         return os.path.abspath(os.path.join(repo_root, self.root))
 
     def get_canonical_path(self, filename: str) -> str:
-        # Some projects may have canonical docs in <root>/canonical/, 
+        # Some projects may have canonical docs in <root>/canonical/,
         # while Robert has them in <root>/
         path = os.path.join(self.get_absolute_root(), filename)
         if os.path.exists(path):
@@ -51,7 +51,7 @@ class ProjectRegistry:
 
         with open(self.registry_path, "rb") as f:
             data = tomllib.load(f)
-        
+
         for p_data in data.get("projects", []):
             try:
                 spec = ProjectSpec(**p_data)

@@ -52,6 +52,9 @@ in the project workspace Markdown files.
 - `artifact_manifest` and `git_commit` are now populated by the worker.
 - Project isolation, pipeline registries, and production mutation authentication are fully implemented.
 - Route-by-route capability gating and dynamic model extraction implemented across the frontend.
+- Standardized `Suspense` data-loading and introduced `QueryErrorBoundary` for resilient frontend data fetching.
+- Consolidated backend start and test commands into `package.json` with robust virtual environment management.
+- Fixed audit history durability, robust SSE job streaming, precise fit-parser metric calculations (AIC/BIC), and pipeline retry execution provenance.
 ## Current researcher-facing source of truth
 
 | Need | Canonical location |

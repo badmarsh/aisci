@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { fetchLiterature } from "@/lib/api";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
+import { fetchLiterature, fetchSciteTally } from "@/lib/api";
 import { PageShell } from "@/components/PageShell";
 import { BookOpen, Download } from "lucide-react";
 import { Suspense, useState } from "react";
 import { TableSkeleton } from "@/components/dashboard/SkeletonLoader";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 
 export const Route = createFileRoute("/projects/$projectId/literature")({
   component: LiteraturePage,
@@ -31,14 +32,40 @@ function LiteraturePage() {
         </a>
       </section>
 
-      <Suspense fallback={<TableSkeleton rows={5} cols={2} />}>
-        <LiteratureContent
-          projectId={projectId}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
-      </Suspense>
+      <QueryErrorBoundary>
+        <Suspense fallback={<TableSkeleton rows={5} cols={2} />}>
+          <LiteratureContent
+            projectId={projectId}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+        </Suspense>
+      </QueryErrorBoundary>
     </PageShell>
+  );
+}
+
+function SciteBadge({ projectId, doi }: { projectId: string; doi: string }) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["scite", projectId, doi],
+    queryFn: () => fetchSciteTally(projectId, doi),
+    staleTime: 1000 * 60 * 60,
+  });
+
+  if (isLoading) return <span className="px-2 py-0.5 rounded text-[10px] bg-secondary/50 text-muted-foreground animate-pulse">scite loading</span>;
+
+  if (error || data?.status !== "ok" || !data?.tally) {
+    return <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-secondary text-muted-foreground border border-border">scite unavailable</span>;
+  }
+
+  const t = data.tally;
+  return (
+    <div className="flex items-center gap-1 text-[10px] font-mono">
+      <span className="text-muted-foreground mr-1">scite:</span>
+      {t.supporting > 0 && <span className="bg-emerald-500/10 text-emerald-500 px-1 rounded border border-emerald-500/20" title="Supporting">{t.supporting} S</span>}
+      {t.contradicting > 0 && <span className="bg-red-500/10 text-red-500 px-1 rounded border border-red-500/20" title="Contradicting">{t.contradicting} C</span>}
+      <span className="bg-secondary text-muted-foreground px-1 rounded border border-border" title="Mentioning">{t.mentioning || 0} M</span>
+    </div>
   );
 }
 
@@ -124,6 +151,7 @@ function LiteratureContent({
                 <tr>
                   <th className="px-4 py-3">Title</th>
                   <th className="px-4 py-3">Category</th>
+                  <th className="px-4 py-3">Scite Tally</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -134,6 +162,13 @@ function LiteratureContent({
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-secondary text-foreground border border-border">
                         {p.category}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {p.id && (p.id.startsWith("10.") || p.id.startsWith("arXiv")) ? (
+                        <SciteBadge projectId={projectId} doi={p.id} />
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}

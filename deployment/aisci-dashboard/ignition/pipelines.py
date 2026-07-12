@@ -18,7 +18,7 @@ class PipelineSpec(BaseModel):
         for unsafe in unsafe_commands:
             if unsafe in cmd_str:
                 raise ValueError(f"Unsafe command detected: {unsafe}")
-                
+
     def dry_run(self) -> dict:
         try:
             self.validate_safety()
@@ -27,14 +27,14 @@ class PipelineSpec(BaseModel):
         except Exception as e:
             is_safe = False
             msg = str(e)
-            
+
         checks = []
         checks.append({
             "name": "Command Safety",
             "passed": is_safe,
             "message": msg
         })
-        
+
         has_venv = False
         if self.command and "physics-core/.venv/bin/python" in self.command[0]:
             venv_python = self.command[0]
@@ -44,7 +44,7 @@ class PipelineSpec(BaseModel):
                 "passed": has_venv,
                 "message": f"Found" if has_venv else "Missing python at venv"
             })
-            
+
             has_iminuit = False
             if has_venv:
                 try:
@@ -57,7 +57,7 @@ class PipelineSpec(BaseModel):
                 "passed": has_iminuit,
                 "message": "Installed" if has_iminuit else "Failed to import"
             })
-        
+
         if self.requires_input:
             input_path = os.path.join(self.working_dir, self.requires_input)
             has_input = os.path.exists(input_path)
@@ -66,9 +66,9 @@ class PipelineSpec(BaseModel):
                 "passed": has_input,
                 "message": "Found" if has_input else "Missing"
             })
-            
+
         all_passed = all(c['passed'] for c in checks)
-        
+
         return {
             "id": self.id,
             "name": self.name,
@@ -88,19 +88,19 @@ class PipelineRegistry:
         pipelines_file = os.path.join(project_spec.get_absolute_root(), "pipelines.toml")
         if not os.path.exists(pipelines_file):
             return []
-            
+
         with open(pipelines_file, "rb") as f:
             data = tomllib.load(f)
-            
+
         specs = []
         for p_id, p_data in data.get("pipelines", {}).items():
             try:
                 wdir = p_data.get("working_dir", ".")
                 if not os.path.isabs(wdir):
                     wdir = os.path.normpath(os.path.join(project_spec.get_absolute_root(), wdir))
-                
+
                 command = p_data.get("command", [])
-                
+
                 # Intercept fit-validation to use real venv and cli.py
                 if p_id == "fit-validation":
                     venv_python = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../../libs/physics-core/.venv/bin/python"))
@@ -113,7 +113,7 @@ class PipelineRegistry:
                     scan_py = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../../libs/physics-core/src/exact_be_fit_range_scan.py"))
                     command = [venv_python, scan_py]
                     wdir = os.path.normpath(os.path.join(project_spec.get_absolute_root(), "../.."))
-                
+
                 spec = PipelineSpec(
                     id=p_id,
                     name=p_data.get("name", p_id),

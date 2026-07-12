@@ -8,10 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PageShell } from "@/components/PageShell";
 import { type Agent } from "@/lib/api";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchAgents, fetchPipelines, triggerPipeline } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { Suspense } from "react";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 import {
   Select,
   SelectContent,
@@ -42,20 +44,29 @@ const statusStyles: Record<Agent["status"], string> = {
 
 function AgentsPage() {
   const { projectId } = useParams({ strict: false }) as { projectId: string };
+
+  return (
+    <PageShell>
+      <QueryErrorBoundary>
+        <Suspense fallback={<Skeleton className="h-[200px] w-full mt-6" />}>
+          <AgentsContent projectId={projectId} />
+        </Suspense>
+      </QueryErrorBoundary>
+    </PageShell>
+  );
+}
+
+function AgentsContent({ projectId }: { projectId: string }) {
   const [open, setOpen] = useState<Agent | null>(null);
   const [selectedPipeline, setSelectedPipeline] = useState<string>("");
   const queryClient = useQueryClient();
 
-  const {
-    data: agents = [],
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: agents = [] } = useSuspenseQuery({
     queryKey: ["agents", projectId],
     queryFn: () => fetchAgents(projectId as string),
   });
 
-  const { data: pipelines } = useQuery({
+  const { data: pipelines } = useSuspenseQuery({
     queryKey: ["pipelines", projectId],
     queryFn: () => fetchPipelines(projectId as string),
   });
@@ -72,24 +83,8 @@ function AgentsPage() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <PageShell>
-        <Skeleton className="h-[200px] w-full" />
-      </PageShell>
-    );
-  }
-
-  if (isError) {
-    return (
-      <PageShell>
-        <div className="text-rose-brand">Error loading agents.</div>
-      </PageShell>
-    );
-  }
-
   return (
-    <PageShell>
+    <>
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-card/50 glass-card p-4 rounded-xl border border-border mb-6 shadow-sm">
         <div className="text-sm font-medium whitespace-nowrap text-foreground/80">Dispatch Pipeline:</div>
         <div className="flex gap-3 w-full sm:w-auto items-center">
@@ -202,6 +197,6 @@ function AgentsPage() {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-    </PageShell>
+    </>
   );
 }

@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchTasks, updateTask, Task } from "@/lib/api";
 import { PageShell } from "@/components/PageShell";
 import { CheckSquare, Loader2, Play, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Suspense } from "react";
+import { TableSkeleton } from "@/components/dashboard/SkeletonLoader";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 
 export const Route = createFileRoute("/projects/$projectId/tasks")({
   component: TasksPage,
@@ -13,10 +16,6 @@ export const Route = createFileRoute("/projects/$projectId/tasks")({
 
 function TasksPage() {
   const { projectId } = Route.useParams();
-  const { data: tasks, isLoading } = useQuery({
-    queryKey: ["tasks", projectId],
-    queryFn: () => fetchTasks(projectId),
-  });
 
   return (
     <PageShell>
@@ -33,27 +32,40 @@ function TasksPage() {
         <button className="px-4 py-2 bg-secondary rounded-lg">Proposed</button>
       </div>
 
-      <section className="glass-card rounded-xl p-6">
-        <header className="flex items-center gap-3 mb-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <CheckSquare className="h-4 w-4" />
-          </div>
-          <h2 className="text-lg font-semibold">Task Queue</h2>
-        </header>
-
-        {isLoading ? (
-          <div className="py-8 text-center text-muted-foreground">Loading tasks...</div>
-        ) : !tasks?.length ? (
-          <div className="py-8 text-center text-muted-foreground">No tasks found.</div>
-        ) : (
-          <div className="space-y-4">
-            {tasks.map((t: Task) => (
-              <TaskItem key={t.id} task={t} projectId={projectId} />
-            ))}
-          </div>
-        )}
-      </section>
+      <QueryErrorBoundary>
+        <Suspense fallback={<TableSkeleton rows={4} cols={3} />}>
+          <TasksContent projectId={projectId} />
+        </Suspense>
+      </QueryErrorBoundary>
     </PageShell>
+  );
+}
+
+function TasksContent({ projectId }: { projectId: string }) {
+  const { data: tasks } = useSuspenseQuery({
+    queryKey: ["tasks", projectId],
+    queryFn: () => fetchTasks(projectId),
+  });
+
+  return (
+    <section className="glass-card rounded-xl p-6">
+      <header className="flex items-center gap-3 mb-4">
+        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+          <CheckSquare className="h-4 w-4" />
+        </div>
+        <h2 className="text-lg font-semibold">Task Queue</h2>
+      </header>
+
+      {!tasks?.length ? (
+        <div className="py-8 text-center text-muted-foreground">No tasks found.</div>
+      ) : (
+        <div className="space-y-4">
+          {tasks.map((t: Task) => (
+            <TaskItem key={t.id} task={t} projectId={projectId} />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -96,7 +108,7 @@ function TaskItem({ task, projectId }: { task: Task; projectId: string }) {
           </div>
         </div>
       </div>
-      
+
       <div className="flex gap-2 shrink-0">
         {task.status !== "active" && task.status !== "done" && (
           <Button

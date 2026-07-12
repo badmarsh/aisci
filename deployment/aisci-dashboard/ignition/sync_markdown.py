@@ -51,7 +51,7 @@ def parse_evidence_markdown(filepath):
         return evidence
     with open(filepath, 'r') as f:
         content = f.read()
-        
+
     doc = gfm.parse(content)
     for child in doc.children:
         if child.__class__.__name__ == "Table":
@@ -62,17 +62,23 @@ def parse_evidence_markdown(filepath):
                     cells = [_extract_text(cell).strip() for cell in row.children]
                     if len(cells) >= 5:
                         narrative = cells[2]
+                        # Extract explicit run_id if present (UUID or dated string)
+                        run_id_match = re.search(r'run_id:\s*([a-zA-Z0-9\-]+)', narrative, re.IGNORECASE)
                         run_match = re.search(r'Run:\s*([0-9]{4}-[0-9]{2}-[0-9]{2}-[a-zA-Z0-9-]+)', narrative)
-                        run_id = run_match.group(1) if run_match else "—"
+
+                        run_id_val = run_id_match.group(1) if run_id_match else None
+                        run_val = run_match.group(1) if run_match else "—"
+
                         evidence.append({
                             "claim": cells[0],
                             "status": cells[3],
                             "nextGate": cells[4],
-                            "run": run_id,
+                            "run": run_val,
+                            "run_id": run_id_val,
                             "narrative": narrative
                         })
                 break
-            
+
     return evidence
 
 def sync_evidence_to_db(project_id: str, force: bool = False):
@@ -81,15 +87,15 @@ def sync_evidence_to_db(project_id: str, force: bool = False):
     filepath = spec.get_canonical_path("evidence-ledger.md")
     if not os.path.exists(filepath):
         return
-        
+
     hasher = hashlib.sha256()
     with open(filepath, 'rb') as f:
         hasher.update(f.read())
     current_hash = hasher.hexdigest()
-    
+
     runs_dir = spec.get_runs_dir()
     cache_path = os.path.join(runs_dir, ".sync_cache")
-    
+
     cached_hash = None
     if not force and os.path.exists(cache_path):
         try:
@@ -99,27 +105,42 @@ def sync_evidence_to_db(project_id: str, force: bool = False):
                 cached_hash = cache_data.get("evidence_hash")
         except Exception:
             pass
-            
+
     if not force and current_hash == cached_hash:
         return
-        
+
     evidence_list = parse_evidence_markdown(filepath)
     if not evidence_list:
         return
-        
+
     conn = get_connection(project_id)
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM Evidence WHERE project_id=?", (project_id,))
-    
+
+    current_hashes = []
+
     for ev in evidence_list:
+        chash = hashlib.md5((project_id + ":" + ev['claim']).encode()).hexdigest()
+        current_hashes.append(chash)
         cursor.execute('''
-            INSERT INTO Evidence (project_id, claim, status, nextGate, run, narrative)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (project_id, ev['claim'], ev['status'], ev['nextGate'], ev['run'], ev['narrative']))
-        
+            INSERT INTO Evidence (project_id, claim, status, nextGate, run, run_id, narrative, status_history, canonical_hash)
+            VALUES (?, ?, ?, ?, ?, ?, ?, '[]', ?)
+            ON CONFLICT(canonical_hash) DO UPDATE SET
+                status = excluded.status,
+                nextGate = excluded.nextGate,
+                run = excluded.run,
+                run_id = excluded.run_id,
+                narrative = excluded.narrative
+        ''', (project_id, ev['claim'], ev['status'], ev['nextGate'], ev['run'], ev.get('run_id'), ev['narrative'], chash))
+
+    if current_hashes:
+        placeholders = ','.join('?' * len(current_hashes))
+        cursor.execute(f"DELETE FROM Evidence WHERE project_id=? AND (canonical_hash IS NULL OR canonical_hash NOT IN ({placeholders}))", [project_id] + current_hashes)
+    else:
+        cursor.execute("DELETE FROM Evidence WHERE project_id=?", (project_id,))
+
     conn.commit()
     conn.close()
-    
+
     try:
         import json
         cache_data = {}
@@ -144,7 +165,7 @@ def _update_markdown_table_status(filepath: str, row_identifier: str, new_status
 
     updated_lines = []
     in_table = False
-    
+
     if not is_task:
         for line in lines:
             if line.startswith('| Claim'):
@@ -177,7 +198,7 @@ def materialize_approved_decisions(project_id: str):
     cursor = conn.cursor()
     cursor.execute("SELECT id, target_id, requested_state FROM ReviewDecisions WHERE status = 'Approved' AND project_id = ?", (project_id,))
     decisions = cursor.fetchall()
-    
+
     if not decisions:
         conn.close()
         return
@@ -187,17 +208,17 @@ def materialize_approved_decisions(project_id: str):
 
     with open(filepath, 'r') as f:
         lines = f.readlines()
-        
+
     changed = False
     for dec in decisions:
         evidence_id = dec['target_id']
         new_status = dec['requested_state']
-        
+
         cursor.execute("SELECT claim FROM Evidence WHERE id = ? AND project_id = ?", (evidence_id, project_id))
         row = cursor.fetchone()
         if not row:
             continue
-            
+
         target_claim = row['claim'].strip()
         for i, line in enumerate(lines):
             if line.strip().startswith('|'):
@@ -209,16 +230,16 @@ def materialize_approved_decisions(project_id: str):
                         lines[i] = "|".join(parts)
                         changed = True
                     break
-                
+
         cursor.execute("UPDATE ReviewDecisions SET status = 'Materialized' WHERE id = ?", (dec['id'],))
-        
+
     if changed:
         with _file_lock:
             _atomic_write(filepath, lines)
-            
+
     conn.commit()
     conn.close()
-    
+
     if changed:
         sync_evidence_to_db(project_id)
 
@@ -227,15 +248,15 @@ def sync_tasks_to_db(project_id: str, force: bool = False):
     filepath = spec.get_canonical_path("next-actions.md")
     if not os.path.exists(filepath):
         return
-        
+
     hasher = hashlib.sha256()
     with open(filepath, 'rb') as f:
         hasher.update(f.read())
     current_hash = hasher.hexdigest()
-    
+
     runs_dir = spec.get_runs_dir()
     cache_path = os.path.join(runs_dir, ".sync_cache")
-    
+
     cached_hash = None
     if not force and os.path.exists(cache_path):
         try:
@@ -245,21 +266,21 @@ def sync_tasks_to_db(project_id: str, force: bool = False):
                 cached_hash = cache_data.get("tasks_hash")
         except Exception:
             pass
-            
+
     if not force and current_hash == cached_hash:
         return
-        
+
     with open(filepath, 'r') as f:
         content = f.read()
 
     doc = gfm.parse(content)
     tasks = []
-    
+
     current_task = None
-    
+
     for child in doc.children:
         node_type = child.__class__.__name__
-        
+
         if node_type == "Heading" and getattr(child, 'level', 0) == 3:
             heading_text = _extract_text(child).strip()
             # Expecting "### [TASK-ID] Title"
@@ -289,7 +310,7 @@ def sync_tasks_to_db(project_id: str, force: bool = False):
                     current_task["status"] = "proposed"
             elif text.startswith("**Context:**"):
                 current_task["description"] = text.replace("**Context:**", "").strip()
-        
+
         if node_type == "Table":
             # Looking for Completed tasks table
             header = [_extract_text(c).strip() for c in child.children[0].children] if child.children else []
@@ -301,7 +322,7 @@ def sync_tasks_to_db(project_id: str, force: bool = False):
                         title_str = cells[0].strip()
                         date_str = cells[1].strip()
                         notes_str = cells[2].strip()
-                        
+
                         m = re.match(r'^\[(.*?)\]\s*(.*)', title_str)
                         if m:
                             t_id = m.group(1).strip()
@@ -309,7 +330,7 @@ def sync_tasks_to_db(project_id: str, force: bool = False):
                         else:
                             t_id = "c-" + hashlib.sha256(title_str.encode()).hexdigest()[:12]
                             t_title = title_str
-                            
+
                         tasks.append({
                             "id": t_id,
                             "title": t_title,
@@ -323,7 +344,7 @@ def sync_tasks_to_db(project_id: str, force: bool = False):
 
     if current_task:
         tasks.append(current_task)
-                    
+
     seen = {}
     for t in tasks:
         seen[t["id"]] = t
@@ -356,14 +377,14 @@ def sync_db_to_tasks(project_id: str, task_id: str, new_status: str):
 
     with open(filepath, 'r') as f:
         lines = f.readlines()
-        
+
     for i, line in enumerate(lines):
         if line.strip().startswith(f"### [{task_id}]"):
             if i + 1 < len(lines) and "**Status:**" in lines[i+1]:
                 status_str = "Active" if new_status == "active" else "BLOCKED" if new_status == "blocked" else new_status.capitalize()
                 lines[i+1] = f"**Status:** {status_str}\n"
             break
-            
+
     with _file_lock:
         _atomic_write(filepath, lines)
         sync_tasks_to_db(project_id)

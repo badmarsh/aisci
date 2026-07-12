@@ -102,7 +102,7 @@ def load_legacy():
         content = p["id"] + p["title"] + p["abstract"]
         source_hash = hashlib.sha256(content.encode('utf-8')).hexdigest()
         provenance = "Legacy manual ingest (load_legacy_papers.py)"
-        
+
         insert_paper(
             paper_id=p["id"],
             project_id=project_id,
@@ -122,7 +122,7 @@ def load_legacy():
                 confidence=c["confidence"],
                 type="Supporting"
             )
-            
+
     # Also look for any literature_*.md files in research/robert/
     robert_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../research/robert"))
     if os.path.exists(robert_dir):
@@ -146,7 +146,7 @@ def load_legacy():
                         provenance=provenance,
                         source_hash=source_hash
                     )
-                    
+
     print("Legacy papers loaded successfully.")
 
 if __name__ == "__main__":

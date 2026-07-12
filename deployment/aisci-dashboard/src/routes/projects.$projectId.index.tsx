@@ -44,6 +44,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Play, Loader2, BookOpen as BookOpenIcon } from "lucide-react";
 import { MetricCardSkeleton, PanelSkeleton } from "@/components/dashboard/SkeletonLoader";
+import { QueryErrorBoundary } from "@/components/QueryErrorBoundary";
 
 export const Route = createFileRoute("/projects/$projectId/")({
   head: () => ({
@@ -137,7 +138,7 @@ function Overview() {
             <Copy className="h-3.5 w-3.5" /> Export
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5" onClick={handleGitHubIssue}>
-            <Github className="h-3.5 w-3.5" /> Create Issue
+            <Github className="h-3.5 w-3.5" /> Prefilled URL
           </Button>
           <div className="h-8 w-px bg-border" />
           <div>
@@ -147,28 +148,30 @@ function Overview() {
         </div>
       </section>
 
-      <Suspense
-        fallback={
-          <div className="flex flex-col gap-6">
-            <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <MetricCardSkeleton />
-              <MetricCardSkeleton />
-              <MetricCardSkeleton />
-              <MetricCardSkeleton />
-            </section>
-            <section className="grid gap-4 xl:grid-cols-12">
-              <div className="xl:col-span-7">
-                <PanelSkeleton rows={4} />
-              </div>
-              <div className="xl:col-span-5">
-                <PanelSkeleton rows={4} />
-              </div>
-            </section>
-          </div>
-        }
-      >
-        <OverviewContent projectId={projectId} />
-      </Suspense>
+      <QueryErrorBoundary>
+        <Suspense
+          fallback={
+            <div className="flex flex-col gap-6">
+              <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <MetricCardSkeleton />
+                <MetricCardSkeleton />
+                <MetricCardSkeleton />
+                <MetricCardSkeleton />
+              </section>
+              <section className="grid gap-4 xl:grid-cols-12">
+                <div className="xl:col-span-7">
+                  <PanelSkeleton rows={4} />
+                </div>
+                <div className="xl:col-span-5">
+                  <PanelSkeleton rows={4} />
+                </div>
+              </section>
+            </div>
+          }
+        >
+          <OverviewContent projectId={projectId} />
+        </Suspense>
+      </QueryErrorBoundary>
     </PageShell>
   );
 }
