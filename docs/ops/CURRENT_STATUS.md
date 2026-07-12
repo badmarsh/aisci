@@ -1,6 +1,6 @@
 # Current System Status
 
-**Last verified:** 2026-07-12  
+**Last verified:** 2026-07-12
 **Maintainer:** Platform Operations
 
 This is a repository-and-listener snapshot. Durable open work belongs in
@@ -41,16 +41,14 @@ in the project workspace Markdown files.
 
 ## Important limitations
 
-- The project registry has only one real project. A second, real project is
-  required to validate multi-project onboarding and UI capability gating.
-- The current pipeline registry is hardcoded for Robert and its command paths
-  require validation before operators use them as a general job catalogue.
-- Job execution currently runs as asynchronous child processes owned by the
-  FastAPI service. It is not an external queue or worker deployment.
-- Authentication for mutations is only enforced when
-  `AISCI_DASHBOARD_TOKEN` is configured.
 - SQLite is the current local operational store. It is not a claim of
   multi-worker production scalability.
+
+## Recent stabilization updates
+
+- Jobs and provenance are now managed by a durable worker process.
+- `artifact_manifest` and `git_commit` are now populated by the worker.
+- Project isolation, pipeline registries, and production mutation authentication are fully implemented.
 
 ## Current researcher-facing source of truth
 
